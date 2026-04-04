@@ -149,13 +149,10 @@ button.primary-btn:hover {
 .reviews-track {
   display: flex;
   gap: 2rem;
-  animation: scrollReviews 100s linear infinite;
+  animation: scrollReviews 40s linear infinite;
   padding: 2rem 0;
 }
 
-.reviews-track:hover {
-  animation-play-state: paused;
-}
 
 .review-card-modern {
   flex: 0 0 320px;
@@ -221,11 +218,10 @@ button.primary-btn:hover {
 .portfolio-track {
   display: flex;
   gap: 2.5rem;
-  animation: scrollPortfolio 60s linear infinite;
+  animation: scrollPortfolio 25s linear infinite;
   padding: 1rem 0;
 }
 
-.portfolio-track:hover { animation-play-state: paused; }
 
 .portfolio-card-modern {
   flex: 0 0 450px;
