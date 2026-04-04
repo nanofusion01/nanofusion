@@ -28,7 +28,7 @@ const openServiceModal = (data) => {
           </div>
           <div style="padding: 2.5rem; padding-top: 0;">
             <span class="service-tag" style="position: relative; z-index: 5; margin-top: -1rem; background: #FEF3C7; color: #F59E0B; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 700; display: inline-block;">${data.tag}</span>
-            <h3 style="font-size: 2.25rem; font-weight: 800; color: #0f172a; margin: 1rem 0;">${data.title}</h3>
+            <h3 class="modal-service-title">${data.title}</h3>
             <p style="color: #475569; line-height: 1.6; margin-bottom: 1.5rem;">${data.detail}</p>
             <ul style="list-style: none; padding: 0;">
               <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; margin-bottom: 0.5rem; font-weight: 600;"> <span style="color: #F59E0B;">✓</span> Certifikovaná technologie </li>
