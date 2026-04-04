@@ -18,12 +18,18 @@ body {
 }
 
 /* Glassmorphism Header Overlay */
-header,
-nav {
+header {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   background: var(--glass) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+nav {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 
 /* Modern Typography Upgrades */
