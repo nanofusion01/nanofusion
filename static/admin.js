@@ -119,20 +119,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!viewport) return;
 
     activeSection = section;
-    
+
     document.querySelectorAll('.admin-nav-item').forEach(item => {
       item.classList.toggle('active', item.dataset.target === section);
     });
 
     const leads = await DataService.fetchLeads();
 
-    switch(section) {
+    switch (section) {
       case 'overview': viewport.innerHTML = renderOverview(leads); break;
       case 'services': viewport.innerHTML = renderServices(); break;
       case 'leads': viewport.innerHTML = renderLeads(leads); break;
-      case 'portfolio': 
+      case 'portfolio':
         const projects = await DataService.fetchPortfolio();
-        viewport.innerHTML = renderPortfolio(projects); 
+        viewport.innerHTML = renderPortfolio(projects);
         attachPortfolioEvents();
         break;
       case 'settings':
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const modal = document.getElementById('lead-modal');
     const content = document.getElementById('lead-modal-content');
-    
+
     content.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid #f1f5f9;">
         <div>
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
          `).join('') : '<p style="color: #94a3b8; text-align: center; padding: 2rem;">K této poptávce není v systému uložen přepis chatu.</p>'}
       </div>
     `;
-    
+
     modal.style.display = 'flex';
     document.getElementById('l-close').onclick = () => modal.style.display = 'none';
   };
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(`Lead ${id} status updated to ${newStatus}`);
       // Refresh the view to show updated status badges
       if (typeof window.renderSection === 'function') {
-         window.renderSection(activeSection);
+        window.renderSection(activeSection);
       }
     }
   };
@@ -403,9 +403,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = document.getElementById('p-title').value;
         const service = document.getElementById('p-service').value;
         const image = document.getElementById('p-image').value || 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800';
-        
+
         if (!title) return alert('Doplňte název projektu.');
-        
+
         const projects = await DataService.fetchPortfolio();
         projects.unshift({
           id: Date.now(),
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
           date: new Date().toISOString().split('T')[0],
           status: 'Publikováno'
         });
-        
+
         await DataService.savePortfolio(projects);
         modal.style.display = 'none';
         renderSection('portfolio');
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (navItem) {
         renderSection(navItem.dataset.target);
       }
-      
+
       if (e.target.id === 'logout-btn') {
         sessionStorage.removeItem('nanofusion_admin');
         window.location.hash = '';
