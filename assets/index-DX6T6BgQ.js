@@ -16695,7 +16695,7 @@ function cN(e, t, n) {
 class uN extends Error {
   constructor(t, n, s, i, l) {
     (super(t),
-      (this.name = "Base44Error"),
+      (this.name = "NanofusionError"),
       (this.status = n),
       (this.code = s),
       (this.data = i),
@@ -16824,7 +16824,7 @@ function dN(e) {
     };
   } catch (n) {
     return (
-      console.warn("[Base44 SDK] Failed to parse realtime message:", n),
+      console.warn("[NANOfusion SDK] Failed to parse realtime message:", n),
       null
     );
   }
@@ -16894,7 +16894,7 @@ function fN(e, t, n, s) {
             try {
               l(m);
             } catch (y) {
-              console.error("[Base44 SDK] Subscription callback error:", y);
+              console.error("[NANOfusion SDK] Subscription callback error:", y);
             }
         },
       });
@@ -17012,7 +17012,7 @@ function pN(e, t, n, s) {
       ) {
         if (window.localStorage)
           try {
-            (window.localStorage.removeItem("base44_access_token"),
+            (window.localStorage.removeItem("nanofusion_access_token"),
               window.localStorage.removeItem("token"));
           } catch (u) {
             console.error("Failed to remove token from localStorage:", u);
@@ -17030,7 +17030,7 @@ function pN(e, t, n, s) {
         l && typeof window < "u" && window.localStorage)
       )
         try {
-          (window.localStorage.setItem("base44_access_token", i),
+          (window.localStorage.setItem("nanofusion_access_token", i),
             window.localStorage.setItem("token", i));
         } catch (c) {
           console.error("Failed to save token to localStorage:", c);
@@ -19825,7 +19825,7 @@ function PO() {
 function RO(e) {
   var t, n;
   const {
-      serverUrl: s = "https://base44.app",
+      serverUrl: s = "https://nanofusion.cz",
       appId: i,
       token: l,
       serviceToken: c,
@@ -20502,7 +20502,7 @@ function YO() {
                   href: "#",
                   className: "flex-shrink-0",
                   children: S.jsx("img", {
-                    src: "https://media.base44.com/images/public/user_69c3a10f4d42ba30a0083c10/d0cf99273_logoNANOfusion2021-sirokeCMYK.jpg",
+                    src: "/static/logo.jpg",
                     alt: "NANOfusion",
                     className: "h-10 md:h-12 w-auto",
                   }),
@@ -32657,7 +32657,7 @@ function I4() {
             S.jsxs("div", {
               children: [
                 S.jsx("img", {
-                  src: "https://media.base44.com/images/public/user_69c3a10f4d42ba30a0083c10/81e769ee5_logoNANOfusion2021-sirokenegativCMYK.jpg",
+                  src: "/static/logo.jpg",
                   alt: "NANOfusion",
                   className: "h-10 w-auto mb-4",
                 }),

@@ -1,31 +1,30 @@
-# NANO Flow Boost (Editable Local)
+# NANOfusion - Konverzní web a CMS
 
-This project is a local editable clone of the Base44 site, prepared to run on localhost with standard frontend tooling.
+Tento projekt je profesionální webová prezentace a administrativní systém pro společnost NANOfusion.
 
-## Run locally
+## Spuštění lokálně
 
-```bash
-npm install
-npm run dev
-```
+1. Nainstalujte závislosti:
+   ```bash
+   npm install
+   ```
 
-Open `http://localhost:5173`.
+2. Spusťte vývojový server:
+   ```bash
+   npm run dev
+   ```
 
-## Main files you will edit
+3. Otevřete prohlížeč na adrese `http://localhost:5173`.
 
-- `index.html` - document meta, root container, global includes
-- `assets/index-BNnXIrVO.css` - all styles
-- `assets/index-DX6T6BgQ.js` - app logic (formatted to be readable/editable)
+## Struktura projektu
 
-## Helpful commands
+- `index.html` - Hlavní dokument a SEO nastavení.
+- `static/admin.js` - Logika administrativního panelu (přístup přes #admin).
+- `static/calculator.js` - Logika interaktivní kalkulace ceny.
+- `static/logo.jpg` - Oficiální logo společnosti.
+- `assets/` - Kompilované styly a hlavní logika webu.
 
-```bash
-npm run format
-npm run build
-npm run preview
-```
+## Administrace (CMS)
 
-## Notes
-
-- Base44 tracking and badge embed were removed to keep this independent.
-- The app was delivered by Base44 as a bundled build, so the JavaScript is now formatted for easier edits, but it is still compiled output.
+Vstup do správy je možný přes odkaz v patičce nebo přidáním `#admin` do URL.
+Heslo: `admin123`
