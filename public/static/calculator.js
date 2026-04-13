@@ -4,12 +4,18 @@ const injectCalculator = () => {
   const contactSection = document.getElementById('kontakt');
   if (contactSection && !document.getElementById('kalkulacka')) {
     const services = [
-      { id: 'roof', name: 'Střecha', price: 190, desc: 'Čištění + nano-ochrana' },
-      { id: 'facade', name: 'Fasáda', price: 150, desc: 'Čištění + nano-ochrana' },
-      { id: 'pavement', name: 'Zámková dlažba', price: 120, desc: 'Čištění + ochrana' },
-      { id: 'pv', name: 'Fotovoltaika', price: 80, desc: 'Čištění panelů' },
+      { id: 'roof', name: 'Čištění střech', price: 190, desc: 'Čištění + nano-ochrana' },
+      { id: 'facade', name: 'Čištění fasád', price: 150, desc: 'Čištění + nano-ochrana' },
+      { id: 'pavement', name: 'Čištění dlažeb', price: 120, desc: 'Čištění + ochrana' },
+      { id: 'pv', name: 'Solární panely', price: 80, desc: 'Čištění panelů' },
       { id: 'graffiti', name: 'Odstranění graffiti', price: 250, desc: 'Čištění + prevence' },
-      { id: 'industrial', name: 'Průmyslové čištění', price: 130, desc: 'Haly a konstrukce' }
+      { id: 'industrial', name: 'Průmyslové čištění', price: 130, desc: 'Haly a konstrukce' },
+      { id: 'facade-paint', name: 'Nátěry fasád', price: 200, desc: 'Caparol barvy' },
+      { id: 'roof-paint', name: 'Nátěry střech', price: 180, desc: 'Dvousložkové barvy' },
+      { id: 'impregnation', name: 'Nano impregnace', price: 70, desc: 'Ochrana povrchů' },
+      { id: 'antislip', name: 'Protiskluz', price: 120, desc: 'Bezpečnost povrchů' },
+      { id: 'ceramfloor', name: 'IG CeramFloor', price: 250, desc: 'Ochrana podlah' },
+      { id: 'antibac', name: 'Antibakteriální', price: 80, desc: 'Ochrana 120 dní' }
     ];
 
     const objectTypes = [
@@ -33,11 +39,11 @@ const injectCalculator = () => {
           <!-- Step 1: Selection -->
           <div id="step-1">
             <p class="calc-label" style="text-align: center; margin-bottom: 1.5rem;">1. Co budeme čistit?</p>
-            <div class="calc-service-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem;">
+            <div class="calc-service-grid" style="display: grid; gap: 0.75rem; margin-bottom: 2rem;">
               ${services.map(s => `
-                <div class="calc-service-card" data-price="${s.price}" data-id="${s.id}" style="padding: 1.5rem; border: 2px solid #e2e8f0; border-radius: 1.25rem; text-align: center; cursor: pointer; transition: all 0.2s;">
-                  <div style="font-weight: 700; font-size: 1.125rem; color: #1e293b;">${s.name}</div>
-                  <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">${s.desc}</div>
+                <div class="calc-service-card" data-price="${s.price}" data-id="${s.id}" style="padding: 1rem; border: 2px solid #e2e8f0; border-radius: 1rem; text-align: center; cursor: pointer; transition: all 0.2s;">
+                  <div style="font-weight: 700; font-size: 0.875rem; color: #1e293b;">${s.name}</div>
+                  <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">${s.desc}</div>
                 </div>
               `).join('')}
             </div>

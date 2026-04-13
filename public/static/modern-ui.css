@@ -203,13 +203,23 @@ button.primary-btn:hover {
 }
 
 @keyframes scrollReviews {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes scrollPortfolio {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .portfolio-container {
@@ -238,10 +248,25 @@ button.primary-btn:hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.portfolio-img-wrap { height: 300px; overflow: hidden; }
-.portfolio-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-.portfolio-card-modern:hover .portfolio-img-wrap img { transform: scale(1.1); }
-.portfolio-content { padding: 1.5rem 2rem; }
+.portfolio-img-wrap {
+  height: 300px;
+  overflow: hidden;
+}
+
+.portfolio-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.portfolio-card-modern:hover .portfolio-img-wrap img {
+  transform: scale(1.1);
+}
+
+.portfolio-content {
+  padding: 1.5rem 2rem;
+}
 
 .portfolio-tag {
   display: inline-block;
@@ -255,7 +280,11 @@ button.primary-btn:hover {
   margin-bottom: 0.75rem;
 }
 
-.portfolio-h3 { font-size: 1.25rem; font-weight: 700; color: #1e293b; }
+.portfolio-h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
 
 
 /* Animations */
@@ -280,9 +309,12 @@ button.primary-btn:hover {
   background: white;
   max-width: 900px;
   width: 100%;
-  max-height: 90vh; /* Omezení výšky na mobilu */
-  overflow-y: auto; /* Skrolování uvnitř karty */
-  border-radius: 1.5rem; /* Mírně menší rádius pro mobil */
+  max-height: 90vh;
+  /* Omezení výšky na mobilu */
+  overflow-y: auto;
+  /* Skrolování uvnitř karty */
+  border-radius: 1.5rem;
+  /* Mírně menší rádius pro mobil */
   box-shadow: 0 50px 100px -20px rgba(15, 23, 42, 0.3);
   position: relative;
   animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -328,7 +360,8 @@ button.primary-btn:hover {
 
 .modal-calc-pane {
   background: #f8fafc;
-  padding: 1.5rem; /* Zmenšeno z 2.5rem pro mobil */
+  padding: 1.5rem;
+  /* Zmenšeno z 2.5rem pro mobil */
   border-top: 1px solid #e2e8f0;
 }
 
@@ -368,7 +401,8 @@ button.primary-btn:hover {
 }
 
 .service-image-header {
-  height: 180px; /* Zmenšeno z 250px pro mobil */
+  height: 180px;
+  /* Zmenšeno z 250px pro mobil */
   background-size: cover;
   background-position: center;
   position: relative;
@@ -417,5 +451,339 @@ button.primary-btn:hover {
 @media (min-width: 768px) {
   .modal-service-title {
     font-size: 2.25rem;
+  }
+}
+
+/* Base calc-service-grid: 3 columns desktop, 2 on mobile */
+.calc-service-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ============================================
+   COMPREHENSIVE MOBILE RESPONSIVENESS
+   ============================================ */
+
+/* --- Modal: Full-screen on mobile --- */
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    max-height: 95vh;
+    border-radius: 1.25rem 1.25rem 0 0;
+    margin-top: 0;
+    animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalSlideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .close-modal-btn {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .service-image-header {
+    height: 140px;
+  }
+
+  .modal-calc-pane {
+    padding: 1.25rem;
+  }
+
+  .modal-calc-pane h4 {
+    font-size: 1rem !important;
+  }
+
+  .modal-calc-pane input {
+    font-size: 1rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .modal-service-title {
+    font-size: 1.5rem;
+    margin: 0.75rem 0;
+  }
+}
+
+/* --- Before/After section mobile --- */
+@media (max-width: 480px) {
+  .before-after-section {
+    margin-top: 1rem !important;
+    padding-top: 1rem !important;
+  }
+
+  .before-after-section>div {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  .before-after-section img {
+    height: 100px !important;
+  }
+}
+
+/* --- FAQ accordion mobile --- */
+@media (max-width: 480px) {
+  .service-faq-section {
+    margin-top: 1rem !important;
+    padding-top: 1rem !important;
+  }
+
+  .faq-toggle {
+    padding: 0.75rem !important;
+    font-size: 0.813rem !important;
+  }
+
+  .faq-answer {
+    padding: 0.625rem 0.75rem !important;
+    font-size: 0.813rem !important;
+  }
+}
+
+/* --- Portfolio cards mobile --- */
+@media (max-width: 768px) {
+  .portfolio-card-modern {
+    flex: 0 0 280px;
+    border-radius: 1.25rem;
+  }
+
+  .portfolio-img-wrap {
+    height: 200px;
+  }
+
+  .portfolio-content {
+    padding: 1rem 1.25rem;
+  }
+
+  .portfolio-h3 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .portfolio-card-modern {
+    flex: 0 0 260px;
+  }
+
+  .portfolio-img-wrap {
+    height: 180px;
+  }
+
+  .portfolio-track {
+    gap: 1.25rem;
+  }
+}
+
+/* --- Review cards mobile --- */
+@media (max-width: 480px) {
+  .review-card-modern {
+    flex: 0 0 260px;
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .review-text {
+    font-size: 0.875rem;
+  }
+
+  .reviews-track {
+    gap: 1rem;
+  }
+
+  #reference {
+    padding: 3rem 0;
+  }
+}
+
+/* --- Calculator wizard mobile --- */
+@media (max-width: 768px) {
+  .calc-section {
+    padding: 2rem 0.75rem !important;
+    border-radius: 1rem !important;
+    margin: 1rem 0.5rem !important;
+  }
+
+  .calc-title {
+    font-size: 1.25rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  /* Grid: 2 columns on small mobile for 12 services */
+  .calc-service-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .calc-service-card {
+    padding: 0.625rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .calc-service-card div:first-child {
+    font-size: 0.75rem !important;
+  }
+
+  .calc-service-card div:last-child {
+    font-size: 0.625rem !important;
+  }
+
+  .calc-obj-card {
+    padding: 0.625rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .calc-obj-card div {
+    font-size: 0.75rem !important;
+  }
+
+  .calc-cta {
+    padding: 1rem !important;
+    font-size: 0.938rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .calc-result-box {
+    padding: 2rem 1rem !important;
+    border-radius: 1.25rem !important;
+  }
+
+  .calc-result-value {
+    font-size: 1.75rem !important;
+  }
+}
+
+/* --- AI Chat improvements for mobile --- */
+@media (max-width: 480px) {
+  .ai-chat-launcher {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 52px;
+    height: 52px;
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+  }
+
+  .ai-chat-launcher svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .ai-chat-window {
+    width: calc(100% - 1rem) !important;
+    right: 0.5rem !important;
+    bottom: 4.5rem !important;
+    height: calc(100vh - 6rem) !important;
+    max-height: 550px;
+    border-radius: 1.25rem;
+  }
+
+  .chat-header {
+    padding: 1rem;
+  }
+
+  .chat-messages {
+    padding: 1rem;
+  }
+
+  .chat-footer {
+    padding: 0.75rem;
+  }
+
+  .chat-input {
+    padding: 0.625rem 1rem;
+    font-size: 1rem;
+  }
+
+  .quick-reply-btn {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.813rem;
+  }
+}
+
+/* --- General mobile spacing and typography --- */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  /* Fix stats section horizontal overflow */
+  .flex.justify-around,
+  .flex.justify-between {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* Prevent any horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+
+  section {
+    overflow-x: hidden;
+  }
+}
+
+/* --- Fix content padding inside modal pane on mobile --- */
+@media (max-width: 480px) {
+  .modal-info-pane>div:not(.service-image-header) {
+    padding: 1.25rem !important;
+    padding-top: 0 !important;
+  }
+}
+
+/* --- Smooth scrolling within modal on iOS --- */
+.modal-content {
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-info-pane {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- Touch-friendly improvements --- */
+@media (hover: none) and (pointer: coarse) {
+
+  .calc-service-card,
+  .calc-obj-card {
+    min-height: 44px;
+  }
+
+  .faq-toggle {
+    min-height: 48px;
+  }
+
+  .quick-reply-btn {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Remove hover effects on touch devices */
+  .calc-section:hover {
+    transform: none;
+  }
+
+  .close-modal-btn:hover {
+    transform: none;
   }
 }

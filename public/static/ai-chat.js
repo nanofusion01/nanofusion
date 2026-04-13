@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else userData.service = 'default';
 
                 chatState = 'ASK_LOCATION';
-                botSay('Skvělá volba! A kde se váš dům nachází? Abych věděl, kterého z našich techniků k vám pošleme na prohlídku. 📍');
+                botSay('Skvělá volba! A kde se váš objekt nachází? 📍');
                 break;
 
             case 'ASK_LOCATION':
