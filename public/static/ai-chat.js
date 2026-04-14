@@ -200,7 +200,40 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => processLogic(input, input.toLowerCase()), 600);
     };
 
+    // --- Nanobot Knowledge Base ---
+    const knowledgeBase = {
+        okapy: {
+            keywords: ['okap', 'rýny', 'odtok'],
+            answer: 'Ano, čištění a kontrola okapů je standardní součástí naší renovace střech. Chceme, aby váš dům po našem zásahu fungoval jako celek. Máte okapy hodně zanesené?'
+        },
+        zaruka: {
+            keywords: ['záruk', 'garanc', 'jak dlouho vydrží'],
+            answer: 'U naší nano-ochrany dáváme garanci až 10 let na funkčnost povrchu. Technologie NANOfusion zabraňuje hloubkovému usazování nečistot a růstu mechů.'
+        },
+        rychlost: {
+            keywords: ['jak dlouho to trvá', 'termín', 'kdy začnete'],
+            answer: 'Většinu rodinných domů stihneme kompletně vyčistit a ošetřit během 1 až 2 dnů. Aktuálně máme volné termíny v horizontu 14 dnů.'
+        },
+        cena: {
+            keywords: ['cena', 'kolik to stojí', 'rozpočet', 'peněz'],
+            answer: 'Cena je individuální a závisí na ploše a stavu povrchu. Abych vám mohl říct aspoň orientační rozmezí, potřeboval bych znát přibližnou plochu v m².'
+        }
+    };
+
     const processLogic = (original, text) => {
+        // First, check for general questions (FAQ)
+        for (let key in knowledgeBase) {
+            const entry = knowledgeBase[key];
+            if (entry.keywords.some(k => text.includes(k))) {
+                botSay(entry.answer);
+                // After answering, we wait a bit and ask the current state question if not finished
+                if (chatState !== 'FINISHED') {
+                    setTimeout(() => botSay(`Vraťme se ale k vaší poptávce. **${getStateQuestion()}**`), 2500);
+                }
+                return;
+            }
+        }
+
         switch (chatState) {
             case 'ASK_SERVICE':
                 userData.service = original;
@@ -231,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     '🔗 Ostatní Služby'
                 ]);
                 
-                // Save lead
                 const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
                 leads.unshift({ id: Date.now(), name: 'Zákazník z Chatu', phone: original, service: userData.service, area: userData.area, location: userData.location });
                 localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
@@ -243,6 +275,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             default:
                 botSay('Rozumím. S čím dalším vám mohu pomoci?');
+        }
+    };
+
+    const getStateQuestion = () => {
+        switch (chatState) {
+            case 'ASK_SERVICE': return 'Jakou službu bychom pro vás měli zajistit?';
+            case 'ASK_LOCATION': return 'V jaké lokalitě se váš objekt nachází?';
+            case 'ASK_AREA': return 'O jak velkou plochu (m²) se přibližně jedná?';
+            case 'ASK_CONTACT': return 'Na jaké číslo vám můžeme zavolat s nabídkou?';
+            default: return 'Zajímají vás další detaily?';
         }
     };
 
