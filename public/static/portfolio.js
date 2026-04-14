@@ -95,13 +95,13 @@ const injectPortfolio = async () => {
                             </div>
                             
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-                                <div style="position: relative; border-radius: 1rem; overflow: hidden; height: 300px;">
+                                <div style="position: relative; border-radius: 1rem; overflow: hidden; height: 240px; md:height: 300px;">
                                     <img src="${p.beforeImg}" alt="Před" style="width: 100%; height: 100%; object-fit: cover;">
-                                    <div style="position: absolute; bottom: 1rem; left: 1rem; background: #ef4444; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 800; font-size: 0.75rem;">PŘED RENOVACÍ</div>
+                                    <div style="position: absolute; bottom: 1rem; left: 1rem; background: #ef4444; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 800; font-size: 0.7rem;">PŘED RENOVACÍ</div>
                                 </div>
-                                <div style="position: relative; border-radius: 1rem; overflow: hidden; height: 300px;">
+                                <div style="position: relative; border-radius: 1rem; overflow: hidden; height: 240px; md:height: 300px;">
                                     <img src="${p.afterImg}" alt="Po" style="width: 100%; height: 100%; object-fit: cover;">
-                                    <div style="position: absolute; bottom: 1rem; left: 1rem; background: #22c55e; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 800; font-size: 0.75rem;">VÝSLEDEK NANO-OCHRANY</div>
+                                    <div style="position: absolute; bottom: 1rem; left: 1rem; background: #22c55e; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 800; font-size: 0.7rem;">VÝSLEDEK NANO-OCHRANY</div>
                                 </div>
                             </div>
                         </div>

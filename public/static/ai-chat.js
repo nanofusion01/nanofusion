@@ -41,13 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const getGreeting = () => {
-        switch(currentContext) {
-            case 'SLUZBY': return 'Zaujaly vás naše nano-technologie? Kterou část domu potřebujete ošetřit?';
-            case 'REALIZACE': return 'Líbí se vám naše výsledky? Chcete propočítat cenu pro podobný projekt?';
-            case 'REFERENCE': return 'Naši klienti jsou nadšení. Chcete vědět, co přesně jsme pro ně dělali?';
-            case 'PROCES': return 'Vypadá to složitě? Nebojte, postaráme se o vše. S čím vám mohu pomoci?';
-            default: return 'Hezký den! Jsem váš Nano-asistent. S čím vám dnes mohu pomoci?';
-        }
+        const hour = new Date().getHours();
+        const isMobile = window.innerWidth < 768;
+        const welcome = isMobile ? 'Zdravím! Jsem váš Nano-asistent. 📱' : 'Dobrý den! Jsem váš Nano-asistent pro ochranu povrchů.';
+        
+        if (hour < 12) return welcome + ' Jak vám mohu dnes ráno pomoci?';
+        if (hour < 18) return welcome + ' S čím vám mohu dnes pomoci?';
+        return welcome + ' Přejete si probrat ochranu vašeho objektu?';
     };
 
     // Create the UI HTML
