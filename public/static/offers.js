@@ -279,19 +279,19 @@ const openServiceModal = (data) => {
             ${faqHtml}
           </div>
         </div>
-        <div class="modal-calc-pane" style="background: #f8fafc; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 3rem;">
-          <div style="background: white; padding: 2.5rem; border-radius: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%;">
-            <div style="width: 64px; height: 64px; background: #F59E0B; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);">
-               <svg fill="none" stroke="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 32px; height: 32px;">
+        <div class="modal-calc-pane" style="background: #f8fafc; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2rem;">
+          <div style="background: white; padding: 1.5rem; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%; max-width: 360px;">
+            <div style="width: 48px; height: 48px; background: #F59E0B; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);">
+               <svg fill="none" stroke="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;">
                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                </svg>
             </div>
-            <h4 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-bottom: 1rem;">Zjistit cenu a termín</h4>
-            <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">Náš Nano-asistent vám na základě vašich odpovědí ihned propočítá orientační cenu.</p>
-            <button onclick="document.getElementById('service-modal-overlay').style.display='none'; document.getElementById('ai-chat-launcher').click();" class="calc-cta" style="width: 100%; padding: 1.25rem; border-radius: 1rem; border: none; font-weight: 800; cursor: pointer; background: #F59E0B; color: white; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-               Mluvit s asistentem <span style="font-size: 1.25rem;">→</span>
+            <h4 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 0.5rem;">Cena a termín</h4>
+            <p style="color: #64748b; margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.875rem;">Náš Nano-asistent vám ihned propočítá orientační cenu pro váš objekt.</p>
+            <button onclick="document.getElementById('service-modal-overlay').style.display='none'; setTimeout(() => document.getElementById('ai-chat-launcher').click(), 300);" class="calc-cta" style="width: 100%; padding: 1rem; border-radius: 0.75rem; border: none; font-weight: 800; cursor: pointer; background: #F59E0B; color: white; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem;">
+               Mluvit s asistentem <span style="font-size: 1.125rem;">→</span>
             </button>
-            <p style="margin-top: 1.5rem; font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Odpovídá okamžitě 24/7</p>
+            <p style="margin-top: 1rem; font-size: 0.688rem; color: #94a3b8; font-weight: 600;">Odpovídá okamžitě 24/7</p>
           </div>
         </div>
       </div>
