@@ -15,24 +15,6 @@ body {
   font-family: 'Outfit', sans-serif;
   color: var(--text-main);
   scroll-behavior: smooth;
-  opacity: 0;
-  animation: fadeInGlobal 0.8s ease-out 0.2s forwards;
-}
-
-@keyframes fadeInGlobal {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.section-reveal {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.section-reveal.active {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Glassmorphism Header Overlay */
@@ -159,7 +141,7 @@ button.primary-btn:hover {
 /* Reviews Carousel "In Motion" */
 #reference {
   overflow: hidden;
-  padding: 0 0 4rem 0;
+  padding: 6rem 0;
 }
 
 .reviews-container {
@@ -454,123 +436,6 @@ button.primary-btn:hover {
   }
 }
 
-/* Carousel - Natural Control & Manual Scroll (Snap) */
-.reviews-container, .portfolio-container {
-  overflow-x: auto !important;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  cursor: grab;
-  padding: 1.5rem 0 0 0;
-  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-}
-
-.carousel-arrow {
-  position: absolute;
-  top: 45%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  background: white;
-  border-radius: 50%;
-  border: 1px solid #e2e8f0;
-  color: #f59e0b;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 50;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transition: all 0.3s ease;
-  opacity: 0.8;
-}
-
-.carousel-arrow:hover {
-  background: #f59e0b;
-  color: white;
-  opacity: 1;
-  transform: translateY(-50%) scale(1.1);
-}
-
-.left-arrow { left: 0.5rem; }
-.right-arrow { right: 0.5rem; }
-
-@media (max-width: 768px) {
-  .carousel-arrow {
-    display: none !important;
-  }
-}
-
-.reviews-container:active, .portfolio-container:active {
-  cursor: grabbing;
-}
-
-.reviews-container::-webkit-scrollbar, .portfolio-container::-webkit-scrollbar {
-  display: none;
-}
-
-.reviews-track, .portfolio-track {
-  animation: none !important;
-  display: flex !important;
-  width: max-content !important;
-}
-
-.review-card-modern, .portfolio-card-modern {
-  scroll-snap-align: center;
-  flex-shrink: 0;
-}
-
-/* Smaller, Elegant Portfolio Button */
-#realizace button, #reference button, .portfolio-section button, a[href*="poptavka"] {
-  background-color: #F59E0B !important;
-  color: white !important;
-  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2) !important;
-  font-weight: 800 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.03em !important;
-  border: none !important;
-  padding: 0.75rem 1.75rem !important;
-  font-size: 0.813rem !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  border-radius: 1rem !important;
-  margin-top: 0 !important;
-}
-
-/* Mobile Modal Fix - Inquiry Form Visibility */
-@media (max-width: 768px) {
-  .modal-content {
-    max-height: 95vh !important;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .modal-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    overflow-y: auto !important;
-    flex: 1;
-  }
-
-  .modal-info-pane {
-    max-height: none !important;
-    overflow: visible !important;
-  }
-
-  .modal-calc-pane {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
-    background: #fff !important;
-    border-top: 2px solid #F59E0B !important;
-  }
-}
-
 .animate-fade-in {
   animation: fadeInUp 0.6s ease-out forwards;
 }
@@ -613,15 +478,8 @@ button.primary-btn:hover {
   }
 
   @keyframes modalSlideUp {
-    from {
-      transform: translateY(100%);
-      opacity: 0;
-    }
-
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
 
   .close-modal-btn {
@@ -664,7 +522,7 @@ button.primary-btn:hover {
     padding-top: 1rem !important;
   }
 
-  .before-after-section>div {
+  .before-after-section > div {
     grid-template-columns: 1fr 1fr !important;
     gap: 0.5rem !important;
   }
@@ -880,7 +738,7 @@ button.primary-btn:hover {
 
 /* --- Fix content padding inside modal pane on mobile --- */
 @media (max-width: 480px) {
-  .modal-info-pane>div:not(.service-image-header) {
+  .modal-info-pane > div:not(.service-image-header) {
     padding: 1.25rem !important;
     padding-top: 0 !important;
   }
@@ -897,17 +755,11 @@ button.primary-btn:hover {
 
 /* --- Touch-friendly improvements --- */
 @media (hover: none) and (pointer: coarse) {
-
   .calc-service-card,
   .calc-obj-card {
     min-height: 44px;
   }
-/* Force AI Chat Visibility */
-#ai-chat-launcher {
-  z-index: 100000 !important; /* Vyšší než preloader po zmizení */
-  opacity: 1 !important;
-  visibility: visible !important;
-}
+
   .faq-toggle {
     min-height: 48px;
   }

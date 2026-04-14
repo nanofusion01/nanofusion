@@ -87,8 +87,6 @@ const servicesData = [
     id: 'facade-paint', title: 'Nátěry fasád', tag: 'Nový vzhled',
     detail: 'Ve spolupráci s firmou Caparol nabízíme nátěry fasád té nejvyšší kvality. Zdravá a čistá fasáda se zárukou až 12 let.',
     image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
-    afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Profesionální nátěry fasád prémiovou barvou Caparol. Čistá fasáda bez plísní, řas a ztráty pigmentu.',
     isBulletStyle: true,
     bulletPoints: [
@@ -104,8 +102,6 @@ const servicesData = [
     id: 'roof-paint', title: 'Nátěry střech', tag: 'Dlouhá životnost',
     detail: 'Nátěry všech druhů střech pomocí vysoce kvalitních dvousložkových barev se samočistícím efektem. Životnost 20 let!',
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=600',
-    afterImg: 'https://images.unsplash.com/photo-1628033034914-74977460af25?w=600',
     involves: 'Dvousložkové barvy se samočisticím efektem, životnost uváděná výrobcem až 20 let.',
     isBulletStyle: true,
     bulletPoints: [
@@ -121,8 +117,6 @@ const servicesData = [
     id: 'impregnation', title: 'Nano impregnace', tag: 'Ochrana povrchů',
     detail: 'Inovativní technologie chrání a prodlužují životnost ošetřených materiálů.',
     image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64926?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-    afterImg: 'https://images.unsplash.com/photo-1520004434532-668416a08753?w=600',
     involves: 'Aplikace hydrofobní nano impregnace na různé povrchy pro dlouhodobou ochranu proti vlhkosti a nečistotám.',
     isBulletStyle: true,
     bulletPoints: [
@@ -138,8 +132,6 @@ const servicesData = [
     id: 'antislip', title: 'Protiskluzová úprava', tag: 'Bezpečnost',
     detail: 'Protiskluzová úprava pro mokré povrchy. Funguje na keramice, žule, mramoru, terasu, linoleu a PVC.',
     image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1596431940026-c75086d7734a?w=600',
-    afterImg: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600',
     involves: 'Aplikace protiskluzové úpravy na mokré povrchy – bazény, chodby, koupelny, obchodní centra.',
     isBulletStyle: true,
     bulletPoints: [
@@ -155,15 +147,13 @@ const servicesData = [
     id: 'ceramfloor', title: 'IG CeramFloor', tag: 'Průmyslová ochrana',
     detail: 'Vysoce účinná polymerní ochrana podlah s protiskluzovým efektem. Odolnost i v extrémních průmyslových podmínkách.',
     image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64926?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
-    afterImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
     involves: 'Polymerní ochrana průmyslových podlah s protiskluzovým efektem. Lepší než epoxid či polyuretany.',
     isBulletStyle: true,
     bulletPoints: [
       'Lepší než epoxid a polyuretany',
       'Plně zatížitelná po 24 hodinách',
       'Odolnost proti chemickým látkám',
-      'Výrovní závody a logistická centra',
+      'Výrobní závody a logistická centra',
       'Potravinářské provozy a zemědělství',
       'Vyrobeno v ČR'
     ],
@@ -173,8 +163,6 @@ const servicesData = [
     id: 'antibac', title: 'Antibakteriální ochrana', tag: 'Hygiena',
     detail: 'Antibakteriální a antivirová ochrana povrchů s účinností až 120 dní.',
     image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1584622781564-1d9876a3e601?w=600',
-    afterImg: 'https://images.unsplash.com/photo-1581092916357-5896ebc48073?w=600',
     involves: 'Aplikace IMPAGUARD GCA – antibakteriální a antivirová ochrana povrchů s účinností až 120 dní.',
     isBulletStyle: true,
     bulletPoints: [
@@ -279,19 +267,25 @@ const openServiceModal = (data) => {
             ${faqHtml}
           </div>
         </div>
-        <div class="modal-calc-pane" style="background: #f8fafc; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 3rem;">
-          <div style="background: white; padding: 2.5rem; border-radius: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%;">
-            <div style="width: 64px; height: 64px; background: #F59E0B; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);">
-               <svg fill="none" stroke="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 32px; height: 32px;">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-               </svg>
+        <div class="modal-calc-pane">
+          <h4 style="font-size: 1.125rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; text-transform: uppercase;">Kalkulátor ceny</h4>
+          <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 2rem;">Získejte okamžitý odhad ceny.</p>
+          <div id="m-form">
+            <div style="margin-bottom: 1.5rem;">
+              <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.5rem;">PLOCHA (m²)</label>
+              <div style="position: relative;">
+                <input id="m-area" type="number" value="100" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 1rem; font-size: 1.25rem; font-weight: 700;">
+                <span style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-weight: 700; color: #94a3b8;">m²</span>
+              </div>
             </div>
-            <h4 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-bottom: 1rem;">Zjistit cenu a termín</h4>
-            <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">Náš Nano-asistent vám na základě vašich odpovědí ihned propočítá orientační cenu.</p>
-            <button onclick="document.getElementById('service-modal-overlay').style.display='none'; document.getElementById('ai-chat-launcher').click();" class="calc-cta" style="width: 100%; padding: 1.25rem; border-radius: 1rem; border: none; font-weight: 800; cursor: pointer; background: #F59E0B; color: white; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-               Mluvit s asistentem <span style="font-size: 1.25rem;">→</span>
-            </button>
-            <p style="margin-top: 1.5rem; font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Odpovídá okamžitě 24/7</p>
+            <input id="m-name" type="text" placeholder="Vaše jméno" style="width: 100%; padding: 0.875rem; border: 2px solid #e2e8f0; border-radius: 1rem; margin-bottom: 0.75rem;">
+            <input id="m-phone" type="tel" placeholder="Telefon" style="width: 100%; padding: 0.875rem; border: 2px solid #e2e8f0; border-radius: 1rem; margin-bottom: 1.5rem;">
+            <button id="m-reveal" class="calc-cta" style="width: 100%; padding: 1.25rem; border-radius: 1rem; border: none; font-weight: 800; cursor: pointer; background: #F59E0B; color: white;">ZOBRAZIT CENU</button>
+          </div>
+          <div id="m-result" style="display: none; text-align: center; padding-top: 2rem;">
+            <span style="font-size: 0.875rem; color: #64748b;">Orientační cena:</span>
+            <div id="m-price" style="font-size: 2.5rem; font-weight: 900; color: #F59E0B; margin: 1rem 0;">0 Kč</div>
+            <div style="padding: 1rem; background: #FEF3C7; border-radius: 1rem; color: #92400E; font-size: 0.813rem; font-weight: 600;">✓ Poptávka odeslána. Zavoláme vám.</div>
           </div>
         </div>
       </div>
@@ -348,67 +342,33 @@ const openServiceModal = (data) => {
   };
 };
 
-// Injection logic for supplemental services
-document.addEventListener('DOMContentLoaded', () => {
-  const injectSupplementalServices = () => {
-    const serviceGrid = document.querySelector('#sluzby .grid');
-    if (!serviceGrid) return;
-
-    // We only want to inject services that are NOT already in the main React grid
-    // Based on inspection, we add the ones from id 61 ('graffiti') and onwards
-    const supplemental = servicesData.slice(4); // Industrial, Graffiti, Paints, etc.
-
-    supplemental.forEach(service => {
-      // Check if already exists by checking text content (simple heuristic)
-      if (serviceGrid.innerText.includes(service.title)) return;
-
-      const card = document.createElement('div');
-      card.className = 'group relative bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 cursor-pointer animate-fade-in';
-      card.innerHTML = `
-        <div class="aspect-[16/9] overflow-hidden">
-          <img src="${service.image}" alt="${service.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-        </div>
-        <div class="p-6">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-wider">${service.tag}</span>
-          </div>
-          <h3 class="text-xl font-bold mb-2">${service.title}</h3>
-          <p class="text-muted-foreground text-sm line-clamp-2">${service.detail}</p>
-          <div class="mt-4 flex items-center text-primary font-bold text-sm">
-            Zjistit více <span class="ml-2 transition-transform group-hover:translate-x-1">→</span>
-          </div>
-        </div>
-      `;
-      card.onclick = () => openServiceModal(service);
-      serviceGrid.appendChild(card);
-    });
-  };
-
-  // Run with delay to ensure React has finished rendering the initial grid
-  setTimeout(injectSupplementalServices, 1500);
-});
-
-// Interceptor with improved matching
+// Interceptor with improved matching - uses heading text for accurate detection
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.group.relative.bg-card, .bg-white, .bg-card, [class*="rounded"]');
   const serviceSection = document.getElementById('sluzby');
 
   if (card && serviceSection?.contains(card)) {
-    // If it's a dynamic card we just added, it already has an onclick, but we can verify here too
-    if (e.defaultPrevented) return;
+    e.preventDefault();
+    e.stopPropagation();
 
+    // Use heading text (h3/h4) for accurate matching, not the full card text with descriptions
     const heading = card.querySelector('h3, h4, [class*="font-bold"], [class*="font-semibold"]');
     const headingText = (heading ? heading.innerText : card.innerText).toLowerCase().trim();
+    let detectedData = servicesData[0]; // Default to facade
 
-    const detectedData = servicesData.find(s => {
-      const titleLower = s.title.toLowerCase();
-      return headingText.includes(titleLower) || titleLower.includes(headingText);
-    });
+    if (headingText.includes('nátěr') && headingText.includes('střech')) detectedData = servicesData.find(s => s.id === 'roof-paint');
+    else if (headingText.includes('nátěr') && headingText.includes('fasád')) detectedData = servicesData.find(s => s.id === 'facade-paint');
+    else if (headingText.includes('střech')) detectedData = servicesData.find(s => s.id === 'roof');
+    else if (headingText.includes('dlažeb') || headingText.includes('dlažby') || headingText.includes('dlažb')) detectedData = servicesData.find(s => s.id === 'pavement');
+    else if (headingText.includes('solární') || headingText.includes('panely') || headingText.includes('panelů') || headingText.includes('fve')) detectedData = servicesData.find(s => s.id === 'pv');
+    else if (headingText.includes('graffiti')) detectedData = servicesData.find(s => s.id === 'graffiti');
+    else if (headingText.includes('průmysl')) detectedData = servicesData.find(s => s.id === 'industrial');
+    else if (headingText.includes('impregnac') || headingText.includes('nano')) detectedData = servicesData.find(s => s.id === 'impregnation');
+    else if (headingText.includes('protiskluz')) detectedData = servicesData.find(s => s.id === 'antislip');
+    else if (headingText.includes('ceramfloor') || headingText.includes('ceram')) detectedData = servicesData.find(s => s.id === 'ceramfloor');
+    else if (headingText.includes('antibakter') || headingText.includes('impaguard') || headingText.includes('antivirov')) detectedData = servicesData.find(s => s.id === 'antibac');
+    else if (headingText.includes('fasád')) detectedData = servicesData.find(s => s.id === 'facade');
 
-    if (detectedData) {
-      e.preventDefault();
-      e.stopPropagation();
-      openServiceModal(detectedData);
-    }
+    if (detectedData) openServiceModal(detectedData);
   }
 }, true);

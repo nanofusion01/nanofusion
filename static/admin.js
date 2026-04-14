@@ -35,8 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async saveServices(services) {
       localStorage.setItem('nanofusion_services', JSON.stringify(services));
       return true;
-    },
-    async fetchSettings() {
+    },    async fetchSettings() {
       return JSON.parse(localStorage.getItem('nanofusion_settings') || JSON.stringify({
         notification_email: 'info@nanofusion.cz',
         lead_alerts: true,
@@ -104,11 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <img src="${LOGO_URL}" alt="NANOfusion" style="height: 50px;">
         </div>
         <ul class="admin-nav-list">
-          <li class="admin-nav-item \${activeSection === 'overview' ? 'active' : ''}" data-target="overview">Přehled</li>
-          <li class="admin-nav-item \${activeSection === 'services' ? 'active' : ''}" data-target="services">Služby a Ceník</li>
-          <li class="admin-nav-item \${activeSection === 'leads' ? 'active' : ''}" data-target="leads">Poptávky</li>
-          <li class="admin-nav-item \${activeSection === 'portfolio' ? 'active' : ''}" data-target="portfolio">Realizace</li>
-          <li class="admin-nav-item \${activeSection === 'settings' ? 'active' : ''}" data-target="settings">Nastavení</li>
+          <li class="admin-nav-item ${activeSection === 'overview' ? 'active' : ''}" data-target="overview">Přehled</li>
+          <li class="admin-nav-item ${activeSection === 'services' ? 'active' : ''}" data-target="services">Služby a Ceník</li>
+          <li class="admin-nav-item ${activeSection === 'leads' ? 'active' : ''}" data-target="leads">Poptávky</li>
+          <li class="admin-nav-item ${activeSection === 'portfolio' ? 'active' : ''}" data-target="portfolio">Realizace</li>
+          <li class="admin-nav-item ${activeSection === 'settings' ? 'active' : ''}" data-target="settings">Nastavení</li>
         </ul>
         <div class="admin-user-info">
           <div style="font-weight: 600; margin-bottom: 0.25rem;">admin@nanofusion.cz</div>
@@ -149,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attachSettingsEvents();
         break;
       default:
-        viewport.innerHTML = `<div class="admin-card"><h2>Sekce \${section} je ve vývoji</h2></div>`;
+        viewport.innerHTML = `<div class="admin-card"><h2>Sekce ${section} je ve vývoji</h2></div>`;
     }
   };
 
@@ -160,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <div class="admin-stats-grid">
       <div class="stat-card"><div class="stat-label">Aktivní služby</div><div class="stat-value">6</div></div>
-      <div class="stat-card"><div class="stat-label">Celkem poptávek</div><div class="stat-value">\${leads.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Celkem poptávek</div><div class="stat-value">${leads.length}</div></div>
       <div class="stat-card"><div class="stat-label">Hotové projekty</div><div class="stat-value">950+</div></div>
       <div class="stat-card"><div class="stat-label">Nepřečtené</div><div class="stat-value">0</div></div>
     </div>
@@ -172,14 +171,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <tr><th>Datum</th><th>Jméno</th><th>Stav</th><th>Detail</th></tr>
           </thead>
           <tbody>
-            \${leads.filter(l => l.source.includes('AI')).slice(0, 5).map(l => \`
+            ${leads.filter(l => l.source.includes('AI')).slice(0, 5).map(l => `
               <tr>
-                <td>\${l.date.split(' ')[0]}</td>
-                <td>\${l.name}</td>
-                <td><span class="admin-badge" style="background: \${l.status === 'Zakázka' ? '#dcfce7' : '#fef3c7'}; color: \${l.status === 'Zakázka' ? '#166534' : '#92400e'}">\${l.status || 'Nová'}</span></td>
-                <td><button onclick="showLeadDetail(\${l.id})" style="background: none; border: none; cursor: pointer;">👁️</button></td>
+                <td>${l.date.split(' ')[0]}</td>
+                <td>${l.name}</td>
+                <td><span class="admin-badge" style="background: ${l.status === 'Zakázka' ? '#dcfce7' : '#fef3c7'}; color: ${l.status === 'Zakázka' ? '#166534' : '#92400e'}">${l.status || 'Nová'}</span></td>
+                <td><button onclick="showLeadDetail(${l.id})" style="background: none; border: none; cursor: pointer;">👁️</button></td>
               </tr>
-            \`).join('') || '<tr><td colspan="4" style="text-align: center; padding: 2rem;">Zatím žádné poptávky</td></tr>'}
+            `).join('') || '<tr><td colspan="4" style="text-align: center; padding: 2rem;">Zatím žádné poptávky</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -200,16 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <table class="admin-table">
           <thead><tr><th>Služba</th><th>Před / Po</th><th>Akce</th></tr></thead>
           <tbody>
-            \${services.map(s => \`
+            ${services.map(s => `
               <tr>
-                <td style="font-weight: 600;">\${s.title}</td>
+                <td style="font-weight: 600;">${s.title}</td>
                 <td>
-                  <img src="\${s.beforeImg}" style="height: 30px; border-radius: 4px; border: 1px solid #ddd;">
-                  <img src="\${s.afterImg}" style="height: 30px; border-radius: 4px; border: 1px solid #ddd; margin-left: 4px;">
+                  <img src="${s.beforeImg}" style="height: 30px; border-radius: 4px; border: 1px solid #ddd;">
+                  <img src="${s.afterImg}" style="height: 30px; border-radius: 4px; border: 1px solid #ddd; margin-left: 4px;">
                 </td>
-                <td><button class="admin-btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="editService('\${s.id}')">Upravit fotky</button></td>
+                <td><button class="admin-btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="editService('${s.id}')">Upravit fotky</button></td>
               </tr>
-            \`).join('')}
+            `).join('')}
           </tbody>
         </table>
       </div>
@@ -248,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const service = services.find(s => s.id === id);
     if (!service) return;
 
-    document.getElementById('s-edit-title').innerText = \`Upravit \${service.title}\`;
+    document.getElementById('s-edit-title').innerText = `Upravit ${service.title}`;
     document.getElementById('s-edit-id').value = service.id;
     document.getElementById('s-edit-main').value = service.image || '';
     document.getElementById('s-edit-before').value = service.beforeImg || '';
@@ -273,18 +272,18 @@ document.addEventListener('DOMContentLoaded', () => {
       <table class="admin-table">
         <thead><tr><th>Datum</th><th>Jméno</th><th>Kontakt</th><th>Služba</th><th>Stav</th><th>Chat</th></tr></thead>
         <tbody>
-          \${leads.map(l => \`
+          ${leads.map(l => `
             <tr>
-              <td>\${l.date}</td>
-              <td style="font-weight: 600;">\${l.name}</td>
-              <td>\${l.email || l.phone}</td>
-              <td>\${l.service}</td>
-              <td><span class="admin-badge" style="background: \${l.status === 'Zakázka' ? '#dcfce7' : '#fef3c7'}; color: \${l.status === 'Zakázka' ? '#166534' : '#92400e'}">\${l.status || 'Nová'}</span></td>
+              <td>${l.date}</td>
+              <td style="font-weight: 600;">${l.name}</td>
+              <td>${l.email || l.phone}</td>
+              <td>${l.service}</td>
+              <td><span class="admin-badge" style="background: ${l.status === 'Zakázka' ? '#dcfce7' : '#fef3c7'}; color: ${l.status === 'Zakázka' ? '#166534' : '#92400e'}">${l.status || 'Nová'}</span></td>
               <td>
-                \${l.history ? \`<button class="admin-btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="showLeadDetail(\${l.id})">Otevřít chat</button>\` : '—'}
+                ${l.history ? `<button class="admin-btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="showLeadDetail(${l.id})">Otevřít chat</button>` : '—'}
               </td>
             </tr>
-          \`).join('') || '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Zatím žádné poptávky</td></tr>'}
+          `).join('') || '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Zatím žádné poptávky</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -312,17 +311,17 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid #f1f5f9;">
         <div>
           <span style="font-size: 0.75rem; font-weight: 800; color: #f59e0b; background: #fff7ed; padding: 0.25rem 0.75rem; border-radius: 99px; text-transform: uppercase; margin-bottom: 0.5rem; display: inline-block;">Poptávka projektu</span>
-          <h2 style="font-size: 1.875rem; margin-bottom: 0.25rem;">\${lead.name}</h2>
-          <p style="color: #64748b; font-size: 0.95rem;">Doručeno: \${lead.date} • \${lead.source}</p>
+          <h2 style="font-size: 1.875rem; margin-bottom: 0.25rem;">${lead.name}</h2>
+          <p style="color: #64748b; font-size: 0.95rem;">Doručeno: ${lead.date} • ${lead.source}</p>
         </div>
         <div style="text-align: right;">
            <label class="admin-label">Průběh obchodování</label>
-           <select onchange="updateLeadStatus(\${lead.id}, this.value)" class="admin-input" style="width: 180px; font-weight: 600;">
-              <option \${lead.status === 'Nová' ? 'selected' : ''}>Nová 🆕</option>
-              <option \${lead.status === 'V řešení' ? 'selected' : ''}>V řešení 📞</option>
-              <option \${lead.status === 'Zpracována nabídka' ? 'selected' : ''}>Zpracována nabídka 📑</option>
-              <option \${lead.status === 'Zakázka' ? 'selected' : ''}>Zakázka ✅</option>
-              <option \${lead.status === 'Storno' ? 'selected' : ''}>Storno ❌</option>
+           <select onchange="updateLeadStatus(${lead.id}, this.value)" class="admin-input" style="width: 180px; font-weight: 600;">
+              <option ${lead.status === 'Nová' ? 'selected' : ''}>Nová 🆕</option>
+              <option ${lead.status === 'V řešení' ? 'selected' : ''}>V řešení 📞</option>
+              <option ${lead.status === 'Zpracována nabídka' ? 'selected' : ''}>Zpracována nabídka 📑</option>
+              <option ${lead.status === 'Zakázka' ? 'selected' : ''}>Zakázka ✅</option>
+              <option ${lead.status === 'Storno' ? 'selected' : ''}>Storno ❌</option>
            </select>
         </div>
       </div>
@@ -331,28 +330,28 @@ document.addEventListener('DOMContentLoaded', () => {
          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
             <div style="background: #f8fafc; padding: 1.25rem; border-radius: 1rem; border: 1px solid #e2e8f0;">
                <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Služba a plocha</div>
-               <div style="font-size: 1.125rem; font-weight: 700;">\${lead.service}</div>
-               <div style="color: #64748b;">\${lead.details?.split(',')[0] || 'Nezadáno'}</div>
+               <div style="font-size: 1.125rem; font-weight: 700;">${lead.service}</div>
+               <div style="color: #64748b;">${lead.details?.split(',')[0] || 'Nezadáno'}</div>
             </div>
             <div style="background: #fffbeb; padding: 1.25rem; border-radius: 1rem; border: 1px solid #fef3c7;">
                <div style="font-size: 0.75rem; color: #92400e; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Odhadovaná cena (BOT)</div>
-               <div style="font-size: 1.25rem; font-weight: 800; color: #d97706;">\${lead.priceRange || 'Nekalkulováno'}</div>
+               <div style="font-size: 1.25rem; font-weight: 800; color: #d97706;">${lead.priceRange || 'Nekalkulováno'}</div>
                <div style="font-size: 0.75rem; color: #b45309;">Včetně 10% marže pro obchodníka.</div>
             </div>
             <div style="background: #f0f9ff; padding: 1.25rem; border-radius: 1rem; border: 1px solid #e0f2fe; grid-column: span 2;">
                <div style="font-size: 0.75rem; color: #0369a1; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Detaily projektu a lokalita</div>
-               <div style="font-size: 0.95rem; line-height: 1.5;">\${lead.details || 'Žádné doplňující informace.'}</div>
+               <div style="font-size: 0.95rem; line-height: 1.5;">${lead.details || 'Žádné doplňující informace.'}</div>
             </div>
          </div>
          
          <div style="background: #f1f5f9; padding: 1.25rem; border-radius: 1.5rem; border: 1px solid #e2e8f0;">
             <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 0.75rem;">Interní poznámky s týmem</div>
             <textarea 
-               id="lead-notes-\${lead.id}" 
+               id="lead-notes-${lead.id}" 
                placeholder="Zde napište poznámky z hovoru..." 
                style="width: 100%; height: 120px; background: white; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.75rem; font-size: 0.875rem; resize: none; margin-bottom: 1rem;"
-               onblur="updateLeadNotes(\${lead.id}, this.value)"
-            >\${lead.notes || ''}</textarea>
+               onblur="updateLeadNotes(${lead.id}, this.value)"
+            >${lead.notes || ''}</textarea>
             <div style="font-size: 0.7rem; color: #94a3b8; text-align: right;">Poznámky se ukládají automaticky při opuštění pole.</div>
          </div>
       </div>
@@ -363,14 +362,14 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       
       <div style="display: flex; flex-direction: column; gap: 1rem; background: #fafafa; border: 1px solid #f1f5f9; padding: 1.5rem; border-radius: 1.5rem; max-height: 350px; overflow-y: auto;">
-         \${lead.history ? lead.history.map(m => \`
-            <div style="align-self: \${m.type === 'Asistent' ? 'flex-start' : 'flex-end'}; max-width: 85%;">
-               <div style="font-weight: 700; font-size: 0.7rem; margin-bottom: 0.25rem; color: #64748b; text-align: \${m.type === 'Asistent' ? 'left' : 'right'};">\${m.type} • \${m.time}</div>
-               <div style="background: \${m.type === 'Asistent' ? '#ffffff' : '#f59e0b'}; color: \${m.type === 'Asistent' ? '#1e293b' : '#ffffff'}; padding: 0.85rem 1.15rem; border-radius: 1.25rem; font-size: 0.95rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid \${m.type === 'Asistent' ? '#e2e8f0' : '#f59e0b'};">
-                  \${m.text}
+         ${lead.history ? lead.history.map(m => `
+            <div style="align-self: ${m.type === 'Asistent' ? 'flex-start' : 'flex-end'}; max-width: 85%;">
+               <div style="font-weight: 700; font-size: 0.7rem; margin-bottom: 0.25rem; color: #64748b; text-align: ${m.type === 'Asistent' ? 'left' : 'right'};">${m.type} • ${m.time}</div>
+               <div style="background: ${m.type === 'Asistent' ? '#ffffff' : '#f59e0b'}; color: ${m.type === 'Asistent' ? '#1e293b' : '#ffffff'}; padding: 0.85rem 1.15rem; border-radius: 1.25rem; font-size: 0.95rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid ${m.type === 'Asistent' ? '#e2e8f0' : '#f59e0b'};">
+                  ${m.text}
                </div>
             </div>
-         \`).join('') : '<p style="color: #94a3b8; text-align: center; padding: 2rem;">K této poptávce není v systému uložen přepis chatu.</p>'}
+         `).join('') : '<p style="color: #94a3b8; text-align: center; padding: 2rem;">K této poptávce není v systému uložen přepis chatu.</p>'}
       </div>
     `;
 
@@ -384,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (index !== -1) {
       leads[index].notes = newNotes;
       localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
-      console.log(\`Lead \${id} notes saved.\`);
+      console.log(`Lead ${id} notes saved.`);
     }
   };
 
@@ -394,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (index !== -1) {
       leads[index].status = newStatus;
       localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
-      console.log(\`Lead \${id} status updated to \${newStatus}\`);
+      console.log(`Lead ${id} status updated to ${newStatus}`);
       // Refresh the view to show updated status badges
       if (typeof window.renderSection === 'function') {
         window.renderSection(activeSection);
@@ -412,17 +411,17 @@ document.addEventListener('DOMContentLoaded', () => {
       <table class="admin-table">
         <thead><tr><th>Název projektu</th><th>Datum</th><th>Služba</th><th>Stav</th><th>Akce</th></tr></thead>
         <tbody>
-          \${projects.map(p => \`
+          ${projects.map(p => `
             <tr>
-              <td style="font-weight: 500;">\${p.title}</td>
-              <td>\${p.date}</td>
-              <td>\${p.service}</td>
+              <td style="font-weight: 500;">${p.title}</td>
+              <td>${p.date}</td>
+              <td>${p.service}</td>
               <td><span class="admin-badge" style="background: #dcfce7; color: #166534">Publikováno</span></td>
               <td>
-                <button onclick="deleteProject(\${p.id})" style="background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.1rem;">🗑️</button>
+                <button onclick="deleteProject(${p.id})" style="background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.1rem;">🗑️</button>
               </td>
             </tr>
-          \`).join('') || '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Zatím žádné realizace</td></tr>'}
+          `).join('') || '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Zatím žádné realizace</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -497,10 +496,10 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="margin-bottom: 2rem;">
         <h3 style="margin-bottom: 1rem; font-size: 1.125rem;">E-mailové notifikace</h3>
         <label class="admin-label">Příjemce poptávek</label>
-        <input type="email" id="settings-email" class="admin-input" value="\${settings.notification_email}" placeholder="email@adresa.cz">
+        <input type="email" id="settings-email" class="admin-input" value="${settings.notification_email}" placeholder="email@adresa.cz">
         <div style="margin-top: 1rem;">
           <label style="display: flex; align-items: center; cursor: pointer;">
-            <input type="checkbox" id="settings-alerts" \${settings.lead_alerts ? 'checked' : ''} style="margin-right: 0.75rem; width: 1.25rem; height: 1.25rem;">
+            <input type="checkbox" id="settings-alerts" ${settings.lead_alerts ? 'checked' : ''} style="margin-right: 0.75rem; width: 1.25rem; height: 1.25rem;">
             Zasílat upozornění na nové poptávky
           </label>
         </div>
@@ -511,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <span>Aktivovat AI chatbota na webu</span>
           <label class="admin-toggle">
-            <input type="checkbox" id="settings-ai" \${settings.ai_agent_active ? 'checked' : ''}>
+            <input type="checkbox" id="settings-ai" ${settings.ai_agent_active ? 'checked' : ''}>
             <span class="admin-toggle-slider"></span>
           </label>
         </div>
@@ -574,3 +573,5 @@ document.addEventListener('DOMContentLoaded', () => {
   checkUrl();
   window.addEventListener('hashchange', checkUrl);
 });
+
+

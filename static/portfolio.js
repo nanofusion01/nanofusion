@@ -50,7 +50,6 @@ const injectPortfolio = async () => {
             </div>
         `).join('');
 
-        portfolioSection.className = 'py-24 bg-slate-50 section-reveal';
         portfolioSection.innerHTML = `
             <div class="container mx-auto px-4 mb-12">
                 <div class="text-center">
@@ -66,9 +65,9 @@ const injectPortfolio = async () => {
                 </div>
             </div>
             
-            <div style="display: flex; justify-content: center; padding: 4rem 0;">
-                <button onclick="document.getElementById('ai-chat-launcher').click()" class="inline-flex items-center px-10 py-5 bg-amber-500 text-white font-bold rounded-2xl hover:bg-amber-600 transition-all shadow-xl active:scale-95">
-                    CHCI TAKÉ TAKOVÉ VÝSLEDKY
+            <div class="text-center mt-12 pb-12">
+                <button onclick="document.getElementById('ai-chat-launcher').click()" class="inline-flex items-center px-8 py-4 bg-amber-500 text-white font-bold rounded-2xl hover:bg-amber-600 transition-all shadow-lg active:scale-95">
+                    Chci také takový výsledek
                     <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                 </button>
             </div>

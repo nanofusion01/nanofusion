@@ -5,9 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
         name: 'Nano-Asistent',
         tagline: 'Odborník na hloubkové čištění a ochranu',
         prices: {
-            roof: 190, facade: 150, pavement: 120, pv: 80,
-            graffiti: 250, industrial: 130, 'facade-paint': 200, 'roof-paint': 180,
-            impregnation: 70, antislip: 120, ceramfloor: 250, antibac: 80,
+            roof: 190,
+            facade: 150,
+            pavement: 120,
+            pv: 80,
             default: 150
         },
         markup: 1.10 // 10% premium for safe anchoring
@@ -92,45 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('chat-send');
     const typing = document.getElementById('typing');
 
-    // --- Notification System v2 ---
-    let audioContext = null;
-    const initAudio = () => {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-    };
-
-    const playNotification = () => {
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        if (!audioContext) return;
-        
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.1);
-    };
-
-    // Unlock audio on ANY interaction
-    ['click', 'touchstart', 'scroll'].forEach(evt => {
-        document.addEventListener(evt, initAudio, { once: true });
-    });
-
     // Toggle Chat
     launcher.onclick = () => {
         chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
-        if (chatWindow.style.display === 'flex') {
-            playNotification();
-            if (chatState === 'INIT') startChat();
+        if (chatState === 'INIT') {
+            startChat();
         }
     };
 
@@ -144,7 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.innerHTML = text;
         msgContainer.appendChild(msgDiv);
         
-        chatHistory.push({ type: type === 'bot' ? 'Asistent' : 'Zákazník', text: text, time: new Date().toLocaleTimeString('cs-CZ') });
+        // Ukládáme každou zprávu pro CMS
+        chatHistory.push({
+            type: type === 'bot' ? 'Asistent' : 'Zákazník',
+            text: text,
+            time: new Date().toLocaleTimeString('cs-CZ')
+        });
 
         if (quickReplies.length > 0) {
             const repliesDiv = document.createElement('div');
@@ -153,24 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const btn = document.createElement('button');
                 btn.className = 'quick-reply-btn';
                 btn.innerText = reply;
-                btn.onclick = () => {
-                    // Special case for navigation buttons
-                    if (reply.startsWith('🔗')) {
-                        const target = reply.includes('Recenze') ? 'reference' : 
-                                       reply.includes('Realizace') ? 'realizace' : 
-                                       reply.includes('Služby') ? 'sluzby' : '';
-                        if (target) {
-                            document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' });
-                            chatWindow.style.display = 'none';
-                            return;
-                        }
-                    }
-                    handleInput(reply);
-                };
+                btn.onclick = () => handleInput(reply);
                 repliesDiv.appendChild(btn);
             });
             msgContainer.appendChild(repliesDiv);
         }
+
         msgContainer.scrollTop = msgContainer.scrollHeight;
     };
 
@@ -186,10 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const startChat = () => {
         chatState = 'ASK_SERVICE';
         botSay(getGreeting(), [
-            'Čištění střechy/fasády',
-            'Solární panely',
-            'Nátěry střech/fasád',
-            'Služby pro firmy'
+            'Čištění střechy',
+            'Čištění fasády',
+            'Čištění dlažby'
         ]);
     };
 
@@ -197,59 +156,94 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!input.trim()) return;
         addMessage(input, 'user');
         chatInput.value = '';
+
         setTimeout(() => processLogic(input, input.toLowerCase()), 600);
     };
 
     const processLogic = (original, text) => {
         switch (chatState) {
             case 'ASK_SERVICE':
-                userData.service = original;
+                if (text.includes('střech')) userData.service = 'roof';
+                else if (text.includes('fasád')) userData.service = 'facade';
+                else if (text.includes('dlaž')) userData.service = 'pavement';
+                else if (text.includes('solár')) userData.service = 'pv';
+                else userData.service = 'default';
+
                 chatState = 'ASK_LOCATION';
-                botSay('Skvělá volba! Pro začátek mi napište, v jakém **městě nebo lokalitě** by se práce prováděly? 📍');
+                botSay('Skvělá volba! A kde se váš objekt nachází? 📍');
                 break;
 
             case 'ASK_LOCATION':
                 userData.location = original;
+                chatState = 'ASK_DETAILS';
+                botSay(`V lokalitě **${userData.location}** to dobře známe! Můžete mi o tom říct víc? Třeba jak moc je povrch znečištěný, nebo jestli tam máme dobrý přístup (lešení, plošina)? 🏠`);
+                break;
+
+            case 'ASK_DETAILS':
+                userData.details = original;
                 chatState = 'ASK_AREA';
-                botSay(`V lokalitě **${userData.location}** působíme velmi často! O jak **velkou plochu** (m²) nebo rozsah se přibližně jedná?`);
+                botSay('Rozumím, díky za info. Poslední věc pro hrubou kalkulaci – o jak velkou plochu (m²) se přibližně jedná?');
                 break;
 
             case 'ASK_AREA':
-                userData.area = text.replace(/[^0-9]/g, '') || 'nezadáno';
-                chatState = 'ASK_CONTACT';
-                botSay('Děkuji za informace. Abych vám mohl zaslat přesný propočet a domluvit termín, zanechte mi prosím vaše **telefonní číslo**. 📞');
+                const areaNum = parseInt(text.replace(/[^0-9]/g, ''));
+                if (isNaN(areaNum) || areaNum <= 0) {
+                    botSay('Zkuste prosím napsat jen přibližné číslo m² (např. 150).');
+                } else {
+                    userData.area = areaNum;
+                    chatState = 'ASK_CONTACT';
+                    botSay('Perfektní. Než vám propočítám orientační rozmezí ceny, poprosím vás o jméno a telefon, kam vám můžeme nabídku finálně zaslat. 📞');
+                }
                 break;
 
             case 'ASK_CONTACT':
                 userData.contact = original;
-                chatState = 'FINISHED';
-                botSay('Perfektní, vaše poptávka je v systému! Kolegové se vám do 24 hodin ozvou s finálním návrhem. ✨');
-                botSay('Co by vás zajímalo dál? Můžeme probrat detaily, nebo se můžete podívat na naši práci.', [
-                    'Chci dál diskutovat 💬',
-                    '🔗 Ukázat Recenze',
-                    '🔗 Ukázat Realizace',
-                    '🔗 Ostatní Služby'
-                ]);
                 
-                // Save lead
-                const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
-                leads.unshift({ id: Date.now(), name: 'Zákazník z Chatu', phone: original, service: userData.service, area: userData.area, location: userData.location });
-                localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
-                break;
+                // Calculate Price Range with 10% Markup
+                const base = (chatConfig.prices[userData.service] || chatConfig.prices.default) * userData.area;
+                const markupBase = base * chatConfig.markup;
+                
+                const min = Math.round((markupBase * 0.95) / 100) * 100;
+                const max = Math.round((markupBase * 1.15) / 100) * 100;
+                const rangeStr = `${min.toLocaleString('cs-CZ')} – ${max.toLocaleString('cs-CZ')} Kč`;
 
-            case 'FINISHED':
-                botSay('Jsem připraven na vaše dotazy. Co vás konkrétně zajímá ohledně našich technologií nebo záruk?');
+                // Save lead to the existing system
+                const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
+                leads.unshift({
+                    id: Date.now(),
+                    date: new Date().toLocaleString('cs-CZ'),
+                    name: userData.contact,
+                    phone: 'Viz zpráva',
+                    service: userData.service,
+                    source: 'AI Prodavač v2',
+                    status: 'Nová',
+                    priceRange: rangeStr,
+                    history: chatHistory,
+                    details: `Plocha: ${userData.area} m2, Lok: ${userData.location}, Detaily: ${userData.details}`
+                });
+                localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
+
+                chatState = 'FINISHED';
+                botSay(`Děkuji! Předběžně počítejte s investicí v rozmezí **${rangeStr}**. Přesnou cenu si potvrdíme na místě po zaměření.`);
+                botSay('Právě jsem to odeslal kolegům, do 24 hodin se vám ozveme. Budu se těšit na spolupráci! ✨');
                 break;
 
             default:
-                botSay('Rozumím. S čím dalším vám mohu pomoci?');
+                botSay('Rád vám pomůžu s čímkoliv dalším. Máte dotaz k technologii nebo záruce?', ['Technologie', 'Záruka', 'Reference']);
         }
     };
 
     sendBtn.onclick = () => handleInput(chatInput.value);
     chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleInput(chatInput.value); };
 
-    // --- Auto-pop logic (Delayed) ---
-    // Note: Sounds will only play IF a user interaction has happened before this.
-    // We can't force sound without any user click on the whole page.
+    // --- Auto-pop Logic ---
+    setTimeout(() => {
+        const launcher = document.getElementById('ai-chat-launcher');
+        const chatWindow = document.getElementById('ai-chat-window');
+        // Check if chat is still hidden and not opened by user yet
+        if (launcher && chatWindow && chatWindow.style.display === 'none') {
+            launcher.click();
+            console.log('AI Chat: Automatické otevření pro zvýšení konverze.');
+        }
+    }, 5000); // 5 sekund po načtení
 });
