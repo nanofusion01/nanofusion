@@ -19,7 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const defaults = [
         { id: 1, title: 'Čištění střechy RD, Praha', date: '2026-03-15', service: 'Čištění střech', image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800', status: 'Publikováno' },
         { id: 2, title: 'Renovace fasády bytového domu, Brno', date: '2026-03-10', service: 'Čištění fasád', image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800', status: 'Publikováno' },
+<<<<<<< HEAD
         { id: 3, title: 'Zámková dlažba, firemní areál Plzeň', date: '2026-02-28', service: 'Čištění dlažeb', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800', status: 'Publikováno' }
+=======
+        { id: 3, title: 'Zámková dlažba, firemní areál Plzeň', date: '2026-02-28', service: 'Čištění dlažeb', image: 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800', status: 'Publikováno' }
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
       ];
       return JSON.parse(localStorage.getItem('nanofusion_portfolio')) || defaults;
     },
@@ -47,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('nanofusion_settings', JSON.stringify(settings));
       console.log('Nastavení uloženo:', settings);
       return true;
+<<<<<<< HEAD
     },
     async fetchBlog() {
       const defaults = [
@@ -58,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async saveBlog(posts) {
       localStorage.setItem('nanofusion_blog', JSON.stringify(posts));
       return true;
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     }
   };
 
@@ -119,7 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <li class="admin-nav-item \${activeSection === 'services' ? 'active' : ''}" data-target="services">Služby a Ceník</li>
           <li class="admin-nav-item \${activeSection === 'leads' ? 'active' : ''}" data-target="leads">Poptávky</li>
           <li class="admin-nav-item \${activeSection === 'portfolio' ? 'active' : ''}" data-target="portfolio">Realizace</li>
+<<<<<<< HEAD
           <li class="admin-nav-item \${activeSection === 'blog' ? 'active' : ''}" data-target="blog">Blog</li>
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
           <li class="admin-nav-item \${activeSection === 'settings' ? 'active' : ''}" data-target="settings">Nastavení</li>
         </ul>
         <div class="admin-user-info">
@@ -155,11 +165,14 @@ document.addEventListener('DOMContentLoaded', () => {
         viewport.innerHTML = renderPortfolio(projects);
         attachPortfolioEvents();
         break;
+<<<<<<< HEAD
       case 'blog':
         const posts = await DataService.fetchBlog();
         viewport.innerHTML = renderBlog(posts);
         attachBlogEvents();
         break;
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
       case 'settings':
         const settings = await DataService.fetchSettings();
         viewport.innerHTML = renderSettings(settings);
@@ -487,7 +500,11 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('p-save').onclick = async () => {
         const title = document.getElementById('p-title').value;
         const service = document.getElementById('p-service').value;
+<<<<<<< HEAD
         const image = document.getElementById('p-image').value || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800';
+=======
+        const image = document.getElementById('p-image').value || 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800';
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
 
         if (!title) return alert('Doplňte název projektu.');
 
@@ -508,6 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+<<<<<<< HEAD
   const renderBlog = (posts) => `
     <div class="admin-header">
       <h1 class="admin-title-h1">Správa Blogu</h1>
@@ -543,6 +561,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) btn.onclick = () => alert('Přidávání článků přes editor bude v dalším updatu.');
   };
 
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
   const renderSettings = (settings) => `
     <div class="admin-header"><h1 class="admin-title-h1">Nastavení systému</h1></div>
     <div class="admin-card" style="max-width: 600px;">

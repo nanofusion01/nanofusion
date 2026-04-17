@@ -978,6 +978,7 @@ button.primary-btn:hover {
   .close-modal-btn:hover {
     transform: none;
   }
+<<<<<<< HEAD
 }
 
 /* Questionnaire Highlight (Orange Border) */
@@ -1000,3 +1001,6 @@ footer ul.space-y-2.text-sm.text-neutral-400 li {
 
 
 /* Footer Services logic moved to JS for precision */
+=======
+}
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90

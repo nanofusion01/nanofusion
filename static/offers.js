@@ -5,7 +5,11 @@ const servicesData = [
     id: 'facade', title: 'Čištění fasád', tag: 'Prémiová ochrana',
     detail: 'Hloubkové odstranění řas, plísní a atmosférických nečistot. Nano-ochrana se zárukou až 10 let.',
     image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
+<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
+=======
+    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Proces zahrnuje aplikaci speciálního přípravku na odstranění organických nečistot, následné nanesení aktivní pěny, oplach studenou vodou pod nízkým tlakem, chemické ošetření povrchu a závěrečnou impregnaci, která fasádu chrání před vlhkostí a nečistotami.',
     faq: [
@@ -23,7 +27,11 @@ const servicesData = [
     id: 'roof', title: 'Čištění střech', tag: 'Prodloužení životnosti',
     detail: 'Kompletní renovace krytiny a hydrofobní nátěr, který chrání před mechem a degradací.',
     image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
+<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
+=======
+    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Šetrné čištění střešní krytiny od mechů, lišejníků a nečistot. Po vyčištění následuje sanace a aplikace nano impregnace, která chrání střechu až na 7 let.',
     faq: [
@@ -36,8 +44,13 @@ const servicesData = [
   {
     id: 'pavement', title: 'Čištění dlažeb', tag: 'Vzhled nového povrchu',
     detail: 'Odstranění mechů, mastnoty i zašlé špíny. Po vyčištění ošetřujeme impregnací nebo oživovacími nátěry.',
+<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
+=======
+    image: 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800',
+    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Hloubkové čištění dlažby pomocí chemie a tlakové vody. Následuje sanace proti mechům a lišejníkům a aplikace hydrofobní impregnace nebo oživovacího nátěru.',
     faq: [
@@ -49,8 +62,13 @@ const servicesData = [
   {
     id: 'pv', title: 'Solární panely', tag: 'Vyšší účinnost',
     detail: 'Profesionální čištění solárních panelů pomocí šetrných kartáčů a demineralizované vody. Keramická nano ochrana.',
+<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
+=======
+    image: 'https://images.unsplash.com/photo-1509391366360-fe5bb6583166?w=800',
+    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Čištění pomocí demineralizované vody a speciálních kartáčů, které nepoškrábeú povrch panelů. Následná aplikace keramické nano ochrany pro samočistící efekt.',
     faq: [
@@ -62,7 +80,11 @@ const servicesData = [
     id: 'graffiti', title: 'Odstranění graffiti', tag: 'Rychlá pomoc',
     detail: 'Šetrné odstranění nápisů z různých povrchů. Aplikace vysoce účinných antigraffiti nátěrů s dlouhou životností.',
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
+<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
+=======
+    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Odstraňujeme graffiti z betonu, fasád, pískovce, cihel, vagonů a dalších povrchů. Po odstranění aplikujeme antigraffiti nátěr s dlouhou životností.',
     faq: [
@@ -74,7 +96,11 @@ const servicesData = [
     id: 'industrial', title: 'Průmyslové čištění', tag: 'B2B řešení',
     detail: 'Čištění průmyslových hal od podlahy ke stropu. Práce i za provozu. Technologické rozvody a konstrukce. Likvidace odpadu.',
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
+<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
+=======
+    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Komplexní čištění průmyslových objektů včetně podlah, stěn, stropů, technologických rozvodů a konstrukcí. Schopni pracovat i za plného provozu.',
     faq: [
@@ -101,7 +127,11 @@ const servicesData = [
   {
     id: 'roof-paint', title: 'Nátěry střech', tag: 'Dlouhá životnost',
     detail: 'Nátěry všech druhů střech pomocí vysoce kvalitních dvousložkových barev se samočistícím efektem. Životnost 20 let!',
+<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
+=======
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     involves: 'Dvousložkové barvy se samočisticím efektem, životnost uváděná výrobcem až 20 let.',
     isBulletStyle: true,
     bulletPoints: [
@@ -116,7 +146,11 @@ const servicesData = [
   {
     id: 'impregnation', title: 'Nano impregnace', tag: 'Ochrana povrchů',
     detail: 'Inovativní technologie chrání a prodlužují životnost ošetřených materiálů.',
+<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
+=======
+    image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64926?w=800',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     involves: 'Aplikace hydrofobní nano impregnace na různé povrchy pro dlouhodobou ochranu proti vlhkosti a nečistotám.',
     isBulletStyle: true,
     bulletPoints: [
@@ -146,7 +180,11 @@ const servicesData = [
   {
     id: 'ceramfloor', title: 'IG CeramFloor', tag: 'Průmyslová ochrana',
     detail: 'Vysoce účinná polymerní ochrana podlah s protiskluzovým efektem. Odolnost i v extrémních průmyslových podmínkách.',
+<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
+=======
+    image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64926?w=800',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     involves: 'Polymerní ochrana průmyslových podlah s protiskluzovým efektem. Lepší než epoxid či polyuretany.',
     isBulletStyle: true,
     bulletPoints: [
@@ -372,6 +410,7 @@ document.addEventListener('click', (e) => {
     if (detectedData) openServiceModal(detectedData);
   }
 }, true);
+<<<<<<< HEAD
 
 // Expose for footer links
 window.nnf_openService = (id) => {
@@ -379,3 +418,5 @@ window.nnf_openService = (id) => {
   if (data) openServiceModal(data);
 };
 
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90

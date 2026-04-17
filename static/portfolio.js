@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { supabase } from './supabase-config.js';
+=======
+/* Dynamic Portfolio / Realizations for NANOfusion */
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
 
 const injectPortfolio = async () => {
     let portfolioSection = document.getElementById('realizace');
@@ -27,6 +31,7 @@ const injectPortfolio = async () => {
     }
 
 
+<<<<<<< HEAD
     const fetchProjects = async () => {
         const { data, error } = await supabase
             .from('portfolio')
@@ -48,6 +53,19 @@ const injectPortfolio = async () => {
     const render = async () => {
         const projects = await fetchProjects();
 
+=======
+    const fetchProjects = () => {
+        const defaults = [
+            { id: 1, title: 'Čištění střechy RD, Praha', service: 'Čištění střech', image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800' },
+            { id: 2, title: 'Renovace fasády bytového domu, Brno', service: 'Čištění fasád', image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800' },
+            { id: 3, title: 'Zámková dlažba, firemní areál Plzeň', service: 'Čištění dlažeb', image: 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800' }
+        ];
+        return JSON.parse(localStorage.getItem('nanofusion_portfolio')) || defaults;
+    };
+
+    const render = () => {
+        const projects = fetchProjects();
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
         const generateCards = (list) => list.map(p => `
             <div class="portfolio-card-modern">
                 <div class="portfolio-img-wrap">

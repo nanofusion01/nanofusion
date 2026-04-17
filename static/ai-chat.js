@@ -1,8 +1,13 @@
 /* AI Nano-Assistant for NANOfusion */
 
+<<<<<<< HEAD
 const initChat = () => {
     const chatConfig = {
 
+=======
+document.addEventListener('DOMContentLoaded', () => {
+    const chatConfig = {
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
         name: 'Nano-Asistent',
         tagline: 'Odborník na hloubkové čištění a ochranu',
         prices: {
@@ -18,7 +23,10 @@ const initChat = () => {
     let chatState = 'INIT';
     let currentContext = 'GENERAL';
     let chatHistory = []; // Pro sledování celého chatu
+<<<<<<< HEAD
     let chatOpenedByUser = false; // Sledujeme, zda už okno nebylo otevřeno
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     let userData = {
         service: '',
         location: '',
@@ -44,7 +52,11 @@ const initChat = () => {
     });
 
     const getGreeting = () => {
+<<<<<<< HEAD
         switch (currentContext) {
+=======
+        switch(currentContext) {
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
             case 'SLUZBY': return 'Zaujaly vás naše nano-technologie? Kterou část domu potřebujete ošetřit?';
             case 'REALIZACE': return 'Líbí se vám naše výsledky? Chcete propočítat cenu pro podobný projekt?';
             case 'REFERENCE': return 'Naši klienti jsou nadšení. Chcete vědět, co přesně jsme pro ně dělali?';
@@ -97,7 +109,10 @@ const initChat = () => {
 
     // Toggle Chat
     launcher.onclick = () => {
+<<<<<<< HEAD
         chatOpenedByUser = true;
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
         chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
         if (chatState === 'INIT') {
             startChat();
@@ -113,7 +128,11 @@ const initChat = () => {
         msgDiv.className = `message ${type}`;
         msgDiv.innerHTML = text;
         msgContainer.appendChild(msgDiv);
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
         // Ukládáme každou zprávu pro CMS
         chatHistory.push({
             type: type === 'bot' ? 'Asistent' : 'Zákazník',
@@ -201,15 +220,24 @@ const initChat = () => {
 
             case 'ASK_CONTACT':
                 userData.contact = original;
+<<<<<<< HEAD
 
                 // Calculate Price Range with 10% Markup
                 const base = (chatConfig.prices[userData.service] || chatConfig.prices.default) * userData.area;
                 const markupBase = base * chatConfig.markup;
 
+=======
+                
+                // Calculate Price Range with 10% Markup
+                const base = (chatConfig.prices[userData.service] || chatConfig.prices.default) * userData.area;
+                const markupBase = base * chatConfig.markup;
+                
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
                 const min = Math.round((markupBase * 0.95) / 100) * 100;
                 const max = Math.round((markupBase * 1.15) / 100) * 100;
                 const rangeStr = `${min.toLocaleString('cs-CZ')} – ${max.toLocaleString('cs-CZ')} Kč`;
 
+<<<<<<< HEAD
                 // Save lead to Supabase
                 import('./supabase-config.js')
                   .then(({ supabase }) => {
@@ -236,6 +264,24 @@ const initChat = () => {
                 localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
 
 
+=======
+                // Save lead to the existing system
+                const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
+                leads.unshift({
+                    id: Date.now(),
+                    date: new Date().toLocaleString('cs-CZ'),
+                    name: userData.contact,
+                    phone: 'Viz zpráva',
+                    service: userData.service,
+                    source: 'AI Prodavač v2',
+                    status: 'Nová',
+                    priceRange: rangeStr,
+                    history: chatHistory,
+                    details: `Plocha: ${userData.area} m2, Lok: ${userData.location}, Detaily: ${userData.details}`
+                });
+                localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
+
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
                 chatState = 'FINISHED';
                 botSay(`Děkuji! Předběžně počítejte s investicí v rozmezí **${rangeStr}**. Přesnou cenu si potvrdíme na místě po zaměření.`);
                 botSay('Právě jsem to odeslal kolegům, do 24 hodin se vám ozveme. Budu se těšit na spolupráci! ✨');
@@ -249,6 +295,7 @@ const initChat = () => {
     sendBtn.onclick = () => handleInput(chatInput.value);
     chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleInput(chatInput.value); };
 
+<<<<<<< HEAD
     const playNotificationSound = () => {
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -308,3 +355,16 @@ const runSafe = () => {
 runSafe();
 
 // End of file
+=======
+    // --- Auto-pop Logic ---
+    setTimeout(() => {
+        const launcher = document.getElementById('ai-chat-launcher');
+        const chatWindow = document.getElementById('ai-chat-window');
+        // Check if chat is still hidden and not opened by user yet
+        if (launcher && chatWindow && chatWindow.style.display === 'none') {
+            launcher.click();
+            console.log('AI Chat: Automatické otevření pro zvýšení konverze.');
+        }
+    }, 5000); // 5 sekund po načtení
+});
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90

@@ -19,12 +19,21 @@ body {
 
 /* Glassmorphism Header Overlay */
 header {
+<<<<<<< HEAD
   background: #ffffff !important;
   border-bottom: none !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
 
+=======
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: var(--glass) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
 nav {
   background: transparent !important;
   backdrop-filter: none !important;
@@ -478,6 +487,7 @@ button.primary-btn:hover {
   }
 
   @keyframes modalSlideUp {
+<<<<<<< HEAD
     from {
       transform: translateY(100%);
       opacity: 0;
@@ -487,6 +497,10 @@ button.primary-btn:hover {
       transform: translateY(0);
       opacity: 1;
     }
+=======
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
   }
 
   .close-modal-btn {
@@ -529,7 +543,11 @@ button.primary-btn:hover {
     padding-top: 1rem !important;
   }
 
+<<<<<<< HEAD
   .before-after-section>div {
+=======
+  .before-after-section > div {
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     grid-template-columns: 1fr 1fr !important;
     gap: 0.5rem !important;
   }
@@ -745,7 +763,11 @@ button.primary-btn:hover {
 
 /* --- Fix content padding inside modal pane on mobile --- */
 @media (max-width: 480px) {
+<<<<<<< HEAD
   .modal-info-pane>div:not(.service-image-header) {
+=======
+  .modal-info-pane > div:not(.service-image-header) {
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     padding: 1.25rem !important;
     padding-top: 0 !important;
   }
@@ -762,7 +784,10 @@ button.primary-btn:hover {
 
 /* --- Touch-friendly improvements --- */
 @media (hover: none) and (pointer: coarse) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
   .calc-service-card,
   .calc-obj-card {
     min-height: 44px;
@@ -786,6 +811,7 @@ button.primary-btn:hover {
   .close-modal-btn:hover {
     transform: none;
   }
+<<<<<<< HEAD
 }
 
 /* Questionnaire Highlight (Orange Border) */
@@ -823,4 +849,6 @@ section:nth-of-type(2),
 section + section {
   border-top: none !important;
   margin-top: -2px !important; /* Vyrušení případné 1px mezery */
+=======
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
 }

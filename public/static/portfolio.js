@@ -39,8 +39,13 @@ const injectPortfolio = async () => {
                 challenge: 'Silné znečištění mechem a lišejníkem na severní straně střechy po 15 letech bez údržby.',
                 solution: 'Tlakové čištění s regulací výkonu, následná sanace povrchu a aplikace hydrofobní nano-ochrany.',
                 results: 'Střecha získala zpět svůj původní odstín a díky impregnaci je chráněna před opětovným růstem mechu na dalších 7+ let.',
+<<<<<<< HEAD
                 beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
                 afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'
+=======
+                beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800',
+                afterImg: 'https://images.unsplash.com/photo-1628033034914-74977460af25?w=800'
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
             },
             { 
                 id: 2, 
@@ -52,20 +57,32 @@ const injectPortfolio = async () => {
                 challenge: 'Atmosférické nečistoty a mastnota z blízké frekventované křižovatky. Plocha přes 1200 m².',
                 solution: 'Aplikace aktivní čisticí pěny, šetrný oplach a nanesení preventivního antigraffiti a nano nátěru.',
                 results: 'Kompletní omlazení vzhledu celého domu bez nutnosti nové fasády. Úspora pro SVJ přes 300 000 Kč.',
+<<<<<<< HEAD
                 beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
+=======
+                beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
                 afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'
             },
             { 
                 id: 3, 
                 title: 'Zámková dlažba firemního areálu, Plzeň', 
                 service: 'Čištění dlažeb', 
+<<<<<<< HEAD
                 image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
+=======
+                image: 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
                 location: 'Plzeň - Borská pole',
                 duration: '1 den',
                 challenge: 'Olejové skvrny a zašlá špína z těžké techniky. Nutnost pracovat za plného provozu logistického centra.',
                 solution: 'Hloubkové chemické rozpuštění mastnoty, horkovodní čištění a zapískování spár speciálním pískem.',
                 results: 'Povrch vypadá jako nový, zvýšená bezpečnost (protiskluz) a snazší průběžný úklid areálu.',
+<<<<<<< HEAD
                 beforeImg: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
+=======
+                beforeImg: 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800',
+>>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
                 afterImg: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800'
             }
         ];

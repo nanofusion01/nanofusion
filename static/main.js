@@ -235,11 +235,13 @@ const observeAll = () => {
 
       gallerySection.innerHTML = `
         <div class="container mx-auto px-4">
-            <!-- Header CTA like in Reviews -->
-            <div class="text-center mb-16">
-                 <button onclick="document.getElementById('ai-chat-launcher').click()" class="inline-flex items-center px-10 py-5 bg-amber-500 text-white font-black text-xl md:text-2xl rounded-2xl hover:bg-amber-600 transition-all shadow-[0_15px_30px_rgba(245,158,11,0.3)] hover:scale-105 active:scale-95 uppercase tracking-tight">
+            <!-- Header CTA - Extra Highlighted -->
+            <div class="text-center mb-16" style="margin-top: 2rem;">
+                 <button onclick="document.getElementById('ai-chat-launcher').click()" 
+                    class="inline-flex items-center hover:scale-105 active:scale-95 transition-all"
+                    style="background-color: #f59e0b !important; color: white !important; font-weight: 900 !important; font-size: 1.5rem !important; padding: 1.5rem 3rem !important; border-radius: 24px !important; border: none !important; cursor: pointer !important; box-shadow: 0 20px 40px rgba(245, 158, 11, 0.4) !important; text-transform: uppercase !important; letter-spacing: 0.05em !important;">
                     Chci také takové výsledky
-                    <svg class="ml-3 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <svg style="margin-left: 1rem; width: 1.75rem; height: 1.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </button>
             </div>
 
