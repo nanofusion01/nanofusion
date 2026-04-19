@@ -7,7 +7,7 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  Youtube,
+  Play,
   Image as ImageIcon,
   AlertTriangle,
   Link,
