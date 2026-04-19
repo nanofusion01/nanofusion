@@ -134,7 +134,7 @@ const observeAll = () => {
     if (p.textContent.includes('IČ:')) {
       p.innerHTML = `© 2026 NANOfusion s.r.o. | IČ: 29375363 | 
         <a href="https://eshop.nanofusion.cz" target="_blank" style="color: inherit; text-decoration: none; margin-left: 10px; border-bottom: 1px solid #444;">E-shop</a> | 
-        <a href="${window.location.hostname === 'localhost' ? 'http://localhost:3000/admin' : '/admin'}" style="color: #f59e0b; font-weight: 700; text-decoration: none; margin-left: 5px;">Zaměstnanci</a>`;
+        <a href="/admin/" style="color: #f59e0b; font-weight: 700; text-decoration: none; margin-left: 5px;">Zaměstnanci</a>`;
     }
   });
 
