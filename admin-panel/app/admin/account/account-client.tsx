@@ -26,10 +26,11 @@ export function AccountClient({ user, profile: initialProfile }: { user: any, pr
     try {
       const { error } = await supabase
         .from('profiles')
+        // @ts-ignore
         .update({ 
           full_name: profile.full_name,
           updated_at: new Date().toISOString() 
-        } as any)
+        })
         .eq('id', user.id)
       
       if (error) throw error
