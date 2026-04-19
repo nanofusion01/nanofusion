@@ -5,9 +5,8 @@ import { revalidatePath } from 'next/cache'
 
 export async function approveReview(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('external_reviews')
-    .update({ approved: true } as any)
+  const { error } = await (supabase.from('external_reviews') as any)
+    .update({ approved: true })
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
@@ -15,9 +14,8 @@ export async function approveReview(id: string) {
 
 export async function rejectReview(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('external_reviews')
-    .update({ approved: false } as any)
+  const { error } = await (supabase.from('external_reviews') as any)
+    .update({ approved: false })
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
@@ -25,8 +23,7 @@ export async function rejectReview(id: string) {
 
 export async function deleteReview(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('external_reviews')
+  const { error } = await (supabase.from('external_reviews') as any)
     .delete()
     .eq('id', id)
   if (error) throw new Error(error.message)
@@ -39,14 +36,14 @@ export async function addManualReview(data: {
   content: string
 }) {
   const supabase = await createClient()
-  const { error } = await supabase.from('external_reviews').insert({
+  const { error } = await (supabase.from('external_reviews') as any).insert({
     source: 'manual',
     author: data.author,
     rating: data.rating,
     content: data.content,
     approved: true,
     published_at: new Date().toISOString(),
-  } as any)
+  })
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
 }

@@ -5,9 +5,8 @@ import { revalidatePath } from 'next/cache'
 
 export async function createService(data: { name: string; slug: string }) {
   const supabase = await createClient()
-  const { data: service, error } = await supabase
-    .from('services')
-    .insert({ ...data, is_active: true } as any)
+  const { data: service, error } = await (supabase.from('services') as any)
+    .insert({ ...data, is_active: true })
     .select('id')
     .single()
   
@@ -18,9 +17,8 @@ export async function createService(data: { name: string; slug: string }) {
 
 export async function updateService(id: string, data: any) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('services')
-    .update({ ...data, updated_at: new Date().toISOString() } as any)
+  const { error } = await (supabase.from('services') as any)
+    .update({ ...data, updated_at: new Date().toISOString() })
     .eq('id', id)
   
   if (error) throw new Error(error.message)
@@ -30,16 +28,15 @@ export async function updateService(id: string, data: any) {
 
 export async function deleteService(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('services').delete().eq('id', id)
+  const { error } = await (supabase.from('services') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
 }
 
 export async function toggleServiceStatus(id: string, is_active: boolean) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('services')
-    .update({ is_active, updated_at: new Date().toISOString() } as any)
+  const { error } = await (supabase.from('services') as any)
+    .update({ is_active, updated_at: new Date().toISOString() })
     .eq('id', id)
   
   if (error) throw new Error(error.message)
@@ -49,7 +46,7 @@ export async function toggleServiceStatus(id: string, is_active: boolean) {
 export async function reorderServices(items: { id: string; order_index: number }[]) {
   const supabase = await createClient()
   const updates = items.map(({ id, order_index }) =>
-    supabase.from('services').update({ order_index } as any).eq('id', id)
+    (supabase.from('services') as any).update({ order_index }).eq('id', id)
   )
   await Promise.all(updates)
   revalidatePath('/admin/services')

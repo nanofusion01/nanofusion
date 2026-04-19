@@ -12,33 +12,31 @@ export async function addYoutubeItem(url: string, caption?: string) {
   const youtubeId = match?.[1]
   if (!youtubeId) throw new Error('Neplatná YouTube URL')
 
-  const { count } = await supabase
-    .from('gallery_items')
+  const { count } = await (supabase.from('gallery_items') as any)
     .select('*', { count: 'exact', head: true })
 
-  await supabase.from('gallery_items').insert({
+  await (supabase.from('gallery_items') as any).insert({
     type: 'youtube',
     url,
     youtube_id: youtubeId,
     caption: caption || null,
     order_index: count ?? 0,
     is_active: true,
-  } as any)
+  })
   revalidatePath('/admin/gallery')
 }
 
 export async function deleteGalleryItem(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('gallery_items').delete().eq('id', id)
+  const { error } = await (supabase.from('gallery_items') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
 }
 
 export async function updateGalleryCaption(id: string, caption: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('gallery_items')
-    .update({ caption } as any)
+  const { error } = await (supabase.from('gallery_items') as any)
+    .update({ caption })
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
@@ -46,9 +44,8 @@ export async function updateGalleryCaption(id: string, caption: string) {
 
 export async function toggleGalleryItemActive(id: string, is_active: boolean) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('gallery_items')
-    .update({ is_active } as any)
+  const { error } = await (supabase.from('gallery_items') as any)
+    .update({ is_active })
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')

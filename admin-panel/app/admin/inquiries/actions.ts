@@ -5,9 +5,8 @@ import { revalidatePath } from 'next/cache'
 
 export async function updateInquiryStatus(id: string, status: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('inquiries')
-    .update({ status, updated_at: new Date().toISOString() } as any)
+  const { error } = await (supabase.from('inquiries') as any)
+    .update({ status, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/inquiries')
@@ -15,9 +14,8 @@ export async function updateInquiryStatus(id: string, status: string) {
 
 export async function updateInquiryNotes(id: string, notes: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('inquiries')
-    .update({ notes, updated_at: new Date().toISOString() } as any)
+  const { error } = await (supabase.from('inquiries') as any)
+    .update({ notes, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/inquiries')
@@ -25,7 +23,7 @@ export async function updateInquiryNotes(id: string, notes: string) {
 
 export async function deleteInquiry(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('inquiries').delete().eq('id', id)
+  const { error } = await (supabase.from('inquiries') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/inquiries')
 }

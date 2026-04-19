@@ -8,16 +8,14 @@ export async function saveArticle(id: string | null, data: any) {
   
   if (id) {
     // Update
-    const { error } = await supabase
-      .from('magazine_articles')
-      .update({ ...data, updated_at: new Date().toISOString() } as any)
+    const { error } = await (supabase.from('magazine_articles') as any)
+      .update({ ...data, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw new Error(error.message)
   } else {
     // Create
-    const { error } = await supabase
-      .from('magazine_articles')
-      .insert({ ...data, is_published: false } as any)
+    const { error } = await (supabase.from('magazine_articles') as any)
+      .insert({ ...data, is_published: false })
     if (error) throw new Error(error.message)
   }
   
@@ -26,7 +24,7 @@ export async function saveArticle(id: string | null, data: any) {
 
 export async function deleteArticle(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('magazine_articles').delete().eq('id', id)
+  const { error } = await (supabase.from('magazine_articles') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/magazine')
 }

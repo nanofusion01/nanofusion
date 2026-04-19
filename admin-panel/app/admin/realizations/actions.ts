@@ -11,9 +11,8 @@ export async function createRealization(data: {
   work_type?: string
 }) {
   const supabase = await createClient()
-  const { data: realization, error } = await supabase
-    .from('realizations')
-    .insert(data as any)
+  const { data: realization, error } = await (supabase.from('realizations') as any)
+    .insert(data)
     .select('id')
     .single()
   if (error) throw new Error(error.message)
@@ -30,9 +29,8 @@ export async function updateRealization(id: string, data: Partial<{
   is_published: boolean
 }>) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('realizations')
-    .update({ ...data, updated_at: new Date().toISOString() } as any)
+  const { error } = await (supabase.from('realizations') as any)
+    .update({ ...data, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
@@ -40,16 +38,15 @@ export async function updateRealization(id: string, data: Partial<{
 
 export async function deleteRealization(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('realizations').delete().eq('id', id)
+  const { error } = await (supabase.from('realizations') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
 }
 
 export async function togglePublished(id: string, is_published: boolean) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('realizations')
-    .update({ is_published, updated_at: new Date().toISOString() } as any)
+  const { error } = await (supabase.from('realizations') as any)
+    .update({ is_published, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
@@ -74,16 +71,15 @@ export async function uploadRealizationPhoto(
     .from('realizations')
     .getPublicUrl(data.path)
 
-  const { count } = await supabase
-    .from('realization_photos')
+  const { count } = await (supabase.from('realization_photos') as any)
     .select('*', { count: 'exact', head: true })
     .eq('realization_id', realizationId)
 
-  await supabase.from('realization_photos').insert({
+  await (supabase.from('realization_photos') as any).insert({
     realization_id: realizationId,
     url: publicUrl,
     order_index: count ?? 0,
-  } as any)
+  })
 
   revalidatePath('/admin/realizations')
   return publicUrl
@@ -91,8 +87,7 @@ export async function uploadRealizationPhoto(
 
 export async function deleteRealizationPhoto(photoId: string) {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('realization_photos')
+  const { error } = await (supabase.from('realization_photos') as any)
     .delete()
     .eq('id', photoId)
   if (error) throw new Error(error.message)
