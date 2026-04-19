@@ -20,16 +20,14 @@ export default async function AdminLayout({
   }
 
   // Fetch / Create profile
-  let { data: profile } = await supabase
-    .from('profiles')
+  let { data: profile } = await (supabase.from('profiles') as any)
     .select('role, full_name, email')
     .eq('id', user.id)
     .single()
 
   // Self-healing: If user exists in Auth but not in Profiles table (trigger failed)
   if (!profile) {
-    const { data: newProfile } = await supabase
-      .from('profiles')
+    const { data: newProfile } = await (supabase.from('profiles') as any)
       .insert({
         id: user.id,
         email: user.email,
@@ -42,8 +40,7 @@ export default async function AdminLayout({
   }
 
   // Fetch pending reviews count
-  const { count: pendingReviews } = await supabase
-    .from('external_reviews')
+  const { count: pendingReviews } = await (supabase.from('external_reviews') as any)
     .select('*', { count: 'exact', head: true })
     .eq('approved', false)
 
