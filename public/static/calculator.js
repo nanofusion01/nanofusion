@@ -3,7 +3,7 @@
 const injectCalculator = () => {
   const contactSection = document.getElementById('kontakt');
   if (contactSection && !document.getElementById('kalkulacka')) {
-    const services = [
+    let services = [
       { id: 'roof', name: 'Čištění střech', price: 190, desc: 'Čištění + nano-ochrana' },
       { id: 'facade', name: 'Čištění fasád', price: 150, desc: 'Čištění + nano-ochrana' },
       { id: 'pavement', name: 'Čištění dlažeb', price: 120, desc: 'Čištění + ochrana' },
@@ -18,6 +18,22 @@ const injectCalculator = () => {
       { id: 'antibac', name: 'Antibakteriální', price: 80, desc: 'Ochrana 120 dní' }
     ];
 
+    // --- Cloud Sync: Fetch Prices from Supabase ---
+    const syncPrices = async () => {
+        if (!window.supabase) return;
+        const { data: cmsPrices, error } = await window.supabase.from('prices').select('*');
+        if (cmsPrices && Array.isArray(cmsPrices)) {
+            services = services.map(s => {
+                const cmsP = cmsPrices.find(p => p.id === s.id);
+                if (cmsP) return { ...s, price: cmsP.base };
+                return s;
+            });
+            // Re-render current step if necessary
+            renderStep(currentStep);
+        }
+    };
+    syncPrices();
+
     const objectTypes = [
       { id: 'rd', name: 'Rodinný dům' },
       { id: 'bd', name: 'Bytový dům' },
@@ -27,11 +43,7 @@ const injectCalculator = () => {
     const calculatorHtml = `
       <section class="calc-section animate-fade-in" id="kalkulacka" style="scroll-margin-top: 100px; background: #ffffff; border-radius: 2rem; border: 1px solid #edf2f7; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 4rem;">
         <div class="calc-container" id="calc-steps" style="max-width: 700px; margin: 0 auto; padding: 2rem 1rem;">
-<<<<<<< HEAD
           <h2 class="calc-title" style="margin-bottom: 2rem; text-align: center;">Konfigurátor</h2>
-=======
-          <h2 class="calc-title" style="margin-bottom: 2rem; text-align: center;">Konfigurátor hloubkového čištění</h2>
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
           
           <!-- Progress Bar -->
           <div style="display: flex; gap: 8px; margin-bottom: 3rem; justify-content: center;">
@@ -86,7 +98,6 @@ const injectCalculator = () => {
                 <input class="calc-input" id="calc-name" placeholder="Vaše jméno" style="width: 100%; border-radius: 0.75rem;" type="text">
                 <input class="calc-input" id="calc-email" placeholder="E-mail" style="width: 100%; border-radius: 0.75rem;" type="email">
                 <input class="calc-input" id="calc-phone" placeholder="Telefon" style="width: 100%; border-radius: 0.75rem;" type="tel">
-<<<<<<< HEAD
                 <input class="calc-input" id="calc-address" placeholder="Adresa zaměření" style="width: 100%; border-radius: 0.75rem; display: none;" type="text">
               </div>
             </div>
@@ -94,14 +105,6 @@ const injectCalculator = () => {
             <div style="display: flex; gap: 1rem; align-items: stretch;">
               <button id="back-to-step-1" style="flex: 1; height: 60px; background: #e2e8f0; color: #475569; border-radius: 1rem; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; margin: 0; transition: all 0.2s;">Zpět</button>
               <button class="calc-cta" id="reveal-price" style="flex: 1; height: 60px; border: none; cursor: pointer; background: #f97316; color: white; border-radius: 1rem; font-weight: 800; text-transform: uppercase; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; margin: 0; transition: all 0.2s;">Zobrazit kalkulaci</button>
-=======
-              </div>
-            </div>
-
-            <div style="display: flex; gap: 1rem;">
-              <button id="back-to-step-1" style="flex: 0.4; padding: 1.25rem; background: #e2e8f0; color: #475569; border-radius: 0.75rem; border: none; font-weight: 700; cursor: pointer;">Zpět</button>
-              <button class="calc-cta" id="reveal-price" style="flex: 1; border: none; cursor: pointer;">Zobrazit kalkulaci</button>
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
             </div>
           </div>
 
@@ -109,7 +112,6 @@ const injectCalculator = () => {
           <div id="step-3" style="display: none;">
             <div class="calc-result-box" style="margin-top: 0; background: #0f172a; border-radius: 2rem; padding: 3rem 1rem; text-align: center;">
               <div class="calc-result-label" id="result-user-name" style="color: #94a3b8; font-size: 1.125rem; margin-bottom: 0.5rem;">Děkujeme!</div>
-<<<<<<< HEAD
               <div class="calc-result-label" style="color: #ffffff; margin-bottom: 1rem;">Předběžné rozmezí ceny (bez DPH):</div>
               <div class="calc-result-value" id="result" style="font-size: 2.5rem; color: #F59E0B; font-weight: 800;">0 Kč</div>
               <p style="font-size: 0.813rem; color: #64748b; margin-top: 1rem;">
@@ -117,15 +119,6 @@ const injectCalculator = () => {
               </p>
               <p style="font-size: 0.938rem; color: #94a3b8; margin-top: 1.5rem; line-height: 1.6; max-width: 450px; margin-left: auto; margin-right: auto;">
                 Specialista NanoFusion Vás bude kontaktovat pro zjištění potřebných detailů pro vypracování cenové nabídky a domluvení termínu **bezplatného zaměření**.
-=======
-              <div class="calc-result-label" style="color: #ffffff; margin-bottom: 1rem;">Předběžné rozmezí ceny (vč. DPH):</div>
-              <div class="calc-result-value" id="result" style="font-size: 2.5rem; color: #F59E0B; font-weight: 800;">0 Kč</div>
-              <p style="font-size: 0.813rem; color: #64748b; margin-top: 1rem;">
-                * Ceny jsou orientační. Finální nabídku připravíme po zaměření.
-              </p>
-              <p style="font-size: 0.938rem; color: #94a3b8; margin-top: 1.5rem; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
-                Specialista NANOfusion vás bude kontaktovat pro doladění detailů a domluvení termínu **bezplatného zaměření**.
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
               </p>
             </div>
             <button onclick="location.reload()" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
@@ -184,11 +177,8 @@ const injectCalculator = () => {
     areaUnknown.addEventListener('change', () => {
       areaInput.disabled = areaUnknown.checked;
       areaInput.style.opacity = areaUnknown.checked ? '0.5' : '1';
-<<<<<<< HEAD
       document.getElementById('calc-address').style.display = areaUnknown.checked ? 'block' : 'none';
       if (areaUnknown.checked) document.getElementById('calc-address').focus();
-=======
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     });
 
     document.getElementById('go-to-step-2').addEventListener('click', () => {
@@ -208,24 +198,18 @@ const injectCalculator = () => {
       state.userName = document.getElementById('calc-name').value;
       const email = document.getElementById('calc-email').value;
       const phone = document.getElementById('calc-phone').value;
-<<<<<<< HEAD
       const address = document.getElementById('calc-address').value;
-=======
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
       
       if (!state.userName || !email || !phone) {
         alert('Prosím vyplňte kontaktní údaje, abychom vám mohli odeslat kalkulaci.');
         return;
       }
 
-<<<<<<< HEAD
       if (areaUnknown.checked && !address) {
         alert('Prosím uveďte adresu pro bezplatné zaměření.');
         return;
       }
 
-=======
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
       const areaValue = areaUnknown.checked ? 0 : (parseInt(areaInput.value) || 0);
       
       // Pricing Logic: Apply +10% and show range min-max
@@ -234,11 +218,7 @@ const injectCalculator = () => {
       const minTotal = Math.round(baseTotal * 1.05 / 10) * 10;
       const maxTotal = Math.round(baseTotal * 1.15 / 10) * 10;
       
-<<<<<<< HEAD
       const totalDisplay = areaUnknown.checked ? 'ZDARMA (Individuální nabídka*)' : `${minTotal.toLocaleString('cs-CZ')} – ${maxTotal.toLocaleString('cs-CZ')} Kč`;
-=======
-      const totalDisplay = areaUnknown.checked ? 'ZDARMA*' : `${minTotal.toLocaleString('cs-CZ')} – ${maxTotal.toLocaleString('cs-CZ')} Kč`;
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
       
       document.getElementById('result').textContent = totalDisplay;
       document.getElementById('result-user-name').textContent = `Děkujeme, ${state.userName}!`;
@@ -251,18 +231,25 @@ const injectCalculator = () => {
         email: email,
         phone: phone,
         service: state.serviceName,
-<<<<<<< HEAD
         message: `Kalkulačka Wizard: ${state.objName}, Plocha: ${areaUnknown.checked ? 'Neznámo (Vyžaduje zaměření)' : areaValue + 'm2'}, Adresa: ${address || 'Neuvedena'}, Cena: ${totalDisplay}`,
         source: 'Konfigurátor'
-=======
-        message: `Kalkulačka Wizard: ${state.objName}, Plocha: ${areaUnknown.checked ? 'Neznámo' : areaValue + 'm2'}, Cena: ${totalDisplay}`,
-        source: 'Pokročilý Konfigurátor'
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
       };
 
-      const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
-      leads.unshift(lead);
-      localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
+      // --- Cloud Sync: Save Calculator Lead to Supabase ---
+      if (window.supabase) {
+          window.supabase.from('leads').insert([{
+              name: lead.name,
+              phone: lead.phone,
+              service: lead.service,
+              details: lead.details,
+              status: 'Nová',
+              created_at: new Date().toISOString()
+          }]).catch(e => console.error('Supabase Error:', e));
+      }
+
+      const localLeads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
+      localLeads.unshift(lead);
+      localStorage.setItem('nanofusion_leads', JSON.stringify(localLeads));
 
       document.getElementById('step-2').style.display = 'none';
       document.getElementById('step-3').style.display = 'block';
@@ -296,9 +283,22 @@ const setupLeadCapture = () => {
         source: window.location.hash === '#kalkulacka' ? 'Kalkulačka' : 'Kontaktní formulář'
       };
 
-      const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
-      leads.unshift(lead);
-      localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
+      // --- Cloud Sync: Save Form Lead to Supabase ---
+      if (window.supabase) {
+          window.supabase.from('leads').insert([{
+              name: lead.name,
+              phone: lead.phone,
+              email: lead.email,
+              service: lead.service,
+              details: lead.message,
+              status: 'Nová',
+              created_at: new Date().toISOString()
+          }]).catch(e => console.error('Supabase Error:', e));
+      }
+
+      const localLeads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
+      localLeads.unshift(lead);
+      localStorage.setItem('nanofusion_leads', JSON.stringify(localLeads));
 
       alert('Děkujeme za vaši poptávku! Ozveme se vám do 24 hodin.');
       form.reset();
@@ -306,40 +306,11 @@ const setupLeadCapture = () => {
   }
 };
 
-const injectExtraLinks = () => {
-  let injected = 0;
-
-  // Footer Links
-  const footerContainer = document.querySelector('div.border-t.border-neutral-800');
-  if (footerContainer && !document.querySelector('.footer-links-discrete')) {
-    const extraLinks = document.createElement('div');
-    extraLinks.className = 'footer-links-discrete';
-    extraLinks.innerHTML = `
-      <a href="https://eshop.nanofusion.cz" class="footer-link-item" target="_blank">E-shop</a>
-      <a href="/admin" class="footer-link-item" id="admin-link">Správa webu (CMS)</a>
-    `;
-    footerContainer.appendChild(extraLinks);
-    
-    // Prevent default /admin if it's not a real path and use local admin
-    const adminLink = document.getElementById('admin-link');
-    adminLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.location.hash = 'admin';
-    });
-    
-    injected++;
-  }
-
-  return injected >= 1;
-};
-
-// Retry mechanism
 const runInjection = () => {
   const calcDone = injectCalculator();
-  const extraDone = injectExtraLinks();
   setupLeadCapture();
   
-  if (!calcDone || !extraDone) {
+  if (!calcDone) {
     setTimeout(runInjection, 500);
   }
 };

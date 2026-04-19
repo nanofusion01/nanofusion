@@ -44,11 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const hour = new Date().getHours();
         const isMobile = window.innerWidth < 768;
         const welcome = isMobile ? 'Zdravím! Jsem váš Nano-asistent. 📱' : 'Dobrý den! Jsem váš Nano-asistent pro ochranu povrchů.';
-<<<<<<< HEAD
-
-=======
         
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
         if (hour < 12) return welcome + ' Jak vám mohu dnes ráno pomoci?';
         if (hour < 18) return welcome + ' S čím vám mohu dnes pomoci?';
         return welcome + ' Přejete si probrat ochranu vašeho objektu?';
@@ -110,11 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const playNotification = () => {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         if (!audioContext) return;
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         oscillator.type = 'sine';
@@ -151,11 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.className = `message ${type}`;
         msgDiv.innerHTML = text;
         msgContainer.appendChild(msgDiv);
-<<<<<<< HEAD
-
-=======
         
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
         chatHistory.push({ type: type === 'bot' ? 'Asistent' : 'Zákazník', text: text, time: new Date().toLocaleTimeString('cs-CZ') });
 
         if (quickReplies.length > 0) {
@@ -168,15 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.onclick = () => {
                     // Special case for navigation buttons
                     if (reply.startsWith('🔗')) {
-<<<<<<< HEAD
-                        const target = reply.includes('Recenze') ? 'reference' :
-                            reply.includes('Realizace') ? 'realizace' :
-                                reply.includes('Služby') ? 'sluzby' : '';
-=======
                         const target = reply.includes('Recenze') ? 'reference' : 
                                        reply.includes('Realizace') ? 'realizace' : 
                                        reply.includes('Služby') ? 'sluzby' : '';
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
                         if (target) {
                             document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' });
                             chatWindow.style.display = 'none';
@@ -256,11 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'ASK_SERVICE':
                 userData.service = original;
                 chatState = 'ASK_LOCATION';
-<<<<<<< HEAD
-                botSay('Skvělá volba! Pro začátek mi napište, v jakém městě nebo lokalitě by se práce prováděly? 📍');
-=======
                 botSay('Skvělá volba! Pro začátek mi napište, v jakém **městě nebo lokalitě** by se práce prováděly? 📍');
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
                 break;
 
             case 'ASK_LOCATION':
@@ -285,14 +263,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     '🔗 Ukázat Realizace',
                     '🔗 Ostatní Služby'
                 ]);
-<<<<<<< HEAD
-
-=======
                 
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
-                const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
-                leads.unshift({ id: Date.now(), name: 'Zákazník z Chatu', phone: original, service: userData.service, area: userData.area, location: userData.location });
-                localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
+                // --- Cloud Sync: Save AI Lead to Supabase ---
+                if (window.supabase) {
+                    window.supabase.from('leads').insert([{
+                        name: 'Zákazník z Chatu',
+                        phone: original,
+                        service: userData.service,
+                        details: `Lokalita: ${userData.location}, Plocha: ${userData.area}`,
+                        status: 'Nová',
+                        created_at: new Date().toISOString()
+                    }]).catch(e => console.error('Supabase AI Sync Error:', e));
+                }
+
+                const localLeads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
+                localLeads.unshift({ id: Date.now(), name: 'Zákazník z Chatu', phone: original, service: userData.service, area: userData.area, location: userData.location });
+                localStorage.setItem('nanofusion_leads', JSON.stringify(localLeads));
                 break;
 
             case 'FINISHED':
@@ -318,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
     chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleInput(chatInput.value); };
 
     // --- Auto-pop logic (Delayed) ---
-<<<<<<< HEAD
     setTimeout(() => {
         // If chat isn't already open, open it
         if (chatWindow.style.display !== 'flex') {
@@ -327,8 +312,4 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('AI Chat: Auto-pop triggered');
         }
     }, 4000);
-=======
-    // Note: Sounds will only play IF a user interaction has happened before this.
-    // We can't force sound without any user click on the whole page.
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
 });

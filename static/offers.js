@@ -1,15 +1,11 @@
 /* Clean Interactivity for NANOfusion Services - Extended */
 
-const servicesData = [
+let servicesData = [
   {
     id: 'facade', title: 'Čištění fasád', tag: 'Prémiová ochrana',
     detail: 'Hloubkové odstranění řas, plísní a atmosférických nečistot. Nano-ochrana se zárukou až 10 let.',
     image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Proces zahrnuje aplikaci speciálního přípravku na odstranění organických nečistot, následné nanesení aktivní pěny, oplach studenou vodou pod nízkým tlakem, chemické ošetření povrchu a závěrečnou impregnaci, která fasádu chrání před vlhkostí a nečistotami.',
     faq: [
@@ -19,7 +15,7 @@ const servicesData = [
       { q: 'Jak dlouho vydrží impregnace?', a: 'Účinek se pohybuje kolem 5–10 let v závislosti na typu fasády a povětrnostních podmínkách.' },
       { q: 'Jaké typy fasád čistíte?', a: 'Čistíme téměř všechny typy – omítky, zateplovací systémy, cihlové i kamenné povrchy.' },
       { q: 'Je to bezpečné pro okolní prostředí?', a: 'Ano, používáme ekologicky nezávadné prostředky. Okolní keře a rostliny zakrýváme.' },
-      { q: 'Jak dlouho trvá realizace?', a: 'Rodinný dům (250 m²) cca 2 dny. Bytový dům (2 500 m²) cca 4–5 dní. Závisí na počasí.' },
+      { q: 'Jak dlouho trva realizace?', a: 'Rodinný dům (250 m²) cca 2 dny. Bytový dům (2 500 m²) cca 4–5 dní. Závisí na počasí.' },
       { q: 'Mohu službu využít v zimě?', a: 'V zimě fasády nečistíme. Ideální sezóna je od jara do podzimu.' }
     ]
   },
@@ -27,11 +23,7 @@ const servicesData = [
     id: 'roof', title: 'Čištění střech', tag: 'Prodloužení životnosti',
     detail: 'Kompletní renovace krytiny a hydrofobní nátěr, který chrání před mechem a degradací.',
     image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Šetrné čištění střešní krytiny od mechů, lišejníků a nečistot. Po vyčištění následuje sanace a aplikace nano impregnace, která chrání střechu až na 7 let.',
     faq: [
@@ -44,13 +36,8 @@ const servicesData = [
   {
     id: 'pavement', title: 'Čištění dlažeb', tag: 'Vzhled nového povrchu',
     detail: 'Odstranění mechů, mastnoty i zašlé špíny. Po vyčištění ošetřujeme impregnací nebo oživovacími nátěry.',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    image: 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Hloubkové čištění dlažby pomocí chemie a tlakové vody. Následuje sanace proti mechům a lišejníkům a aplikace hydrofobní impregnace nebo oživovacího nátěru.',
     faq: [
@@ -62,13 +49,8 @@ const servicesData = [
   {
     id: 'pv', title: 'Solární panely', tag: 'Vyšší účinnost',
     detail: 'Profesionální čištění solárních panelů pomocí šetrných kartáčů a demineralizované vody. Keramická nano ochrana.',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    image: 'https://images.unsplash.com/photo-1509391366360-fe5bb6583166?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Čištění pomocí demineralizované vody a speciálních kartáčů, které nepoškrábeú povrch panelů. Následná aplikace keramické nano ochrany pro samočistící efekt.',
     faq: [
@@ -80,11 +62,7 @@ const servicesData = [
     id: 'graffiti', title: 'Odstranění graffiti', tag: 'Rychlá pomoc',
     detail: 'Šetrné odstranění nápisů z různých povrchů. Aplikace vysoce účinných antigraffiti nátěrů s dlouhou životností.',
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Odstraňujeme graffiti z betonu, fasád, pískovce, cihel, vagonů a dalších povrchů. Po odstranění aplikujeme antigraffiti nátěr s dlouhou životností.',
     faq: [
@@ -96,11 +74,7 @@ const servicesData = [
     id: 'industrial', title: 'Průmyslové čištění', tag: 'B2B řešení',
     detail: 'Čištění průmyslových hal od podlahy ke stropu. Práce i za provozu. Technologické rozvody a konstrukce. Likvidace odpadu.',
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Komplexní čištění průmyslových objektů včetně podlah, stěn, stropů, technologických rozvodů a konstrukcí. Schopni pracovat i za plného provozu.',
     faq: [
@@ -108,11 +82,12 @@ const servicesData = [
       { q: 'Likvidujete odpad?', a: 'Ano, likvidaci veškerého odpadu zajistíme.' }
     ]
   },
-  // --- Nátěry a další služby (heslovitě) ---
   {
     id: 'facade-paint', title: 'Nátěry fasád', tag: 'Nový vzhled',
     detail: 'Ve spolupráci s firmou Caparol nabízíme nátěry fasád té nejvyšší kvality. Zdravá a čistá fasáda se zárukou až 12 let.',
     image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
+    beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
+    afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Profesionální nátěry fasád prémiovou barvou Caparol. Čistá fasáda bez plísní, řas a ztráty pigmentu.',
     isBulletStyle: true,
     bulletPoints: [
@@ -127,11 +102,9 @@ const servicesData = [
   {
     id: 'roof-paint', title: 'Nátěry střech', tag: 'Dlouhá životnost',
     detail: 'Nátěry všech druhů střech pomocí vysoce kvalitních dvousložkových barev se samočistícím efektem. Životnost 20 let!',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
-=======
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
+    beforeImg: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=600',
+    afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Dvousložkové barvy se samočisticím efektem, životnost uváděná výrobcem až 20 let.',
     isBulletStyle: true,
     bulletPoints: [
@@ -146,11 +119,9 @@ const servicesData = [
   {
     id: 'impregnation', title: 'Nano impregnace', tag: 'Ochrana povrchů',
     detail: 'Inovativní technologie chrání a prodlužují životnost ošetřených materiálů.',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
-=======
-    image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64926?w=800',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
+    beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
+    afterImg: 'https://images.unsplash.com/photo-1520004434532-668416a08753?w=600',
     involves: 'Aplikace hydrofobní nano impregnace na různé povrchy pro dlouhodobou ochranu proti vlhkosti a nečistotám.',
     isBulletStyle: true,
     bulletPoints: [
@@ -166,6 +137,8 @@ const servicesData = [
     id: 'antislip', title: 'Protiskluzová úprava', tag: 'Bezpečnost',
     detail: 'Protiskluzová úprava pro mokré povrchy. Funguje na keramice, žule, mramoru, terasu, linoleu a PVC.',
     image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800',
+    beforeImg: 'https://images.unsplash.com/photo-1520004434532-668416a08753?w=600',
+    afterImg: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600',
     involves: 'Aplikace protiskluzové úpravy na mokré povrchy – bazény, chodby, koupelny, obchodní centra.',
     isBulletStyle: true,
     bulletPoints: [
@@ -180,18 +153,16 @@ const servicesData = [
   {
     id: 'ceramfloor', title: 'IG CeramFloor', tag: 'Průmyslová ochrana',
     detail: 'Vysoce účinná polymerní ochrana podlah s protiskluzovým efektem. Odolnost i v extrémních průmyslových podmínkách.',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
-=======
-    image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64926?w=800',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
+    beforeImg: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
+    afterImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     involves: 'Polymerní ochrana průmyslových podlah s protiskluzovým efektem. Lepší než epoxid či polyuretany.',
     isBulletStyle: true,
     bulletPoints: [
       'Lepší než epoxid a polyuretany',
       'Plně zatížitelná po 24 hodinách',
       'Odolnost proti chemickým látkám',
-      'Výrobní závody a logistická centra',
+      'Výrovní závody a logistická centra',
       'Potravinářské provozy a zemědělství',
       'Vyrobeno v ČR'
     ],
@@ -201,6 +172,8 @@ const servicesData = [
     id: 'antibac', title: 'Antibakteriální ochrana', tag: 'Hygiena',
     detail: 'Antibakteriální a antivirová ochrana povrchů s účinností až 120 dní.',
     image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800',
+    beforeImg: 'https://images.unsplash.com/photo-1581092916357-5896ebc48073?w=600',
+    afterImg: 'https://images.unsplash.com/photo-1581092916357-5896ebc48073?w=600',
     involves: 'Aplikace IMPAGUARD GCA – antibakteriální a antivirová ochrana povrchů s účinností až 120 dní.',
     isBulletStyle: true,
     bulletPoints: [
@@ -213,6 +186,29 @@ const servicesData = [
     faq: []
   }
 ];
+
+// --- Cloud Hydration (Supabase) ---
+const hydrateFromCloud = async () => {
+  try {
+    const { supabase } = await import('./supabase-config.js');
+    const { data, error } = await supabase.from('services').select('*');
+    if (!error && data && data.length > 0) {
+      console.log('Hydrating services from STRV Cloud...');
+      // Merge cloud data with hardcoded data (prefer cloud)
+      data.forEach(cloudService => {
+        const index = servicesData.findIndex(s => s.id === cloudService.id);
+        if (index !== -1) {
+          servicesData[index] = { ...servicesData[index], ...cloudService };
+        } else {
+          servicesData.push(cloudService);
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('Cloud hydration skipped (offline or not configured)');
+  }
+};
+hydrateFromCloud();
 
 const openServiceModal = (data) => {
   let modal = document.getElementById('service-modal-overlay');
@@ -305,25 +301,39 @@ const openServiceModal = (data) => {
             ${faqHtml}
           </div>
         </div>
-        <div class="modal-calc-pane">
+        <div class="modal-calc-pane" style="background: #f8fafc; padding: 2rem;">
           <h4 style="font-size: 1.125rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; text-transform: uppercase;">Kalkulátor ceny</h4>
-          <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 2rem;">Získejte okamžitý odhad ceny.</p>
-          <div id="m-form">
-            <div style="margin-bottom: 1.5rem;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.5rem;">PLOCHA (m²)</label>
+          <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem;">Získejte okamžitý odhad ceny pro váš projekt.</p>
+          
+          <div id="m-form" style="background: white; padding: 1.5rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.4rem; text-transform: uppercase;">Plocha v m²</label>
               <div style="position: relative;">
-                <input id="m-area" type="number" value="100" style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 1rem; font-size: 1.25rem; font-weight: 700;">
-                <span style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-weight: 700; color: #94a3b8;">m²</span>
+                <input id="m-area" type="number" value="100" style="width: 100%; padding: 0.875rem; border: 2px solid #f1f5f9; background: #f8fafc; border-radius: 1rem; font-size: 1.25rem; font-weight: 700;">
+                <span style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-weight: 700; color: #cbd5e1;">m²</span>
               </div>
             </div>
-            <input id="m-name" type="text" placeholder="Vaše jméno" style="width: 100%; padding: 0.875rem; border: 2px solid #e2e8f0; border-radius: 1rem; margin-bottom: 0.75rem;">
-            <input id="m-phone" type="tel" placeholder="Telefon" style="width: 100%; padding: 0.875rem; border: 2px solid #e2e8f0; border-radius: 1rem; margin-bottom: 1.5rem;">
-            <button id="m-reveal" class="calc-cta" style="width: 100%; padding: 1.25rem; border-radius: 1rem; border: none; font-weight: 800; cursor: pointer; background: #F59E0B; color: white;">ZOBRAZIT CENU</button>
+            <input id="m-name" type="text" placeholder="Vaše jméno" style="width: 100%; padding: 0.875rem; border: 2px solid #f1f5f9; background: #f8fafc; border-radius: 1rem; margin-bottom: 0.75rem;">
+            <input id="m-phone" type="tel" placeholder="Telefonní číslo" style="width: 100%; padding: 0.875rem; border: 2px solid #f1f5f9; background: #f8fafc; border-radius: 1rem; margin-bottom: 1rem;">
+            
+            <button id="m-reveal" class="calc-cta" style="width: 100%; padding: 1.125rem; border-radius: 1rem; border: none; font-weight: 800; cursor: pointer; background: #F59E0B; color: white;">
+              ZOBRAZIT CENU
+            </button>
+            <p style="margin-top: 0.75rem; font-size: 0.625rem; color: #94a3b8; text-align: center;">Odesláním získáte orientační kalkulaci.</p>
           </div>
-          <div id="m-result" style="display: none; text-align: center; padding-top: 2rem;">
-            <span style="font-size: 0.875rem; color: #64748b;">Orientační cena:</span>
-            <div id="m-price" style="font-size: 2.5rem; font-weight: 900; color: #F59E0B; margin: 1rem 0;">0 Kč</div>
-            <div style="padding: 1rem; background: #FEF3C7; border-radius: 1rem; color: #92400E; font-size: 0.813rem; font-weight: 600;">✓ Poptávka odeslána. Zavoláme vám.</div>
+
+          <div id="m-result" style="display: none; text-align: center; padding: 2rem 1rem;">
+            <span style="font-size: 0.875rem; color: #64748b; font-weight: 600;">Předběžná cena pro vaši plochu:</span>
+            <div id="m-price" style="font-size: 2.25rem; font-weight: 900; color: #F59E0B; margin: 0.5rem 0;">0 Kč</div>
+            <div style="padding: 1rem; background: #f0fdf4; border-radius: 1rem; color: #166534; font-size: 0.813rem; font-weight: 700; border: 1px solid #dcfce7;">✓ Úspěšně odesláno. Zavoláme vám.</div>
+          </div>
+
+          <!-- Nanobot Bridge -->
+          <div style="margin-top: 2rem; text-align: center; padding-top: 1.5rem; border-top: 1px dashed #e2e8f0;">
+             <p style="font-size: 0.813rem; color: #64748b; margin-bottom: 0.75rem; font-weight: 500;">Máte k této službě dotazy?</p>
+             <button onclick="document.getElementById('service-modal-overlay').style.display='none'; setTimeout(() => document.getElementById('ai-chat-launcher').click(), 200);" style="background: transparent; border: 2px solid #F59E0B; color: #F59E0B; padding: 0.6rem 1.25rem; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 0.813rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                Zkusit Nanobota <span style="font-size: 1rem;">💬</span>
+             </button>
           </div>
         </div>
       </div>
@@ -373,50 +383,90 @@ const openServiceModal = (data) => {
     document.getElementById('m-form').style.display = 'none';
     document.getElementById('m-result').style.display = 'block';
 
-    // Save lead
-    const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
-    leads.unshift({ id: Date.now(), date: new Date().toLocaleString('cs-CZ'), name, phone, service: data.title, source: 'Modal' });
-    localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
+    // --- Supabase Lead Saving ---
+    import('./supabase-config.js').then(({ supabase }) => {
+      supabase.from('leads').insert({
+        name: name,
+        phone: phone,
+        service: data.title,
+        area: area,
+        source: 'Modal / Kalkulačka',
+        total_price_est: `${min} - ${max} Kč`
+      }).then(({ error }) => {
+        if (error) console.error('Cloud Save Error:', error);
+        else console.log('Service lead saved to STRV Cloud');
+      });
+    });
   };
 };
 
-// Interceptor with improved matching - uses heading text for accurate detection
+// Injection logic for supplemental services
+document.addEventListener('DOMContentLoaded', () => {
+  const injectSupplementalServices = () => {
+    const serviceGrid = document.querySelector('#sluzby .grid');
+    if (!serviceGrid) return;
+
+    // We only want to inject services that are NOT already in the main React grid
+    // Based on inspection, we add the ones from id 61 ('graffiti') and onwards
+    const supplemental = servicesData.slice(4); // Industrial, Graffiti, Paints, etc.
+
+    supplemental.forEach(service => {
+      // Check if already exists by checking text content (simple heuristic)
+      if (serviceGrid.innerText.includes(service.title)) return;
+
+      const card = document.createElement('div');
+      card.className = 'group relative bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 cursor-pointer animate-fade-in';
+      card.innerHTML = `
+        <div class="aspect-[16/9] overflow-hidden">
+          <img src="${service.image}" alt="${service.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+        </div>
+        <div class="p-6">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-wider">${service.tag}</span>
+          </div>
+          <h3 class="text-xl font-bold mb-2">${service.title}</h3>
+          <p class="text-muted-foreground text-sm line-clamp-2">${service.detail}</p>
+          <div class="mt-4 flex items-center text-primary font-bold text-sm">
+            Zjistit více <span class="ml-2 transition-transform group-hover:translate-x-1">→</span>
+          </div>
+        </div>
+      `;
+      card.onclick = () => openServiceModal(service);
+      serviceGrid.appendChild(card);
+    });
+  };
+
+  // Run with delay to ensure React has finished rendering the initial grid
+  setTimeout(injectSupplementalServices, 1500);
+});
+
+// Interceptor with improved matching
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.group.relative.bg-card, .bg-white, .bg-card, [class*="rounded"]');
   const serviceSection = document.getElementById('sluzby');
 
   if (card && serviceSection?.contains(card)) {
-    e.preventDefault();
-    e.stopPropagation();
+    // If it's a dynamic card we just added, it already has an onclick, but we can verify here too
+    if (e.defaultPrevented) return;
 
-    // Use heading text (h3/h4) for accurate matching, not the full card text with descriptions
     const heading = card.querySelector('h3, h4, [class*="font-bold"], [class*="font-semibold"]');
     const headingText = (heading ? heading.innerText : card.innerText).toLowerCase().trim();
-    let detectedData = servicesData[0]; // Default to facade
 
-    if (headingText.includes('nátěr') && headingText.includes('střech')) detectedData = servicesData.find(s => s.id === 'roof-paint');
-    else if (headingText.includes('nátěr') && headingText.includes('fasád')) detectedData = servicesData.find(s => s.id === 'facade-paint');
-    else if (headingText.includes('střech')) detectedData = servicesData.find(s => s.id === 'roof');
-    else if (headingText.includes('dlažeb') || headingText.includes('dlažby') || headingText.includes('dlažb')) detectedData = servicesData.find(s => s.id === 'pavement');
-    else if (headingText.includes('solární') || headingText.includes('panely') || headingText.includes('panelů') || headingText.includes('fve')) detectedData = servicesData.find(s => s.id === 'pv');
-    else if (headingText.includes('graffiti')) detectedData = servicesData.find(s => s.id === 'graffiti');
-    else if (headingText.includes('průmysl')) detectedData = servicesData.find(s => s.id === 'industrial');
-    else if (headingText.includes('impregnac') || headingText.includes('nano')) detectedData = servicesData.find(s => s.id === 'impregnation');
-    else if (headingText.includes('protiskluz')) detectedData = servicesData.find(s => s.id === 'antislip');
-    else if (headingText.includes('ceramfloor') || headingText.includes('ceram')) detectedData = servicesData.find(s => s.id === 'ceramfloor');
-    else if (headingText.includes('antibakter') || headingText.includes('impaguard') || headingText.includes('antivirov')) detectedData = servicesData.find(s => s.id === 'antibac');
-    else if (headingText.includes('fasád')) detectedData = servicesData.find(s => s.id === 'facade');
+    const detectedData = servicesData.find(s => {
+      const titleLower = s.title.toLowerCase();
+      return headingText.includes(titleLower) || titleLower.includes(headingText);
+    });
 
-    if (detectedData) openServiceModal(detectedData);
+    if (detectedData) {
+      e.preventDefault();
+      e.stopPropagation();
+      openServiceModal(detectedData);
+    }
   }
 }, true);
-<<<<<<< HEAD
 
-// Expose for footer links
+// Senior CTO: Expose for footer links
 window.nnf_openService = (id) => {
   const data = servicesData.find(s => s.id === id);
   if (data) openServiceModal(data);
 };
-
-=======
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90

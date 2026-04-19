@@ -19,13 +19,16 @@ const observeAll = () => {
 
   // Dynamic Text Replacement & Layout Fix
   const heroHeading = document.querySelector('h1.font-heading');
-  if (heroHeading && heroHeading.textContent.includes('co jste vybudovali') && !heroHeading.dataset.updated) {
-    heroHeading.innerHTML = heroHeading.innerHTML.replace('co jste vybudovali', '<br>co jste usilovně vybudovali');
-    heroHeading.style.fontSize = 'min(5vw, 48px)';
+  if (heroHeading && (heroHeading.textContent.includes('co jste vybudovali') || heroHeading.textContent.includes('Čistíme')) && !heroHeading.dataset.updated) {
+    heroHeading.innerHTML = 'Špičková péče o to,<br>co jste usilovně vybudovali';
+    heroHeading.style.fontSize = 'min(7vw, 64px)';
     heroHeading.style.lineHeight = '1.1';
+    heroHeading.style.fontWeight = '900';
+    heroHeading.style.letterSpacing = '-0.02em';
 
-    const parentContainer = heroHeading.closest('.max-w-2xl');
+    const parentContainer = heroHeading.closest('.max-w-2xl') || heroHeading.parentElement;
     if (parentContainer) {
+      parentContainer.style.maxWidth = '1000px';
       parentContainer.classList.remove('max-w-2xl');
       parentContainer.classList.add('max-w-4xl');
     }
@@ -113,8 +116,10 @@ const observeAll = () => {
   // Update IČO
   const footerTexts = document.querySelectorAll('footer p.text-xs.text-neutral-500');
   footerTexts.forEach(p => {
-    if (p.textContent.includes('IČ:') && !p.textContent.includes('29375363')) {
-      p.textContent = p.textContent.replace(/IČ:\s*\d+/, 'IČ: 29375363');
+    if (p.textContent.includes('IČ:')) {
+      p.innerHTML = `© 2026 NANOfusion s.r.o. | IČ: 29375363 | 
+        <a href="https://eshop.nanofusion.cz" target="_blank" style="color: inherit; text-decoration: none; margin-left: 10px; border-bottom: 1px solid #444;">E-shop</a> | 
+        <a href="${window.location.hostname === 'localhost' ? 'http://localhost:3000/admin' : '/admin'}" style="color: #f59e0b; font-weight: 700; text-decoration: none; margin-left: 5px;">Zaměstnanci</a>`;
     }
   });
 
@@ -235,16 +240,6 @@ const observeAll = () => {
 
       gallerySection.innerHTML = `
         <div class="container mx-auto px-4">
-            <!-- Header CTA - Extra Highlighted -->
-            <div class="text-center mb-16" style="margin-top: 2rem;">
-                 <button onclick="document.getElementById('ai-chat-launcher').click()" 
-                    class="inline-flex items-center hover:scale-105 active:scale-95 transition-all"
-                    style="background-color: #f59e0b !important; color: white !important; font-weight: 900 !important; font-size: 1.5rem !important; padding: 1.5rem 3rem !important; border-radius: 24px !important; border: none !important; cursor: pointer !important; box-shadow: 0 20px 40px rgba(245, 158, 11, 0.4) !important; text-transform: uppercase !important; letter-spacing: 0.05em !important;">
-                    Chci také takové výsledky
-                    <svg style="margin-left: 1rem; width: 1.75rem; height: 1.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </button>
-            </div>
-
             <div class="text-center mb-16">
                 <div style="color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.875rem; margin-bottom: 1rem;">GALERIE REALIZACÍ</div>
                 <h2 class="text-3xl md:text-5xl font-bold text-slate-900 mb-6 font-heading">Špičková péče o váš majetek v detailech</h2>
@@ -253,20 +248,20 @@ const observeAll = () => {
         </div>
 
         <div class="relative max-w-[1550px] mx-auto px-4 md:px-20">
-          <!-- Side Navigation Arrows -->
-          <!-- Side Navigation Arrows (Matching Screenshot 727 - Forced Orange) -->
-          <button id="gallery-prev" class="absolute left-0 md:left-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 md:w-16 md:h-16 rounded-full text-white flex items-center justify-center hover:scale-110 active:scale-95 border-none transition-all shadow-[0_4px_25px_rgba(245,158,11,0.6)]" style="background-color: #f59e0b !important; cursor: pointer;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="stroke: white !important;"><path d="M15 18l-6-6 6-6"></path></svg>
-          </button>
-          
-          <button id="gallery-next" class="absolute right-0 md:right-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 md:w-16 md:h-16 rounded-full text-white flex items-center justify-center hover:scale-110 active:scale-95 border-none transition-all shadow-[0_4px_25px_rgba(245,158,11,0.6)]" style="background-color: #f59e0b !important; cursor: pointer;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="stroke: white !important;"><path d="M9 18l6-6-6-6"></path></svg>
-          </button>
+          <!-- Navigation Arrows Above the Track -->
+          <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-bottom: 2rem;">
+            <button id="gallery-prev" class="w-12 h-12 md:w-16 md:h-16 rounded-full text-white flex items-center justify-center hover:scale-110 active:scale-95 border-none transition-all shadow-[0_4px_25px_rgba(245,158,11,0.4)]" style="background-color: #f59e0b !important; cursor: pointer;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+            </button>
+            <button id="gallery-next" class="w-12 h-12 md:w-16 md:h-16 rounded-full text-white flex items-center justify-center hover:scale-110 active:scale-95 border-none transition-all shadow-[0_4px_25px_rgba(245,158,11,0.4)]" style="background-color: #f59e0b !important; cursor: pointer;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+            </button>
+          </div>
 
           <div id="gallery-scroller-inner" style="display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; -ms-overflow-style: none; scrollbar-width: none;">
             <style>#gallery-scroller-inner::-webkit-scrollbar { display: none; }</style>
             
-            <!-- Dark Style Gallery Items (Matching Reviews) -->
+            <!-- Dark Style Gallery Items -->
             ${galleryShowcaseData.map(item => `
               <div class="gallery-item-v" onclick="window.nnf_openGallery(${item.id})" style="flex: 0 0 450px; background: #0f172a; border-radius: 2rem; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;">
                   <div style="height: 250px; position: relative;">
@@ -297,7 +292,7 @@ const observeAll = () => {
       let isPaused = false;
 
       const performJump = (dir) => {
-        const jumpAmount = 512; // Card width + gap
+        const jumpAmount = scroller.clientWidth > 1000 ? 474 : 350; // Dynamic jump amount based on card width
         scroller.scrollBy({left: dir * jumpAmount, behavior: 'smooth'});
       };
 

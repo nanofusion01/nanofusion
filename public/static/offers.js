@@ -1,15 +1,10 @@
-/* Clean Interactivity for NANOfusion Services - Extended */
-
-const servicesData = [
+// Senior CTO: Dynamic Data Source (CMS Bridge)
+let servicesData = [
   {
     id: 'facade', title: 'Čištění fasád', tag: 'Prémiová ochrana',
     detail: 'Hloubkové odstranění řas, plísní a atmosférických nečistot. Nano-ochrana se zárukou až 10 let.',
     image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Proces zahrnuje aplikaci speciálního přípravku na odstranění organických nečistot, následné nanesení aktivní pěny, oplach studenou vodou pod nízkým tlakem, chemické ošetření povrchu a závěrečnou impregnaci, která fasádu chrání před vlhkostí a nečistotami.',
     faq: [
@@ -27,11 +22,7 @@ const servicesData = [
     id: 'roof', title: 'Čištění střech', tag: 'Prodloužení životnosti',
     detail: 'Kompletní renovace krytiny a hydrofobní nátěr, který chrání před mechem a degradací.',
     image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Šetrné čištění střešní krytiny od mechů, lišejníků a nečistot. Po vyčištění následuje sanace a aplikace nano impregnace, která chrání střechu až na 7 let.',
     faq: [
@@ -44,13 +35,8 @@ const servicesData = [
   {
     id: 'pavement', title: 'Čištění dlažeb', tag: 'Vzhled nového povrchu',
     detail: 'Odstranění mechů, mastnoty i zašlé špíny. Po vyčištění ošetřujeme impregnací nebo oživovacími nátěry.',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    image: 'https://images.unsplash.com/photo-1590076214667-c0f33b98c442?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Hloubkové čištění dlažby pomocí chemie a tlakové vody. Následuje sanace proti mechům a lišejníkům a aplikace hydrofobní impregnace nebo oživovacího nátěru.',
     faq: [
@@ -62,13 +48,8 @@ const servicesData = [
   {
     id: 'pv', title: 'Solární panely', tag: 'Vyšší účinnost',
     detail: 'Profesionální čištění solárních panelů pomocí šetrných kartáčů a demineralizované vody. Keramická nano ochrana.',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    image: 'https://images.unsplash.com/photo-1509391366360-fe5bb6583166?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Čištění pomocí demineralizované vody a speciálních kartáčů, které nepoškrábeú povrch panelů. Následná aplikace keramické nano ochrany pro samočistící efekt.',
     faq: [
@@ -80,11 +61,7 @@ const servicesData = [
     id: 'graffiti', title: 'Odstranění graffiti', tag: 'Rychlá pomoc',
     detail: 'Šetrné odstranění nápisů z různých povrchů. Aplikace vysoce účinných antigraffiti nátěrů s dlouhou životností.',
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Odstraňujeme graffiti z betonu, fasád, pískovce, cihel, vagonů a dalších povrchů. Po odstranění aplikujeme antigraffiti nátěr s dlouhou životností.',
     faq: [
@@ -96,11 +73,7 @@ const servicesData = [
     id: 'industrial', title: 'Průmyslové čištění', tag: 'B2B řešení',
     detail: 'Čištění průmyslových hal od podlahy ke stropu. Práce i za provozu. Technologické rozvody a konstrukce. Likvidace odpadu.',
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Komplexní čištění průmyslových objektů včetně podlah, stěn, stropů, technologických rozvodů a konstrukcí. Schopni pracovat i za plného provozu.',
     faq: [
@@ -113,11 +86,7 @@ const servicesData = [
     id: 'facade-paint', title: 'Nátěry fasád', tag: 'Nový vzhled',
     detail: 'Ve spolupráci s firmou Caparol nabízíme nátěry fasád té nejvyšší kvality. Zdravá a čistá fasáda se zárukou až 12 let.',
     image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Profesionální nátěry fasád prémiovou barvou Caparol. Čistá fasáda bez plísní, řas a ztráty pigmentu.',
     isBulletStyle: true,
@@ -133,15 +102,9 @@ const servicesData = [
   {
     id: 'roof-paint', title: 'Nátěry střech', tag: 'Dlouhá životnost',
     detail: 'Nátěry všech druhů střech pomocí vysoce kvalitních dvousložkových barev se samočistícím efektem. Životnost 20 let!',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
-=======
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=600',
-    afterImg: 'https://images.unsplash.com/photo-1628033034914-74977460af25?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     involves: 'Dvousložkové barvy se samočisticím efektem, životnost uváděná výrobcem až 20 let.',
     isBulletStyle: true,
     bulletPoints: [
@@ -156,11 +119,7 @@ const servicesData = [
   {
     id: 'impregnation', title: 'Nano impregnace', tag: 'Ochrana povrchů',
     detail: 'Inovativní technologie chrání a prodlužují životnost ošetřených materiálů.',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
-=======
-    image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64926?w=800',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1520004434532-668416a08753?w=600',
     involves: 'Aplikace hydrofobní nano impregnace na různé povrchy pro dlouhodobou ochranu proti vlhkosti a nečistotám.',
@@ -178,11 +137,7 @@ const servicesData = [
     id: 'antislip', title: 'Protiskluzová úprava', tag: 'Bezpečnost',
     detail: 'Protiskluzová úprava pro mokré povrchy. Funguje na keramice, žule, mramoru, terasu, linoleu a PVC.',
     image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1520004434532-668416a08753?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1596431940026-c75086d7734a?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600',
     involves: 'Aplikace protiskluzové úpravy na mokré povrchy – bazény, chodby, koupelny, obchodní centra.',
     isBulletStyle: true,
@@ -198,15 +153,9 @@ const servicesData = [
   {
     id: 'ceramfloor', title: 'IG CeramFloor', tag: 'Průmyslová ochrana',
     detail: 'Vysoce účinná polymerní ochrana podlah s protiskluzovým efektem. Odolnost i v extrémních průmyslových podmínkách.',
-<<<<<<< HEAD
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
     afterImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-=======
-    image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64926?w=800',
-    beforeImg: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
-    afterImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     involves: 'Polymerní ochrana průmyslových podlah s protiskluzovým efektem. Lepší než epoxid či polyuretany.',
     isBulletStyle: true,
     bulletPoints: [
@@ -223,11 +172,7 @@ const servicesData = [
     id: 'antibac', title: 'Antibakteriální ochrana', tag: 'Hygiena',
     detail: 'Antibakteriální a antivirová ochrana povrchů s účinností až 120 dní.',
     image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800',
-<<<<<<< HEAD
     beforeImg: 'https://images.unsplash.com/photo-1581092916357-5896ebc48073?w=600',
-=======
-    beforeImg: 'https://images.unsplash.com/photo-1584622781564-1d9876a3e601?w=600',
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
     afterImg: 'https://images.unsplash.com/photo-1581092916357-5896ebc48073?w=600',
     involves: 'Aplikace IMPAGUARD GCA – antibakteriální a antivirová ochrana povrchů s účinností až 120 dní.',
     isBulletStyle: true,
@@ -241,6 +186,27 @@ const servicesData = [
     faq: []
   }
 ];
+
+// Bridge to Admin CMS (Supabase Cloud Version)
+const syncServicesWithCMS = async () => {
+  if (!window.supabase) return;
+  try {
+    const { data: cmsData, error } = await window.supabase.from('services').select('*');
+    if (cmsData && Array.isArray(cmsData)) {
+      cmsData.forEach(cmsItem => {
+        const idx = servicesData.findIndex(s => s.id === cmsItem.id);
+        if (idx !== -1) {
+          if (cmsItem.description) servicesData[idx].detail = cmsItem.description;
+          if (cmsItem.before1) servicesData[idx].beforeImg = cmsItem.before1;
+          if (cmsItem.after1) servicesData[idx].afterImg = cmsItem.after1;
+        }
+      });
+      // Trigger UI update if necessary
+      window.dispatchEvent(new CustomEvent('services_synced'));
+    }
+  } catch (e) { console.error("Cloud Sync Error:", e); }
+};
+syncServicesWithCMS();
 
 const openServiceModal = (data) => {
   let modal = document.getElementById('service-modal-overlay');
@@ -486,13 +452,9 @@ document.addEventListener('click', (e) => {
     }
   }
 }, true);
-<<<<<<< HEAD
 
 // Senior CTO: Expose for footer links
 window.nnf_openService = (id) => {
   const data = servicesData.find(s => s.id === id);
   if (data) openServiceModal(data);
 };
-
-=======
->>>>>>> 6ff963f970458a85f81c0cb004ba205ec2b45a90
