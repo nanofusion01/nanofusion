@@ -8,5 +8,5 @@ export default async function ReviewsPage() {
     .select('*')
     .order('fetched_at', { ascending: false })
 
-  return <ReviewsClient initialReviews={reviews ?? []} />
+  return <ReviewsClient initialReviews={(reviews as any[]) ?? []} />
 }

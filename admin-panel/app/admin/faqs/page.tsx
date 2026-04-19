@@ -8,5 +8,5 @@ export default async function FaqsPage() {
     .select('*')
     .order('order_index', { ascending: true })
 
-  return <FaqsClient initialFaqs={faqs ?? []} />
+  return <FaqsClient initialFaqs={(faqs as any[]) ?? []} />
 }

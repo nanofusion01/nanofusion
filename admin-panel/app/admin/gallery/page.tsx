@@ -8,5 +8,5 @@ export default async function GalleryPage() {
     .select('*')
     .order('order_index', { ascending: true })
 
-  return <GalleryClient initialItems={items ?? []} />
+  return <GalleryClient initialItems={(items as any[]) ?? []} />
 }

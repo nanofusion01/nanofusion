@@ -10,7 +10,7 @@ export default async function InquiriesPage() {
 
   return (
     <InquiriesClient
-      initialInquiries={inquiries ?? []}
+      initialInquiries={(inquiries as any[]) ?? []}
     />
   )
 }

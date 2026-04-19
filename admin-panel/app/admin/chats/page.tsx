@@ -5,12 +5,13 @@ import { MessageSquare, Search } from 'lucide-react'
 
 export default async function ChatsPage() {
   const supabase = await createClient()
-  const { data: sessions } = await supabase
+  const { data: rawSessions } = await supabase
     .from('chat_sessions')
     .select('*')
     .order('last_activity', { ascending: false })
 
-  const openCount = sessions?.filter((s) => s.status === 'open').length ?? 0
+  const sessions = (rawSessions as any[]) || []
+  const openCount = sessions.filter((s) => s.status === 'open').length ?? 0
 
   return (
     <div className="space-y-5">
