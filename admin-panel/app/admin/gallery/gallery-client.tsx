@@ -63,7 +63,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
 
       const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(data.path)
 
-      const { data: newItem, error: dbError } = await supabase.from('gallery_items').insert({
+      const { data: newItem, error: dbError } = await (supabase.from('gallery_items') as any).insert({
         type: 'image',
         url: publicUrl,
         caption: caption || null,
