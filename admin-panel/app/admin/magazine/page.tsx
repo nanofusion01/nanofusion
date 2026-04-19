@@ -1,11 +1,12 @@
+'use server'
+
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Plus, Eye, EyeOff } from 'lucide-react'
 
 export default async function MagazinePage() {
   const supabase = await createClient()
-  const { data: articles } = await supabase
-    .from('articles')
+  const { data: articles } = await (supabase.from('magazine_articles') as any)
     .select('id, title, slug, is_published, published_at, created_at')
     .order('created_at', { ascending: false })
 
@@ -15,7 +16,7 @@ export default async function MagazinePage() {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Nano-magazín</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            {articles?.length ?? 0} článků · {articles?.filter((a) => a.is_published).length ?? 0} publikováno
+            {(articles as any[])?.length ?? 0} článků · {(articles as any[])?.filter((a) => a.is_published).length ?? 0} publikováno
           </p>
         </div>
         <Link
@@ -29,7 +30,7 @@ export default async function MagazinePage() {
       </div>
 
       <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
-        {!articles || articles.length === 0 ? (
+        {!articles || (articles as any[]).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <p style={{ color: 'var(--text-muted)' }}>Žádné články zatím</p>
             <Link href="/admin/magazine/new" className="text-sm font-semibold" style={{ color: 'var(--brand-primary)' }}>
@@ -48,8 +49,8 @@ export default async function MagazinePage() {
               </tr>
             </thead>
             <tbody>
-              {articles.map((article, i) => (
-                <tr key={article.id} style={{ borderBottom: i < articles.length - 1 ? '1px solid var(--border)' : undefined }}>
+              {(articles as any[]).map((article, i) => (
+                <tr key={article.id} style={{ borderBottom: i < (articles as any[]).length - 1 ? '1px solid var(--border)' : undefined }}>
                   <td className="px-5 py-4">
                     <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{article.title}</p>
                   </td>
