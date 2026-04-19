@@ -10,14 +10,14 @@ export async function saveArticle(id: string | null, data: any) {
     // Update
     const { error } = await supabase
       .from('magazine_articles')
-      .update({ ...data, updated_at: new Date().toISOString() })
+      .update({ ...data, updated_at: new Date().toISOString() } as any)
       .eq('id', id)
     if (error) throw new Error(error.message)
   } else {
     // Create
     const { error } = await supabase
       .from('magazine_articles')
-      .insert({ ...data, is_published: false })
+      .insert({ ...data, is_published: false } as any)
     if (error) throw new Error(error.message)
   }
   

@@ -5,14 +5,14 @@ import { revalidatePath } from 'next/cache'
 
 export async function createFaq(data: { question: string; answer: string; order_index: number }) {
   const supabase = await createClient()
-  const { error } = await supabase.from('faqs').insert(data)
+  const { error } = await supabase.from('faqs').insert(data as any)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/faqs')
 }
 
 export async function updateFaq(id: string, data: { question?: string; answer?: string; is_active?: boolean }) {
   const supabase = await createClient()
-  const { error } = await supabase.from('faqs').update(data).eq('id', id)
+  const { error } = await supabase.from('faqs').update(data as any).eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/faqs')
 }
@@ -27,7 +27,7 @@ export async function deleteFaq(id: string) {
 export async function reorderFaqs(items: { id: string; order_index: number }[]) {
   const supabase = await createClient()
   const updates = items.map(({ id, order_index }) =>
-    supabase.from('faqs').update({ order_index }).eq('id', id)
+    supabase.from('faqs').update({ order_index } as any).eq('id', id)
   )
   await Promise.all(updates)
   revalidatePath('/admin/faqs')

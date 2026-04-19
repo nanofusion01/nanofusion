@@ -7,7 +7,7 @@ export async function approveReview(id: string) {
   const supabase = await createClient()
   const { error } = await supabase
     .from('external_reviews')
-    .update({ approved: true })
+    .update({ approved: true } as any)
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
@@ -17,7 +17,7 @@ export async function rejectReview(id: string) {
   const supabase = await createClient()
   const { error } = await supabase
     .from('external_reviews')
-    .update({ approved: false })
+    .update({ approved: false } as any)
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
@@ -46,7 +46,7 @@ export async function addManualReview(data: {
     content: data.content,
     approved: true,
     published_at: new Date().toISOString(),
-  })
+  } as any)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
 }

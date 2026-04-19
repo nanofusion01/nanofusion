@@ -13,12 +13,12 @@ export async function createRealization(data: {
   const supabase = await createClient()
   const { data: realization, error } = await supabase
     .from('realizations')
-    .insert(data)
+    .insert(data as any)
     .select('id')
     .single()
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
-  return realization.id
+  return (realization as any).id
 }
 
 export async function updateRealization(id: string, data: Partial<{
@@ -32,7 +32,7 @@ export async function updateRealization(id: string, data: Partial<{
   const supabase = await createClient()
   const { error } = await supabase
     .from('realizations')
-    .update({ ...data, updated_at: new Date().toISOString() })
+    .update({ ...data, updated_at: new Date().toISOString() } as any)
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
@@ -49,7 +49,7 @@ export async function togglePublished(id: string, is_published: boolean) {
   const supabase = await createClient()
   const { error } = await supabase
     .from('realizations')
-    .update({ is_published, updated_at: new Date().toISOString() })
+    .update({ is_published, updated_at: new Date().toISOString() } as any)
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
@@ -83,7 +83,7 @@ export async function uploadRealizationPhoto(
     realization_id: realizationId,
     url: publicUrl,
     order_index: count ?? 0,
-  })
+  } as any)
 
   revalidatePath('/admin/realizations')
   return publicUrl

@@ -7,7 +7,7 @@ export async function updatePrice(id: string, price: number) {
   const supabase = await createClient()
   const { error } = await supabase
     .from('configurator_prices')
-    .update({ price, updated_at: new Date().toISOString() })
+    .update({ price, updated_at: new Date().toISOString() } as any)
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/configurator')
@@ -17,7 +17,7 @@ export async function updatePriceLabel(id: string, label: string) {
   const supabase = await createClient()
   const { error } = await supabase
     .from('configurator_prices')
-    .update({ label })
+    .update({ label } as any)
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/configurator')
@@ -28,7 +28,7 @@ export async function savePrices(prices: { id: string; price: number }[]) {
   const updates = prices.map(({ id, price }) =>
     supabase
       .from('configurator_prices')
-      .update({ price, updated_at: new Date().toISOString() })
+      .update({ price, updated_at: new Date().toISOString() } as any)
       .eq('id', id)
   )
   await Promise.all(updates)

@@ -23,7 +23,7 @@ export async function addYoutubeItem(url: string, caption?: string) {
     caption: caption || null,
     order_index: count ?? 0,
     is_active: true,
-  })
+  } as any)
   revalidatePath('/admin/gallery')
 }
 
@@ -38,7 +38,7 @@ export async function updateGalleryCaption(id: string, caption: string) {
   const supabase = await createClient()
   const { error } = await supabase
     .from('gallery_items')
-    .update({ caption })
+    .update({ caption } as any)
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
@@ -48,7 +48,7 @@ export async function toggleGalleryItemActive(id: string, is_active: boolean) {
   const supabase = await createClient()
   const { error } = await supabase
     .from('gallery_items')
-    .update({ is_active })
+    .update({ is_active } as any)
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
