@@ -11,7 +11,7 @@ export async function deleteUser(id: string) {
   if (authError) throw new Error(authError.message)
 
   // 2. Delete the profile
-  const supabase = await createClient()
+  const supabase = await createClient() as any
   const { error: profileError } = await supabase
     .from('profiles')
     .delete()
@@ -37,7 +37,7 @@ export async function addUser(email: string, role: 'admin' | 'editor', password:
 }
 
 export async function updateUserRole(id: string, role: 'admin' | 'editor') {
-  const supabase = await createClient()
+  const supabase = await createClient() as any
   const { error } = await supabase
     .from('profiles')
     .update({ role })

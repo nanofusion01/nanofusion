@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 
-export async function createClient() {
+export async function createClient(): Promise<any> {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(
@@ -28,7 +28,7 @@ export async function createClient() {
 }
 
 // Admin client with service role key — server-side only
-export async function createAdminClient() {
+export async function createAdminClient(): Promise<any> {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(

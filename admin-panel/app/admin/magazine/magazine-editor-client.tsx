@@ -17,7 +17,7 @@ import { Tables } from '@/lib/database.types'
 import { saveArticle, deleteArticle } from './actions'
 import { TiptapEditor } from '@/components/admin/editor'
 
-type Article = Tables<'magazine_articles'>
+type Article = Tables<'articles'>
 
 interface Props {
   article: Article | null
