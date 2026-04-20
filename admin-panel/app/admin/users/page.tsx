@@ -7,10 +7,15 @@ export default async function UsersPage() {
 
   // Check admin role
   const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    redirect('/admin/login')
+  }
+
   const { data: currentProfile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', user!.id)
+    .eq('id', user.id)
     .single()
 
   if (currentProfile?.role !== 'admin') {
