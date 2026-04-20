@@ -14,7 +14,7 @@ export default async function UsersPage() {
     .single()
 
   if (currentProfile?.role !== 'admin') {
-    redirect('/admin')
+    return <div className="p-10 text-center text-red-500 font-bold">Přístup odepřen: Váš účet nemá roli 'admin'. Kontaktujte správce.</div>
   }
 
   const { data: profiles } = await supabase
