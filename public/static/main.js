@@ -1,4 +1,5 @@
 import { supabase, normalizeMediaUrl } from './supabase-client.js'
+console.log('NANOfusion: main.js loading...');
 
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
