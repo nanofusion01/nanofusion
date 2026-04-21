@@ -3,6 +3,13 @@
 import { supabase, normalizeMediaUrl } from './supabase-client.js'
 
 const injectPortfolio = async () => {
+    // Wait for supabase to be ready (it might be initialized in main.js)
+    if (!window.supabase) {
+        await new Promise(r => setTimeout(r, 500));
+    }
+    const sb = window.supabase;
+    if (!sb) return;
+
     let portfolioSection = document.getElementById('realizace');
     const referenceSection = document.getElementById('reference');
     const processSection = document.getElementById('proces');
@@ -30,7 +37,7 @@ const injectPortfolio = async () => {
 
 
     const fetchProjects = async () => {
-        const { data: realizations, error } = await supabase
+        const { data: realizations, error } = await sb
             .from('realizations')
             .select(`
                 *,

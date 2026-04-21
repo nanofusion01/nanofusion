@@ -98,6 +98,19 @@
   <link rel="stylesheet" href="/static/modern-ui.css">
   <link href="/static/calculator.css" rel="stylesheet" />
   <link href="/static/ai-chat.css" rel="stylesheet" />
+  <script>
+    // Emergency preloader removal fallback
+    setTimeout(function() {
+      var p = document.getElementById('preloader');
+      if (p) {
+        p.style.opacity = '0';
+        p.style.visibility = 'hidden';
+        setTimeout(function() { if(p.parentNode) p.remove(); }, 500);
+        document.body.style.opacity = '1';
+        document.body.style.overflow = 'auto';
+      }
+    }, 4000);
+  </script>
 </head>
 
 <body>

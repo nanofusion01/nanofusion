@@ -41,13 +41,15 @@ const injectBlog = async () => {
         blogSection.className = 'py-32 bg-white';
     }
 
-    if (referenceSection && referenceSection.parentNode) {
-        referenceSection.parentNode.insertBefore(blogSection, referenceSection.nextSibling);
-    } else if (contactSection && contactSection.parentNode) {
-        contactSection.parentNode.insertBefore(blogSection, contactSection);
+    if (blogSection) {
+        if (referenceSection && referenceSection.parentNode) {
+            referenceSection.parentNode.insertBefore(blogSection, referenceSection.nextSibling);
+        } else if (contactSection && contactSection.parentNode) {
+            contactSection.parentNode.insertBefore(blogSection, contactSection);
+        }
     }
 
-    const { data: articles } = await supabase
+    const { data: articles } = await sb
         .from('articles')
         .select('*')
         .eq('is_published', true)
