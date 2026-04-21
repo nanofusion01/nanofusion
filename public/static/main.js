@@ -1,4 +1,4 @@
-import { supabase } from './supabase-client.js'
+import { supabase, normalizeMediaUrl } from './supabase-client.js'
 
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -29,6 +29,9 @@ const observeAll = () => {
       parentContainer.classList.add('max-w-4xl');
     }
     heroHeading.dataset.updated = 'true';
+    
+    // Trigger dynamic sync
+    syncHeroWithCMS(heroHeading);
   }
 
   const navPhone = document.querySelector('header a[href="tel:+420774509409"]');
@@ -130,6 +133,56 @@ const observeAll = () => {
       }
     }
   });
+};
+
+const syncHeroWithCMS = async (headingEl) => {
+    try {
+        // 1. Sync Title
+        const { data: config } = await supabase.from('site_config').select('*').eq('key', 'hero_title').single();
+        if (config?.value && headingEl) {
+            headingEl.innerHTML = config.value;
+        }
+
+        // 2. Sync Media (Image or Video)
+        const { data: activeMedia } = await supabase.from('hero_media').select('*').eq('is_active', true).single();
+        if (!activeMedia) return;
+
+        const normalizedUrl = normalizeMediaUrl(activeMedia.url);
+        const heroSection = headingEl.closest('section');
+        if (!heroSection) return;
+
+        // Find or create overlay for media
+        let mediaOverlay = heroSection.querySelector('.cms-hero-media');
+        if (!mediaOverlay) {
+            mediaOverlay = document.createElement('div');
+            mediaOverlay.className = 'cms-hero-media';
+            mediaOverlay.style.cssText = 'position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;';
+            heroSection.style.position = 'relative';
+            heroSection.insertBefore(mediaOverlay, heroSection.firstChild);
+        }
+
+        if (activeMedia.type === 'image') {
+            mediaOverlay.innerHTML = `<div style="width:100%; height:100%; background-image:url('${normalizedUrl}'); background-size:cover; background-position:center; opacity:0.6;"></div>`;
+        } else {
+            mediaOverlay.innerHTML = `
+                <iframe 
+                    src="${normalizedUrl}&autoplay=1&mute=1&controls=0&loop=1&playlist=${normalizedUrl.split('/').pop()}" 
+                    style="width:100%; height:100%; border:none; opacity:0.4; pointer-events:none; transform:scale(1.3);" 
+                    allow="autoplay; encrypted-media">
+                </iframe>
+            `;
+        }
+
+        // Ensure visibility of text content
+        const content = headingEl.closest('.container') || headingEl.parentElement;
+        if (content) {
+            content.style.position = 'relative';
+            content.style.zIndex = '10';
+        }
+
+    } catch (e) {
+        console.warn('Hero CMS Sync Error:', e);
+    }
 };
 
 const initGallery = async () => {
