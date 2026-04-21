@@ -32,17 +32,18 @@ const observeAll = () => {
 
   const heroHeading = document.querySelector('h1.font-heading');
   if (heroHeading && (heroHeading.textContent.includes('co jste vybudovali') || heroHeading.textContent.includes('Čistíme')) && !heroHeading.dataset.updated) {
-    heroHeading.innerHTML = 'Špičková péče o to,<br>co jste usilovně vybudovali';
-    heroHeading.style.fontSize = 'min(7vw, 64px)';
-    heroHeading.style.lineHeight = '1.1';
+    heroHeading.innerHTML = 'Špičková péče o to,<br><span style="color: #f59e0b">co jste usilovně vybudovali</span>';
+    heroHeading.style.fontSize = 'min(8vw, 68px)';
+    heroHeading.style.lineHeight = '1.05';
     heroHeading.style.fontWeight = '900';
-    heroHeading.style.letterSpacing = '-0.02em';
+    heroHeading.style.letterSpacing = '-0.04em';
+    heroHeading.style.textTransform = 'none';
 
     const parentContainer = heroHeading.closest('.max-w-2xl') || heroHeading.parentElement;
     if (parentContainer) {
       parentContainer.style.maxWidth = '1000px';
       parentContainer.classList.remove('max-w-2xl');
-      parentContainer.classList.add('max-w-4xl');
+      parentContainer.classList.add('max-w-5xl');
     }
     heroHeading.dataset.updated = 'true';
     if (supabase) syncHeroWithCMS(heroHeading);
@@ -53,8 +54,9 @@ const observeAll = () => {
   headerLogos.forEach(img => {
     if ((img.src.includes('logo.jpg') || img.src.includes('logo-nav.jpg')) && !img.closest('#ai-chat-launcher')) {
       img.src = '/static/nanofusion-long.png';
-      img.style.height = '75px';
+      img.style.height = '85px';
       img.style.width = 'auto';
+      img.style.filter = 'drop-shadow(0 4px 6px rgba(0,0,0,0.05))';
     }
   });
 
