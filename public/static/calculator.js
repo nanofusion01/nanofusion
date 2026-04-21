@@ -20,8 +20,9 @@ const injectCalculator = () => {
 
     // --- Cloud Sync: Fetch Prices from Supabase ---
     const syncPrices = async () => {
-        if (!window.supabase) return;
-        const { data: cmsPrices, error } = await window.supabase.from('prices').select('*');
+        const sb = await initSupabase();
+        if (!sb) return;
+        const { data: cmsPrices, error } = await sb.from('prices').select('*');
         if (cmsPrices && Array.isArray(cmsPrices)) {
             services = services.map(s => {
                 const cmsP = cmsPrices.find(p => p.id === s.id);
@@ -236,16 +237,19 @@ const injectCalculator = () => {
       };
 
       // --- Cloud Sync: Save Calculator Lead to Supabase ---
-      if (window.supabase) {
-          window.supabase.from('leads').insert([{
-              name: lead.name,
-              phone: lead.phone,
-              service: lead.service,
-              details: lead.details,
-              status: 'Nová',
-              created_at: new Date().toISOString()
-          }]).catch(e => console.error('Supabase Error:', e));
-      }
+      initSupabase().then(sb => {
+          if (sb) {
+            sb.from('inquiries').insert([{
+                name: lead.name,
+                phone: lead.phone,
+                email: lead.email,
+                service: lead.service,
+                message: lead.message || lead.details,
+                source: 'Konfigurátor',
+                status: 'new'
+            }]).catch(e => console.error('Supabase Error:', e));
+          }
+      });
 
       const localLeads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
       localLeads.unshift(lead);
@@ -308,17 +312,20 @@ const setupLeadCapture = () => {
       };
 
       // --- Cloud Sync: Save Form Lead to Supabase ---
-      if (window.supabase) {
-          window.supabase.from('leads').insert([{
-              name: lead.name,
-              phone: lead.phone,
-              email: lead.email,
-              service: lead.service,
-              details: lead.message,
-              status: 'Nová',
-              created_at: new Date().toISOString()
-          }]).catch(e => console.error('Supabase Error:', e));
-      }
+      initSupabase().then(sb => {
+          if (sb) {
+            sb.from('inquiries').insert([{
+                name: lead.name,
+                phone: lead.phone,
+                email: lead.email,
+                service: lead.service,
+                message: lead.message,
+                address: 'Web Form',
+                source: lead.source === 'Kalkulačka' ? 'configurator' : 'contact_form',
+                status: 'new'
+            }]).catch(e => console.error('Supabase Error:', e));
+          }
+      });
 
       const localLeads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
       localLeads.unshift(lead);

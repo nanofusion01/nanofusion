@@ -1,41 +1,48 @@
-// Supabase Client for Public Static Site
+console.log('NANOfusion Supabase Client: Loading...');
+
+const SUPABASE_URL = 'https://mgmtkdwvhgrzefmyucvr.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_4zx8PSeFySdRwOitS1bsqA_xO0LimWR';
+
+// Live binding exports
 export let supabase = null;
 
-// Initialization function
-export async function initSupabase() {
-  if (supabase) return supabase;
-  
-  try {
-    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.42.0/+esm');
-    
-    const SUPABASE_URL = 'https://mgmtkdwvhgrzefmyucvr.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_4zx8PSeFySdRwOitS1bsqA_xO0LimWR';
+export const normalizeMediaUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    if (url.startsWith('//')) return 'https:' + url;
+    // Handle Supabase storage paths if they come raw
+    if (url.includes('storage/v1/object/public/')) return url;
+    return `${SUPABASE_URL}/storage/v1/object/public/${url}`;
+};
 
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    window.supabase = supabase;
-    return supabase;
-  } catch (e) {
-    console.warn("Supabase load failed, using mock", e);
-    supabase = {
-        from: () => ({
-          select: () => ({
-            eq: () => ({ single: () => Promise.resolve({ data: null, error: null }), order: () => Promise.resolve({ data: [], error: null }) }),
-            order: () => Promise.resolve({ data: [], error: null })
-          })
-        })
-    };
-    return supabase;
-  }
-}
+// Internal initialization
+const loadSupabase = async () => {
+    try {
+        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
+        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.supabase = supabase;
+        console.log('Supabase initialized successfully');
+        // Dispatch event for other scripts
+        window.dispatchEvent(new CustomEvent('supabase_ready', { detail: { supabase } }));
+        return supabase;
+    } catch (e) {
+        console.error('Failed to load Supabase from CDN:', e);
+        // Fail-safe mock to prevent app-wide ReferenceErrors
+        const mock = {
+            from: () => ({
+                select: () => ({ order: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: null }), eq: () => ({ single: () => Promise.resolve({ data: null, error: null }) }), single: () => Promise.resolve({ data: null, error: null }) }) }), eq: () => ({ single: () => Promise.resolve({ data: null, error: null }) }), single: () => Promise.resolve({ data: null, error: null }) }),
+                insert: () => Promise.resolve({ data: null, error: null }),
+                update: () => ({ eq: () => Promise.resolve({ data: null, error: null }) })
+            })
+        };
+        supabase = mock;
+        window.supabase = mock;
+        return mock;
+    }
+};
 
-export function normalizeMediaUrl(url) {
-  if (!url) return '';
-  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
-  if (driveMatch) return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
-  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([^\/\?\&]+)/);
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  return url;
-}
+// Start loading immediately
+const initPromise = loadSupabase();
 
-// Immediately share to window
-window.normalizeMediaUrl = normalizeMediaUrl;
+export const getSupabase = () => initPromise;
+export const initSupabase = () => initPromise;
