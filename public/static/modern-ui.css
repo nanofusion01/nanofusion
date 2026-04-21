@@ -261,6 +261,10 @@ button.primary-btn:hover {
   .container { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
   section { padding-top: 3.5rem !important; padding-bottom: 3.5rem !important; }
 
+  header img, nav img {
+    height: 55px !important;
+  }
+
   .modal-content {
     width: 100% !important;
     height: 100dvh !important;
