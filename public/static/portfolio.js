@@ -1,5 +1,7 @@
 /* Dynamic Portfolio / Realizations for NANOfusion */
 
+import { supabase } from './supabase-client.js'
+
 const injectPortfolio = async () => {
     let portfolioSection = document.getElementById('realizace');
     const referenceSection = document.getElementById('reference');
@@ -27,49 +29,38 @@ const injectPortfolio = async () => {
     }
 
 
-    const fetchProjects = () => {
-        const defaults = [
-            { 
-                id: 1, 
-                title: 'Čištění střechy RD, Praha', 
-                service: 'Čištění střech', 
-                image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
-                location: 'Praha - Západ',
-                duration: '2 dny',
-                challenge: 'Silné znečištění mechem a lišejníkem na severní straně střechy po 15 letech bez údržby.',
-                solution: 'Tlakové čištění s regulací výkonu, následná sanace povrchu a aplikace hydrofobní nano-ochrany.',
-                results: 'Střecha získala zpět svůj původní odstín a díky impregnaci je chráněna před opětovným růstem mechu na dalších 7+ let.',
-                beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
-                afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'
-            },
-            { 
-                id: 2, 
-                title: 'Renovace fasády bytového domu, Brno', 
-                service: 'Čištění fasád', 
-                image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
-                location: 'Brno - Královo Pole',
-                duration: '4 dny',
-                challenge: 'Atmosférické nečistoty a mastnota z blízké frekventované křižovatky. Plocha přes 1200 m².',
-                solution: 'Aplikace aktivní čisticí pěny, šetrný oplach a nanesení preventivního antigraffiti a nano nátěru.',
-                results: 'Kompletní omlazení vzhledu celého domu bez nutnosti nové fasády. Úspora pro SVJ přes 300 000 Kč.',
-                beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
-                afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'
-            },
-            { 
-                id: 3, 
-                title: 'Zámková dlažba firemního areálu, Plzeň', 
-                service: 'Čištění dlažeb', 
-                image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
-                location: 'Plzeň - Borská pole',
-                duration: '1 den',
-                challenge: 'Olejové skvrny a zašlá špína z těžké techniky. Nutnost pracovat za plného provozu logistického centra.',
-                solution: 'Hloubkové chemické rozpuštění mastnoty, horkovodní čištění a zapískování spár speciálním pískem.',
-                results: 'Povrch vypadá jako nový, zvýšená bezpečnost (protiskluz) a snazší průběžný úklid areálu.',
-                beforeImg: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
-                afterImg: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800'
-            }
-        ];
-        return JSON.parse(localStorage.getItem('nanofusion_portfolio')) || defaults;
+    const fetchProjects = async () => {
+        const { data: realizations, error } = await supabase
+            .from('realizations')
+            .select(`
+                *,
+                realization_photos (
+                    id,
+                    url,
+                    order_index
+                )
+            `)
+            .eq('is_published', true)
+            .order('created_at', { ascending: false });
+
+        if (error || !realizations) return [];
+
+        return realizations.map(r => {
+            const sortedPhotos = (r.realization_photos || []).sort((a, b) => a.order_index - b.order_index);
+            return {
+                id: r.id,
+                title: r.title,
+                service: r.work_type || 'NANO péče',
+                image: normalizeMediaUrl(sortedPhotos[0]?.url) || 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
+                location: r.location || 'Česká republika',
+                duration: r.duration || 'Realizováno',
+                challenge: r.description || '', // Mapping description to challenge for now
+                solution: 'Profesionální aplikace NANOfusion technologií.',
+                results: 'Dlouhodobá ochrana a obnovený vzhled povrchu.',
+                beforeImg: normalizeMediaUrl(sortedPhotos[0]?.url) || '',
+                afterImg: normalizeMediaUrl(sortedPhotos[1]?.url) || normalizeMediaUrl(sortedPhotos[0]?.url) || ''
+            };
+        });
     };
 
     const openCaseStudy = (p) => {
@@ -137,15 +128,15 @@ const injectPortfolio = async () => {
         modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
     };
 
-    const render = () => {
-        const projects = fetchProjects();
+    const render = async () => {
+        const projects = await fetchProjects();
         window.portfolioOpenStudy = (id) => {
             const project = projects.find(it => it.id === id);
             if (project) openCaseStudy(project);
         };
 
         const generateCards = (list) => list.map(p => `
-            <div class="portfolio-card-modern" onclick="window.portfolioOpenStudy(${p.id})">
+            <div class="portfolio-card-modern" onclick="window.portfolioOpenStudy('${p.id}')">
                 <div class="portfolio-img-wrap">
                     <img src="${p.image}" alt="${p.title}">
                 </div>
@@ -171,7 +162,7 @@ const injectPortfolio = async () => {
             <div class="portfolio-container">
                 <div class="portfolio-track">
                     ${generateCards(projects)}
-                    ${generateCards(projects)}
+                    ${projects.length > 2 ? generateCards(projects) : ''}
                 </div>
             </div>
             

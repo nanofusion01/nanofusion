@@ -1,7 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
 export async function getDistanceKm(customerAddress: string): Promise<number> {
-  const origin = encodeURIComponent('Pod Nádražím 370, 664 01 Bílovice nad Svitavou, Czechia')
+  const origin = encodeURIComponent('Cezavy 627, 664 56 Blučina, Czechia')
   const destination = encodeURIComponent(customerAddress)
 
   const apiKey = process.env.GOOGLE_MAPS_API_KEY

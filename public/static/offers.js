@@ -192,6 +192,8 @@ const syncServicesWithCMS = async () => {
   if (!window.supabase) return;
   try {
     const { data: cmsData, error } = await window.supabase.from('services').select('*');
+    const { data: faqData } = await window.supabase.from('service_faqs').select('*').eq('is_published', true);
+
     if (cmsData && Array.isArray(cmsData)) {
       cmsData.forEach(cmsItem => {
         const idx = servicesData.findIndex(s => s.id === cmsItem.id);
@@ -199,6 +201,14 @@ const syncServicesWithCMS = async () => {
           if (cmsItem.description) servicesData[idx].detail = cmsItem.description;
           if (cmsItem.before1) servicesData[idx].beforeImg = cmsItem.before1;
           if (cmsItem.after1) servicesData[idx].afterImg = cmsItem.after1;
+          
+          // Merge live FAQs if available
+          if (faqData) {
+            const serviceFaqs = faqData.filter(f => f.service_id === cmsItem.id);
+            if (serviceFaqs.length > 0) {
+              servicesData[idx].faq = serviceFaqs.map(f => ({ q: f.question, a: f.answer }));
+            }
+          }
         }
       });
       // Trigger UI update if necessary

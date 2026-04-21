@@ -266,12 +266,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // --- Cloud Sync: Save AI Lead to Supabase ---
                 if (window.supabase) {
-                    window.supabase.from('leads').insert([{
+                    window.supabase.from('inquiries').insert([{
                         name: 'Zákazník z Chatu',
                         phone: original,
+                        email: 'chat@nanofusion.cz', // Placeholder for non-email chat
                         service: userData.service,
-                        details: `Lokalita: ${userData.location}, Plocha: ${userData.area}`,
-                        status: 'Nová',
+                        address: userData.location,
+                        message: `Poptávka z AI Chatu. Plocha: ${userData.area}. Detaily: ${userData.details || 'Neuvedeno'}`,
+                        source: 'ai_chat',
+                        status: 'new',
                         created_at: new Date().toISOString()
                     }]).catch(e => console.error('Supabase AI Sync Error:', e));
                 }
