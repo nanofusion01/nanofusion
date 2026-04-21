@@ -256,45 +256,73 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (chatState) {
             case 'ASK_SERVICE':
                 userData.service = original;
-                chatState = 'ASK_LOCATION';
-                botSay('Skvělá volba! Pro začátek mi napište, v jakém **městě nebo lokalitě** by se práce prováděly? 📍');
+                chatState = 'ASK_ADDRESS';
+                botSay('Skvělá volba! Pro začátek mi napište **přesnou adresu realizace** (kvůli výpočtu dopravy). 📍');
                 break;
 
-            case 'ASK_LOCATION':
+            case 'ASK_ADDRESS':
+                if (original.length < 5) {
+                    botSay('Prosím zadejte celou adresu (ulice, město), abychom mohli spočítat dopravu. 🏠');
+                    return;
+                }
                 userData.location = original;
                 chatState = 'ASK_AREA';
-                botSay(`V lokalitě **${userData.location}** působíme velmi často! O jak **velkou plochu** (m²) nebo rozsah se přibližně jedná?`);
+                botSay(`Děkuji! Adresu **${userData.location}** jsem uložil. O jak **velkou plochu** (m²) se přibližně jedná?`);
                 break;
 
             case 'ASK_AREA':
-                userData.area = text.replace(/[^0-9]/g, '') || 'nezadáno';
+                const area = text.replace(/[^0-9]/g, '');
+                if (!area || parseInt(area) < 1) {
+                    botSay('Napište prosím přibližný počet m² (stačí číslo). 🔢');
+                    return;
+                }
+                userData.area = area;
                 chatState = 'ASK_CONTACT';
-                botSay('Děkuji za informace. Abych vám mohl zaslat přesný propočet a domluvit termín, zanechte mi prosím vaše **telefonní číslo**. 📞');
+                botSay('Děkuji. Poslední krok - zanechte mi prosím vaše **telefonní číslo**, ať se vám můžeme ozvat s nabídkou. 📞');
                 break;
 
             case 'ASK_CONTACT':
+                const phonePattern = /^(\+420)?\s?\d{3}\s?\d{3}\s?\d{3}$/;
+                const sanitizedPhone = original.replace(/\s/g, '');
+                if (sanitizedPhone.length < 9) {
+                    botSay('Zadejte prosím platné telefonní číslo (např. 777 123 456). 📱');
+                    return;
+                }
                 userData.contact = original;
                 chatState = 'FINISHED';
-                botSay('Perfektní, vaše poptávka je v systému! Kolegové se vám do 24 hodin ozvou s finálním návrhem. ✨');
-                botSay('Co by vás zajímalo dál? Můžeme probrat detaily, nebo se můžete podívat na naši práci.', [
-                    'Chci dál diskutovat 💬',
+                
+                botSay('Perfektní, vaše poptávka je v systému! ✨');
+                botSay('**Rekapitulace:**\n• Služba: ' + userData.service + '\n• Adresa: ' + userData.location + '\n• Plocha: ' + userData.area + ' m²\n\n*Kolegové se vám ozvou s finální cenou včetně dopravy do 24 hodin.*');
+                
+                botSay('Co by vás zajímalo dál?', [
                     '🔗 Ukázat Recenze',
                     '🔗 Ukázat Realizace',
                     '🔗 Ostatní Služby'
                 ]);
                 
-                // --- Supabase Lead Saving ---
+                // --- Save to Supabase ---
                 import('./supabase-config.js').then(({ supabase }) => {
-                    supabase.from('leads').insert({
+                    // Save as a chat session
+                    supabase.from('chat_sessions').insert({
+                        user_identifier: original,
+                        messages: chatHistory,
+                        status: 'open',
+                        last_activity: new Date().toISOString()
+                    }).then(({ error }) => {
+                        if (error) console.error('Chat Save Error:', error);
+                    });
+
+                    // Also save as an inquiry
+                    supabase.from('inquiries').insert({
                         name: 'Zákazník z Chatu',
                         phone: original,
+                        address: userData.location,
                         service: userData.service,
-                        area: userData.area,
-                        source: 'AI Chat',
-                        chat_history: chatHistory // Chat history is already tracked in the module
+                        message: `Poptávka z AI Chatu. Plocha: ${userData.area} m2.`,
+                        source: 'chat',
+                        status: 'new'
                     }).then(({ error }) => {
-                        if (error) console.error('Cloud Save Error:', error);
-                        else console.log('Lead saved to STRV Cloud');
+                        if (error) console.error('Inquiry Save Error:', error);
                     });
                 });
                 break;
@@ -311,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const getStateQuestion = () => {
         switch (chatState) {
             case 'ASK_SERVICE': return 'Jakou službu bychom pro vás měli zajistit?';
-            case 'ASK_LOCATION': return 'V jaké lokalitě se váš objekt nachází?';
+            case 'ASK_ADDRESS': return 'V jaké lokalitě se váš objekt nachází?';
             case 'ASK_AREA': return 'O jak velkou plochu (m²) se přibližně jedná?';
             case 'ASK_CONTACT': return 'Na jaké číslo vám můžeme zavolat s nabídkou?';
             default: return 'Zajímají vás další detaily?';

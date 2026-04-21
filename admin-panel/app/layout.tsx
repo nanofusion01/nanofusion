@@ -12,6 +12,19 @@ export const metadata: Metadata = {
   title: 'NANOfusion Admin',
   description: 'Správa obsahu a poptávek NANOfusion',
   robots: { index: false, follow: false },
+  manifest: '/manifest.json',
+  themeColor: '#f59e0b',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'NF Admin',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 }
 
 export default function RootLayout({

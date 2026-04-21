@@ -60,6 +60,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -384,22 +385,45 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                         </button>
                       </div>
                     ))}
-                    <label className="aspect-video rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-black/5 transition-colors" style={{ borderColor: 'var(--border)' }}>
-                      <Plus size={20} style={{ color: 'var(--text-muted)' }} />
-                      <span className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--text-muted)' }}>PŘIDAT</span>
+                    <label className={`aspect-video rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors ${uploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-black/5'}`} style={{ borderColor: 'var(--border)' }}>
+                      {uploading ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-amber-500 border-t-transparent" />
+                      ) : (
+                        <>
+                          <Plus size={20} style={{ color: 'var(--text-muted)' }} />
+                          <span className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--text-muted)' }}>PŘIDAT</span>
+                        </>
+                      )}
                       <input 
                         type="file" 
                         className="hidden" 
                         accept="image/*"
+                        disabled={uploading}
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
-                          if (file) {
+                          if (!file) return;
+                          
+                          setUploading(true);
+                          try {
                             const { uploadRealizationPhoto } = await import('./actions');
                             const formData = new FormData();
                             formData.append('file', file);
                             const url = await uploadRealizationPhoto(editingId, formData);
+                            
+                            // Update local state for immediate feedback
+                            setRealizations(prev => prev.map(r => r.id === editingId ? {
+                              ...r,
+                              realization_photos: [
+                                ...(r.realization_photos || []),
+                                { id: Math.random().toString(), url, caption: null, order_index: (r.realization_photos?.length || 0) }
+                              ]
+                            } : r));
+                            
                             toast.success('Fotka nahrána');
-                            // Local refresh logic would go here, for now relying on actions to revalidate
+                          } catch (err: any) {
+                            toast.error('Nahrávání selhalo: ' + err.message);
+                          } finally {
+                            setUploading(false);
                           }
                         }}
                       />

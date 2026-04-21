@@ -12,7 +12,7 @@ export default function LoginPage() {
   const redirectTo = searchParams.get('redirectTo') || '/admin'
   const supabase = createClient()
 
-  const [email, setEmail] = useState('it@nanofusion.cz')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -152,6 +152,8 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
+                autoCapitalize="none"
+                inputMode="email"
                 required
                 className="w-full px-4 py-3 rounded-xl text-sm transition-all duration-150 outline-none"
                 style={{
@@ -167,8 +169,11 @@ export default function LoginPage() {
                   e.target.style.borderColor = 'var(--border)'
                   e.target.style.background = 'var(--bg-base)'
                 }}
-                placeholder="vas@email.cz"
+                placeholder="Váš e-mail"
               />
+              <p className="mt-1.5 text-[10px] text-slate-400 font-medium pl-1">
+                Použijte svůj administrátorský e-mail.
+              </p>
             </div>
 
             {/* Password */}

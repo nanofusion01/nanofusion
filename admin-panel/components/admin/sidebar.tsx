@@ -146,7 +146,7 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
 
   return (
     <aside
-      className="fixed top-0 left-0 h-full flex flex-col z-50"
+      className="fixed top-0 left-0 h-full flex-col z-50 hidden md:flex"
       style={{
         width: 'var(--sidebar-width)',
         background: 'var(--sidebar-bg)',

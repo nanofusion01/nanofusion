@@ -16,14 +16,24 @@ interface EditingFaq {
   id: string
   question: string
   answer: string
+  page_section: string
 }
+
+const PAGE_SECTIONS = [
+  { value: 'global', label: 'Globální (všechny stránky)', color: 'bg-slate-100 text-slate-600' },
+  { value: 'sluzby', label: 'Služby', color: 'bg-blue-100 text-blue-600' },
+  { value: 'realizace', label: 'Realizace', color: 'bg-green-100 text-green-600' },
+  { value: 'konfigurator', label: 'Konfigurátor', color: 'bg-purple-100 text-purple-600' },
+  { value: 'galerie', label: 'Galerie', color: 'bg-amber-100 text-amber-600' },
+  { value: 'magazin', label: 'Magazín', color: 'bg-indigo-100 text-indigo-600' },
+]
 
 export function FaqsClient({ initialFaqs }: FaqsClientProps) {
   const [faqs, setFaqs] = useState<Faq[]>(initialFaqs)
   const [editing, setEditing] = useState<EditingFaq | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
-  const [newFaq, setNewFaq] = useState({ question: '', answer: '' })
+  const [newFaq, setNewFaq] = useState({ question: '', answer: '', page_section: 'global' })
   const [saving, setSaving] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
 
@@ -37,7 +47,7 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
       await createFaq({ ...newFaq, order_index: faqs.length })
       toast.success('FAQ přidána')
       setShowAdd(false)
-      setNewFaq({ question: '', answer: '' })
+      setNewFaq({ question: '', answer: '', page_section: 'global' })
       // Optimistic update would need a router refresh for full accuracy
     } catch {
       toast.error('Nepodařilo se přidat FAQ')
@@ -50,10 +60,19 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
     if (!editing) return
     setSaving(true)
     try {
-      await updateFaq(editing.id, { question: editing.question, answer: editing.answer })
+      await updateFaq(editing.id, { 
+        question: editing.question, 
+        answer: editing.answer,
+        page_section: editing.page_section 
+      })
       setFaqs((prev) =>
         prev.map((f) =>
-          f.id === editing.id ? { ...f, question: editing.question, answer: editing.answer } : f
+          f.id === editing.id ? { 
+            ...f, 
+            question: editing.question, 
+            answer: editing.answer,
+            page_section: editing.page_section 
+          } : f
         )
       )
       toast.success('FAQ aktualizována')
@@ -137,20 +156,22 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
-              Odpověď
+              Zobrazit na stránce
             </label>
-            <textarea
-              value={newFaq.answer}
-              onChange={(e) => setNewFaq({ ...newFaq, answer: e.target.value })}
-              placeholder="Odpověď na otázku..."
-              rows={4}
-              className="w-full px-4 py-2.5 rounded-xl text-sm outline-none resize-none"
+            <select
+              value={newFaq.page_section}
+              onChange={(e) => setNewFaq({ ...newFaq, page_section: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
               style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-            />
+            >
+              {PAGE_SECTIONS.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => { setShowAdd(false); setNewFaq({ question: '', answer: '' }) }}
+              onClick={() => { setShowAdd(false); setNewFaq({ question: '', answer: '', page_section: 'global' }) }}
               className="px-4 py-2.5 rounded-xl text-sm font-semibold"
               style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
             >
@@ -217,6 +238,21 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                       style={{ border: '1px solid var(--brand-primary)', color: 'var(--text-primary)' }}
                     />
                   </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                      Stránka
+                    </label>
+                    <select
+                      value={editing.page_section}
+                      onChange={(e) => setEditing({ ...editing, page_section: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
+                      style={{ border: '1px solid var(--brand-primary)', color: 'var(--text-primary)' }}
+                    >
+                      {PAGE_SECTIONS.map(s => (
+                        <option key={s.value} value={s.value}>{s.label}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="flex gap-3">
                     <button
                       onClick={() => setEditing(null)}
@@ -254,6 +290,11 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                     </p>
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                       {/* Toggle active */}
+                      <span
+                        className={`text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest ${PAGE_SECTIONS.find(s => s.value === faq.page_section)?.color || 'bg-slate-100 text-slate-600'}`}
+                      >
+                        {PAGE_SECTIONS.find(s => s.value === faq.page_section)?.label.split(' ')[0]}
+                      </span>
                       <button
                         onClick={() => handleToggleActive(faq)}
                         className="text-xs px-2.5 py-1 rounded-full font-semibold"
@@ -265,7 +306,7 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                         {faq.is_active ? 'Aktivní' : 'Skrytá'}
                       </button>
                       <button
-                        onClick={() => setEditing({ id: faq.id, question: faq.question, answer: faq.answer })}
+                        onClick={() => setEditing({ id: faq.id, question: faq.question, answer: faq.answer, page_section: faq.page_section || 'global' })}
                         className="text-xs px-2.5 py-1 rounded-full font-semibold"
                         style={{ background: 'var(--bg-surface-2)', color: 'var(--text-secondary)' }}
                       >

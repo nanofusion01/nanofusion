@@ -3,18 +3,22 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function createFaq(data: { question: string; answer: string; order_index: number }) {
+export async function createFaq(data: { question: string; answer: string; order_index: number; page_section?: string }) {
   const supabase = await createClient()
   const { error } = await (supabase.from('faqs') as any).insert(data)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/faqs')
+  revalidatePath('/faq')
+  revalidatePath('/')
 }
 
-export async function updateFaq(id: string, data: { question?: string; answer?: string; is_active?: boolean }) {
+export async function updateFaq(id: string, data: { question?: string; answer?: string; is_active?: boolean; page_section?: string }) {
   const supabase = await createClient()
   const { error } = await (supabase.from('faqs') as any).update(data).eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/faqs')
+  revalidatePath('/faq')
+  revalidatePath('/')
 }
 
 export async function deleteFaq(id: string) {
@@ -22,6 +26,8 @@ export async function deleteFaq(id: string) {
   const { error } = await (supabase.from('faqs') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/faqs')
+  revalidatePath('/faq')
+  revalidatePath('/')
 }
 
 export async function reorderFaqs(items: { id: string; order_index: number }[]) {
@@ -31,4 +37,6 @@ export async function reorderFaqs(items: { id: string; order_index: number }[]) 
   )
   await Promise.all(updates)
   revalidatePath('/admin/faqs')
+  revalidatePath('/faq')
+  revalidatePath('/')
 }

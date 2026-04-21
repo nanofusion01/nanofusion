@@ -24,6 +24,8 @@ export async function addYoutubeItem(url: string, caption?: string) {
     is_active: true,
   })
   revalidatePath('/admin/gallery')
+  revalidatePath('/galerie')
+  revalidatePath('/')
 }
 
 export async function deleteGalleryItem(id: string) {
@@ -31,6 +33,8 @@ export async function deleteGalleryItem(id: string) {
   const { error } = await (supabase.from('gallery_items') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
+  revalidatePath('/galerie')
+  revalidatePath('/')
 }
 
 export async function updateGalleryCaption(id: string, caption: string) {
@@ -40,6 +44,8 @@ export async function updateGalleryCaption(id: string, caption: string) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
+  revalidatePath('/galerie')
+  revalidatePath('/')
 }
 
 export async function toggleGalleryItemActive(id: string, is_active: boolean) {
@@ -49,4 +55,6 @@ export async function toggleGalleryItemActive(id: string, is_active: boolean) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
+  revalidatePath('/galerie')
+  revalidatePath('/')
 }

@@ -10,6 +10,7 @@ export async function updateHeroTitle(value: string) {
   
   if (error) throw new Error(error.message)
   revalidatePath('/admin/hero')
+  revalidatePath('/')
 }
 
 export async function toggleHeroMedia(id: string, is_active: boolean) {
@@ -26,4 +27,5 @@ export async function toggleHeroMedia(id: string, is_active: boolean) {
   
   if (error) throw new Error(error.message)
   revalidatePath('/admin/hero')
+  revalidatePath('/')
 }

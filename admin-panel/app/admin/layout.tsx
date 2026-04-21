@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/admin/sidebar'
 import { AdminHeader } from '@/components/admin/header'
+import { MobileNav } from '@/components/admin/mobile-nav'
 
 export default async function AdminLayout({
   children,
@@ -55,15 +56,15 @@ export default async function AdminLayout({
       <main
         className="transition-all duration-200"
         style={{
-          marginLeft: 'var(--sidebar-width)',
           paddingTop: 'var(--header-height)',
           minHeight: '100vh',
         }}
       >
-        <div className="p-6 animate-fade-in">
+        <div className="md:ml-[var(--sidebar-width)] p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
           {children}
         </div>
       </main>
+      <MobileNav />
     </div>
   )
 }

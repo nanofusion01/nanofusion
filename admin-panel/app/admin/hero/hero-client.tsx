@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { updateHeroTitle, toggleHeroMedia } from './actions'
+import { normalizeMediaUrl } from '@/lib/utils'
 
 interface HeroMedia {
   id: string
@@ -54,12 +55,13 @@ export function HeroClient({
           </div>
           <div className="p-5">
             {active.type === 'image' ? (
-              <img src={active.url} alt="Hero" className="rounded-xl max-h-64 object-cover w-full" />
+              <img src={normalizeMediaUrl(active.url)} alt="Hero" className="rounded-xl max-h-64 object-cover w-full" />
             ) : (
               <div className="rounded-xl overflow-hidden aspect-video max-h-64">
                 <iframe
-                  src={active.url.replace('watch?v=', 'embed/')}
-                  className="w-full h-full"
+                  src={normalizeMediaUrl(active.url)}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>

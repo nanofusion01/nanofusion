@@ -20,6 +20,9 @@ export async function saveArticle(id: string | null, data: any) {
   }
   
   revalidatePath('/admin/magazine')
+  revalidatePath('/magazin')
+  revalidatePath('/magazin/[slug]', 'page')
+  revalidatePath('/')
 }
 
 export async function deleteArticle(id: string) {
@@ -27,4 +30,7 @@ export async function deleteArticle(id: string) {
   const { error } = await (supabase.from('magazine_articles') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/magazine')
+  revalidatePath('/magazin')
+  revalidatePath('/magazin/[slug]', 'page')
+  revalidatePath('/')
 }

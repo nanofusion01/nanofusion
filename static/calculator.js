@@ -120,7 +120,7 @@ const injectCalculator = async () => {
                 Specialista NanoFusion Vás bude kontaktovat pro zjištění potřebných detailů pro vypracování cenové nabídky a domluvení termínu **bezplatného zaměření**.
               </p>
             </div>
-            <button onclick="location.reload()" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
+            <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => location.reload(), 800)" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
           </div>
         </div>
       </section>

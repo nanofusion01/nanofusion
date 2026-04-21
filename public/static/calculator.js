@@ -41,7 +41,7 @@ const injectCalculator = () => {
     ];
 
     const calculatorHtml = `
-      <section class="calc-section animate-fade-in" id="kalkulacka" style="scroll-margin-top: 100px; background: #ffffff; border-radius: 2rem; border: 1px solid #edf2f7; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 4rem;">
+      <section class="calc-section animate-fade-in" id="konfigurator" style="scroll-margin-top: 100px; background: #ffffff; border-radius: 2rem; border: 1px solid #edf2f7; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 4rem;">
         <div class="calc-container" id="calc-steps" style="max-width: 700px; margin: 0 auto; padding: 2rem 1rem;">
           <h2 class="calc-title" style="margin-bottom: 2rem; text-align: center;">Konfigurátor</h2>
           
@@ -121,7 +121,7 @@ const injectCalculator = () => {
                 Specialista NanoFusion Vás bude kontaktovat pro zjištění potřebných detailů pro vypracování cenové nabídky a domluvení termínu **bezplatného zaměření**.
               </p>
             </div>
-            <button onclick="location.reload()" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
+            <button id="calc-reset-btn" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
           </div>
 
         </div>
@@ -255,7 +255,31 @@ const injectCalculator = () => {
       document.getElementById('step-3').style.display = 'block';
       document.getElementById('progress-3').style.background = '#F59E0B';
       
-      window.scrollTo({ top: document.getElementById('kalkulacka').offsetTop - 50, behavior: 'smooth' });
+      window.scrollTo({ top: document.getElementById('konfigurator').offsetTop - 50, behavior: 'smooth' });
+    });
+
+    document.getElementById('calc-reset-btn').addEventListener('click', () => {
+      // Reset state
+      document.getElementById('step-3').style.display = 'none';
+      document.getElementById('step-1').style.display = 'block';
+      document.getElementById('progress-2').style.background = '#e2e8f0';
+      document.getElementById('progress-3').style.background = '#e2e8f0';
+      
+      // Reset inputs
+      areaInput.value = '100';
+      areaUnknown.checked = false;
+      areaInput.disabled = false;
+      areaInput.style.opacity = '1';
+      document.getElementById('calc-name').value = '';
+      document.getElementById('calc-email').value = '';
+      document.getElementById('calc-phone').value = '';
+      document.getElementById('calc-address').value = '';
+      document.getElementById('calc-address').style.display = 'none';
+
+      // Scroll to start
+      setTimeout(() => {
+        document.getElementById('konfigurator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
     });
 
     return true;

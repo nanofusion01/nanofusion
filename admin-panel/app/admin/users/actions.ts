@@ -22,18 +22,29 @@ export async function deleteUser(id: string) {
   revalidatePath('/admin/users')
 }
 
-export async function addUser(email: string, role: 'admin' | 'editor', password: string) {
+export async function addUser(email: string) {
   const adminClient = await createAdminClient()
+  
+  // Generate a random temporary password
+  const tempPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-8).toUpperCase() + '1!';
   
   const { data, error } = await adminClient.auth.admin.createUser({
     email,
-    password,
+    password: tempPassword,
     email_confirm: true,
-    user_metadata: { role, full_name: email.split('@')[0] }
+    user_metadata: { role: 'admin', full_name: email.split('@')[0] }
   })
   
   if (error) throw new Error(error.message)
+
+  const supabase = await createClient() as any
+  await supabase.from('profiles').update({
+    role: 'admin',
+    force_password_change: true
+  }).eq('id', data.user.id)
+
   revalidatePath('/admin/users')
+  return tempPassword
 }
 
 export async function updateUserRole(id: string, role: 'admin' | 'editor') {

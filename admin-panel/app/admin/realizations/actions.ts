@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { uploadFile } from '@/lib/storage'
 
 export async function createRealization(data: {
   title: string
@@ -17,6 +18,8 @@ export async function createRealization(data: {
     .single()
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
+  revalidatePath('/realizace')
+  revalidatePath('/')
   return (realization as any).id
 }
 
@@ -34,6 +37,8 @@ export async function updateRealization(id: string, data: Partial<{
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
+  revalidatePath('/realizace')
+  revalidatePath('/')
 }
 
 export async function deleteRealization(id: string) {
@@ -41,6 +46,8 @@ export async function deleteRealization(id: string) {
   const { error } = await (supabase.from('realizations') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
+  revalidatePath('/realizace')
+  revalidatePath('/')
 }
 
 export async function togglePublished(id: string, is_published: boolean) {
@@ -50,6 +57,8 @@ export async function togglePublished(id: string, is_published: boolean) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
+  revalidatePath('/realizace')
+  revalidatePath('/')
 }
 
 export async function uploadRealizationPhoto(
@@ -60,28 +69,23 @@ export async function uploadRealizationPhoto(
   const fileData = file.get('file') as File
   if (!fileData) throw new Error('No file provided')
 
-  const ext = fileData.name.split('.').pop()
-  const path = `${realizationId}/${Date.now()}.${ext}`
-  const { data, error } = await supabase.storage
-    .from('realizations')
-    .upload(path, fileData, { cacheControl: '3600', upsert: false })
-  if (error) throw new Error(error.message)
-
-  const { data: { publicUrl } } = supabase.storage
-    .from('realizations')
-    .getPublicUrl(data.path)
+  const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
 
   const { count } = await (supabase.from('realization_photos') as any)
     .select('*', { count: 'exact', head: true })
     .eq('realization_id', realizationId)
 
-  await (supabase.from('realization_photos') as any).insert({
+  const { error: dbError } = await (supabase.from('realization_photos') as any).insert({
     realization_id: realizationId,
     url: publicUrl,
     order_index: count ?? 0,
   })
 
+  if (dbError) throw new Error(`Database write failed: ${dbError.message}`)
+
   revalidatePath('/admin/realizations')
+  revalidatePath('/realizace')
+  revalidatePath('/')
   return publicUrl
 }
 
@@ -92,4 +96,6 @@ export async function deleteRealizationPhoto(photoId: string) {
     .eq('id', photoId)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
+  revalidatePath('/realizace')
+  revalidatePath('/')
 }

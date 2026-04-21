@@ -46,32 +46,41 @@ export function AdminHeader() {
 
   return (
     <header
-      className="fixed top-0 right-0 flex items-center px-6 bg-white z-40"
+      className="fixed top-0 right-0 flex items-center px-4 md:px-6 bg-white z-40 transition-all duration-200"
       style={{
-        left: 'var(--sidebar-width)',
+        left: '0',
         height: 'var(--header-height)',
         borderBottom: '1px solid var(--border)',
         boxShadow: 'var(--shadow-sm)',
       }}
     >
-      <div className="flex items-center gap-1.5 text-sm">
-        <Home size={14} style={{ color: 'var(--text-muted)' }} />
-        {breadcrumbs.map((crumb, i) => (
-          <span key={crumb.href} className="flex items-center gap-1.5">
-            <ChevronRight size={12} style={{ color: 'var(--text-muted)' }} />
-            <span
-              style={{
-                color:
-                  i === breadcrumbs.length - 1
-                    ? 'var(--text-primary)'
-                    : 'var(--text-muted)',
-                fontWeight: i === breadcrumbs.length - 1 ? 600 : 400,
-              }}
-            >
-              {crumb.label}
-            </span>
-          </span>
-        ))}
+      <div className="md:ml-[var(--sidebar-width)] flex items-center justify-between w-full">
+        <div className="flex items-center gap-1.5 text-xs md:text-sm overflow-hidden">
+          <div className="md:hidden flex items-center gap-2 mr-2">
+            <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center shrink-0">
+              <span className="text-white font-black text-[10px]">NF</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 truncate">
+            <Home size={14} className="hidden md:block" style={{ color: 'var(--text-muted)' }} />
+            {breadcrumbs.map((crumb, i) => (
+              <span key={crumb.href} className="flex items-center gap-1.5 shrink-0">
+                <ChevronRight size={12} style={{ color: 'var(--text-muted)' }} />
+                <span
+                  style={{
+                    color:
+                      i === breadcrumbs.length - 1
+                        ? 'var(--text-primary)'
+                        : 'var(--text-muted)',
+                    fontWeight: i === breadcrumbs.length - 1 ? 600 : 400,
+                  }}
+                >
+                  {crumb.label}
+                </span>
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
     </header>
   )

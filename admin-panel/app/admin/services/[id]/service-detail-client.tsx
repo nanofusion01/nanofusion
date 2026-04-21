@@ -20,16 +20,17 @@ import { createClient } from '@/lib/supabase/client'
 
 type Service = Tables<'services'>
 type BeforeAfter = Tables<'service_before_after'>
-type ServiceReview = Tables<'service_reviews'>
+type ServiceFAQ = Tables<'service_faqs'>
 
 interface Props {
   service: Service
   beforeAfterItems: BeforeAfter[]
-  serviceReviews: ServiceReview[]
+  serviceFaqs: ServiceFAQ[]
 }
 
-export function ServiceDetailClient({ service: initialService, beforeAfterItems, serviceReviews }: Props) {
-  const [activeTab, setActiveTab] = useState<'general' | 'photos' | 'reviews'>('general')
+export function ServiceDetailClient({ service: initialService, beforeAfterItems, serviceFaqs: initialFaqs }: Props) {
+  const [activeTab, setActiveTab] = useState<'general' | 'photos' | 'faqs'>('general')
+  const [faqs, setFaqs] = useState<ServiceFAQ[]>(initialFaqs)
   const [service, setService] = useState(initialService)
   const [saving, setSaving] = useState(false)
   
@@ -79,7 +80,7 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
         {[
           { id: 'general', label: 'Základní info', icon: <Layout size={16} /> },
           { id: 'photos', label: 'Před & Po fotky', icon: <Camera size={16} /> },
-          { id: 'reviews', label: 'Recenze služby', icon: <MessageSquareQuote size={16} /> },
+          { id: 'faqs', label: 'Časté dotazy (Q&A)', icon: <MessageSquareQuote size={16} /> },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -198,34 +199,94 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
           </div>
         )}
 
-        {activeTab === 'reviews' && (
+        {activeTab === 'faqs' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg">Specifické recenze pro tuto službu</h3>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border hover:bg-slate-50 transition-colors">
-                <Plus size={16} /> Přidat recenzi
+              <h3 className="font-bold text-lg">Q&A / Časté dotazy k této službě</h3>
+              <button 
+                onClick={async () => {
+                   const { addServiceFaq } = await import('../actions')
+                   const newFaq = await addServiceFaq(service.id, 'Nová otázka', 'Odpověď...')
+                   setFaqs([...faqs, newFaq])
+                   toast.success('Dotaz přidán')
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border hover:bg-slate-50 transition-colors"
+              >
+                <Plus size={16} /> Přidat dotaz
               </button>
             </div>
 
-            <div className="grid gap-3">
-              {serviceReviews.map((review) => (
-                <div key={review.id} className="p-4 rounded-xl border flex items-start gap-4" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className="font-bold text-sm">{review.author}</span>
-                      <div className="flex gap-0.5">
-                        {[...Array(review.rating)].map((_, i) => (
-                        <Star key={i} size={12} fill="#f59e0b" color="#f59e0b" />
-                        ))}
+            <div className="grid gap-4">
+              {faqs.map((faq) => (
+                <div key={faq.id} className="p-6 rounded-2xl border space-y-4" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1 space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-slate-400">Otázka</label>
+                        <input 
+                          type="text" 
+                          value={faq.question}
+                          onChange={async (e) => {
+                            const val = e.target.value
+                            setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, question: val} : f))
+                          }}
+                          onBlur={async (e) => {
+                            const { updateServiceFaq } = await import('../actions')
+                            await updateServiceFaq(faq.id, { question: e.target.value })
+                          }}
+                          className="w-full px-4 py-2 rounded-lg border font-bold text-sm outline-none focus:border-amber-500"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-slate-400">Odpověď</label>
+                        <textarea 
+                          value={faq.answer}
+                          onChange={async (e) => {
+                            const val = e.target.value
+                            setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, answer: val} : f))
+                          }}
+                          onBlur={async (e) => {
+                            const { updateServiceFaq } = await import('../actions')
+                            await updateServiceFaq(faq.id, { answer: e.target.value })
+                          }}
+                          className="w-full px-4 py-2 rounded-lg border text-sm outline-none focus:border-amber-500 resize-none"
+                          rows={3}
+                        />
                       </div>
                     </div>
-                    <p className="text-sm line-clamp-2 italic text-slate-600">{review.content}</p>
+                    <div className="flex flex-col gap-2">
+                      <button 
+                         onClick={async () => {
+                           if(confirm('Smazat tento dotaz?')) {
+                             const { deleteServiceFaq } = await import('../actions')
+                             await deleteServiceFaq(faq.id)
+                             setFaqs(faqs.filter(f => f.id !== faq.id))
+                             toast.success('Dotaz smazán')
+                           }
+                         }}
+                         className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          const { updateServiceFaq } = await import('../actions')
+                          const newStatus = !faq.is_active
+                          await updateServiceFaq(faq.id, { is_active: newStatus })
+                          setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, is_active: newStatus} : f))
+                          toast.success(newStatus ? 'Aktivováno' : 'Deaktivováno')
+                        }}
+                        className={`p-2 rounded-lg transition-colors ${faq.is_active ? 'text-green-500 bg-green-50' : 'text-slate-300 bg-slate-50'}`}
+                      >
+                        <Save size={18} />
+                      </button>
+                    </div>
                   </div>
-                  <button className="p-2 text-red-400 hover:text-red-600">
-                    <Trash2 size={16} />
-                  </button>
                 </div>
               ))}
+              {faqs.length === 0 && (
+                <div className="text-center py-12 opacity-40 text-sm">Zatím žádné dotazy pro tuto službu.</div>
+              )}
             </div>
           </div>
         )}

@@ -7,7 +7,7 @@ export default async function UsersPage() {
 
   // Check admin role
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) {
     redirect('/admin/login')
   }
@@ -28,9 +28,9 @@ export default async function UsersPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <UsersClient 
-      initialProfiles={(profiles as any[]) || []} 
-      currentUserId={user!.id} 
+    <UsersClient
+      initialProfiles={(profiles as any[]) || []}
+      currentUserId={user!.id}
     />
   )
 }

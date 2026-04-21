@@ -220,10 +220,10 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
       {/* Table */}
       <div
         className="rounded-xl overflow-hidden"
-        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+        style={{ border: filtered.length > 0 ? '1px solid var(--border)' : 'none' }}
       >
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white rounded-xl border border-dashed">
             <ClipboardList size={44} style={{ color: 'var(--text-muted)' }} />
             <p className="font-medium" style={{ color: 'var(--text-secondary)' }}>
               Žádné poptávky nenalezeny
@@ -239,8 +239,10 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto bg-white">
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-base)' }}>
                   {['Datum', 'Klient', 'Služba', 'Plocha', 'Stav', 'Akce'].map((col) => (
@@ -340,6 +342,46 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden flex flex-col gap-3">
+            {filtered.map((inq) => {
+              const st = inq.status as string
+              const colors = STATUS_COLORS[st] || STATUS_COLORS['new']
+              return (
+                <div 
+                  key={inq.id}
+                  onClick={() => handleOpenInquiry(inq)}
+                  className="p-4 rounded-xl space-y-3 bg-white shadow-sm border border-slate-100"
+                  style={{ borderLeft: `4px solid ${colors.text}` }}
+                >
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] font-bold uppercase text-slate-400">
+                      {new Date(inq.created_at).toLocaleDateString('cs-CZ')}
+                    </span>
+                    <span
+                      className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider"
+                      style={{ background: colors.bg, color: colors.text }}
+                    >
+                      {STATUS_LABELS[st] || st}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900">{inq.name || 'Bez jména'}</h3>
+                    <p className="text-xs text-slate-500">{inq.service || 'Obecná poptávka'}</p>
+                  </div>
+                  <div className="pt-2 flex justify-between items-center border-t border-slate-50">
+                    <div className="flex gap-2">
+                       {inq.phone && <Phone size={14} className="text-slate-400" />}
+                       {inq.email && <Mail size={14} className="text-slate-400" />}
+                    </div>
+                    <ChevronRight size={16} className="text-slate-300" />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          </>
         )}
       </div>
 
@@ -452,6 +494,25 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                     </p>
                   </div>
                 </div>
+                {selectedInquiry.address && (
+                  <div className="col-span-2 flex items-start gap-2 pt-2 border-t mt-1">
+                    <Home size={16} style={{ color: 'var(--text-muted)' }} className="mt-1" />
+                    <div>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Adresa a doprava</p>
+                      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                        {selectedInquiry.address}
+                      </p>
+                      <div className="flex gap-3 mt-1">
+                         <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                           {selectedInquiry.distance_km || 0} km
+                         </span>
+                         <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                           cca {selectedInquiry.travel_cost_czk || 0} Kč
+                         </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Message */}

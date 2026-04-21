@@ -54,6 +54,20 @@
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 20px;
+
+  /* Shadcn UI compatibility */
+  --primary: var(--brand-primary);
+  --primary-foreground: #ffffff;
+  --background: var(--bg-surface);
+  --foreground: var(--text-primary);
+  --muted: var(--bg-surface-2);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bg-surface-2);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--status-danger);
+  --destructive-foreground: #ffffff;
+  --input: var(--border);
+  --ring: var(--brand-primary);
 }
 
 /* =============================================
