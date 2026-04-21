@@ -31,6 +31,11 @@ const openBlogDetail = (post) => {
 };
 
 const injectBlog = async () => {
+    // Resilience: Wait for supabase
+    if (!window.supabase) await new Promise(r => setTimeout(r, 500));
+    const sb = window.supabase;
+    if (!sb) return;
+
     let blogSection = document.getElementById('blog');
     const referenceSection = document.getElementById('reference');
     const contactSection = document.getElementById('kontakt');
@@ -61,7 +66,7 @@ const injectBlog = async () => {
         summary: a.content ? a.content.substring(0, 150) + '...' : '',
         content: a.content || '',
         date: new Date(a.published_at || a.created_at).toLocaleDateString('cs-CZ'),
-        image: a.hero_image_url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800'
+        image: normalizeMediaUrl(a.hero_image_url) || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800'
     }));
 
     window.nnf_openBlog = (id) => {
@@ -85,8 +90,6 @@ const injectBlog = async () => {
                             <div class="blog-card-modern" 
                                 onclick="window.nnf_openBlog('${post.id}')"
                                 style="flex: 0 0 calc(33.333% - 1.34rem); min-width: 320px; background: white; border-radius: 2rem; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column;" 
-                                onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 25px 45px rgba(0,0,0,0.1)';" 
-                                onmouseout="this.style.transform='none'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.05)';"
                             >
                                 <div style="height: 240px; overflow: hidden;">
                                     <img src="${post.image}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -99,49 +102,26 @@ const injectBlog = async () => {
                             </div>
                         `).join('')}
                     </div>
-
-                    ${blogPostsData.length > 0 ? `
-                    <button onclick="document.getElementById('blog-scroller').scrollLeft -= 500" 
-                        class="hidden md:flex"
-                        style="position: absolute; left: -25px; top: 50%; transform: translateY(-50%); z-index: 10; width: 60px; height: 60px; border-radius: 30px; background: #f59e0b !important; border: none; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); transition: all 0.3s ease;"
-                    > 
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white !important" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: white !important;"><path d="M15 18l-6-6 6-6"></path></svg> 
-                    </button>
-                    
-                    <button onclick="document.getElementById('blog-scroller').scrollLeft += 500" 
-                        class="hidden md:flex"
-                        style="position: absolute; right: -25px; top: 50%; transform: translateY(-50%); z-index: 10; width: 60px; height: 60px; border-radius: 30px; background: #f59e0b !important; border: none; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); transition: all 0.3s ease;"
-                    > 
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white !important" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: white !important;"><path d="M9 18l6-6-6-6"></path></svg> 
-                    </button>
-                    ` : ''}
                 </div>
             </div>
-            
-            <style>
-                #blog-scroller::-webkit-scrollbar { display: none; }
-                @media (max-width: 768px) {
-                    .blog-card-modern { flex: 0 0 90% !important; min-width: unset !important; }
-                }
-            </style>
+            <style>#blog-scroller::-webkit-scrollbar { display: none; }</style>
         `;
     };
-
     render();
 };
 
 const initBlog = () => {
-    if (!document.getElementById('blog')) {
+    if (!document.getElementById('blog_injected') || !document.getElementById('blog')) {
+        const dummy = document.createElement('div');
+        dummy.id = 'blog_injected';
+        document.body.appendChild(dummy);
         injectBlog();
     }
 };
 
 const blogObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-        if (mutation.addedNodes.length) initBlog();
-    });
+    if (!document.getElementById('blog')) initBlog();
 });
 
 blogObserver.observe(document.body, { childList: true, subtree: true });
 initBlog();
-window.addEventListener('load', () => setTimeout(initBlog, 1000));
