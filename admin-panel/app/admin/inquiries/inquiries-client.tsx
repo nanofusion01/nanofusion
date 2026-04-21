@@ -9,6 +9,8 @@ import {
   ClipboardList,
   X,
   ChevronDown,
+  ChevronRight,
+  Home,
   Phone,
   Mail,
   MessageSquare,

@@ -151,6 +151,35 @@ export type Database = {
           created_at?: string
         }
       }
+      service_faqs: {
+        Row: {
+          id: string
+          service_id: string
+          question: string
+          answer: string
+          order_index: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          service_id: string
+          question: string
+          answer: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          service_id?: string
+          question?: string
+          answer?: string
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+      }
       realizations: {
         Row: {
           id: string
@@ -315,6 +344,7 @@ export type Database = {
           answer: string
           order_index: number
           is_active: boolean
+          page_section: string
         }
         Insert: {
           id?: string
@@ -322,6 +352,7 @@ export type Database = {
           answer: string
           order_index?: number
           is_active?: boolean
+          page_section?: string
         }
         Update: {
           id?: string
@@ -329,6 +360,7 @@ export type Database = {
           answer?: string
           order_index?: number
           is_active?: boolean
+          page_section?: string
         }
       }
       configurator_prices: {
@@ -399,6 +431,9 @@ export type Database = {
           created_at: string
           updated_at: string
           notes: string | null
+          address: string | null
+          distance_km: number | null
+          travel_cost_czk: number | null
         }
         Insert: {
           id?: string
@@ -412,6 +447,9 @@ export type Database = {
           created_at?: string
           updated_at?: string
           notes?: string | null
+          address?: string | null
+          distance_km?: number | null
+          travel_cost_czk?: number | null
         }
         Update: {
           id?: string
@@ -425,6 +463,9 @@ export type Database = {
           created_at?: string
           updated_at?: string
           notes?: string | null
+          address?: string | null
+          distance_km?: number | null
+          travel_cost_czk?: number | null
         }
       }
     }

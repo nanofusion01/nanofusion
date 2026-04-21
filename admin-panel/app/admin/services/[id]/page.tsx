@@ -11,11 +11,11 @@ export default async function ServiceDetailPage(props: { params: Promise<{ id: s
   const [
     { data: service },
     { data: beforeAfter },
-    { data: reviews }
+    { data: serviceFaqs }
   ] = await Promise.all([
     (supabase.from('services') as any).select('*').eq('id', params.id).single(),
     (supabase.from('service_before_after') as any).select('*').eq('service_id', params.id).order('order_index'),
-    (supabase.from('service_reviews') as any).select('*').eq('service_id', params.id).order('created_at', { ascending: false })
+    (supabase.from('service_faqs') as any).select('*').eq('service_id', params.id).order('order_index')
   ])
 
   if (!service) {
@@ -26,7 +26,7 @@ export default async function ServiceDetailPage(props: { params: Promise<{ id: s
     <ServiceDetailClient 
       service={service as any} 
       beforeAfterItems={(beforeAfter as any[]) ?? []}
-      serviceReviews={(reviews as any[]) ?? []}
+      serviceFaqs={(serviceFaqs as any[]) ?? []}
     />
   )
 }
