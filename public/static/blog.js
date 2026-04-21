@@ -1,4 +1,4 @@
-import { supabase } from './supabase-client.js'
+import { supabase, normalizeMediaUrl } from './supabase-client.js'
 
 const openBlogDetail = (post) => {
     let overlay = document.getElementById('blog-modal-overlay');

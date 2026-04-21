@@ -1,3 +1,5 @@
+import { supabase } from './supabase-client.js'
+
 /* AI Nano-Assistant for NANOfusion */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -265,8 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]);
                 
                 // --- Cloud Sync: Save AI Lead to Supabase ---
-                if (window.supabase) {
-                    window.supabase.from('inquiries').insert([{
+                if (supabase) {
+                    supabase.from('inquiries').insert([{
                         name: 'Zákazník z Chatu',
                         phone: original,
                         email: 'chat@nanofusion.cz', // Placeholder for non-email chat

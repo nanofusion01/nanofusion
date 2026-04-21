@@ -1,3 +1,5 @@
+import { supabase, normalizeMediaUrl } from './supabase-client.js'
+
 // Senior CTO: Dynamic Data Source (CMS Bridge)
 let servicesData = [
   {
@@ -189,10 +191,8 @@ let servicesData = [
 
 // Bridge to Admin CMS (Supabase Cloud Version)
 const syncServicesWithCMS = async () => {
-  if (!window.supabase) return;
-  try {
-    const { data: cmsData, error } = await window.supabase.from('services').select('*');
-    const { data: faqData } = await window.supabase.from('service_faqs').select('*').eq('is_published', true);
+    const { data: cmsData, error } = await supabase.from('services').select('*');
+    const { data: faqData } = await supabase.from('service_faqs').select('*').eq('is_published', true);
 
     if (cmsData && Array.isArray(cmsData)) {
       cmsData.forEach(cmsItem => {

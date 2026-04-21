@@ -1,6 +1,6 @@
 /* Dynamic Portfolio / Realizations for NANOfusion */
 
-import { supabase } from './supabase-client.js'
+import { supabase, normalizeMediaUrl } from './supabase-client.js'
 
 const injectPortfolio = async () => {
     let portfolioSection = document.getElementById('realizace');
