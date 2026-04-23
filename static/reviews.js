@@ -12,12 +12,14 @@ const injectReviews = () => {
     if (!reviewsSection || reviewsSection.dataset.injected === 'true') return false;
 
     reviewsSection.innerHTML = `
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <p class="text-slate-400 max-w-2xl mx-auto text-sm leading-relaxed">
-                    Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
-                </p>
-            </div>
+        <div class="py-32 bg-white section-reveal">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-20">
+                    <h2 class="text-3xl md:text-5xl font-bold text-slate-900 mb-6">Co o nás říkají naši klienti</h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto text-base leading-relaxed">
+                        Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
+                    </p>
+                </div>
 
             <div style="position: relative; width: 100%; max-width: 1400px; margin: 0 auto;">
                 <div id="reviews-scroller" style="display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; scrollbar-width: none;">
@@ -40,12 +42,16 @@ const injectReviews = () => {
 
                 <!-- Premium Navigation Arrows -->
                 <button onclick="document.getElementById('reviews-scroller').scrollLeft -= 400" 
-                    style="position: absolute; left: -25px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 10; transition: all 0.2s;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: auto;"><path d="M15 18l-6-6 6-6"></path></svg>
+                    style="position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(245,158,11,0.3); z-index: 10; transition: all 0.3s ease;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                        <path d="M15 18L9 12L15 6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </button>
                 <button onclick="document.getElementById('reviews-scroller').scrollLeft += 400" 
-                    style="position: absolute; right: -25px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 10; transition: all 0.2s;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: auto;"><path d="M9 18l6-6 6-6"></path></svg>
+                    style="position: absolute; right: -30px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(245,158,11,0.3); z-index: 10; transition: all 0.3s ease;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                        <path d="M9 18L15 12L9 6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </button>
             </div>
         </div>
