@@ -74,7 +74,7 @@ export default async function AdminLayout({
         color: '#94a3b8'
       }}>
         <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '32px', height: '32px', background: '#f59e0b', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: 'white', fontWeight: 'bold' }}>NF</div>
+          <div style={{ width: '32px', height: '32px', background: '#f59e0b', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>NF</div>
           <div>
             <div style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>NANOfusion</div>
             <div style={{ fontSize: '10px', opacity: 0.5 }}>Admin Panel</div>
