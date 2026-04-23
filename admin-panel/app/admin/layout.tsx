@@ -21,7 +21,7 @@ export default async function AdminLayout({
           <li>NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
           <li>SUPABASE_SERVICE_ROLE_KEY</li>
         </ul>
-        <p style={{ marginTop: '12px' }}>Přidej je do <b>Settings -> Environment Variables</b> a dej <b>Redeploy</b>.</p>
+        <p style={{ marginTop: '12px' }}>Přidej je do <b>Settings &rarr; Environment Variables</b> a dej <b>Redeploy</b>.</p>
       </div>
     )
   }
