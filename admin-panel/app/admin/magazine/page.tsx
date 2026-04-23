@@ -1,12 +1,12 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Plus, Eye, EyeOff } from 'lucide-react'
 
 export default async function MagazinePage() {
-  const supabase = await createClient()
-  const { data: articles } = await (supabase.from('magazine_articles') as any)
+  const supabase = await createAdminClient()
+  const { data: articles } = await (supabase.from('articles') as any)
     .select('id, title, slug, is_published, published_at, created_at')
     .order('created_at', { ascending: false })
 
