@@ -14,14 +14,14 @@ const injectReviews = () => {
     reviewsSection.innerHTML = `
         <div class="py-32 bg-slate-950 section-reveal">
             <div class="container mx-auto px-6">
-                <div class="text-center mb-20">
+                <div class="text-center mb-12">
                     <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Co o nás říkají naši klienti</h2>
-                    <p class="text-slate-400 max-w-2xl mx-auto text-base leading-relaxed">
+                    <p class="text-slate-400 max-w-xl mx-auto text-base leading-relaxed">
                         Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
                     </p>
                 </div>
 
-            <div style="position: relative; width: 100%; max-width: 1400px; margin: 0 auto;">
+            <div style="position: relative; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 40px;">
                 <div id="reviews-scroller" style="display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; scrollbar-width: none;">
                     ${reviewsData.map(rev => `
                         <div class="review-card-premium" 
