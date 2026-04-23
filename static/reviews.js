@@ -12,10 +12,10 @@ const injectReviews = () => {
     if (!reviewsSection || reviewsSection.dataset.injected === 'true') return false;
 
     reviewsSection.innerHTML = `
-        <div class="py-32 bg-white section-reveal">
+        <div class="py-32 bg-slate-950 section-reveal">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-20">
-                    <h2 class="text-3xl md:text-5xl font-bold text-slate-900 mb-6">Co o nás říkají naši klienti</h2>
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Co o nás říkají naši klienti</h2>
                     <p class="text-slate-400 max-w-2xl mx-auto text-base leading-relaxed">
                         Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
                     </p>

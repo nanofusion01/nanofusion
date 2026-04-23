@@ -167,12 +167,8 @@ window.nnf_openGallery = (id) => {
                 <div style="background:#f8fafc; padding:1.5rem; border-radius:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
                     <div>
                         <div style="font-weight:800; color:#0f172a;">Zaujal vás tento výsledek?</div>
-                        <div style="color:#64748b; font-size:14px;">Zeptejte se nás na cenu či detaily.</div>
+                        <div style="color:#64748b; font-size:14px;">Zeptejte se nás na cenu či detaily níže.</div>
                     </div>
-                    <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'; setTimeout(() => document.getElementById('ai-chat-launcher').click(), 200)" 
-                        style="background:#f59e0b; color:white; border:none; padding:1rem 2rem; border-radius:1rem; font-weight:800; cursor:pointer;">
-                        CHCI TAKÉ TAKOVÉ VÝSLEDKY
-                    </button>
                 </div>
             </div>
         </div>
