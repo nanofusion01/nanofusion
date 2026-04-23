@@ -80,6 +80,14 @@ const injectBlog = async () => {
         referenceSection.parentNode.insertBefore(blogSection, referenceSection.nextSibling);
     } else if (contactSection && contactSection.parentNode) {
         contactSection.parentNode.insertBefore(blogSection, contactSection);
+    } else {
+        // STRV Fallback: If no anchor found, append to body before footer
+        const footer = document.querySelector('footer');
+        if (footer) {
+            footer.parentNode.insertBefore(blogSection, footer);
+        } else {
+            document.body.appendChild(blogSection);
+        }
     }
 
     const render = () => {
