@@ -168,9 +168,9 @@ const initBlogResilient = () => {
         if (blogExists) return true; // Already injected
 
         if (referenceSection || contactSection) {
-            console.log('NANOfusion: Found anchor, injecting blog...');
-            injectBlog();
-            hydrateBlog();
+            console.log('NANOfusion: Found anchor, hydrating blog first...');
+            // OPRAVA: hydrate NEJDŘÍV (await), pak inject — jinak modal nemá content z DB
+            hydrateBlog().then(() => injectBlog());
             return true;
         }
         return false;
@@ -190,19 +190,9 @@ const initBlogResilient = () => {
     setTimeout(() => {
         if (!document.getElementById('blog')) {
             console.warn('NANOfusion: Anchor not found after 8s, using secondary fallback');
-            const mainContent = document.querySelector('main') || document.getElementById('root');
-            if (mainContent) {
-                mainContent.appendChild(blogSection);
+            hydrateBlog().then(() => {
                 injectBlog();
-                hydrateBlog();
-            } else {
-                // Last resort: before footer
-                const footer = document.querySelector('footer');
-                if (footer) footer.parentNode.insertBefore(blogSection, footer);
-                else document.body.appendChild(blogSection);
-                injectBlog();
-                hydrateBlog();
-            }
+            });
             observer.disconnect();
         }
     }, 8000);
@@ -211,6 +201,11 @@ const initBlogResilient = () => {
 initBlogResilient();
 
 window.nnf_openBlog = (id) => {
-    const post = blogPostsData.find(p => p.id === id || p.slug === id);
+    // Hledej přes id (UUID z DB), slug, nebo číslo (hardcoded fallback)
+    const post = blogPostsData.find(p =>
+        String(p.id) === String(id) || p.slug === id
+    );
     if (post) openBlogDetail(post);
+    else console.warn('NANOfusion: Blog post not found for id:', id);
 };
+

@@ -12,8 +12,6 @@ export async function createService(data: { name: string; slug: string }) {
   
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
-  revalidatePath('/sluzby')
-  revalidatePath('/')
   return (service as any).id
 }
 
@@ -26,9 +24,6 @@ export async function updateService(id: string, data: any) {
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
   revalidatePath(`/admin/services/${id}`)
-  revalidatePath('/sluzby')
-  revalidatePath('/sluzby/[slug]', 'page')
-  revalidatePath('/')
 }
 
 export async function deleteService(id: string) {
@@ -36,8 +31,6 @@ export async function deleteService(id: string) {
   const { error } = await (supabase.from('services') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
-  revalidatePath('/sluzby')
-  revalidatePath('/sluzby/[slug]', 'page')
 }
 
 export async function toggleServiceStatus(id: string, is_active: boolean) {
@@ -48,8 +41,6 @@ export async function toggleServiceStatus(id: string, is_active: boolean) {
   
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
-  revalidatePath('/sluzby')
-  revalidatePath('/sluzby/[slug]', 'page')
 }
 
 export async function reorderServices(items: { id: string; order_index: number }[]) {
@@ -59,8 +50,6 @@ export async function reorderServices(items: { id: string; order_index: number }
   )
   await Promise.all(updates)
   revalidatePath('/admin/services')
-  revalidatePath('/sluzby')
-  revalidatePath('/')
 }
 
 export async function addServiceFaq(serviceId: string, question: string, answer: string) {
@@ -71,7 +60,7 @@ export async function addServiceFaq(serviceId: string, question: string, answer:
     .single()
   
   if (error) throw new Error(error.message)
-  revalidatePath('/sluzby/[slug]', 'page')
+  revalidatePath(`/admin/services/${serviceId}`)
   return data
 }
 
@@ -82,13 +71,10 @@ export async function updateServiceFaq(id: string, data: any) {
     .eq('id', id)
   
   if (error) throw new Error(error.message)
-  revalidatePath('/sluzby/[slug]', 'page')
 }
 
 export async function deleteServiceFaq(id: string) {
   const supabase = await createClient()
   const { error } = await (supabase.from('service_faqs') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
-  revalidatePath('/sluzby/[slug]', 'page')
 }
-

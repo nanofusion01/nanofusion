@@ -18,8 +18,6 @@ export async function createRealization(data: {
     .single()
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
-  revalidatePath('/realizace')
-  revalidatePath('/')
   return (realization as any).id
 }
 
@@ -37,8 +35,6 @@ export async function updateRealization(id: string, data: Partial<{
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
-  revalidatePath('/realizace')
-  revalidatePath('/')
 }
 
 export async function deleteRealization(id: string) {
@@ -46,8 +42,6 @@ export async function deleteRealization(id: string) {
   const { error } = await (supabase.from('realizations') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
-  revalidatePath('/realizace')
-  revalidatePath('/')
 }
 
 export async function togglePublished(id: string, is_published: boolean) {
@@ -57,8 +51,6 @@ export async function togglePublished(id: string, is_published: boolean) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
-  revalidatePath('/realizace')
-  revalidatePath('/')
 }
 
 export async function uploadRealizationPhoto(
@@ -84,8 +76,6 @@ export async function uploadRealizationPhoto(
   if (dbError) throw new Error(`Database write failed: ${dbError.message}`)
 
   revalidatePath('/admin/realizations')
-  revalidatePath('/realizace')
-  revalidatePath('/')
   return publicUrl
 }
 
@@ -96,6 +86,4 @@ export async function deleteRealizationPhoto(photoId: string) {
     .eq('id', photoId)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
-  revalidatePath('/realizace')
-  revalidatePath('/')
 }

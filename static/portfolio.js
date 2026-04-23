@@ -72,26 +72,51 @@ const injectPortfolio = async () => {
     const hydratePortfolio = async () => {
         try {
             const { supabase } = await import('./supabase-config.js');
-            const { data, error } = await supabase.from('realizations')
-                .select('*')
-                .eq('is_published', true);
-            
+            // TASK 5: Načti realizace + fotky v jednom query
+            const { data, error } = await supabase
+                .from('realizations')
+                .select(`
+                    *,
+                    realization_photos (
+                        url,
+                        caption,
+                        order_index
+                    )
+                `)
+                .eq('is_published', true)
+                .order('created_at', { ascending: false });
+
             if (!error && data && data.length > 0) {
-                console.log('Hydrating portfolio from STRV Cloud...');
-                // Map database fields to the UI structure
-                projectsData = data.map(d => ({
-                    ...d,
-                    id: d.id,
-                    image: d.hero_image_url || 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
-                    beforeImg: d.before_image_url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
-                    afterImg: d.after_image_url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
-                    challenge: d.description,
-                    solution: 'Profesionální nano-technologický postup NANOfusion.',
-                    results: 'Povrch je nyní dlouhodobě chráněn a vypadá jako nový.'
-                }));
-                render();
+                console.log(`NANOfusion: ${data.length} realizací načteno z DB`);
+                // Opravené mapování polí DB → UI
+                projectsData = data.map(d => {
+                    const photos = (d.realization_photos || [])
+                        .sort((a, b) => a.order_index - b.order_index);
+                    return {
+                        ...d,
+                        id: d.id,
+                        title: d.title,
+                        service: d.work_type || 'NANOfusion práce',
+                        location: d.location || '',
+                        duration: d.duration || '',
+                        // Hlavní fotka = první fotka z realization_photos
+                        image: photos[0]?.url || 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
+                        // Před = první, Po = druhá fotka
+                        beforeImg: photos[0]?.url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
+                        afterImg: photos[1]?.url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
+                        // Detailní popis
+                        challenge: d.description || 'Profesionální zpracování.',
+                        solution: 'Profesionální nano-technologický postup NANOfusion.',
+                        results: `Realizace dokončena v ${d.duration || 'rekordním čase'}. Povrch je nyní dlouhodobě chráněn.`,
+                    };
+                });
+                render(); // Re-render DOM s DB daty
+            } else if (error) {
+                console.warn('NANOfusion: Portfolio hydration error (RLS?):', error.message);
             }
-        } catch (e) { }
+        } catch (e) {
+            console.warn('Portfolio hydration failed:', e);
+        }
     };
     hydratePortfolio();
 

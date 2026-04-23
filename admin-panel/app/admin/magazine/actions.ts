@@ -7,30 +7,24 @@ export async function saveArticle(id: string | null, data: any) {
   const supabase = await createClient()
   
   if (id) {
-    // Update
-    const { error } = await (supabase.from('magazine_articles') as any)
+    // Update — uses 'articles' table (unified with public web)
+    const { error } = await (supabase.from('articles') as any)
       .update({ ...data, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw new Error(error.message)
   } else {
-    // Create
-    const { error } = await (supabase.from('magazine_articles') as any)
+    // Create — uses 'articles' table (unified with public web)
+    const { error } = await (supabase.from('articles') as any)
       .insert({ ...data, is_published: false })
     if (error) throw new Error(error.message)
   }
   
   revalidatePath('/admin/magazine')
-  revalidatePath('/magazin')
-  revalidatePath('/magazin/[slug]', 'page')
-  revalidatePath('/')
 }
 
 export async function deleteArticle(id: string) {
   const supabase = await createClient()
-  const { error } = await (supabase.from('magazine_articles') as any).delete().eq('id', id)
+  const { error } = await (supabase.from('articles') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/magazine')
-  revalidatePath('/magazin')
-  revalidatePath('/magazin/[slug]', 'page')
-  revalidatePath('/')
 }

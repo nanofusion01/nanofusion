@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { Sidebar } from '@/components/admin/sidebar'
 
 export default async function AdminLayout({
   children,
@@ -28,7 +28,7 @@ export default async function AdminLayout({
     error: userError
   } = await supabase.auth.getUser()
 
-  // Guard: If no user or error fetching user, only show the children (login page)
+  // Nepřihlášený uživatel → pouze obsah (login stránka)
   if (!user || userError) {
     return <>{children}</>
   }
@@ -39,13 +39,13 @@ export default async function AdminLayout({
     .eq('id', user.id)
     .single()
 
-  // Self-healing: If user exists in Auth but not in Profiles table (trigger failed)
+  // Self-healing: user existuje v Auth ale ne v Profiles (trigger selhal)
   if (!profile) {
     const { data: newProfile } = await (supabase.from('profiles') as any)
       .insert({
         id: user.id,
         email: user.email,
-        role: 'admin', // First manual users are admins
+        role: 'admin',
         full_name: user.email?.split('@')[0]
       })
       .select()
@@ -53,69 +53,23 @@ export default async function AdminLayout({
     profile = newProfile
   }
 
-  // Fetch pending reviews count
+  // Badge na recenzích čekající na schválení
   const { count: pendingReviews } = await (supabase.from('external_reviews') as any)
     .select('*', { count: 'exact', head: true })
     .eq('approved', false)
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex' }}>
-      {/* SIDEBAR - Direct Server Component Injection */}
-      <aside style={{
-        width: '256px',
-        background: '#0f172a',
-        height: '100vh',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 100,
-        display: 'flex',
-        flexDirection: 'column',
-        color: '#94a3b8'
-      }}>
-        <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '32px', height: '32px', background: '#f59e0b', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>NF</div>
-          <div>
-            <div style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>NANOfusion</div>
-            <div style={{ fontSize: '10px', opacity: 0.5 }}>Admin Panel</div>
-          </div>
-        </div>
+      {/* Sidebar — plná komponenta s ikonami a kategoriemi */}
+      <Sidebar
+        pendingReviews={pendingReviews ?? 0}
+        userEmail={user.email}
+        userRole={(profile as any)?.role ?? 'admin'}
+      />
 
-        <nav style={{ flex: 1, padding: '24px 0', overflowY: 'auto' }}>
-          {[
-            { label: 'Dashboard', href: '/admin' },
-            { label: 'Poptávky', href: '/admin/inquiries' },
-            { label: 'Služby', href: '/admin/services' },
-            { label: 'Realizace', href: '/admin/realizations' },
-            { label: 'Magazín', href: '/admin/magazine' },
-            { label: 'Recenze', href: '/admin/reviews' },
-            { label: 'FAQ', href: '/admin/faqs' },
-          ].map(item => (
-            <a key={item.href} href={item.href} style={{
-              display: 'block',
-              padding: '12px 24px',
-              color: 'inherit',
-              textDecoration: 'none',
-              fontSize: '14px',
-              transition: 'background 0.2s'
-            }}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
-
-        <div style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ fontSize: '12px', color: 'white', marginBottom: '4px' }}>{user.email}</div>
-          <a href="/admin/login" style={{ color: '#ef4444', fontSize: '12px', textDecoration: 'none' }}>Odhlásit se</a>
-        </div>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <div style={{ marginLeft: '256px', width: 'calc(100% - 256px)', minHeight: '100vh' }}>
-        <header style={{ height: '64px', background: 'white', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', padding: '0 32px' }}>
-          <div style={{ fontSize: '14px', color: '#64748b' }}>Admin / Dashboard</div>
-        </header>
-        <main style={{ padding: '32px' }}>
+      {/* Main content */}
+      <div style={{ marginLeft: '256px', width: 'calc(100% - 256px)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <main style={{ flex: 1, padding: '40px' }}>
           {children}
         </main>
       </div>
