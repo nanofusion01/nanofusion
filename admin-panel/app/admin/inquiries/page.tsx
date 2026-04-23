@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { InquiriesClient } from './inquiries-client'
 
 export default async function InquiriesPage() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data: inquiries, error } = await (supabase.from('inquiries') as any)
     .select('*')
     .order('created_at', { ascending: false })
