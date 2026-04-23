@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import {
   ClipboardList,
   Star,
@@ -60,7 +60,7 @@ function StatCard({
 }
 
 export default async function AdminDashboard() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   // Use (supabase as any) or (supabase.from(...) as any) to bypass strict TypeScript checks
   const [
