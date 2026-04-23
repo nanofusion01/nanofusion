@@ -522,12 +522,17 @@ const initApp = () => {
 };
 
 // Start initialization
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
+try {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
+} catch (e) {
+  console.error('Critical initialization failure:', e);
+  clearPreloader(); // Force reveal even on crash
 }
 
-// Senior CTO Fallback: Force clear preloader after 4.5s no matter what
-setTimeout(clearPreloader, 4500);
+// Senior CTO Fallback: Force clear preloader after 3s no matter what
+setTimeout(clearPreloader, 3000);
 
