@@ -148,12 +148,10 @@ const initBlog = () => {
     }
 };
 
-const blogObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-        if (mutation.addedNodes.length) initBlog();
-    });
-});
-
-blogObserver.observe(document.body, { childList: true, subtree: true });
+// Start injection
 initBlog();
-window.addEventListener('load', () => setTimeout(initBlog, 1000));
+
+// Fallback for late initialization
+window.addEventListener('load', () => {
+    setTimeout(initBlog, 1000);
+});

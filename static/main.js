@@ -147,16 +147,14 @@ const observeAll = () => {
     }
   });
 
-  // Update Experience Stats
-  const statsLabels = document.querySelectorAll('div, p, span, h2, h3, h4');
-  statsLabels.forEach(el => {
-    if (el.children.length === 0) {
-      if (el.textContent.includes('13 let zkušeností')) {
-        el.textContent = el.textContent.replace('13 let zkušeností', '12 let zkušeností');
-      }
-      if (el.textContent.trim() === '13' && el.nextElementSibling && el.nextElementSibling.textContent.includes('Let zkušeností')) {
-        el.textContent = '12';
-      }
+  // Update Experience Stats - Targeted selectors only
+  const statsToUpdate = document.querySelectorAll('.stats-number, .experience-label');
+  statsToUpdate.forEach(el => {
+    if (el.textContent.includes('13 let zkušeností')) {
+      el.textContent = el.textContent.replace('13 let zkušeností', '12 let zkušeností');
+    }
+    if (el.textContent.trim() === '13' && el.nextElementSibling && el.nextElementSibling.textContent.includes('Let zkušeností')) {
+      el.textContent = '12';
     }
   });
 
@@ -483,15 +481,21 @@ const observeAll = () => {
 window.observeAll = observeAll;
 
 let isObserving = false;
+let observationCount = 0;
+const MAX_OBSERVATIONS = 20; // Safety break to prevent infinite loops
+
 const domObserver = new MutationObserver(() => {
-  if (isObserving) return;
+  if (isObserving || observationCount > MAX_OBSERVATIONS) return;
   isObserving = true;
+  observationCount++;
+  
   try {
     observeAll();
   } catch (e) {
     console.error('Observation error:', e);
   } finally {
-    setTimeout(() => { isObserving = false; }, 100);
+    // Senior CTO: Increased throttle to 800ms for stability
+    setTimeout(() => { isObserving = false; }, 800);
   }
 });
 

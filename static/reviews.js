@@ -79,9 +79,8 @@ const initReviews = () => {
 initReviews();
 hydrateReviews();
 
-// Resilience observer
-const observer = new MutationObserver(() => initReviews());
-observer.observe(document.body, { childList: true, subtree: true });
-
-// Fallback
-window.addEventListener('load', () => setTimeout(initReviews, 500));
+// Fallback for late hydration
+window.addEventListener('load', () => {
+    setTimeout(initReviews, 500);
+    setTimeout(hydrateReviews, 1000);
+});

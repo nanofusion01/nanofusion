@@ -207,12 +207,10 @@ const initPortfolio = () => {
     }
 };
 
-const portfolioObserver = new MutationObserver(() => {
-    if (!document.getElementById('realizace')) {
-        injectPortfolio();
-    }
-});
-portfolioObserver.observe(document.body, { childList: true, subtree: true });
-
+// Start injection
 injectPortfolio();
-window.addEventListener('load', () => setTimeout(injectPortfolio, 500));
+
+// Fallback for late initialization
+window.addEventListener('load', () => {
+    setTimeout(injectPortfolio, 500);
+});
