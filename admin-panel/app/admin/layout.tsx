@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/admin/sidebar'
 import { AdminHeader } from '@/components/admin/header'
 import { MobileNav } from '@/components/admin/mobile-nav'
