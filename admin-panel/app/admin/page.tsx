@@ -64,12 +64,11 @@ export default async function AdminDashboard() {
 
   // Use (supabase as any) or (supabase.from(...) as any) to bypass strict TypeScript checks
   const [
-    { count: totalInquiries },
-    { count: newInquiries },
-    { count: pendingReviews },
-    { count: totalRealizations },
-    { count: openChats },
-    { data: recentInquiries },
+    inquiriesResult,
+    newInquiriesResult,
+    pendingReviewsResult,
+    totalRealizationsResult,
+    recentInquiriesResult,
   ] = await Promise.all([
     (supabase.from('inquiries') as any).select('*', { count: 'exact', head: true }),
     (supabase.from('inquiries') as any)
@@ -79,14 +78,18 @@ export default async function AdminDashboard() {
       .select('*', { count: 'exact', head: true })
       .eq('approved', false),
     (supabase.from('realizations') as any).select('*', { count: 'exact', head: true }),
-    (supabase.from('chat_sessions') as any)
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'open'),
     (supabase.from('inquiries') as any)
       .select('id, name, email, service, status, created_at, source')
       .order('created_at', { ascending: false })
       .limit(5),
   ])
+
+  const totalInquiries = inquiriesResult.count ?? 0
+  const newInquiries = newInquiriesResult.count ?? 0
+  const pendingReviews = pendingReviewsResult.count ?? 0
+  const totalRealizations = totalRealizationsResult.count ?? 0
+  const openChats = 0 // Placeholder until chats are implemented
+  const recentInquiries = recentInquiriesResult.data ?? []
 
   const statusLabel: Record<string, string> = {
     new: 'Nová',
