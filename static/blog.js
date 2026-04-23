@@ -158,17 +158,59 @@ window.nnf_openBlog = (id) => {
     if (post) openBlogDetail(post);
 };
 
-const initBlog = () => {
-    if (!document.getElementById('blog')) {
-        injectBlog();
-    }
+// --- Robust Injection Logic (STRV MutationObserver) ---
+const initBlogResilient = () => {
+    const inject = () => {
+        const referenceSection = document.getElementById('reference') || document.getElementById('reviews');
+        const contactSection = document.getElementById('kontakt') || document.getElementById('contact');
+        const blogExists = document.getElementById('blog');
+
+        if (blogExists) return true; // Already injected
+
+        if (referenceSection || contactSection) {
+            console.log('NANOfusion: Found anchor, injecting blog...');
+            injectBlog();
+            hydrateBlog();
+            return true;
+        }
+        return false;
+    };
+
+    // Try immediately
+    if (inject()) return;
+
+    // Wait for React to render anchors
+    const observer = new MutationObserver(() => {
+        if (inject()) observer.disconnect();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Global fallback after 8s just in case
+    setTimeout(() => {
+        if (!document.getElementById('blog')) {
+            console.warn('NANOfusion: Anchor not found after 8s, using secondary fallback');
+            const mainContent = document.querySelector('main') || document.getElementById('root');
+            if (mainContent) {
+                mainContent.appendChild(blogSection);
+                injectBlog();
+                hydrateBlog();
+            } else {
+                // Last resort: before footer
+                const footer = document.querySelector('footer');
+                if (footer) footer.parentNode.insertBefore(blogSection, footer);
+                else document.body.appendChild(blogSection);
+                injectBlog();
+                hydrateBlog();
+            }
+            observer.disconnect();
+        }
+    }, 8000);
 };
 
-// Start injection
-injectBlog();
-hydrateBlog();
+initBlogResilient();
 
-// Fallback for late initialization
-window.addEventListener('load', () => {
-    setTimeout(hydrateBlog, 1200);
-});
+window.nnf_openBlog = (id) => {
+    const post = blogPostsData.find(p => p.id === id || p.slug === id);
+    if (post) openBlogDetail(post);
+};

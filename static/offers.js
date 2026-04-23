@@ -446,8 +446,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // Run with delay to ensure React has finished rendering the initial grid
-  setTimeout(injectSupplementalServices, 1500);
+  // Run immediately to show local data, cloud data will update it later
+  injectSupplementalServices();
 });
 
 // Interceptor with improved matching
