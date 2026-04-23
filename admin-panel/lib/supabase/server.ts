@@ -5,15 +5,15 @@ import type { Database } from '@/lib/database.types'
 export async function createClient(): Promise<any> {
   const cookieStore = await cookies()
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.error('CRITICAL: Supabase environment variables are missing!')
-    throw new Error('Supabase configuration missing. Check Vercel Environment Variables.')
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !key) {
+    console.error('Supabase keys missing')
+    return null
   }
 
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
+  return createServerClient<Database>(url, key, {
       cookies: {
         getAll() {
           return cookieStore.getAll()
@@ -36,15 +36,15 @@ export async function createClient(): Promise<any> {
 export async function createAdminClient(): Promise<any> {
   const cookieStore = await cookies()
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error('CRITICAL: Supabase Service Role environment variables are missing!')
-    throw new Error('Supabase Admin configuration missing. Check Vercel Environment Variables.')
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !serviceKey) {
+    console.error('Supabase Admin keys missing')
+    return null
   }
 
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    {
+  return createServerClient<Database>(url, serviceKey, {
       cookies: {
         getAll() {
           return cookieStore.getAll()

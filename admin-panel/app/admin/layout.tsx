@@ -11,6 +11,21 @@ export default async function AdminLayout({
 }) {
   const supabase = await createAdminClient()
 
+  if (!supabase) {
+    return (
+      <div style={{ padding: '40px', background: '#fef2f2', color: '#991b1b', border: '2px solid #ef4444', margin: '20px', borderRadius: '12px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Chyba konfigurace (Vercel)</h1>
+        <p style={{ marginTop: '12px' }}>Admin panel nemá přístup k databázi. Chybí klíče v nastavení Vercelu.</p>
+        <ul style={{ marginTop: '12px', listStyle: 'disc', paddingLeft: '20px' }}>
+          <li>NEXT_PUBLIC_SUPABASE_URL</li>
+          <li>NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
+          <li>SUPABASE_SERVICE_ROLE_KEY</li>
+        </ul>
+        <p style={{ marginTop: '12px' }}>Přidej je do <b>Settings -> Environment Variables</b> a dej <b>Redeploy</b>.</p>
+      </div>
+    )
+  }
+
   const {
     data: { user },
     error: userError
