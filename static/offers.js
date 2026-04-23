@@ -196,11 +196,22 @@ const hydrateFromCloud = async () => {
       console.log('Hydrating services from STRV Cloud...');
       // Merge cloud data with hardcoded data (prefer cloud)
       data.forEach(cloudService => {
-        const index = servicesData.findIndex(s => s.id === cloudService.id);
+        const index = servicesData.findIndex(s => s.id === cloudService.slug);
         if (index !== -1) {
-          servicesData[index] = { ...servicesData[index], ...cloudService };
+          // Map database fields to local field names
+          const mappedService = {
+            ...servicesData[index],
+            ...cloudService,
+            id: cloudService.slug, // Keep using slug as the ID for the UI
+            image: cloudService.hero_image_url || servicesData[index].image
+          };
+          servicesData[index] = mappedService;
         } else {
-          servicesData.push(cloudService);
+          servicesData.push({
+            ...cloudService,
+            id: cloudService.slug,
+            image: cloudService.hero_image_url
+          });
         }
       });
     }

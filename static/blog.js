@@ -95,7 +95,7 @@ const injectBlog = async () => {
                     <div id="blog-scroller" style="display: flex; gap: 2rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; scrollbar-width: none;">
                         ${blogPostsData.map(post => `
                             <div class="blog-card-modern" 
-                                onclick="window.nnf_openBlog(${post.id})"
+                                onclick="window.nnf_openBlog('${post.id}')"
                                 style="flex: 0 0 calc(33.333% - 1.34rem); min-width: 320px; background: white; border-radius: 2rem; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column;" 
                                 onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 25px 45px rgba(0,0,0,0.1)';" 
                                 onmouseout="this.style.transform='none'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.05)';"

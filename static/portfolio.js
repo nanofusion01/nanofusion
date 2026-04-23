@@ -72,10 +72,23 @@ const injectPortfolio = async () => {
     const hydratePortfolio = async () => {
         try {
             const { supabase } = await import('./supabase-config.js');
-            const { data, error } = await supabase.from('realizations').select('*');
+            const { data, error } = await supabase.from('realizations')
+                .select('*')
+                .eq('is_published', true);
+            
             if (!error && data && data.length > 0) {
                 console.log('Hydrating portfolio from STRV Cloud...');
-                projectsData = data;
+                // Map database fields to the UI structure
+                projectsData = data.map(d => ({
+                    ...d,
+                    id: d.id,
+                    image: d.hero_image_url || 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
+                    beforeImg: d.before_image_url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
+                    afterImg: d.after_image_url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
+                    challenge: d.description,
+                    solution: 'Profesionální nano-technologický postup NANOfusion.',
+                    results: 'Povrch je nyní dlouhodobě chráněn a vypadá jako nový.'
+                }));
                 render();
             }
         } catch (e) { }
@@ -157,7 +170,7 @@ const injectPortfolio = async () => {
         };
 
         const generateCards = (list) => list.map(p => `
-            <div class="portfolio-card-modern" onclick="window.portfolioOpenStudy(${p.id})">
+            <div class="portfolio-card-modern" onclick="window.portfolioOpenStudy('${p.id}')">
                 <div class="portfolio-img-wrap">
                     <img src="${p.image}" alt="${p.title}">
                 </div>
