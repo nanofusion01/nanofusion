@@ -5,7 +5,7 @@ const injectPortfolio = async () => {
     const referenceSection = document.getElementById('reference');
     const processSection = document.getElementById('proces');
     const rootWrapper = document.querySelector('#root > div');
-    
+
     if (!portfolioSection) {
         portfolioSection = document.createElement('div');
         portfolioSection.id = 'realizace';
@@ -28,10 +28,10 @@ const injectPortfolio = async () => {
 
 
     let projectsData = [
-        { 
-            id: 1, 
-            title: 'Čištění střechy RD, Praha', 
-            service: 'Čištění střech', 
+        {
+            id: 1,
+            title: 'Čištění střechy RD, Praha',
+            service: 'Čištění střech',
             image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
             location: 'Praha - Západ',
             duration: '2 dny',
@@ -41,10 +41,10 @@ const injectPortfolio = async () => {
             beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
             afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'
         },
-        { 
-            id: 2, 
-            title: 'Renovace fasády bytového domu, Brno', 
-            service: 'Čištění fasád', 
+        {
+            id: 2,
+            title: 'Renovace fasády bytového domu, Brno',
+            service: 'Čištění fasád',
             image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
             location: 'Brno - Královo Pole',
             duration: '4 dny',
@@ -54,10 +54,10 @@ const injectPortfolio = async () => {
             beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
             afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'
         },
-        { 
-            id: 3, 
-            title: 'Zámková dlažba firemního areálu, Plzeň', 
-            service: 'Čištění dlažeb', 
+        {
+            id: 3,
+            title: 'Zámková dlažba firemního areálu, Plzeň',
+            service: 'Čištění dlažeb',
             image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
             location: 'Plzeň - Borská pole',
             duration: '1 den',
@@ -78,7 +78,7 @@ const injectPortfolio = async () => {
                 projectsData = data;
                 render();
             }
-        } catch (e) {}
+        } catch (e) { }
     };
     hydratePortfolio();
 
@@ -203,7 +203,7 @@ const injectPortfolio = async () => {
 // Start injection with resilience
 const initPortfolio = () => {
     if (!portfolioSection) {
-       injectPortfolio();
+        injectPortfolio();
     }
 };
 

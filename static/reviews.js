@@ -14,12 +14,6 @@ const injectReviews = () => {
     reviewsSection.innerHTML = `
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
-                    <button onclick="window.scrollTo({top: document.getElementById('kontakt').offsetTop, behavior: 'smooth'})" 
-                            style="background: #f59e0b; color: white; padding: 12px 32px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; text-transform: uppercase; box-shadow: 0 10px 20px rgba(245,158,11,0.2);">
-                        Chci také takové výsledky →
-                    </button>
-                </div>
                 <p class="text-slate-400 max-w-2xl mx-auto text-sm leading-relaxed">
                     Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
                 </p>
@@ -46,16 +40,12 @@ const injectReviews = () => {
 
                 <!-- Premium Navigation Arrows -->
                 <button onclick="document.getElementById('reviews-scroller').scrollLeft -= 400" 
-                    class="hidden md:flex"
-                    style="position: absolute; left: -25px; top: 60%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 10; transition: all 0.2s;"
-                    onmouseover="this.style.scale='1.1'" onmouseout="this.style.scale='1'">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+                    style="position: absolute; left: -25px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 10; transition: all 0.2s;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: auto;"><path d="M15 18l-6-6 6-6"></path></svg>
                 </button>
                 <button onclick="document.getElementById('reviews-scroller').scrollLeft += 400" 
-                    class="hidden md:flex"
-                    style="position: absolute; right: -25px; top: 60%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 10; transition: all 0.2s;"
-                    onmouseover="this.style.scale='1.1'" onmouseout="this.style.scale='1'">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6 6-6"></path></svg>
+                    style="position: absolute; right: -25px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 10; transition: all 0.2s;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: auto;"><path d="M9 18l6-6 6-6"></path></svg>
                 </button>
             </div>
         </div>

@@ -224,16 +224,10 @@ const observeAll = () => {
             <h2 style="font-size:36px; font-weight:900; color:#0f172a; line-height:1.1; margin-bottom:24px; letter-spacing:-0.03em;">${item.title}</h2>
             <p style="font-size:18px; line-height:1.8; color:#475569; margin-bottom:30px; font-weight:500;">${item.description}</p>
             
-            <div style="background:#f8fafc; padding:24px; border-radius:24px; border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; gap:20px;">
               <div>
                 <div style="font-weight:800; color:#0f172a; font-size:18px;">Zaujal vás tento výsledek?</div>
-                <div style="color:#64748b; font-size:14px;">Zeptejte se Nanobota na cenu či detaily.</div>
+                <div style="color:#64748b; font-size:14px;">Zeptejte se Nanobota na cenu či detaily níže.</div>
               </div>
-              <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'; setTimeout(() => document.getElementById('ai-chat-launcher').click(), 200)" 
-                style="background:#f59e0b; color:white; border:none; padding:16px 32px; border-radius:16px; font-weight:800; cursor:pointer; transition:all 0.3s ease; white-space:nowrap; box-shadow:0 10px 20px rgba(245, 158, 11, 0.2);">
-                CHCI TAKÉ TAKOVÉ VÝSLEDKY
-              </button>
-            </div>
           </div>
         </div>
       </div>
