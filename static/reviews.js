@@ -1,10 +1,10 @@
 
 let reviewsData = [
-  { name: 'Ing. Petr Svoboda', info: 'Praha, Čištění střechy', stars: 5, text: 'Hloubkové čištění krytiny a následná nano-ochrana dopadla na jedničku. Střecha vypadá jako nově položená a už se na ní nedrží mech.' },
-  { name: 'Jana Novotná', info: 'Brno, Čištění fasády', stars: 5, text: 'Fasáda prokoukla během jediného dne. Kluci byli moc šikovní, vše po sobě uklidili a výsledek je i po roce stále skvělý.' },
-  { name: 'Marek Kučera', info: 'Plzeň, Zámková dlažba', stars: 5, text: 'Čištění před firmou dopadlo výborně. Zmizela všechna léta usazená špína a olejové skvrny. Výborná komunikace.' },
-  { name: 'Lucie Marešová', info: 'Ostrava, Celková renovace', stars: 5, text: 'Oceňuji rychlost domluvy a zaměření zdarma. Cena byla férová a výsledek předčil naše očekávání. Určitě doporučuji!' },
-  { name: 'David Černý', info: 'Liberec, Fotovoltaika', stars: 5, text: 'Nano-ochrana fotovoltaiky nám reálně zvýšila účinnost panelů. Velmi profesionální přístup a čistá práce.' }
+    { name: 'Ing. Petr Svoboda', info: 'Praha, Čištění střechy', stars: 5, text: 'Hloubkové čištění krytiny a následná nano-ochrana dopadla na jedničku. Střecha vypadá jako nově položená a už se na ní nedrží mech.' },
+    { name: 'Jana Novotná', info: 'Brno, Čištění fasády', stars: 5, text: 'Fasáda prokoukla během jediného dne. Kluci byli moc šikovní, vše po sobě uklidili a výsledek je i po roce stále skvělý.' },
+    { name: 'Marek Kučera', info: 'Plzeň, Zámková dlažba', stars: 5, text: 'Čištění před firmou dopadlo výborně. Zmizela všechna léta usazená špína a olejové skvrny. Výborná komunikace.' },
+    { name: 'Lucie Marešová', info: 'Ostrava, Celková renovace', stars: 5, text: 'Oceňuji rychlost domluvy a zaměření zdarma. Cena byla férová a výsledek předčil naše očekávání. Určitě doporučuji!' },
+    { name: 'David Černý', info: 'Liberec, Fotovoltaika', stars: 5, text: 'Nano-ochrana fotovoltaiky nám reálně zvýšila účinnost panelů. Velmi profesionální přístup a čistá práce.' }
 ];
 
 const injectReviews = () => {
@@ -69,14 +69,16 @@ const injectReviews = () => {
 const hydrateReviews = async () => {
     try {
         const { supabase } = await import('./supabase-config.js');
-        // Fetch from 'reviews' table which we verified earlier
-        const { data, error } = await supabase.from('reviews').select('*').eq('is_approved', true);
+        // Fetch from 'external_reviews' table (synced from Firmy.cz or manual)
+        const { data, error } = await supabase.from('external_reviews').select('*').eq('approved', true);
+        
         if (!error && data && data.length > 0) {
+            console.log('NANOfusion: Reviews synchronized from Cloud');
             reviewsData = data.map(d => ({
-                name: d.name,
-                info: d.location || `${d.city || 'Česko'}, ${d.service || 'Služba'}`,
-                stars: d.stars || 5,
-                text: d.text
+                name: d.author || 'Ověřený zákazník',
+                info: d.source === 'firmy.cz' ? 'Recenze z Firmy.cz' : (d.source || 'Ověřený zákazník'),
+                stars: d.rating || 5,
+                text: d.content
             }));
             const target = document.getElementById('reference');
             if (target) {

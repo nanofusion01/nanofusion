@@ -145,23 +145,8 @@
   <script src="/static/reviews.js" type="module"></script>
   <script src="/static/portfolio.js" type="module"></script>
   <script src="/static/blog.js" type="module"></script>
-  <script src="/static/offers.js?v=3" type="module"></script>
-  <script src="/static/ai-chat.js?v=2" type="module"></script>
-
-  <script>
-    // NUCLEAR FAIL-SAFE: Force visibility no matter what
-    function forceShowPage() {
-      console.log('NANOfusion: Nuclear Fail-safe triggered');
-      var p = document.getElementById('preloader');
-      if (p) p.style.display = 'none';
-      document.body.style.opacity = '1';
-      document.body.style.visibility = 'visible';
-      document.body.style.overflow = 'auto';
-    }
-    // Force cleanup after 2.5s (reduced from 4s)
-    setTimeout(forceShowPage, 2500);
-    // Also trigger on full window load
-    window.addEventListener('load', forceShowPage);
-  </script>
+  <script src="/static/faq.js" type="module"></script>
+  <script src="/static/offers.js" type="module"></script>
+  <script src="/static/ai-chat.js" type="module"></script>
 </body>
 </html>

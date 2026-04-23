@@ -479,17 +479,16 @@ let observationCount = 0;
 const MAX_OBSERVATIONS = 20; // Safety break to prevent infinite loops
 
 const domObserver = new MutationObserver(() => {
-  if (isObserving || observationCount > MAX_OBSERVATIONS) return;
+  if (isObserving) return;
   isObserving = true;
-  observationCount++;
   
   try {
     observeAll();
   } catch (e) {
     console.error('Observation error:', e);
   } finally {
-    // Senior CTO: Increased throttle to 800ms for stability
-    setTimeout(() => { isObserving = false; }, 800);
+    // Optimized throttle for smoother performance
+    setTimeout(() => { isObserving = false; }, 300);
   }
 });
 
@@ -497,36 +496,38 @@ const clearPreloader = () => {
   const preloader = document.getElementById('preloader');
   if (preloader) {
     preloader.style.opacity = '0';
-    preloader.style.visibility = 'hidden';
-    setTimeout(() => { if(preloader.parentNode) preloader.remove(); }, 500);
+    preloader.style.pointerEvents = 'none';
+    setTimeout(() => { 
+        if(preloader.parentNode) preloader.remove(); 
+        console.log('NANOfusion: Preloader removed');
+    }, 600);
   }
   document.body.style.opacity = '1';
+  document.body.style.visibility = 'visible';
   document.body.style.overflow = 'auto';
 };
 
 const initApp = () => {
   try {
-    domObserver.observe(document.body, { childList: true, subtree: true });
     observeAll();
+    domObserver.observe(document.body, { childList: true, subtree: true });
+    // Clear preloader faster once initial observation is done
+    requestAnimationFrame(() => {
+        setTimeout(clearPreloader, 150);
+    });
   } catch (e) {
     console.warn('Initial app injection error:', e);
+    clearPreloader();
   }
-  // Independent preloader clearing
-  setTimeout(clearPreloader, 100); 
 };
 
 // Start initialization
-try {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-  } else {
-    initApp();
-  }
-} catch (e) {
-  console.error('Critical initialization failure:', e);
-  clearPreloader(); // Force reveal even on crash
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
 }
 
-// Senior CTO Fallback: Force clear preloader after 3s no matter what
-setTimeout(clearPreloader, 3000);
+// Fallback: Force reveal after 2s if something stuck
+setTimeout(clearPreloader, 2000);
 

@@ -1,31 +1,39 @@
 /* Blog Injection & Premium Interaction Logic for NANOfusion */
 
-const blogPostsData = [
+let blogPostsData = [
     { 
         id: 1, 
         title: 'Jak probíhá čištění fasád?', 
-        summary: 'Přečtěte si, jaké technologie používáme pro hloubkovou očistu vašeho domu a proč je důležitá správná příprava.', 
-        content: 'Čištění fasády není jen o estetice, ale především o ochraně materiálu. Náš proces začíná hloubkovou analýzou znečištění. Používáme šetrné, ale vysoce účinné chemické prostředky, které nepoškozují omítku, ale bez milosti odstraní řasy a plísně. Následuje jemný oplach a aplikace speciální nano-impregnace, která zajistí, že fasáda zůstane čistá až po dobu 10 let.',
+        summary: 'Přečtěte si, jaké technologie používáme pro hloubkovou očistu vašeho domu...', 
         date: '10. 4. 2026', 
         image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800' 
-    },
-    { 
-        id: 2, 
-        title: 'Výhody nano-ochrany povrchů', 
-        summary: 'Proč je nano-technologie revolucí v údržbě nemovitostí? Odpuzuje vodu, špínu a šetří váš čas i peněženku.', 
-        content: 'Nano-technologie funguje na principu lotosového efektu. Na ošetřeném povrchu se vytvoří neviditelná vrstva nano-částic, které odpuzují vodu i olej. Špína se tak neusazuje hluboko do pórů materiálu, ale zůstává na povrchu, odkud ji smyje běžný déšť. To dramaticky snižuje potřebu mechanického čištění a prodlužuje životnost venkovních i vnitřních ploch.',
-        date: '5. 4. 2026', 
-        image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800' 
-    },
-    { 
-        id: 3, 
-        title: 'Příprava střechy na sezónu', 
-        summary: 'Nepodceňte jarní údržbu. Vyčištěná střecha lépe odvádí vodu, nezarůstá mechem a působí jako nová.', 
-        content: 'Po zimě je střecha často zanesená listím, mechem a pískem. Pokud tyto nečistoty neodstraníte, drží v sobě vlhkost, která v mrazu trhá krytinu. Naše jarní servisní balíčky zahrnují vyčištění žlabů, tlakové mytí krytiny a preventivní postřik proti organickému růstu. Vaše střecha tak bude připravená na přívalové deště i letní horka.',
-        date: '28. 3. 2026', 
-        image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800' 
     }
 ];
+
+const hydrateBlog = async () => {
+    try {
+        const { supabase } = await import('./supabase-config.js');
+        const { data, error } = await supabase.from('articles')
+            .select('*')
+            .eq('is_published', true)
+            .order('published_at', { ascending: false });
+
+        if (!error && data && data.length > 0) {
+            console.log('NANOfusion: Blog articles synchronized from Cloud');
+            blogPostsData = data.map(d => ({
+                id: d.id,
+                title: d.title,
+                summary: d.content?.substring(0, 120) + '...',
+                content: d.content,
+                date: new Date(d.published_at || d.created_at).toLocaleDateString('cs-CZ'),
+                image: d.hero_image_url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800'
+            }));
+            injectBlog();
+        }
+    } catch (e) {
+        console.error('Blog Sync Error:', e);
+    }
+};
 
 const openBlogDetail = (post) => {
     let overlay = document.getElementById('blog-modal-overlay');
@@ -149,9 +157,10 @@ const initBlog = () => {
 };
 
 // Start injection
-initBlog();
+injectBlog();
+hydrateBlog();
 
 // Fallback for late initialization
 window.addEventListener('load', () => {
-    setTimeout(initBlog, 1000);
+    setTimeout(hydrateBlog, 1200);
 });

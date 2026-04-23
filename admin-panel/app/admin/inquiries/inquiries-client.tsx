@@ -247,7 +247,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-base)' }}>
-                  {['Datum', 'Klient', 'Služba', 'Plocha', 'Stav', 'Akce'].map((col) => (
+                  {['Datum', 'Klient', 'Služba', 'Plocha', 'Zdroj', 'Stav', 'Akce'].map((col) => (
                     <th
                       key={col}
                       className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
@@ -298,7 +298,14 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                         {inq.service || '—'}
                       </td>
                       <td className="px-5 py-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        —
+                        {inq.message?.match(/Plocha:\s*(\d+)/)?.[1] || '—'} m²
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-xs font-medium px-2 py-1 rounded-md bg-slate-100 text-slate-600">
+                           {inq.source === 'kalkulacka' ? 'Kalkulačka' : 
+                            inq.source === 'chat' ? 'Nanobot' : 
+                            inq.source || 'Web'}
+                        </span>
                       </td>
                       <td className="px-5 py-4">
                         <span

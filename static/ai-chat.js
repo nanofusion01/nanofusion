@@ -1,361 +1,159 @@
-/* AI Nano-Assistant for NANOfusion */
+/* AI Nano-Assistant (GPT-4o Powered) for NANOfusion */
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatConfig = {
         name: 'Nano-Asistent',
-        tagline: 'Odborník na hloubkové čištění a ochranu',
-        prices: {
-            roof: 190, facade: 150, pavement: 120, pv: 80,
-            graffiti: 250, industrial: 130, 'facade-paint': 200, 'roof-paint': 180,
-            impregnation: 70, antislip: 120, ceramfloor: 250, antibac: 80,
-            default: 150
-        },
-        markup: 1.10 // 10% premium for safe anchoring
+        tagline: 'Inteligentní odborník na povrchy',
+        apiUrl: 'https://mgmtkdwvhgrzefmyucvr.supabase.co/functions/v1/nano-assistant'
     };
 
-    let chatState = 'INIT';
-    let currentContext = 'GENERAL';
-    let chatHistory = []; // Pro sledování celého chatu
-    let userData = {
-        service: '',
-        location: '',
-        details: '',
-        area: 0,
-        contact: ''
-    };
+    let chatHistory = []; 
+    let isWaiting = false;
+    let sessionId = crypto.randomUUID();
 
-    // --- Dynamic Context Tracking ---
-    const targetSections = ['sluzby', 'realizace', 'reference', 'proces'];
-    const ctxObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                currentContext = entry.target.id.toUpperCase();
-                console.log(`AI Chat Context: ${currentContext}`);
-            }
-        });
-    }, { threshold: 0.5 });
+    // UI Creation (Launcher & Window)
+    const initUI = () => {
+        const launcher = document.createElement('div');
+        launcher.className = 'ai-chat-launcher';
+        launcher.id = 'ai-chat-launcher';
+        launcher.innerHTML = `
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+            </svg>
+        `;
+        document.body.appendChild(launcher);
 
-    targetSections.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) ctxObserver.observe(el);
-    });
-
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        const isMobile = window.innerWidth < 768;
-        const welcome = isMobile ? 'Zdravím! Jsem váš Nano-asistent. 📱' : 'Dobrý den! Jsem váš Nano-asistent pro ochranu povrchů.';
-        
-        if (hour < 12) return welcome + ' Jak vám mohu dnes ráno pomoci?';
-        if (hour < 18) return welcome + ' S čím vám mohu dnes pomoci?';
-        return welcome + ' Přejete si probrat ochranu vašeho objektu?';
-    };
-
-    // --- Admin Safety Check ---
-    const checkAdminState = () => {
-        const launcher = document.getElementById('ai-chat-launcher');
-        const widget = document.getElementById('ai-chat-window');
-        if (window.location.hash === '#admin') {
-            if (launcher) launcher.style.display = 'none';
-            if (widget) widget.style.display = 'none';
-            return true;
-        }
-        if (launcher) launcher.style.display = 'flex';
-        return false;
-    };
-
-    if (checkAdminState()) {
-        window.addEventListener('hashchange', checkAdminState);
-        return;
-    }
-    window.addEventListener('hashchange', checkAdminState);
-
-    // Create the UI HTML
-    const launcher = document.createElement('div');
-    launcher.className = 'ai-chat-launcher';
-    launcher.id = 'ai-chat-launcher';
-    launcher.innerHTML = `
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-        </svg>
-    `;
-    document.body.appendChild(launcher);
-
-    const chatWindow = document.createElement('div');
-    chatWindow.className = 'ai-chat-window';
-    chatWindow.id = 'ai-chat-window';
-    chatWindow.innerHTML = `
-        <div class="chat-header">
-            <img src="/static/logo.jpg" alt="Nano-Asistent">
-            <div class="chat-header-info">
-                <h4>${chatConfig.name}</h4>
-                <p>${chatConfig.tagline}</p>
+        const chatWindow = document.createElement('div');
+        chatWindow.className = 'ai-chat-window';
+        chatWindow.id = 'ai-chat-window';
+        chatWindow.innerHTML = `
+            <div class="chat-header">
+                <img src="/static/logo.jpg" alt="Nano-Asistent">
+                <div class="chat-header-info">
+                    <h4>${chatConfig.name}</h4>
+                    <p>${chatConfig.tagline}</p>
+                </div>
+                <button id="close-chat" style="margin-left: auto; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;">&times;</button>
             </div>
-            <button id="close-chat" style="margin-left: auto; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;">&times;</button>
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <div id="typing" class="typing-indicator">Asistent píše...</div>
-        </div>
-        <div class="chat-footer">
-            <input type="text" class="chat-input" id="chat-input" placeholder="Napište zprávu...">
-            <button class="chat-send-btn" id="chat-send">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                </svg>
-            </button>
-        </div>
-    `;
-    document.body.appendChild(chatWindow);
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot">Dobrý den! Jsem váš inteligentní asistent. S čím vám mohu dnes pomoci? (Čištění střech, fasád, nebo snad orientační kalkulace?)</div>
+                <div id="typing" class="typing-indicator" style="display:none">Asistent přemýšlí...</div>
+            </div>
+            <div class="chat-footer">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Zeptejte se na cokoliv...">
+                <button class="chat-send-btn" id="chat-send">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </div>
+        `;
+        document.body.appendChild(chatWindow);
 
-    const msgContainer = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('chat-send');
-    const typing = document.getElementById('typing');
+        launcher.onclick = () => {
+            chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+            if (chatWindow.style.display === 'flex') document.getElementById('chat-input').focus();
+        };
 
-    // --- Notification System v2 ---
-    let audioContext = null;
-    const initAudio = () => {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
+        document.getElementById('close-chat').onclick = () => chatWindow.style.display = 'none';
+        document.getElementById('chat-send').onclick = () => handleSend();
+        document.getElementById('chat-input').onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
     };
 
-    const playNotification = () => {
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        if (!audioContext) return;
-
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.1);
-    };
-
-    // Unlock audio on ANY interaction
-    ['click', 'touchstart', 'scroll'].forEach(evt => {
-        document.addEventListener(evt, initAudio, { once: true });
-    });
-
-    // Toggle Chat
-    launcher.onclick = () => {
-        chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
-        if (chatWindow.style.display === 'flex') {
-            playNotification();
-            if (chatState === 'INIT') startChat();
-        }
-    };
-
-    document.getElementById('close-chat').onclick = () => {
-        chatWindow.style.display = 'none';
-    };
-
-    const addMessage = (text, type = 'bot', quickReplies = []) => {
+    const addMessage = (text, type = 'bot') => {
+        const msgContainer = document.getElementById('chat-messages');
+        const typing = document.getElementById('typing');
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${type}`;
-        msgDiv.innerHTML = text;
-        msgContainer.appendChild(msgDiv);
         
-        chatHistory.push({ type: type === 'bot' ? 'Asistent' : 'Zákazník', text: text, time: new Date().toLocaleTimeString('cs-CZ') });
+        // Simple Markdown-like formatting
+        let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formattedText = formattedText.replace(/\n/g, '<br>');
+        
+        // Remove internal LEAD tags from UI
+        formattedText = formattedText.replace(/\[LEAD:.*?\]/g, '');
 
-        if (quickReplies.length > 0) {
-            const repliesDiv = document.createElement('div');
-            repliesDiv.className = 'quick-replies';
-            quickReplies.forEach(reply => {
-                const btn = document.createElement('button');
-                btn.className = 'quick-reply-btn';
-                btn.innerText = reply;
-                btn.onclick = () => {
-                    // Special case for navigation buttons
-                    if (reply.startsWith('🔗')) {
-                        const target = reply.includes('Recenze') ? 'reference' : 
-                                       reply.includes('Realizace') ? 'realizace' : 
-                                       reply.includes('Služby') ? 'sluzby' : '';
-                        if (target) {
-                            document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' });
-                            chatWindow.style.display = 'none';
-                            return;
-                        }
-                    }
-                    handleInput(reply);
-                };
-                repliesDiv.appendChild(btn);
-            });
-            msgContainer.appendChild(repliesDiv);
-        }
+        msgDiv.innerHTML = formattedText;
+        msgContainer.insertBefore(msgDiv, typing);
         msgContainer.scrollTop = msgContainer.scrollHeight;
+
+        chatHistory.push({ role: type === 'bot' ? 'assistant' : 'user', content: text });
+        
+        // Save to Supabase (Background)
+        saveHistory();
     };
 
-    const botSay = (text, quickReplies = [], delay = 800) => {
+    const handleSend = async () => {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text || isWaiting) return;
+
+        input.value = '';
+        addMessage(text, 'user');
+        
+        isWaiting = true;
+        const typing = document.getElementById('typing');
         typing.style.display = 'block';
-        msgContainer.scrollTop = msgContainer.scrollHeight;
-        setTimeout(() => {
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+
+        try {
+            const response = await fetch(chatConfig.apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: chatHistory, session_id: sessionId })
+            });
+            
+            const data = await response.json();
             typing.style.display = 'none';
-            addMessage(text, 'bot', quickReplies);
-        }, delay);
-    };
+            isWaiting = false;
 
-    const startChat = () => {
-        chatState = 'ASK_SERVICE';
-        botSay(getGreeting(), [
-            'Čištění střechy/fasády',
-            'Solární panely',
-            'Nátěry střech/fasád',
-            'Služby pro firmy'
-        ]);
-    };
-
-    const handleInput = (input) => {
-        if (!input.trim()) return;
-        addMessage(input, 'user');
-        chatInput.value = '';
-        setTimeout(() => processLogic(input, input.toLowerCase()), 600);
-    };
-
-    // --- Nanobot Knowledge Base ---
-    const knowledgeBase = {
-        okapy: {
-            keywords: ['okap', 'rýny', 'odtok'],
-            answer: 'Ano, čištění a kontrola okapů je standardní součástí naší renovace střech. Chceme, aby váš dům po našem zásahu fungoval jako celek. Máte okapy hodně zanesené?'
-        },
-        zaruka: {
-            keywords: ['záruk', 'garanc', 'jak dlouho vydrží'],
-            answer: 'U naší nano-ochrany dáváme garanci až 10 let na funkčnost povrchu. Technologie NANOfusion zabraňuje hloubkovému usazování nečistot a růstu mechů.'
-        },
-        rychlost: {
-            keywords: ['jak dlouho to trvá', 'termín', 'kdy začnete'],
-            answer: 'Většinu rodinných domů stihneme kompletně vyčistit a ošetřit během 1 až 2 dnů. Aktuálně máme volné termíny v horizontu 14 dnů.'
-        },
-        cena: {
-            keywords: ['cena', 'kolik to stojí', 'rozpočet', 'peněz'],
-            answer: 'Cena je individuální a závisí na ploše a stavu povrchu. Abych vám mohl říct aspoň orientační rozmezí, potřeboval bych znát přibližnou plochu v m².'
-        }
-    };
-
-    const processLogic = (original, text) => {
-        // First, check for general questions (FAQ)
-        for (let key in knowledgeBase) {
-            const entry = knowledgeBase[key];
-            if (entry.keywords.some(k => text.includes(k))) {
-                botSay(entry.answer);
-                // After answering, we wait a bit and ask the current state question if not finished
-                if (chatState !== 'FINISHED') {
-                    setTimeout(() => botSay(`Vraťme se ale k vaší poptávce. **${getStateQuestion()}**`), 2500);
-                }
-                return;
+            if (data.reply) {
+                addMessage(data.reply, 'bot');
+                checkAndSaveLead(data.reply);
+            } else {
+                addMessage('Omlouvám se, ale došlo k chybě v mém nano-mozku. Zkuste to prosím znovu.', 'bot');
             }
-        }
-
-        switch (chatState) {
-            case 'ASK_SERVICE':
-                userData.service = original;
-                chatState = 'ASK_ADDRESS';
-                botSay('Skvělá volba! Pro začátek mi napište **přesnou adresu realizace** (kvůli výpočtu dopravy). 📍');
-                break;
-
-            case 'ASK_ADDRESS':
-                if (original.length < 5) {
-                    botSay('Prosím zadejte celou adresu (ulice, město), abychom mohli spočítat dopravu. 🏠');
-                    return;
-                }
-                userData.location = original;
-                chatState = 'ASK_AREA';
-                botSay(`Děkuji! Adresu **${userData.location}** jsem uložil. O jak **velkou plochu** (m²) se přibližně jedná?`);
-                break;
-
-            case 'ASK_AREA':
-                const area = text.replace(/[^0-9]/g, '');
-                if (!area || parseInt(area) < 1) {
-                    botSay('Napište prosím přibližný počet m² (stačí číslo). 🔢');
-                    return;
-                }
-                userData.area = area;
-                chatState = 'ASK_CONTACT';
-                botSay('Děkuji. Poslední krok - zanechte mi prosím vaše **telefonní číslo**, ať se vám můžeme ozvat s nabídkou. 📞');
-                break;
-
-            case 'ASK_CONTACT':
-                const phonePattern = /^(\+420)?\s?\d{3}\s?\d{3}\s?\d{3}$/;
-                const sanitizedPhone = original.replace(/\s/g, '');
-                if (sanitizedPhone.length < 9) {
-                    botSay('Zadejte prosím platné telefonní číslo (např. 777 123 456). 📱');
-                    return;
-                }
-                userData.contact = original;
-                chatState = 'FINISHED';
-                
-                botSay('Perfektní, vaše poptávka je v systému! ✨');
-                botSay('**Rekapitulace:**\n• Služba: ' + userData.service + '\n• Adresa: ' + userData.location + '\n• Plocha: ' + userData.area + ' m²\n\n*Kolegové se vám ozvou s finální cenou včetně dopravy do 24 hodin.*');
-                
-                botSay('Co by vás zajímalo dál?', [
-                    '🔗 Ukázat Recenze',
-                    '🔗 Ukázat Realizace',
-                    '🔗 Ostatní Služby'
-                ]);
-                
-                // --- Save to Supabase ---
-                import('./supabase-config.js').then(({ supabase }) => {
-                    // Save as a chat session
-                    supabase.from('chat_sessions').insert({
-                        user_identifier: original,
-                        messages: chatHistory,
-                        status: 'open',
-                        last_activity: new Date().toISOString()
-                    }).then(({ error }) => {
-                        if (error) console.error('Chat Save Error:', error);
-                    });
-
-                    // Also save as an inquiry
-                    supabase.from('inquiries').insert({
-                        name: 'Zákazník z Chatu',
-                        phone: original,
-                        address: userData.location,
-                        service: userData.service,
-                        message: `Poptávka z AI Chatu. Plocha: ${userData.area} m2.`,
-                        source: 'chat',
-                        status: 'new'
-                    }).then(({ error }) => {
-                        if (error) console.error('Inquiry Save Error:', error);
-                    });
-                });
-                break;
-
-            case 'FINISHED':
-                botSay('Jsem připraven na vaše dotazy. Co vás konkrétně zajímá ohledně našich technologií nebo záruk?');
-                break;
-
-            default:
-                botSay('Rozumím. S čím dalším vám mohu pomoci?');
+        } catch (e) {
+            console.error('AI Error:', e);
+            typing.style.display = 'none';
+            isWaiting = false;
+            addMessage('Momentálně nejsem schopen odpovídat. Zkuste to prosím za chvíli.', 'bot');
         }
     };
 
-    const getStateQuestion = () => {
-        switch (chatState) {
-            case 'ASK_SERVICE': return 'Jakou službu bychom pro vás měli zajistit?';
-            case 'ASK_ADDRESS': return 'V jaké lokalitě se váš objekt nachází?';
-            case 'ASK_AREA': return 'O jak velkou plochu (m²) se přibližně jedná?';
-            case 'ASK_CONTACT': return 'Na jaké číslo vám můžeme zavolat s nabídkou?';
-            default: return 'Zajímají vás další detaily?';
+    const checkAndSaveLead = (text) => {
+        const match = text.match(/\[LEAD:(.*?)\]/);
+        if (match) {
+            const leadInfo = match[1];
+            import('./supabase-config.js').then(({ supabase }) => {
+                supabase.from('inquiries').insert({
+                    name: 'Zákazník (AI Chat)',
+                    message: `Poptávka z AI Chatu: ${leadInfo}`,
+                    source: 'chat',
+                    status: 'new'
+                }).then(() => console.log('AI Lead Captured'));
+            });
         }
     };
 
-    sendBtn.onclick = () => handleInput(chatInput.value);
-    chatInput.onkeypress = (e) => { if (e.key === 'Enter') handleInput(chatInput.value); };
+    const saveHistory = () => {
+        import('./supabase-config.js').then(({ supabase }) => {
+            supabase.from('chat_sessions').upsert({
+                session_token: sessionId,
+                messages: chatHistory,
+                last_activity: new Date().toISOString(),
+                status: 'open'
+            }, { onConflict: 'session_token' });
+        });
+    };
 
-    // --- Auto-pop logic (Delayed) ---
+    initUI();
+
+    // Auto-pop logic (4s)
     setTimeout(() => {
-        // If chat isn't already open, open it
-        if (chatWindow.style.display !== 'flex') {
-            chatWindow.style.setProperty('display', 'flex', 'important');
-            if (chatState === 'INIT') startChat();
-            console.log('AI Chat: Auto-pop triggered');
+        const win = document.getElementById('ai-chat-window');
+        if (win && win.style.display !== 'flex') {
+            document.getElementById('ai-chat-launcher').click();
         }
     }, 4000);
 });
