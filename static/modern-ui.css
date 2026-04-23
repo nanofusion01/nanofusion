@@ -15,8 +15,8 @@ body {
   font-family: 'Outfit', sans-serif;
   color: var(--text-main);
   scroll-behavior: smooth;
-  opacity: 0;
-  animation: fadeInGlobal 0.8s ease-out 0.2s forwards;
+  opacity: 1; /* Changed from 0 to prevent white screen */
+  animation: fadeInGlobal 0.8s ease-out;
 }
 
 @keyframes fadeInGlobal {
