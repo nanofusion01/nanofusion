@@ -46,15 +46,14 @@ export function AdminHeader() {
 
   return (
     <header
-      className="fixed top-0 right-0 flex items-center px-4 md:px-6 bg-white z-40 transition-all duration-200"
+      className="fixed top-0 right-0 flex items-center px-4 md:px-8 bg-white z-40"
       style={{
         left: '0',
-        height: 'var(--header-height)',
-        borderBottom: '1px solid var(--border)',
-        boxShadow: 'var(--shadow-sm)',
+        height: '64px',
+        borderBottom: '1px solid #e2e8f0',
       }}
     >
-      <div className="md:ml-[var(--sidebar-width)] flex items-center justify-between w-full">
+      <div className="md:ml-[256px] flex items-center justify-between w-full">
         <div className="flex items-center gap-1.5 text-xs md:text-sm overflow-hidden">
           <div className="md:hidden flex items-center gap-2 mr-2">
             <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center shrink-0">

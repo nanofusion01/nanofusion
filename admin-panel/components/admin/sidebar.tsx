@@ -156,37 +156,37 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
     >
       {/* Logo */}
       <div
-        className="flex items-center gap-3 px-5 py-5"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+        className="flex items-center gap-3 px-6 py-6"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
       >
         <div
           className="flex items-center justify-center rounded-lg"
           style={{
-            width: 36,
-            height: 36,
+            width: 32,
+            height: 32,
             background: 'var(--brand-primary)',
             flexShrink: 0,
           }}
         >
-          <span className="text-white font-black text-sm">NF</span>
+          <span className="text-white font-black text-xs">NF</span>
         </div>
         <div>
           <p className="text-white font-bold text-sm leading-tight">NANOfusion</p>
-          <p style={{ color: 'var(--sidebar-text)', fontSize: 11 }}>Admin Panel</p>
+          <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>Admin Panel</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3">
+      <nav className="flex-1 overflow-y-auto py-6 px-0">
         {navSections.map((section) => (
-          <div key={section.title} className="mb-6">
+          <div key={section.title} className="mb-8">
             <p
-              className="px-3 mb-2 font-semibold uppercase tracking-wider"
-              style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)' }}
+              className="px-6 mb-3 font-bold uppercase tracking-[0.1em]"
+              style={{ fontSize: 9, color: 'rgba(148,163,184,0.4)' }}
             >
               {section.title}
             </p>
-            <ul className="space-y-0.5">
+            <ul className="space-y-1">
               {section.items.map((item) => {
                 const active = isActive(item.href)
                 const isPendingReviews =
@@ -197,36 +197,28 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
                     <Link
                       href={item.href}
                       className={cn(
-                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group relative',
+                        'flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-150 relative',
                         active
                           ? 'text-white'
-                          : 'hover:text-white'
+                          : 'text-[#94a3b8] hover:text-white hover:bg-white/5'
                       )}
                       style={{
-                        color: active
-                          ? 'var(--sidebar-text-active)'
-                          : 'var(--sidebar-text)',
                         background: active
-                          ? 'var(--sidebar-item-active-bg)'
+                          ? 'rgba(245, 158, 11, 0.1)'
                           : undefined,
                       }}
-                      onMouseEnter={(e) => {
-                        if (!active) {
-                          e.currentTarget.style.background =
-                            'var(--sidebar-item-hover-bg)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!active) {
-                          e.currentTarget.style.background = ''
-                        }
-                      }}
                     >
+                      {active && (
+                        <div 
+                          className="absolute right-0 top-0 bottom-0 w-[3px]"
+                          style={{ background: 'var(--brand-primary)' }}
+                        />
+                      )}
                       <span
                         style={{
                           color: active
                             ? 'var(--brand-primary)'
-                            : 'var(--sidebar-text)',
+                            : 'inherit',
                         }}
                         className="flex-shrink-0"
                       >
@@ -235,17 +227,11 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
                       <span className="flex-1 truncate">{item.label}</span>
                       {isPendingReviews && (
                         <span
-                          className="rounded-full text-white font-bold text-xs px-1.5 py-0.5 min-w-[20px] text-center"
-                          style={{ background: 'var(--brand-primary)', fontSize: 10 }}
+                          className="rounded-full text-white font-bold px-1.5 py-0.5 min-w-[18px] text-center"
+                          style={{ background: 'var(--brand-primary)', fontSize: 9 }}
                         >
                           {pendingReviews}
                         </span>
-                      )}
-                      {active && (
-                        <ChevronRight
-                          size={14}
-                          style={{ color: 'var(--brand-primary)' }}
-                        />
                       )}
                     </Link>
                   </li>
@@ -258,42 +244,35 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
 
       {/* User Section */}
       <div
-        className="p-4"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+        className="p-6"
+        style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
       >
-        <div className="flex items-center gap-3 px-2 py-2 mb-2">
+        <div className="flex items-center gap-3 mb-4">
           <div
-            className="rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
+            className="rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
             style={{
-              width: 34,
-              height: 34,
-              background: 'rgba(245, 158, 11, 0.2)',
+              width: 32,
+              height: 32,
+              background: 'rgba(245, 158, 11, 0.15)',
               color: 'var(--brand-primary)',
             }}
           >
             {userEmail?.charAt(0).toUpperCase() || 'A'}
           </div>
           <div className="min-w-0">
-            <p className="text-white text-sm font-medium truncate">
+            <p className="text-white text-xs font-semibold truncate leading-none mb-1">
               {userEmail || 'Admin'}
             </p>
-            <p style={{ color: 'var(--sidebar-text)', fontSize: 11 }}>
+            <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>
               {userRole === 'admin' ? 'Administrátor' : 'Editor'}
             </p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors duration-150"
-          style={{ color: '#ef4444' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(239,68,68,0.1)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = ''
-          }}
+          className="flex items-center gap-2 w-full py-2 text-xs font-medium transition-colors duration-150 text-red-500 hover:text-red-400"
         >
-          <LogOut size={16} />
+          <LogOut size={14} />
           <span>Odhlásit se</span>
         </button>
       </div>
