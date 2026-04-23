@@ -130,9 +130,10 @@ interface SidebarProps {
 export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const supabase = createClient()
 
   const handleLogout = async () => {
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
     await supabase.auth.signOut()
     toast.success('Odhlášení proběhlo úspěšně')
     router.push('/admin/login')
@@ -148,8 +149,8 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
     <aside
       className="fixed top-0 left-0 h-full flex flex-col z-[100]"
       style={{
-        width: 'var(--sidebar-width)',
-        background: 'var(--sidebar-bg)',
+        width: '256px',
+        background: '#0f172a', // Hardcoded for resilience
         borderRight: '1px solid rgba(255,255,255,0.05)',
       }}
     >

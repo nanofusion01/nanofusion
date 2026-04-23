@@ -76,7 +76,7 @@ export default async function AdminLayout({
           minHeight: '100vh',
         }}
       >
-        <div className="md:ml-[var(--sidebar-width)] p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
+        <div className="md:ml-[256px] p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
           {children}
         </div>
       </main>
