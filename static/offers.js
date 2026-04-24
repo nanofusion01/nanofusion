@@ -191,44 +191,76 @@ let servicesData = [
 const hydrateFromCloud = async () => {
   try {
     const { supabase } = await import('./supabase-config.js');
-    const { data, error } = await supabase.from('services').select('*');
-    if (!error && data && data.length > 0) {
-      console.log('Hydrating services from STRV Cloud...');
-      // Merge cloud data with hardcoded data (prefer cloud)
-      data.forEach(cloudService => {
-        const index = servicesData.findIndex(s => s.id === cloudService.id);
+
+    // Načti služby, FAQs a Before/After paralelně
+    const [servicesRes, faqsRes, beforeAfterRes] = await Promise.all([
+      supabase.from('services').select('*'),
+      supabase.from('service_faqs').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+      supabase.from('service_before_after').select('*').order('order_index', { ascending: true }),
+    ]);
+
+    // Merge služby
+    if (!servicesRes.error && servicesRes.data && servicesRes.data.length > 0) {
+      console.log('Hydrating services from Cloud...');
+      servicesRes.data.forEach(cloudService => {
+        const index = servicesData.findIndex(s => s.id === cloudService.id || s.id === cloudService.slug);
         if (index !== -1) {
-          // Merge cloud data — mapuj DB field names na lokální
           servicesData[index] = {
             ...servicesData[index],
+            _dbId: cloudService.id, // uložíme UUID pro FAQ lookup
             title: cloudService.name || cloudService.title || servicesData[index].title,
             detail: cloudService.description || cloudService.detail || servicesData[index].detail,
             image: cloudService.hero_image_url || cloudService.image || servicesData[index].image,
             tag: cloudService.category || cloudService.tag || servicesData[index].tag,
           };
         } else {
-          // Neznámá cloud služba — přidej pouze pokud má smysluplné hodnoty
           const mapped = {
             id: cloudService.slug || cloudService.id,
+            _dbId: cloudService.id,
             title: cloudService.name || cloudService.title,
             detail: cloudService.description || cloudService.detail,
             image: cloudService.hero_image_url || cloudService.image,
             tag: cloudService.category || cloudService.tag,
-            faq: cloudService.faq || [],
+            faq: [],
           };
-          // Přidej jen pokud má title a detail (ne undefined karta)
-          if (mapped.title && mapped.detail) {
-            servicesData.push(mapped);
-          }
+          if (mapped.title && mapped.detail) servicesData.push(mapped);
         }
-
       });
     }
+
+    // Napoj FAQs na příslušné služby (podle service_id = _dbId)
+    if (!faqsRes.error && faqsRes.data && faqsRes.data.length > 0) {
+      faqsRes.data.forEach(faq => {
+        const svc = servicesData.find(s => s._dbId === faq.service_id);
+        if (svc) {
+          if (!Array.isArray(svc.faq)) svc.faq = [];
+          // Přidej jen pokud ještě není (dedup)
+          if (!svc.faq.find(f => f.q === faq.question)) {
+            svc.faq.push({ q: faq.question, a: faq.answer });
+          }
+        }
+      });
+      console.log('Service FAQs loaded from Cloud');
+    }
+
+    // Napoj Before/After fotky na příslušné služby
+    if (!beforeAfterRes.error && beforeAfterRes.data && beforeAfterRes.data.length > 0) {
+      beforeAfterRes.data.forEach(item => {
+        const svc = servicesData.find(s => s._dbId === item.service_id);
+        if (svc && item.before_url && item.after_url) {
+          svc.beforeImg = item.before_url;
+          svc.afterImg = item.after_url;
+        }
+      });
+      console.log('Service Before/After loaded from Cloud');
+    }
+
   } catch (e) {
     console.warn('Cloud hydration skipped (offline or not configured)');
   }
 };
 hydrateFromCloud();
+
 
 const openServiceModal = (data) => {
   let modal = document.getElementById('service-modal-overlay');

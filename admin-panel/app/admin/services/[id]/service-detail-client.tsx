@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { 
@@ -12,11 +12,11 @@ import {
   Plus, 
   Trash2, 
   Upload,
-  Star
+  Loader2,
+  X
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { updateService } from '../actions'
-import { createClient } from '@/lib/supabase/client'
+import { updateService, addServiceFaq, updateServiceFaq, deleteServiceFaq, uploadServiceHeroImage, uploadBeforeAfterPhoto, deleteBeforeAfter } from '../actions'
 
 type Service = Tables<'services'>
 type BeforeAfter = Tables<'service_before_after'>
@@ -28,13 +28,21 @@ interface Props {
   serviceFaqs: ServiceFAQ[]
 }
 
-export function ServiceDetailClient({ service: initialService, beforeAfterItems, serviceFaqs: initialFaqs }: Props) {
+export function ServiceDetailClient({ service: initialService, beforeAfterItems: initialBeforeAfter, serviceFaqs: initialFaqs }: Props) {
   const [activeTab, setActiveTab] = useState<'general' | 'photos' | 'faqs'>('general')
   const [faqs, setFaqs] = useState<ServiceFAQ[]>(initialFaqs)
+  const [beforeAfterItems, setBeforeAfterItems] = useState<BeforeAfter[]>(initialBeforeAfter)
   const [service, setService] = useState(initialService)
   const [saving, setSaving] = useState(false)
-  
-  // General Form
+  const [uploadingHero, setUploadingHero] = useState(false)
+  const [showAddBeforeAfter, setShowAddBeforeAfter] = useState(false)
+  const [addingBeforeAfter, setAddingBeforeAfter] = useState(false)
+  const heroFileRef = useRef<HTMLInputElement>(null)
+  const beforeFileRef = useRef<HTMLInputElement>(null)
+  const afterFileRef = useRef<HTMLInputElement>(null)
+  const [baCaption, setBaCaption] = useState('')
+
+  // --- General save ---
   const handleSaveGeneral = async () => {
     setSaving(true)
     try {
@@ -45,6 +53,61 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
       toast.error('Chyba: ' + err.message)
     } finally {
       setSaving(false)
+    }
+  }
+
+  // --- Hero image upload ---
+  const handleHeroUpload = async (file: File) => {
+    setUploadingHero(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const url = await uploadServiceHeroImage(service.id, fd)
+      setService({ ...service, hero_image_url: url })
+      toast.success('Hero obrázek nahrán')
+    } catch (err: any) {
+      toast.error('Chyba uploadu: ' + err.message)
+    } finally {
+      setUploadingHero(false)
+    }
+  }
+
+  // --- Before/After upload ---
+  const handleAddBeforeAfter = async () => {
+    const beforeFile = beforeFileRef.current?.files?.[0]
+    const afterFile = afterFileRef.current?.files?.[0]
+    if (!beforeFile || !afterFile) {
+      toast.error('Vyberte obě fotky (před a po)')
+      return
+    }
+    setAddingBeforeAfter(true)
+    try {
+      const fd = new FormData()
+      fd.append('before', beforeFile)
+      fd.append('after', afterFile)
+      fd.append('caption', baCaption)
+      const newItem = await uploadBeforeAfterPhoto(service.id, fd)
+      setBeforeAfterItems(prev => [...prev, newItem])
+      setShowAddBeforeAfter(false)
+      setBaCaption('')
+      if (beforeFileRef.current) beforeFileRef.current.value = ''
+      if (afterFileRef.current) afterFileRef.current.value = ''
+      toast.success('Srovnání přidáno')
+    } catch (err: any) {
+      toast.error('Chyba: ' + err.message)
+    } finally {
+      setAddingBeforeAfter(false)
+    }
+  }
+
+  const handleDeleteBeforeAfter = async (id: string) => {
+    if (!confirm('Smazat toto srovnání?')) return
+    try {
+      await deleteBeforeAfter(id, service.id)
+      setBeforeAfterItems(prev => prev.filter(i => i.id !== id))
+      toast.success('Srovnání smazáno')
+    } catch (err: any) {
+      toast.error('Chyba: ' + err.message)
     }
   }
 
@@ -79,8 +142,8 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
       <div className="flex gap-2 p-1.5 rounded-2xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
         {[
           { id: 'general', label: 'Základní info', icon: <Layout size={16} /> },
-          { id: 'photos', label: 'Před & Po fotky', icon: <Camera size={16} /> },
-          { id: 'faqs', label: 'Časté dotazy (Q&A)', icon: <MessageSquareQuote size={16} /> },
+          { id: 'photos', label: `Před & Po fotky (${beforeAfterItems.length})`, icon: <Camera size={16} /> },
+          { id: 'faqs', label: `Q&A (${faqs.length})`, icon: <MessageSquareQuote size={16} /> },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -100,6 +163,7 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
 
       {/* Tab Content */}
       <div className="p-8 rounded-3xl" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+        {/* --- GENERAL TAB --- */}
         {activeTab === 'general' && (
           <div className="max-w-3xl space-y-6">
             <div className="grid grid-cols-2 gap-6">
@@ -136,8 +200,9 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
               />
             </div>
 
+            {/* Hero image upload */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Hero Obrázek (URL)</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Hero Obrázek</label>
               <div className="flex gap-3">
                 <input
                   type="text"
@@ -145,72 +210,139 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
                   onChange={(e) => setService({ ...service, hero_image_url: e.target.value })}
                   className="flex-1 px-4 py-3 rounded-xl border outline-none"
                   style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
-                  placeholder="https://..."
+                  placeholder="https://... nebo nahrajte soubor →"
                 />
-                <button className="px-4 py-3 rounded-xl border flex items-center gap-2 text-sm font-semibold hover:bg-slate-50 transition-colors">
-                  <Upload size={18} />
-                  Nahrát
+                <input
+                  ref={heroFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleHeroUpload(f) }}
+                />
+                <button
+                  onClick={() => heroFileRef.current?.click()}
+                  disabled={uploadingHero}
+                  className="px-4 py-3 rounded-xl border flex items-center gap-2 text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50"
+                >
+                  {uploadingHero ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                  {uploadingHero ? 'Nahrávám...' : 'Nahrát'}
                 </button>
               </div>
+              {service.hero_image_url && (
+                <div className="mt-3 rounded-xl overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
+                  <img src={service.hero_image_url} alt="Hero preview" className="w-full h-40 object-cover" />
+                </div>
+              )}
             </div>
           </div>
         )}
 
+        {/* --- PHOTOS TAB --- */}
         {activeTab === 'photos' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg">Před & Po srovnání</h3>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border hover:bg-slate-50 transition-colors">
+              <button
+                onClick={() => setShowAddBeforeAfter(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white"
+                style={{ background: 'var(--brand-primary)' }}
+              >
                 <Plus size={16} /> Přidat srovnání
               </button>
             </div>
+
+            {/* Add Before/After form */}
+            {showAddBeforeAfter && (
+              <div className="p-6 rounded-2xl border-2 space-y-4" style={{ borderColor: 'var(--brand-primary)', background: 'var(--bg-base)' }}>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold">Nahrát nové srovnání</h4>
+                  <button onClick={() => setShowAddBeforeAfter(false)} className="p-1 rounded-lg hover:bg-slate-100">
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-slate-400">Fotka PŘED</label>
+                    <input ref={beforeFileRef} type="file" accept="image/*" className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-slate-400">Fotka PO</label>
+                    <input ref={afterFileRef} type="file" accept="image/*" className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase text-slate-400">Popisek (volitelný)</label>
+                  <input
+                    type="text"
+                    value={baCaption}
+                    onChange={(e) => setBaCaption(e.target.value)}
+                    placeholder="např. Fasáda před a po nano-ochraně"
+                    className="w-full px-4 py-2 rounded-xl border outline-none text-sm"
+                    style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+                  />
+                </div>
+                <button
+                  onClick={handleAddBeforeAfter}
+                  disabled={addingBeforeAfter}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-50"
+                  style={{ background: 'var(--brand-primary)' }}
+                >
+                  {addingBeforeAfter ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                  {addingBeforeAfter ? 'Nahrávám...' : 'Nahrát a přidat'}
+                </button>
+              </div>
+            )}
             
             <div className="grid gap-6">
               {beforeAfterItems.map((item) => (
                 <div key={item.id} className="p-4 rounded-2xl border flex gap-6" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
                   <div className="flex-1 grid grid-cols-2 gap-4">
                     <div className="space-y-2 text-center">
-                      <span className="text-[10px] uppercase font-black text-slate-400">Před</span>
-                      <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 border">
+                      <span className="text-[10px] uppercase font-black text-red-400">Před</span>
+                      <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 border-2 border-red-100">
                         <img src={item.before_url || ''} className="w-full h-full object-cover" />
                       </div>
                     </div>
                     <div className="space-y-2 text-center">
-                      <span className="text-[10px] uppercase font-black text-slate-400">Po</span>
-                      <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 border">
+                      <span className="text-[10px] uppercase font-black text-green-500">Po</span>
+                      <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 border-2 border-green-100">
                         <img src={item.after_url || ''} className="w-full h-full object-cover" />
                       </div>
                     </div>
                   </div>
-                  <div className="w-64 space-y-4">
-                    <input 
-                      type="text" 
-                      defaultValue={item.caption || ''} 
-                      className="w-full px-3 py-2 rounded-lg border text-sm"
-                      placeholder="Popisek (např. Špinavá střecha vs. Nano)"
-                    />
-                    <button className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 transition-colors">
-                      <Trash2 size={14} /> Smazat toto srovnání
+                  <div className="w-48 space-y-3 flex flex-col justify-between">
+                    <p className="text-sm text-slate-500 italic">{item.caption || 'Bez popisku'}</p>
+                    <button
+                      onClick={() => handleDeleteBeforeAfter(item.id)}
+                      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 transition-colors border border-red-100"
+                    >
+                      <Trash2 size={14} /> Smazat
                     </button>
                   </div>
                 </div>
               ))}
+              {beforeAfterItems.length === 0 && !showAddBeforeAfter && (
+                <div className="text-center py-12 opacity-40 text-sm border-2 border-dashed rounded-2xl">
+                  Zatím žádné srovnání. Klikněte na "Přidat srovnání".
+                </div>
+              )}
             </div>
           </div>
         )}
 
+        {/* --- FAQ TAB --- */}
         {activeTab === 'faqs' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg">Q&A / Časté dotazy k této službě</h3>
               <button 
                 onClick={async () => {
-                   const { addServiceFaq } = await import('../actions')
                    const newFaq = await addServiceFaq(service.id, 'Nová otázka', 'Odpověď...')
                    setFaqs([...faqs, newFaq])
                    toast.success('Dotaz přidán')
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border hover:bg-slate-50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white"
+                style={{ background: 'var(--brand-primary)' }}
               >
                 <Plus size={16} /> Přidat dotaz
               </button>
@@ -226,39 +358,38 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
                         <input 
                           type="text" 
                           value={faq.question}
-                          onChange={async (e) => {
+                          onChange={(e) => {
                             const val = e.target.value
                             setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, question: val} : f))
                           }}
                           onBlur={async (e) => {
-                            const { updateServiceFaq } = await import('../actions')
                             await updateServiceFaq(faq.id, { question: e.target.value })
                           }}
                           className="w-full px-4 py-2 rounded-lg border font-bold text-sm outline-none focus:border-amber-500"
+                          style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
                         />
                       </div>
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-slate-400">Odpověď</label>
                         <textarea 
                           value={faq.answer}
-                          onChange={async (e) => {
+                          onChange={(e) => {
                             const val = e.target.value
                             setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, answer: val} : f))
                           }}
                           onBlur={async (e) => {
-                            const { updateServiceFaq } = await import('../actions')
                             await updateServiceFaq(faq.id, { answer: e.target.value })
                           }}
                           className="w-full px-4 py-2 rounded-lg border text-sm outline-none focus:border-amber-500 resize-none"
+                          style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
                           rows={3}
                         />
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 pt-6">
                       <button 
                          onClick={async () => {
                            if(confirm('Smazat tento dotaz?')) {
-                             const { deleteServiceFaq } = await import('../actions')
                              await deleteServiceFaq(faq.id)
                              setFaqs(faqs.filter(f => f.id !== faq.id))
                              toast.success('Dotaz smazán')
@@ -270,22 +401,24 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems,
                       </button>
                       <button 
                         onClick={async () => {
-                          const { updateServiceFaq } = await import('../actions')
                           const newStatus = !faq.is_active
                           await updateServiceFaq(faq.id, { is_active: newStatus })
                           setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, is_active: newStatus} : f))
                           toast.success(newStatus ? 'Aktivováno' : 'Deaktivováno')
                         }}
-                        className={`p-2 rounded-lg transition-colors ${faq.is_active ? 'text-green-500 bg-green-50' : 'text-slate-300 bg-slate-50'}`}
+                        title={faq.is_active ? 'Skrýt z webu' : 'Zobrazit na webu'}
+                        className={`p-2 rounded-lg transition-colors text-xs font-bold ${faq.is_active ? 'text-green-600 bg-green-50' : 'text-slate-400 bg-slate-100'}`}
                       >
-                        <Save size={18} />
+                        {faq.is_active ? '✓' : '○'}
                       </button>
                     </div>
                   </div>
                 </div>
               ))}
               {faqs.length === 0 && (
-                <div className="text-center py-12 opacity-40 text-sm">Zatím žádné dotazy pro tuto službu.</div>
+                <div className="text-center py-12 opacity-40 text-sm border-2 border-dashed rounded-2xl">
+                  Zatím žádné dotazy. Klikněte na "Přidat dotaz".
+                </div>
               )}
             </div>
           </div>

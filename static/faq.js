@@ -1,8 +1,8 @@
-/* Dynamic FAQs for NANOfusion */
+/* Dynamic FAQs for NANOfusion — MutationObserver verze */
 
 const injectFaqs = async () => {
     let faqSection = document.getElementById('faq');
-    if (!faqSection) return;
+    if (!faqSection || faqSection.dataset.injected === 'true') return;
 
     const hydrateFaqs = async () => {
         try {
@@ -31,10 +31,10 @@ const injectFaqs = async () => {
                 <div class="max-w-3xl mx-auto space-y-4">
                     ${faqs.map((f, i) => `
                         <div class="faq-item" style="border: 1px solid #e2e8f0; border-radius: 1rem; overflow: hidden; background: white;">
-                            <button onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')" 
+                            <button onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')"
                                     style="width: 100%; text-align: left; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer;">
                                 <span style="font-weight: 700; color: #1e293b;">${f.question}</span>
-                                <svg class="transition-transform" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="transition-transform flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M6 9l6 6 6-6"></path>
                                 </svg>
                             </button>
@@ -47,10 +47,26 @@ const injectFaqs = async () => {
             </div>
         `;
         faqSection.innerHTML = faqHtml;
+        faqSection.dataset.injected = 'true';
     };
 
     hydrateFaqs();
 };
 
-document.addEventListener('DOMContentLoaded', injectFaqs);
-window.addEventListener('load', () => setTimeout(injectFaqs, 1500));
+// MutationObserver — čeká dokud main.js nevytvoří #faq
+const initFaq = () => {
+    if (document.getElementById('faq')) {
+        injectFaqs();
+        return;
+    }
+    const observer = new MutationObserver(() => {
+        if (document.getElementById('faq')) {
+            observer.disconnect();
+            injectFaqs();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => { observer.disconnect(); injectFaqs(); }, 8000);
+};
+
+initFaq();
