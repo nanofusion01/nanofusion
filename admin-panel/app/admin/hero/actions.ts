@@ -1,11 +1,11 @@
-'use server'
+﻿'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
 
 export async function uploadHeroFile(formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const file = formData.get('file') as File
   if (!file) throw new Error('Chybí soubor')
   const publicUrl = await uploadFile(supabase, file, 'heroes', 'hero')
@@ -18,7 +18,7 @@ export async function uploadHeroFile(formData: FormData) {
 
 
 export async function updateHeroTitle(value: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('site_config') as any)
     .upsert({ key: 'hero_title', value }, { onConflict: 'key' })
   
@@ -28,7 +28,7 @@ export async function updateHeroTitle(value: string) {
 }
 
 export async function toggleHeroMedia(id: string, is_active: boolean) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   
   if (is_active) {
     await (supabase.from('hero_media') as any).update({ is_active: false }).neq('id', id)
@@ -44,7 +44,7 @@ export async function toggleHeroMedia(id: string, is_active: boolean) {
 }
 
 export async function addHeroMedia(url: string, type: 'image' | 'video') {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('hero_media') as any)
     .insert({ url, type, is_active: false })
   
@@ -53,7 +53,7 @@ export async function addHeroMedia(url: string, type: 'image' | 'video') {
 }
 
 export async function deleteHeroMedia(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('hero_media') as any)
     .delete()
     .eq('id', id)

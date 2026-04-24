@@ -1,10 +1,10 @@
-'use server'
+﻿'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function updatePrice(id: string, price: number) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('configurator_prices') as any)
     .update({ price, updated_at: new Date().toISOString() })
     .eq('id', id)
@@ -13,7 +13,7 @@ export async function updatePrice(id: string, price: number) {
 }
 
 export async function updatePriceLabel(id: string, label: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('configurator_prices') as any)
     .update({ label })
     .eq('id', id)
@@ -22,7 +22,7 @@ export async function updatePriceLabel(id: string, label: string) {
 }
 
 export async function savePrices(prices: { id: string; price: number }[]) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const updates = prices.map(({ id, price }) =>
     (supabase.from('configurator_prices') as any)
       .update({ price, updated_at: new Date().toISOString() })

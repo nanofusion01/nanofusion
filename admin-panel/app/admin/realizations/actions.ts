@@ -1,6 +1,6 @@
-'use server'
+﻿'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
 
@@ -11,7 +11,7 @@ export async function createRealization(data: {
   duration?: string
   work_type?: string
 }) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data: realization, error } = await (supabase.from('realizations') as any)
     .insert(data)
     .select('id')
@@ -29,7 +29,7 @@ export async function updateRealization(id: string, data: Partial<{
   work_type: string
   is_published: boolean
 }>) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('realizations') as any)
     .update({ ...data, updated_at: new Date().toISOString() })
     .eq('id', id)
@@ -38,14 +38,14 @@ export async function updateRealization(id: string, data: Partial<{
 }
 
 export async function deleteRealization(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('realizations') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
 }
 
 export async function togglePublished(id: string, is_published: boolean) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('realizations') as any)
     .update({ is_published, updated_at: new Date().toISOString() })
     .eq('id', id)
@@ -57,7 +57,7 @@ export async function uploadRealizationPhoto(
   realizationId: string,
   file: FormData
 ) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const fileData = file.get('file') as File
   if (!fileData) throw new Error('No file provided')
 
@@ -80,7 +80,7 @@ export async function uploadRealizationPhoto(
 }
 
 export async function deleteRealizationPhoto(photoId: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('realization_photos') as any)
     .delete()
     .eq('id', photoId)

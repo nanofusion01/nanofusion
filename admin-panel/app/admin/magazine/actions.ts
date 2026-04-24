@@ -1,10 +1,10 @@
-'use server'
+﻿'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function saveArticle(id: string | null, data: any) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   
   if (id) {
     // Update — uses 'articles' table (unified with public web)
@@ -23,7 +23,7 @@ export async function saveArticle(id: string | null, data: any) {
 }
 
 export async function deleteArticle(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('articles') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/magazine')

@@ -1,11 +1,11 @@
-'use server'
+﻿'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
 
 export async function addYoutubeItem(url: string, caption?: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   // Extract YouTube ID
   const match = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
@@ -28,7 +28,7 @@ export async function addYoutubeItem(url: string, caption?: string) {
 }
 
 export async function addImageItem(url: string, caption?: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const { count } = await (supabase.from('gallery_items') as any)
     .select('*', { count: 'exact', head: true })
@@ -44,7 +44,7 @@ export async function addImageItem(url: string, caption?: string) {
 }
 
 export async function uploadGalleryImage(file: FormData) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const fileData = file.get('file') as File
   if (!fileData) throw new Error('No file provided')
 
@@ -54,14 +54,14 @@ export async function uploadGalleryImage(file: FormData) {
 }
 
 export async function deleteGalleryItem(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('gallery_items') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
 }
 
 export async function updateGalleryCaption(id: string, caption: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('gallery_items') as any)
     .update({ caption })
     .eq('id', id)
@@ -70,7 +70,7 @@ export async function updateGalleryCaption(id: string, caption: string) {
 }
 
 export async function toggleGalleryItemActive(id: string, is_active: boolean) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('gallery_items') as any)
     .update({ is_active })
     .eq('id', id)

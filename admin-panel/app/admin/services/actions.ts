@@ -1,11 +1,11 @@
-'use server'
+﻿'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
 
 export async function createService(data: { name: string; slug: string }) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data: service, error } = await (supabase.from('services') as any)
     .insert({ ...data, is_active: true })
     .select('id')
@@ -17,7 +17,7 @@ export async function createService(data: { name: string; slug: string }) {
 }
 
 export async function updateService(id: string, data: any) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('services') as any)
     .update({ ...data, updated_at: new Date().toISOString() })
     .eq('id', id)
@@ -28,14 +28,14 @@ export async function updateService(id: string, data: any) {
 }
 
 export async function deleteService(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('services') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
 }
 
 export async function toggleServiceStatus(id: string, is_active: boolean) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('services') as any)
     .update({ is_active, updated_at: new Date().toISOString() })
     .eq('id', id)
@@ -45,7 +45,7 @@ export async function toggleServiceStatus(id: string, is_active: boolean) {
 }
 
 export async function reorderServices(items: { id: string; order_index: number }[]) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const updates = items.map(({ id, order_index }) =>
     (supabase.from('services') as any).update({ order_index }).eq('id', id)
   )
@@ -54,7 +54,7 @@ export async function reorderServices(items: { id: string; order_index: number }
 }
 
 export async function addServiceFaq(serviceId: string, question: string, answer: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data, error } = await (supabase.from('service_faqs') as any)
     .insert({ service_id: serviceId, question, answer })
     .select()
@@ -66,7 +66,7 @@ export async function addServiceFaq(serviceId: string, question: string, answer:
 }
 
 export async function updateServiceFaq(id: string, data: any) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('service_faqs') as any)
     .update(data)
     .eq('id', id)
@@ -75,14 +75,14 @@ export async function updateServiceFaq(id: string, data: any) {
 }
 
 export async function deleteServiceFaq(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('service_faqs') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
 }
 
 // --- Before/After management ---
 export async function addBeforeAfter(serviceId: string, beforeUrl: string, afterUrl: string, caption?: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { count } = await (supabase.from('service_before_after') as any)
     .select('*', { count: 'exact', head: true })
     .eq('service_id', serviceId)
@@ -96,14 +96,14 @@ export async function addBeforeAfter(serviceId: string, beforeUrl: string, after
 }
 
 export async function deleteBeforeAfter(id: string, serviceId: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { error } = await (supabase.from('service_before_after') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
 }
 
 export async function uploadBeforeAfterPhoto(serviceId: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const beforeFile = formData.get('before') as File
   const afterFile = formData.get('after') as File
   const caption = formData.get('caption') as string | null
@@ -116,7 +116,7 @@ export async function uploadBeforeAfterPhoto(serviceId: string, formData: FormDa
 }
 
 export async function uploadServiceHeroImage(serviceId: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const file = formData.get('file') as File
   if (!file) throw new Error('Chybí soubor')
   const publicUrl = await uploadFile(supabase, file, 'services', serviceId)
