@@ -94,32 +94,32 @@ export async function GET(request: Request) {
       }
     }
 
-    // 4. Fallback: HTML scraping recenzí (záloha pokud JSON-LD chybí)
+    // 4. Fallback: HTML scraping přes Firmy.cz CSS třídy (reviewItem__*)
     if (reviews.length === 0) {
-      // Firmy.cz HTML pattern pro recenze (záloha)
-      const reviewPattern = /<div[^>]*class="[^"]*reviewItem[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/gi
+      // Firmy.cz CSS class pattern (dynamicky načítáno, ale někdy v SSR pro SEO)
+      const authorPattern = /class="reviewItem__authorName[^"]*"[^>]*>([^<]+)</gi
+      const textPattern = /class="reviewItem__text[^"]*"[^>]*>([\s\S]*?)<\/p>/gi
+      const datePattern = /class="reviewItem__date[^"]*"[^>]*>([^<]+)</gi
+
+      const authors: string[] = []
+      const texts: string[] = []
+      const dates: string[] = []
+
       let m: RegExpExecArray | null
-      let idx = 0
-      while ((m = reviewPattern.exec(html)) !== null && idx < 50) {
-        const block = m[1]
-        const authorM = block.match(/class="[^"]*author[^"]*"[^>]*>([^<]+)</)
-        const ratingM = block.match(/class="[^"]*rating[^"]*"[^>]*>([^<]+)<|itemprop="ratingValue"[^>]*>([^<]+)</)
-        const textM = block.match(/itemprop="reviewBody"[^>]*>([\s\S]*?)<\//)
-        if (authorM && textM) {
-          const content = textM[1].replace(/<[^>]+>/g, '').trim()
-          if (content.length > 5) {
-            const author = authorM[1].trim()
-            const extId = `firmy_html_${idx}_${btoa(encodeURIComponent(content.substring(0, 20))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20)}`
-            reviews.push({
-              external_id: extId,
-              author,
-              rating: ratingM ? parseInt(ratingM[1] || ratingM[2] || '5') : 5,
-              content,
-              published_at: null,
-            })
-            idx++
-          }
-        }
+      while ((m = authorPattern.exec(html)) !== null) authors.push(m[1].trim())
+      while ((m = textPattern.exec(html)) !== null) texts.push(m[1].replace(/<[^>]+>/g, '').trim())
+      while ((m = datePattern.exec(html)) !== null) dates.push(m[1].trim())
+
+      for (let i = 0; i < Math.min(authors.length, texts.length); i++) {
+        if (texts[i].length < 5) continue
+        const extId = `firmy_css_${Buffer.from(authors[i] + texts[i].substring(0, 20)).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+        reviews.push({
+          external_id: extId,
+          author: authors[i] || 'Anonymní',
+          rating: 5,
+          content: texts[i],
+          published_at: dates[i] || null,
+        })
       }
     }
 
