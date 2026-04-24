@@ -1,4 +1,4 @@
-/* Infinite Scrolling Reviews for NANOfusion */
+/* NANOfusion — Premium Dark Reviews Scroller + Supabase hydratace */
 
 let reviewsData = [
   { name: 'Ing. Petr Svoboda', info: 'Praha, Čištění střechy', stars: 5, text: 'Hloubkové čištění krytiny a následná nano-ochrana dopadla na jedničku. Střecha vypadá jako nově položená a už se na ní nedrží mech.' },
@@ -11,39 +11,64 @@ let reviewsData = [
   { name: 'Pavel Holub', info: 'České Budějovice, Terasa', stars: 5, text: 'Neskutečný rozdíl před a po. Terasa vypadá jako nově postavená a impregnace funguje skvěle.' },
   { name: 'Kateřina Šťastná', info: 'Zlín, Fasáda', stars: 5, text: 'Rychlost, profesionalita a čistota. Rozhodně doporučuji všem, kdo chtějí mít dům jako nový.' },
   { name: 'Jiří Procházka', info: 'Kladno, Střecha', stars: 5, text: 'Skvělá domluva, férová cena. Střecha po čištění vypadá perfektně a mech už nemá šanci.' },
-  { name: 'Barbora Veselá', info: 'Teplice, Dlažba', stars: 5, text: 'Konečně zmizel plevel i mech z chodníku. Pěkná práce a velmi příjemní pracovníci.' },
-  { name: 'Tomáš Beránek', info: 'Jihlava, Fotovoltaika', stars: 5, text: 'Panely jsou opět čisté a vyrábějí víc energie než v minulém roce. Velmi se to vyplatilo.' },
-  { name: 'Alena Tichá', info: 'Karlovy Vary, Fasáda', stars: 5, text: 'Děkuji za profesionální přístup. Dům doslova svítí novotou a sousedé nás zastavují a ptají se.' },
-  { name: 'Petr Kříž', info: 'Most, Industriální hala', stars: 5, text: 'Velký projekt v průmyslovém areálu, ale zvládli to skvěle, v termínu a bezpečně.' },
-  { name: 'Veronika Bílá', info: 'Benešov, Graffiti', stars: 5, text: 'Rychlé odstranění čmáranic z fasády. Anti-graffiti nátěr funguje, další pokus o graffiti šel smýt vodou.' }
 ];
 
 const injectReviews = () => {
     const reviewsSection = document.getElementById('reference');
     if (!reviewsSection || reviewsSection.dataset.injected === 'true') return false;
 
-    // Create wrapper
-    const wrapper = document.createElement('div');
-    wrapper.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6';
-    
-    reviewsData.forEach(review => {
-        const card = document.createElement('div');
-        card.className = 'bg-white p-6 rounded-2xl shadow-sm border border-slate-100';
-        card.innerHTML = `
-            <div class="flex gap-1 mb-2">
-                ${Array(review.stars).fill('<span class="text-amber-500">★</span>').join('')}
-            </div>
-            <p class="text-slate-600 text-sm italic mb-4">"${review.text}"</p>
-            <div>
-                <p class="font-bold text-slate-800 text-sm">${review.name}</p>
-                <p class="text-slate-400 text-xs">${review.info}</p>
-            </div>
-        `;
-        wrapper.appendChild(card);
-    });
+    reviewsSection.innerHTML = `
+        <div class="py-32 bg-slate-950 section-reveal">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Co o nás říkají naši klienti</h2>
+                    <p class="text-slate-400 max-w-xl mx-auto text-base leading-relaxed">
+                        Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
+                    </p>
+                </div>
 
-    reviewsSection.innerHTML = '';
-    reviewsSection.appendChild(wrapper);
+                <div style="position: relative; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 40px;">
+                    <div id="reviews-scroller" style="display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; scrollbar-width: none;">
+                        ${reviewsData.map(rev => `
+                            <div class="review-card-premium"
+                                 style="flex: 0 0 350px; background: #1e293b; border-radius: 1.5rem; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 1.5rem;">
+                                <div style="display: flex; gap: 4px;">
+                                    ${Array(rev.stars || 5).fill('<span style="color: #f59e0b; font-size: 1.2rem;">★</span>').join('')}
+                                </div>
+                                <p style="color: #cbd5e1; font-style: italic; font-size: 1rem; line-height: 1.7; flex-grow: 1;">
+                                    "${rev.text}"
+                                </p>
+                                <div>
+                                    <h4 style="color: white; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem;">${rev.name}</h4>
+                                    <p style="color: #64748b; font-size: 0.85rem;">${rev.info || 'Ověřený zákazník'}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Premium Navigation Arrows -->
+                    <button onclick="document.getElementById('reviews-scroller').scrollLeft -= 400"
+                        style="position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(245,158,11,0.3); z-index: 10; transition: all 0.3s ease;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                            <path d="M15 18L9 12L15 6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button onclick="document.getElementById('reviews-scroller').scrollLeft += 400"
+                        style="position: absolute; right: -30px; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 15px; background: #f59e0b; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(245,158,11,0.3); z-index: 10; transition: all 0.3s ease;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                            <path d="M9 18L15 12L9 6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <style>
+            #reviews-scroller::-webkit-scrollbar { display: none; }
+            @media (max-width: 768px) {
+                .review-card-premium { flex: 0 0 85% !important; padding: 2rem !important; }
+            }
+        </style>
+    `;
     reviewsSection.dataset.injected = 'true';
     return true;
 };
@@ -51,14 +76,18 @@ const injectReviews = () => {
 const hydrateReviews = async () => {
     try {
         const { supabase } = await import('./supabase-config.js');
-        const { data, error } = await supabase.from('external_reviews').select('*').eq('approved', true);
+        // Zkus external_reviews (schválené) nebo reviews jako fallback
+        let data, error;
+        ({ data, error } = await supabase.from('external_reviews').select('*').eq('approved', true));
+        if (error || !data || data.length === 0) {
+            ({ data, error } = await supabase.from('reviews').select('*').eq('is_approved', true));
+        }
         if (!error && data && data.length > 0) {
-            console.log('Hydrating reviews from Cloud...');
             reviewsData = data.map(d => ({
-                name: d.author,
-                info: `${d.city || 'Česko'}, ${d.service || 'Služba'}`,
-                stars: d.rating || 5,
-                text: d.content
+                name: d.author || d.name,
+                info: d.location || `${d.city || 'Česko'}, ${d.service || 'Služba'}`,
+                stars: d.rating || d.stars || 5,
+                text: d.content || d.text
             }));
             const target = document.getElementById('reference');
             if (target) {
@@ -67,21 +96,24 @@ const hydrateReviews = async () => {
             }
         }
     } catch (e) {
-        console.error('Hydrate error:', e);
+        console.error('Reviews Sync Error:', e);
     }
 };
 
+// MutationObserver pro robustní inicializaci
 const initReviews = () => {
-    injectReviews();
+    if (injectReviews()) {
+        hydrateReviews();
+        return;
+    }
+    const observer = new MutationObserver(() => {
+        if (injectReviews()) {
+            observer.disconnect();
+            hydrateReviews();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => { observer.disconnect(); injectReviews(); hydrateReviews(); }, 5000);
 };
 
-// Initial run
 initReviews();
-hydrateReviews();
-
-// Resilience observer
-const observer = new MutationObserver(() => initReviews());
-observer.observe(document.body, { childList: true, subtree: true });
-
-// Fallback
-window.addEventListener('load', () => setTimeout(initReviews, 500));

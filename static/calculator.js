@@ -273,8 +273,34 @@ const runInjection = () => {
   setupLeadCapture();
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', runInjection);
-} else {
-  runInjection();
-}
+// MutationObserver — čeká dokud main.js nevytvoří #kontakt v DOM
+const initCalculator = () => {
+  // Pokud #kontakt již existuje, spusť rovnou
+  if (document.getElementById('kontakt')) {
+    runInjection();
+    return;
+  }
+
+  // Jinak sleduj DOM a čekej
+  const observer = new MutationObserver(() => {
+    if (document.getElementById('kontakt')) {
+      observer.disconnect();
+      runInjection();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // Fallback po 8s — spusť i bez #kontakt (vloží na konec body)
+  setTimeout(() => {
+    observer.disconnect();
+    if (!document.getElementById('kalkulacka')) {
+      // Pokud #kontakt stále neexistuje, vlož před footer
+      const footer = document.querySelector('footer');
+      if (footer) footer.parentNode.insertBefore(document.createElement('div'), footer);
+      runInjection();
+    }
+  }, 8000);
+};
+
+initCalculator();
+
