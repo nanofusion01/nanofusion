@@ -198,10 +198,30 @@ const hydrateFromCloud = async () => {
       data.forEach(cloudService => {
         const index = servicesData.findIndex(s => s.id === cloudService.id);
         if (index !== -1) {
-          servicesData[index] = { ...servicesData[index], ...cloudService };
+          // Merge cloud data — mapuj DB field names na lokální
+          servicesData[index] = {
+            ...servicesData[index],
+            title: cloudService.name || cloudService.title || servicesData[index].title,
+            detail: cloudService.description || cloudService.detail || servicesData[index].detail,
+            image: cloudService.hero_image_url || cloudService.image || servicesData[index].image,
+            tag: cloudService.category || cloudService.tag || servicesData[index].tag,
+          };
         } else {
-          servicesData.push(cloudService);
+          // Neznámá cloud služba — přidej pouze pokud má smysluplné hodnoty
+          const mapped = {
+            id: cloudService.slug || cloudService.id,
+            title: cloudService.name || cloudService.title,
+            detail: cloudService.description || cloudService.detail,
+            image: cloudService.hero_image_url || cloudService.image,
+            tag: cloudService.category || cloudService.tag,
+            faq: cloudService.faq || [],
+          };
+          // Přidej jen pokud má title a detail (ne undefined karta)
+          if (mapped.title && mapped.detail) {
+            servicesData.push(mapped);
+          }
         }
+
       });
     }
   } catch (e) {
