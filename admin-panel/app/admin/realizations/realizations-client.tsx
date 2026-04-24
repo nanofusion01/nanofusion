@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 import {
   Plus,
   Search,
@@ -14,6 +15,7 @@ import {
   MapPin,
   Clock,
   Wrench,
+  ExternalLink,
 } from 'lucide-react'
 import {
   createRealization,
@@ -262,13 +264,13 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => openEdit(r)}
-                    className="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                    style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                  <Link
+                    href={`/admin/realizations/${r.id}`}
+                    className="flex-1 py-1.5 rounded-lg text-xs font-bold text-center transition-all flex items-center justify-center gap-1"
+                    style={{ background: 'var(--brand-primary)', color: 'white' }}
                   >
-                    Upravit
-                  </button>
+                    <ExternalLink size={12} /> Detail & Fotky
+                  </Link>
                   <button
                     onClick={() => handleTogglePublished(r)}
                     className="p-1.5 rounded-lg transition-all"
