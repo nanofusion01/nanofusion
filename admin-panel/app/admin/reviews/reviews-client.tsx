@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
-import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle, RefreshCw } from 'lucide-react'
+import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle, RefreshCw, Download } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { approveReview, rejectReview, deleteReview, addManualReview } from './actions'
 
@@ -35,6 +35,26 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
   const [showAddModal, setShowAddModal] = useState(false)
   const [newReview, setNewReview] = useState({ author: '', rating: 5, content: '', location: '' })
   const [loading, setLoading] = useState<string | null>(null)
+  const [isSyncing, setIsSyncing] = useState(false)
+
+  const handleSyncFirmy = async () => {
+    setIsSyncing(true)
+    try {
+      const res = await fetch('/api/reviews/firmy?key=dev')
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'Chyba synchronizace')
+      if (json.imported > 0) {
+        toast.success(`✅ Importováno ${json.imported} nových recenzí — zkontrolujte záložku "Čekající"`)
+        window.location.reload()
+      } else {
+        toast.info(json.note || 'Žádné nové recenze — Firmy.cz možná nepoužívá JSON-LD, zkuste ruční přidání')
+      }
+    } catch (e: any) {
+      toast.error('Sync selhal: ' + e.message)
+    } finally {
+      setIsSyncing(false)
+    }
+  }
 
   const filtered = useMemo(() => {
     return initialReviews.filter((r) => {
@@ -125,6 +145,17 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
         </div>
         <div className="flex gap-3">
           <button
+            onClick={handleSyncFirmy}
+            disabled={isSyncing}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 disabled:opacity-60"
+            style={{ border: '1px solid #f59e0b', background: '#fffbeb', color: '#d97706' }}
+          >
+            {isSyncing
+              ? <RefreshCw size={15} className="animate-spin" />
+              : <Download size={15} />}
+            {isSyncing ? 'Importuji...' : 'Sync z Firmy.cz'}
+          </button>
+          <button
             onClick={() => window.location.reload()}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
             style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
@@ -142,7 +173,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
           </button>
         </div>
       </div>
-      {/* Firmy.cz helper banner */}
+      {/* Firmy.cz sync info */}
       <div
         className="flex items-start gap-4 p-4 rounded-2xl"
         style={{ background: '#fffbeb', border: '1px solid #fde68a' }}
@@ -150,10 +181,10 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
         <span className="text-2xl">⭐</span>
         <div className="flex-1">
           <p className="font-bold text-sm" style={{ color: '#92400e' }}>
-            Jak přidat recenze z Firmy.cz?
+            Automatický import z Firmy.cz
           </p>
           <p className="text-xs mt-1" style={{ color: '#b45309' }}>
-            Firmy.cz nenabízí API pro automatické stahování recenzí. Přejděte na váš profil → zkopírujte text recenze → klikněte "Přidat recenzi" výše.
+            Klikněte <b>"Sync z Firmy.cz"</b> pro jednorázový import. Automaticky každý den v 8:00 (Vercel cron). Nové recenze čekají na vaše schválení v záložce "Čekající".
           </p>
           <a
             href="https://www.firmy.cz/detail/12891651-nanofusion-s-r-o-blucina.html"

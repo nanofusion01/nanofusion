@@ -4,56 +4,173 @@ import { createClient } from '@supabase/supabase-js'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const key = searchParams.get('key')
-  
-  // Basic security for cron
-  if (key !== process.env.CRON_SECRET && process.env.NODE_ENV === 'production') {
+
+  // Auth: cron nebo admin
+  const isAuthorized =
+    key === process.env.CRON_SECRET ||
+    process.env.NODE_ENV !== 'production'
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const profileUrl = process.env.FIRMY_CZ_PROFILE_URL
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  
+
   if (!profileUrl || !supabaseUrl || !supabaseServiceKey) {
-    return NextResponse.json({ error: 'Missing configuration' }, { status: 500 })
+    return NextResponse.json({ error: 'Chybí konfigurace: FIRMY_CZ_PROFILE_URL, NEXT_PUBLIC_SUPABASE_URL nebo SUPABASE_SERVICE_ROLE_KEY' }, { status: 500 })
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
   try {
+    // 1. Stáhni HTML profilu Firmy.cz
     const response = await fetch(profileUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'cs-CZ,cs;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       },
-      next: { revalidate: 0 }
+      next: { revalidate: 0 },
     })
+
+    if (!response.ok) {
+      return NextResponse.json({ error: `Firmy.cz odpověděl: ${response.status}` }, { status: 502 })
+    }
+
     const html = await response.text()
 
-    // 1. Scrape overall score
-    const ratingMatch = html.match(/class="score-value">([\d,.]+)</)
+    // 2. Celkové hodnocení (pro stats)
+    const ratingMatch = html.match(/class="score-value">([\\d,.]+)</)
     const countMatch = html.match(/class="score-count">(\d+)/)
+    const overallRating = ratingMatch ? parseFloat(ratingMatch[1].replace(',', '.')) : 0
+    const reviewCount = countMatch ? parseInt(countMatch[1]) : 0
 
-    const rating = ratingMatch ? parseFloat(ratingMatch[1].replace(',', '.')) : 0
-    const count = countMatch ? parseInt(countMatch[1]) : 0
+    // 3. JSON-LD Schema.org parsing — nejspolehlivější metoda (SSR)
+    const reviews: Array<{
+      external_id: string
+      author: string
+      rating: number
+      content: string
+      published_at: string | null
+    }> = []
 
-    // Persist stats
-    await supabase.from('firmy_stats').insert({
-      rating,
-      review_count: count,
-      updated_at: new Date().toISOString()
-    })
+    const jsonLdBlocks = html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)
 
-    // 2. Scrape individual reviews (simplified implementation)
-    // Note: Firmy.cz often loads reviews via JS, but some might be in the initial HTML or a hidden JSON
-    // For now we persist the stats. In a real scenario, we'd use a more complex parser for the review list.
-    
+    for (const match of jsonLdBlocks) {
+      try {
+        const raw = match[1].trim()
+        const data = JSON.parse(raw)
+        const entities = Array.isArray(data) ? data : [data]
+
+        for (const entity of entities) {
+          // Recenze mohou být přímo na objektu nebo vnořené
+          const rawReviews = entity?.review
+            ? (Array.isArray(entity.review) ? entity.review : [entity.review])
+            : []
+
+          for (const rev of rawReviews) {
+            const author = rev?.author?.name || rev?.author || 'Anonymní'
+            const rating = parseInt(rev?.reviewRating?.ratingValue ?? rev?.rating ?? '5')
+            const content = rev?.reviewBody || rev?.description || ''
+            const datePublished = rev?.datePublished || null
+
+            if (!content || content.length < 5) continue
+
+            // Generujeme stabilní external_id z obsahu
+            const extId = `firmy_${btoa(encodeURIComponent(author + content.substring(0, 30))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+
+            reviews.push({
+              external_id: extId,
+              author,
+              rating: isNaN(rating) ? 5 : Math.min(5, Math.max(1, rating)),
+              content,
+              published_at: datePublished,
+            })
+          }
+        }
+      } catch (_) {
+        // Přeskočíme neplatné JSON-LD bloky
+      }
+    }
+
+    // 4. Fallback: HTML scraping recenzí (záloha pokud JSON-LD chybí)
+    if (reviews.length === 0) {
+      // Firmy.cz HTML pattern pro recenze (záloha)
+      const reviewPattern = /<div[^>]*class="[^"]*reviewItem[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/gi
+      let m: RegExpExecArray | null
+      let idx = 0
+      while ((m = reviewPattern.exec(html)) !== null && idx < 50) {
+        const block = m[1]
+        const authorM = block.match(/class="[^"]*author[^"]*"[^>]*>([^<]+)</)
+        const ratingM = block.match(/class="[^"]*rating[^"]*"[^>]*>([^<]+)<|itemprop="ratingValue"[^>]*>([^<]+)</)
+        const textM = block.match(/itemprop="reviewBody"[^>]*>([\s\S]*?)<\//)
+        if (authorM && textM) {
+          const content = textM[1].replace(/<[^>]+>/g, '').trim()
+          if (content.length > 5) {
+            const author = authorM[1].trim()
+            const extId = `firmy_html_${idx}_${btoa(encodeURIComponent(content.substring(0, 20))).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20)}`
+            reviews.push({
+              external_id: extId,
+              author,
+              rating: ratingM ? parseInt(ratingM[1] || ratingM[2] || '5') : 5,
+              content,
+              published_at: null,
+            })
+            idx++
+          }
+        }
+      }
+    }
+
+    // 5. Upsert recenzí do external_reviews (skip duplicity přes external_id)
+    let imported = 0
+    let skipped = 0
+
+    for (const rev of reviews) {
+      const { error } = await supabase.from('external_reviews').upsert({
+        source: 'firmy.cz',
+        external_id: rev.external_id,
+        author: rev.author,
+        rating: rev.rating,
+        content: rev.content,
+        published_at: rev.published_at,
+        approved: false, // Čeká na schválení v admin panelu
+        fetched_at: new Date().toISOString(),
+      }, { onConflict: 'external_id', ignoreDuplicates: true })
+
+      if (error) {
+        skipped++
+      } else {
+        imported++
+      }
+    }
+
+    // 6. Ulož celkové hodnocení do firmy_stats (pro dashboard)
+    if (overallRating > 0) {
+      await supabase.from('firmy_stats').upsert({
+        rating: overallRating,
+        review_count: reviewCount,
+        updated_at: new Date().toISOString(),
+      }).catch(() => {}) // Tabulka nemusí existovat
+    }
+
+    console.log(`Firmy.cz sync: ${imported} nových, ${skipped} přeskočeno, ${reviews.length} celkem`)
+
     return NextResponse.json({
-      success: true,
-      data: { rating, count },
-      updated_at: new Date().toISOString()
+      ok: true,
+      overall_rating: overallRating,
+      total_on_firmy: reviewCount,
+      parsed_reviews: reviews.length,
+      imported,
+      skipped,
+      note: imported > 0
+        ? `${imported} nových recenzí čeká na schválení v admin panelu`
+        : 'Žádné nové recenze k importu (nebo JSON-LD chybí v HTML)',
     })
+
   } catch (error: any) {
     console.error('Firmy.cz scrape error:', error)
-    return NextResponse.json({ error: 'Failed to scrape reviews' }, { status: 500 })
+    return NextResponse.json({ error: 'Scraping selhal: ' + error.message }, { status: 500 })
   }
 }
