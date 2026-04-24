@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { updateHeroTitle, toggleHeroMedia, addHeroMedia, deleteHeroMedia } from './actions'
+import { useState, useRef } from 'react'
+import { updateHeroTitle, toggleHeroMedia, addHeroMedia, deleteHeroMedia, uploadHeroFile } from './actions'
 import { normalizeMediaUrl } from '@/lib/utils'
 import { toast } from 'sonner'
-import { Plus, Trash2, Globe, Image as ImageIcon, Video, Save, ExternalLink } from 'lucide-react'
+import { Plus, Trash2, Globe, Image as ImageIcon, Video, Save, ExternalLink, Upload, Loader2 } from 'lucide-react'
 
 interface HeroMedia {
   id: string
@@ -25,8 +25,11 @@ export function HeroClient({
   const [items, setItems] = useState(initialItems)
   const [isSavingTitle, setIsSavingTitle] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [newUrl, setNewUrl] = useState('')
   const [newType, setNewType] = useState<'image' | 'video'>('image')
+  const [addMode, setAddMode] = useState<'url' | 'file'>('file')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const active = items.find((h) => h.is_active)
 
@@ -39,6 +42,22 @@ export function HeroClient({
       toast.error('Chyba při ukládání textu')
     } finally {
       setIsSavingTitle(false)
+    }
+  }
+
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const publicUrl = await uploadHeroFile(fd)
+      setItems(prev => [...prev, { id: Date.now().toString(), url: publicUrl, type: 'image', is_active: false, updated_at: new Date().toISOString() }])
+      toast.success('Obrázek nahrán do knihovny')
+    } catch (e: any) {
+      toast.error('Chyba při nahrávání: ' + e.message)
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
   }
 
@@ -168,52 +187,84 @@ export function HeroClient({
         {/* 3. Add New Media */}
         <div className="space-y-4">
           <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">Přidat nové médium</h3>
-          <form 
-            onSubmit={handleAdd}
-            className="rounded-2xl p-6 border shadow-sm space-y-4" 
+          <div
+            className="rounded-2xl p-6 border shadow-sm space-y-4"
             style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
           >
+            {/* Mode switch */}
             <div className="flex gap-2 p-1 rounded-xl" style={{ background: 'var(--bg-base)', border: '1px solid var(--border)' }}>
-               <button 
-                 type="button"
-                 onClick={() => setNewType('image')}
-                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-bold text-xs transition-all ${newType === 'image' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
-               >
-                 <ImageIcon size={14} /> Obrázek
-               </button>
-               <button 
-                 type="button"
-                 onClick={() => setNewType('video')}
-                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-bold text-xs transition-all ${newType === 'video' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
-               >
-                 <Video size={14} /> Youtube Video
-               </button>
+              <button
+                type="button"
+                onClick={() => setAddMode('file')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-bold text-xs transition-all ${addMode === 'file' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+              >
+                <Upload size={14} /> Nahrát soubor
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddMode('url')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-bold text-xs transition-all ${addMode === 'url' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+              >
+                <Video size={14} /> YouTube URL
+              </button>
             </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 mb-1.5 block">URL Adresa (Google Drive, Youtube, Unsplash...)</label>
-              <input 
-                type="text"
-                placeholder="Vložte odkaz..."
-                value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
-                className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-amber-500/20 outline-none transition-all text-sm"
-                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-              />
-              <p className="text-[10px] text-slate-400 mt-2 italic">
-                * U videí vkládejte klasický odkaz na Youtube video.
-              </p>
-            </div>
+            {/* File upload mode */}
+            {addMode === 'file' && (
+              <div className="space-y-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f) }}
+                />
+                <div
+                  onClick={() => !isUploading && fileInputRef.current?.click()}
+                  className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:border-amber-400 hover:bg-amber-50'}`}
+                  style={{ borderColor: 'var(--border)' }}
+                >
+                  {isUploading ? (
+                    <Loader2 size={32} className="animate-spin text-amber-500 mb-2" />
+                  ) : (
+                    <Upload size={32} className="text-slate-300 mb-2" />
+                  )}
+                  <p className="text-sm font-bold text-slate-400">
+                    {isUploading ? 'Nahrávám...' : 'Klikněte nebo přetáhněte soubor'}
+                  </p>
+                  <p className="text-xs text-slate-300 mt-1">JPG, PNG, WebP, MP4 — max 50 MB</p>
+                </div>
+              </div>
+            )}
 
-            <button
-              type="submit"
-              disabled={isAdding || !newUrl}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-black transition-all disabled:opacity-50"
-            >
-              <Plus size={18} />
-              {isAdding ? 'Přidávám...' : 'Přidat do knihovny'}
-            </button>
-          </form>
+            {/* URL mode (YouTube) */}
+            {addMode === 'url' && (
+              <form onSubmit={handleAdd} className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase text-slate-400 mb-1.5 block">YouTube URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    value={newUrl}
+                    onChange={(e) => setNewUrl(e.target.value)}
+                    className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-amber-500/20 outline-none transition-all text-sm"
+                    style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 italic">
+                    * Vkládejte standardní odkaz na YouTube video
+                  </p>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isAdding || !newUrl}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-black transition-all disabled:opacity-50"
+                >
+                  <Plus size={18} />
+                  {isAdding ? 'Přidávám...' : 'Přidat video do knihovny'}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
 
