@@ -53,7 +53,6 @@ export async function approveFirmyReview(firmyReviewId: string) {
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
 
-  // Načti recenzi z firmy_reviews
   const { data: review, error: fetchError } = await (supabase.from('firmy_reviews') as any)
     .select('*')
     .eq('id', firmyReviewId)
@@ -61,7 +60,6 @@ export async function approveFirmyReview(firmyReviewId: string) {
 
   if (fetchError || !review) throw new Error('Recenze nenalezena')
 
-  // Upsert do external_reviews s approved = true (public web čte z této tabulky)
   const { error } = await (supabase.from('external_reviews') as any)
     .upsert({
       source: 'firmy.cz',
@@ -75,4 +73,67 @@ export async function approveFirmyReview(firmyReviewId: string) {
 
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
+}
+
+export async function syncFirmyReviews() {
+  const profileUrl = process.env.FIRMY_CZ_PROFILE_URL
+  if (!profileUrl) throw new Error('Chybí FIRMY_CZ_PROFILE_URL v prostředí Vercelu')
+
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client nedostupný')
+
+  // 1. Stáhni HTML profilu
+  const response = await fetch(profileUrl, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept-Language': 'cs-CZ,cs;q=0.9',
+    },
+    cache: 'no-store',
+  })
+
+  if (!response.ok) throw new Error(`Firmy.cz odpověděl: ${response.status}`)
+  const html = await response.text()
+
+  // 2. JSON-LD Schema.org parsing
+  const reviews: Array<{ external_id: string; author: string; rating: number; content: string; published_at: string | null }> = []
+  const jsonLdBlocks = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)]
+
+  for (const match of jsonLdBlocks) {
+    try {
+      const data = JSON.parse(match[1].trim())
+      const entities = Array.isArray(data) ? data : [data]
+      for (const entity of entities) {
+        const rawReviews = entity?.review
+          ? (Array.isArray(entity.review) ? entity.review : [entity.review])
+          : []
+        for (const rev of rawReviews) {
+          const author = rev?.author?.name || rev?.author || 'Anonymní'
+          const rating = Math.min(5, Math.max(1, parseInt(rev?.reviewRating?.ratingValue ?? '5')))
+          const content = (rev?.reviewBody || '').trim()
+          if (content.length < 5) continue
+          const extId = `firmy_${Buffer.from(author + content.substring(0, 30)).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+          reviews.push({ external_id: extId, author, rating, content, published_at: rev?.datePublished || null })
+        }
+      }
+    } catch (_) {}
+  }
+
+  // 3. Upsert do external_reviews
+  let imported = 0
+  for (const rev of reviews) {
+    const { error } = await (supabase.from('external_reviews') as any).upsert({
+      source: 'firmy.cz',
+      external_id: rev.external_id,
+      author: rev.author,
+      rating: rev.rating,
+      content: rev.content,
+      published_at: rev.published_at,
+      approved: false,
+      fetched_at: new Date().toISOString(),
+    }, { onConflict: 'external_id', ignoreDuplicates: true })
+    if (!error) imported++
+  }
+
+  revalidatePath('/admin/reviews')
+  return { imported, total: reviews.length }
 }

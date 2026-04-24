@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle, RefreshCw, Download } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { approveReview, rejectReview, deleteReview, addManualReview } from './actions'
+import { approveReview, rejectReview, deleteReview, addManualReview, syncFirmyReviews } from './actions'
 
 type Review = Tables<'external_reviews'>
 
@@ -40,14 +40,14 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
   const handleSyncFirmy = async () => {
     setIsSyncing(true)
     try {
-      const res = await fetch('/api/reviews/firmy?key=dev')
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Chyba synchronizace')
-      if (json.imported > 0) {
-        toast.success(`✅ Importováno ${json.imported} nových recenzí — zkontrolujte záložku "Čekající"`)
+      const result = await syncFirmyReviews()
+      if (result.imported > 0) {
+        toast.success(`✅ Importováno ${result.imported} nových recenzí z Firmy.cz — zkontrolujte záložku "Čekající"`)
         window.location.reload()
+      } else if (result.total === 0) {
+        toast.info('Firmy.cz neobsahuje JSON-LD recenze — zkuste ruční přidání nebo ověřte URL profilu')
       } else {
-        toast.info(json.note || 'Žádné nové recenze — Firmy.cz možná nepoužívá JSON-LD, zkuste ruční přidání')
+        toast.info('Žádné nové recenze k importu (vše již importováno)')
       }
     } catch (e: any) {
       toast.error('Sync selhal: ' + e.message)
