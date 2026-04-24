@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle, RefreshCw, Download } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { approveReview, rejectReview, deleteReview, addManualReview, syncFirmyReviews } from './actions'
+import { approveReview, rejectReview, deleteReview, addManualReview, syncFirmyReviews, syncGoogleReviews } from './actions'
 
 type Review = Tables<'external_reviews'>
 
@@ -42,17 +42,40 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
     try {
       const result = await syncFirmyReviews()
       if (result.imported > 0) {
-        toast.success(`✅ Importováno ${result.imported} nových recenzí z Firmy.cz — zkontrolujte záložku "Čekající"`)
+        toast.success(`✅ Importováno ${result.imported} nových recenzí z Firmy.cz`)
         window.location.reload()
       } else if (result.total === 0) {
-        toast.info('Firmy.cz neobsahuje JSON-LD recenze — zkuste ruční přidání nebo ověřte URL profilu')
+        toast.info('Firmy.cz: žádné recenze v HTML (načítány přes JS) — přidejte ručně')
       } else {
-        toast.info('Žádné nové recenze k importu (vše již importováno)')
+        toast.info('Žádné nové Firmy.cz recenze')
       }
     } catch (e: any) {
       toast.error('Sync selhal: ' + e.message)
     } finally {
       setIsSyncing(false)
+    }
+  }
+
+  const [isGoogleSyncing, setIsGoogleSyncing] = useState(false)
+
+  const handleSyncGoogle = async () => {
+    setIsGoogleSyncing(true)
+    try {
+      const result = await syncGoogleReviews()
+      if (result.imported > 0) {
+        toast.success(`✅ Importováno ${result.imported} Google recenzí (Google rating: ${result.rating}⭐)`)
+        window.location.reload()
+      } else {
+        toast.info(`Žádné nové Google recenze (${result.total} celkem, vše již importováno)`)
+      }
+    } catch (e: any) {
+      if (e.message.includes('GOOGLE_MAPS_API_KEY')) {
+        toast.error('⚠️ Nastavte GOOGLE_MAPS_API_KEY ve Vercel env vars', { duration: 8000 })
+      } else {
+        toast.error('Google sync selhal: ' + e.message)
+      }
+    } finally {
+      setIsGoogleSyncing(false)
     }
   }
 
@@ -143,7 +166,18 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             {initialReviews.length} recenzí celkem
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
+          <button
+            onClick={handleSyncGoogle}
+            disabled={isGoogleSyncing}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 disabled:opacity-60"
+            style={{ border: '1px solid #4285f4', background: '#eff6ff', color: '#1d4ed8' }}
+          >
+            {isGoogleSyncing
+              ? <RefreshCw size={15} className="animate-spin" />
+              : <Download size={15} />}
+            {isGoogleSyncing ? 'Importuji...' : 'Sync z Google'}
+          </button>
           <a
             href="https://www.firmy.cz/detail/12954501-nanofusion-s-r-o-blucina.html"
             target="_blank"

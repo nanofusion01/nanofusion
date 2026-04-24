@@ -149,3 +149,46 @@ export async function syncFirmyReviews() {
   revalidatePath('/admin/reviews')
   return { imported, total: reviews.length }
 }
+
+export async function syncGoogleReviews() {
+  const placeId = process.env.GOOGLE_PLACE_ID || 'ChIJQSiiUsXPHEkcRBUavNy8LwxM'
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY
+
+  if (!apiKey) throw new Error('Chybí GOOGLE_MAPS_API_KEY — nastavte ve Vercel env vars')
+
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client nedostupný')
+
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&language=cs&reviews_sort=newest&key=${apiKey}`
+  const res = await fetch(url, { cache: 'no-store' })
+  const data = await res.json()
+
+  if (data.status !== 'OK') throw new Error(`Google API: ${data.error_message || data.status}`)
+
+  const googleReviews: any[] = data.result?.reviews || []
+  let imported = 0
+
+  for (const rev of googleReviews) {
+    if (!rev.text || rev.text.length < 5) continue
+    const extId = `google_${rev.time}_${rev.author_name.replace(/\s/g, '').substring(0, 16)}`
+
+    const { data: existing } = await (supabase.from('external_reviews') as any)
+      .select('id').eq('external_id', extId).maybeSingle()
+    if (existing) continue
+
+    const { error } = await (supabase.from('external_reviews') as any).insert({
+      source: 'google',
+      external_id: extId,
+      author: rev.author_name,
+      rating: rev.rating,
+      content: rev.text,
+      published_at: new Date(rev.time * 1000).toISOString(),
+      approved: true,
+      fetched_at: new Date().toISOString(),
+    })
+    if (!error) imported++
+  }
+
+  revalidatePath('/admin/reviews')
+  return { imported, total: googleReviews.length, rating: data.result?.rating }
+}
