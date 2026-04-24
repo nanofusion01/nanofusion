@@ -203,7 +203,12 @@ const hydrateFromCloud = async () => {
     if (!servicesRes.error && servicesRes.data && servicesRes.data.length > 0) {
       console.log('Hydrating services from Cloud...');
       servicesRes.data.forEach(cloudService => {
-        const index = servicesData.findIndex(s => s.id === cloudService.id || s.id === cloudService.slug);
+        const cloudSlug = (cloudService.slug || '').replace(/^\//, '') // strip leading /
+        const index = servicesData.findIndex(s =>
+          s.id === cloudService.id ||
+          s.id === cloudSlug ||
+          s.id === cloudService.slug
+        );
         if (index !== -1) {
           servicesData[index] = {
             ...servicesData[index],
