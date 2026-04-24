@@ -227,7 +227,11 @@ const injectCalculator = async () => {
           phone: phone,
           service: state.serviceName,
           message: `Kalkulačka: ${state.objName}, Plocha: ${areaUnknown.checked ? 'Neznámo' : areaValue + 'm2'}, Cena: ${totalDisplay}`,
-          source: 'Konfigurátor'
+          source: 'Konfigurátor',
+          status: 'new'
+        }).then(({ error }) => {
+          if (error) console.error('[Kalkulačka] Chyba při ukládání poptávky:', error.message, error.code);
+          else console.log('[Kalkulačka] Poptávka uložena do databáze');
         });
       });
 
@@ -258,10 +262,17 @@ const setupLeadCapture = () => {
       import('./supabase-config.js').then(({ supabase }) => {
         supabase.from('inquiries').insert({
           name, email, phone,
-          source: 'Kontaktní formulář'
-        }).then(() => {
-          alert('Děkujeme! Ozveme se vám.');
-          form.reset();
+          source: 'Kontaktní formulář',
+          status: 'new'
+        }).then(({ error }) => {
+          if (error) {
+            console.error('[Formulář] Chyba při ukládání poptávky:', error.message, error.code);
+            alert('Omlouváme se, nastala chyba. Zavolejte nám prosím přímo.');
+          } else {
+            console.log('[Formulář] Poptávka uložena do databáze');
+            alert('Děkujeme! Ozveme se vám.');
+            form.reset();
+          }
         });
       });
     });
