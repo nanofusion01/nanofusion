@@ -191,48 +191,24 @@ let servicesData = [
 const hydrateFromCloud = async () => {
   try {
     const { supabase } = await import('./supabase-config.js');
-    // Načti služby + before/after fotky + FAQ v jednom volání
-    const { data, error } = await supabase
-      .from('services')
-      .select('*, service_before_after(*), service_faqs(*)')
-      .eq('is_active', true)
-      .order('order_index', { ascending: true });
-
+    const { data, error } = await supabase.from('services').select('*');
     if (!error && data && data.length > 0) {
-      console.log(`NANOfusion: Hydrating ${data.length} services from DB...`);
+      console.log('Hydrating services from STRV Cloud...');
+      // Merge cloud data with hardcoded data (prefer cloud)
       data.forEach(cloudService => {
-        // Opravený matching — slug nebo id
-        const index = servicesData.findIndex(
-          s => s.slug === cloudService.slug || s.id === cloudService.slug
-        );
-        const mapped = {
-          ...(index !== -1 ? servicesData[index] : {}),
-          ...cloudService,
-          id: cloudService.slug,
-          title: cloudService.name || (index !== -1 ? servicesData[index].title : cloudService.slug),
-          detail: cloudService.description || (index !== -1 ? servicesData[index].detail : ''),
-          image: cloudService.hero_image_url || (index !== -1 ? servicesData[index].image : ''),
-          // Before/after z DB (preferuj DB, fallback na hardcoded)
-          beforeImg: cloudService.service_before_after?.[0]?.before_url || (index !== -1 ? servicesData[index].beforeImg : null),
-          afterImg: cloudService.service_before_after?.[0]?.after_url || (index !== -1 ? servicesData[index].afterImg : null),
-          // FAQ z DB
-          faq: cloudService.service_faqs?.length
-            ? cloudService.service_faqs.map(f => ({ q: f.question, a: f.answer }))
-            : (index !== -1 ? servicesData[index].faq : []),
-        };
+        const index = servicesData.findIndex(s => s.id === cloudService.id);
         if (index !== -1) {
-          servicesData[index] = mapped;
+          servicesData[index] = { ...servicesData[index], ...cloudService };
         } else {
-          servicesData.push(mapped);
+          servicesData.push(cloudService);
         }
       });
-      return true; // signál že data přišla
     }
   } catch (e) {
-    console.warn('Cloud hydration skipped:', e);
+    console.warn('Cloud hydration skipped (offline or not configured)');
   }
-  return false;
 };
+hydrateFromCloud();
 
 const openServiceModal = (data) => {
   let modal = document.getElementById('service-modal-overlay');
@@ -406,66 +382,63 @@ const openServiceModal = (data) => {
     document.getElementById('m-price').style.color = '#F59E0B';
     document.getElementById('m-form').style.display = 'none';
     document.getElementById('m-result').style.display = 'block';
-    // --- Supabase Inquiry Saving (Phase 1 Fix) ---
+
+    // --- Supabase Lead Saving ---
     import('./supabase-config.js').then(({ supabase }) => {
-      supabase.from('inquiries').insert({
+      supabase.from('leads').insert({
         name: name,
         phone: phone,
         service: data.title,
-        message: `Poptávka z kalkulačky.\nPlocha: ${area} m2\nOdhadovaná cena: ${min} - ${max} Kč`,
-        source: 'kalkulacka',
-        status: 'new'
+        area: area,
+        source: 'Modal / Kalkulačka',
+        total_price_est: `${min} - ${max} Kč`
       }).then(({ error }) => {
         if (error) console.error('Cloud Save Error:', error);
-        else console.log('Inquiry saved to STRV Cloud');
+        else console.log('Service lead saved to STRV Cloud');
       });
     });
   };
 };
 
 // Injection logic for supplemental services
-const injectSupplementalServices = () => {
-  const serviceGrid = document.querySelector('#sluzby .grid');
-  if (!serviceGrid) return;
+document.addEventListener('DOMContentLoaded', () => {
+  const injectSupplementalServices = () => {
+    const serviceGrid = document.querySelector('#sluzby .grid');
+    if (!serviceGrid) return;
 
-  // Přidáme všechny služby co nejsou v hlavním React gridu
-  const supplemental = servicesData.slice(4);
+    // We only want to inject services that are NOT already in the main React grid
+    // Based on inspection, we add the ones from id 61 ('graffiti') and onwards
+    const supplemental = servicesData.slice(4); // Industrial, Graffiti, Paints, etc.
 
-  supplemental.forEach(service => {
-    if (serviceGrid.innerText.includes(service.title)) return;
+    supplemental.forEach(service => {
+      // Check if already exists by checking text content (simple heuristic)
+      if (serviceGrid.innerText.includes(service.title)) return;
 
-    const card = document.createElement('div');
-    card.className = 'group relative bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 cursor-pointer animate-fade-in';
-    card.innerHTML = `
-      <div class="aspect-[16/9] overflow-hidden">
-        <img src="${service.image}" alt="${service.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
-      </div>
-      <div class="p-6">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-wider">${service.tag || ''}</span>
+      const card = document.createElement('div');
+      card.className = 'group relative bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 cursor-pointer animate-fade-in';
+      card.innerHTML = `
+        <div class="aspect-[16/9] overflow-hidden">
+          <img src="${service.image}" alt="${service.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
         </div>
-        <h3 class="text-xl font-bold mb-2">${service.title}</h3>
-        <p class="text-muted-foreground text-sm line-clamp-2">${service.detail}</p>
-        <div class="mt-4 flex items-center text-primary font-bold text-sm">
-          Zjistit více <span class="ml-2 transition-transform group-hover:translate-x-1">→</span>
+        <div class="p-6">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-wider">${service.tag}</span>
+          </div>
+          <h3 class="text-xl font-bold mb-2">${service.title}</h3>
+          <p class="text-muted-foreground text-sm line-clamp-2">${service.detail}</p>
+          <div class="mt-4 flex items-center text-primary font-bold text-sm">
+            Zjistit více <span class="ml-2 transition-transform group-hover:translate-x-1">→</span>
+          </div>
         </div>
-      </div>
-    `;
-    card.onclick = () => openServiceModal(service);
-    serviceGrid.appendChild(card);
-  });
-};
+      `;
+      card.onclick = () => openServiceModal(service);
+      serviceGrid.appendChild(card);
+    });
+  };
 
-// OPRAVENÝ init: čeká na cloud data PŘED renderem supplemental services
-const initServices = async () => {
-  const hadCloudData = await hydrateFromCloud();
-  if (hadCloudData) {
-    console.log('NANOfusion: Services z DB načteny, injektuji...');
-  }
-  injectSupplementalServices();
-};
-
-document.addEventListener('DOMContentLoaded', initServices);
+  // Run with delay to ensure React has finished rendering the initial grid
+  setTimeout(injectSupplementalServices, 1500);
+});
 
 // Interceptor with improved matching
 document.addEventListener('click', (e) => {

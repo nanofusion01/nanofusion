@@ -147,14 +147,16 @@ const observeAll = () => {
     }
   });
 
-  // Update Experience Stats - Targeted selectors only
-  const statsToUpdate = document.querySelectorAll('.stats-number, .experience-label');
-  statsToUpdate.forEach(el => {
-    if (el.textContent.includes('13 let zkušeností')) {
-      el.textContent = el.textContent.replace('13 let zkušeností', '12 let zkušeností');
-    }
-    if (el.textContent.trim() === '13' && el.nextElementSibling && el.nextElementSibling.textContent.includes('Let zkušeností')) {
-      el.textContent = '12';
+  // Update Experience Stats
+  const statsLabels = document.querySelectorAll('div, p, span, h2, h3, h4');
+  statsLabels.forEach(el => {
+    if (el.children.length === 0) {
+      if (el.textContent.includes('13 let zkušeností')) {
+        el.textContent = el.textContent.replace('13 let zkušeností', '12 let zkušeností');
+      }
+      if (el.textContent.trim() === '13' && el.nextElementSibling && el.nextElementSibling.textContent.includes('Let zkušeností')) {
+        el.textContent = '12';
+      }
     }
   });
 
@@ -224,10 +226,16 @@ const observeAll = () => {
             <h2 style="font-size:36px; font-weight:900; color:#0f172a; line-height:1.1; margin-bottom:24px; letter-spacing:-0.03em;">${item.title}</h2>
             <p style="font-size:18px; line-height:1.8; color:#475569; margin-bottom:30px; font-weight:500;">${item.description}</p>
             
+            <div style="background:#f8fafc; padding:24px; border-radius:24px; border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; gap:20px;">
               <div>
                 <div style="font-weight:800; color:#0f172a; font-size:18px;">Zaujal vás tento výsledek?</div>
-                <div style="color:#64748b; font-size:14px;">Zeptejte se Nanobota na cenu či detaily níže.</div>
+                <div style="color:#64748b; font-size:14px;">Zeptejte se Nanobota na cenu či detaily.</div>
               </div>
+              <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'; setTimeout(() => document.getElementById('ai-chat-launcher').click(), 200)" 
+                style="background:#f59e0b; color:white; border:none; padding:16px 32px; border-radius:16px; font-weight:800; cursor:pointer; transition:all 0.3s ease; white-space:nowrap; box-shadow:0 10px 20px rgba(245, 158, 11, 0.2);">
+                CHCI TAKÉ TAKOVÉ VÝSLEDKY
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -475,20 +483,15 @@ const observeAll = () => {
 window.observeAll = observeAll;
 
 let isObserving = false;
-let observationCount = 0;
-const MAX_OBSERVATIONS = 20; // Safety break to prevent infinite loops
-
 const domObserver = new MutationObserver(() => {
   if (isObserving) return;
   isObserving = true;
-  
   try {
     observeAll();
   } catch (e) {
     console.error('Observation error:', e);
   } finally {
-    // Optimized throttle for smoother performance
-    setTimeout(() => { isObserving = false; }, 300);
+    setTimeout(() => { isObserving = false; }, 100);
   }
 });
 
@@ -496,29 +499,22 @@ const clearPreloader = () => {
   const preloader = document.getElementById('preloader');
   if (preloader) {
     preloader.style.opacity = '0';
-    preloader.style.pointerEvents = 'none';
-    setTimeout(() => { 
-        if(preloader.parentNode) preloader.remove(); 
-        console.log('NANOfusion: Preloader removed');
-    }, 600);
+    preloader.style.visibility = 'hidden';
+    setTimeout(() => { if(preloader.parentNode) preloader.remove(); }, 500);
   }
   document.body.style.opacity = '1';
-  document.body.style.visibility = 'visible';
   document.body.style.overflow = 'auto';
 };
 
 const initApp = () => {
   try {
-    observeAll();
     domObserver.observe(document.body, { childList: true, subtree: true });
-    // Clear preloader faster once initial observation is done
-    requestAnimationFrame(() => {
-        setTimeout(clearPreloader, 150);
-    });
+    observeAll();
   } catch (e) {
     console.warn('Initial app injection error:', e);
-    clearPreloader();
   }
+  // Independent preloader clearing
+  setTimeout(clearPreloader, 100); 
 };
 
 // Start initialization
@@ -528,6 +524,6 @@ if (document.readyState === 'loading') {
   initApp();
 }
 
-// Fallback: Force reveal after 2s if something stuck
-setTimeout(clearPreloader, 2000);
+// Senior CTO Fallback: Force clear preloader after 4.5s no matter what
+setTimeout(clearPreloader, 4500);
 

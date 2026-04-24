@@ -5,7 +5,7 @@ const injectPortfolio = async () => {
     const referenceSection = document.getElementById('reference');
     const processSection = document.getElementById('proces');
     const rootWrapper = document.querySelector('#root > div');
-
+    
     if (!portfolioSection) {
         portfolioSection = document.createElement('div');
         portfolioSection.id = 'realizace';
@@ -28,10 +28,10 @@ const injectPortfolio = async () => {
 
 
     let projectsData = [
-        {
-            id: 1,
-            title: 'Čištění střechy RD, Praha',
-            service: 'Čištění střech',
+        { 
+            id: 1, 
+            title: 'Čištění střechy RD, Praha', 
+            service: 'Čištění střech', 
             image: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
             location: 'Praha - Západ',
             duration: '2 dny',
@@ -41,10 +41,10 @@ const injectPortfolio = async () => {
             beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
             afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'
         },
-        {
-            id: 2,
-            title: 'Renovace fasády bytového domu, Brno',
-            service: 'Čištění fasád',
+        { 
+            id: 2, 
+            title: 'Renovace fasády bytového domu, Brno', 
+            service: 'Čištění fasád', 
             image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
             location: 'Brno - Královo Pole',
             duration: '4 dny',
@@ -54,10 +54,10 @@ const injectPortfolio = async () => {
             beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
             afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'
         },
-        {
-            id: 3,
-            title: 'Zámková dlažba firemního areálu, Plzeň',
-            service: 'Čištění dlažeb',
+        { 
+            id: 3, 
+            title: 'Zámková dlažba firemního areálu, Plzeň', 
+            service: 'Čištění dlažeb', 
             image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
             location: 'Plzeň - Borská pole',
             duration: '1 den',
@@ -72,51 +72,13 @@ const injectPortfolio = async () => {
     const hydratePortfolio = async () => {
         try {
             const { supabase } = await import('./supabase-config.js');
-            // TASK 5: Načti realizace + fotky v jednom query
-            const { data, error } = await supabase
-                .from('realizations')
-                .select(`
-                    *,
-                    realization_photos (
-                        url,
-                        caption,
-                        order_index
-                    )
-                `)
-                .eq('is_published', true)
-                .order('created_at', { ascending: false });
-
+            const { data, error } = await supabase.from('realizations').select('*');
             if (!error && data && data.length > 0) {
-                console.log(`NANOfusion: ${data.length} realizací načteno z DB`);
-                // Opravené mapování polí DB → UI
-                projectsData = data.map(d => {
-                    const photos = (d.realization_photos || [])
-                        .sort((a, b) => a.order_index - b.order_index);
-                    return {
-                        ...d,
-                        id: d.id,
-                        title: d.title,
-                        service: d.work_type || 'NANOfusion práce',
-                        location: d.location || '',
-                        duration: d.duration || '',
-                        // Hlavní fotka = první fotka z realization_photos
-                        image: photos[0]?.url || 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800',
-                        // Před = první, Po = druhá fotka
-                        beforeImg: photos[0]?.url || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
-                        afterImg: photos[1]?.url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
-                        // Detailní popis
-                        challenge: d.description || 'Profesionální zpracování.',
-                        solution: 'Profesionální nano-technologický postup NANOfusion.',
-                        results: `Realizace dokončena v ${d.duration || 'rekordním čase'}. Povrch je nyní dlouhodobě chráněn.`,
-                    };
-                });
-                render(); // Re-render DOM s DB daty
-            } else if (error) {
-                console.warn('NANOfusion: Portfolio hydration error (RLS?):', error.message);
+                console.log('Hydrating portfolio from STRV Cloud...');
+                projectsData = data;
+                render();
             }
-        } catch (e) {
-            console.warn('Portfolio hydration failed:', e);
-        }
+        } catch (e) {}
     };
     hydratePortfolio();
 
@@ -195,7 +157,7 @@ const injectPortfolio = async () => {
         };
 
         const generateCards = (list) => list.map(p => `
-            <div class="portfolio-card-modern" onclick="window.portfolioOpenStudy('${p.id}')">
+            <div class="portfolio-card-modern" onclick="window.portfolioOpenStudy(${p.id})">
                 <div class="portfolio-img-wrap">
                     <img src="${p.image}" alt="${p.title}">
                 </div>
@@ -241,14 +203,16 @@ const injectPortfolio = async () => {
 // Start injection with resilience
 const initPortfolio = () => {
     if (!portfolioSection) {
-        injectPortfolio();
+       injectPortfolio();
     }
 };
 
-// Start injection
-injectPortfolio();
-
-// Fallback for late initialization
-window.addEventListener('load', () => {
-    setTimeout(injectPortfolio, 500);
+const portfolioObserver = new MutationObserver(() => {
+    if (!document.getElementById('realizace')) {
+        injectPortfolio();
+    }
 });
+portfolioObserver.observe(document.body, { childList: true, subtree: true });
+
+injectPortfolio();
+window.addEventListener('load', () => setTimeout(injectPortfolio, 500));
