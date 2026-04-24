@@ -19,10 +19,10 @@ const syncHeroText = async (heading) => {
       heading.innerHTML = data.value;
       console.log('NANOfusion: Hero text synchronizován');
     } else {
-      heading.innerHTML = 'Špičková péče o to,<br>co jste usilovně vybudovali';
+      heading.innerHTML = 'Špičková péče o to,<br><span style="color: #f59e0b;">co jste usilovně vybudovali</span>';
     }
   } catch (e) {
-    heading.innerHTML = 'Špičková péče o to,<br>co jste usilovně vybudovali';
+    heading.innerHTML = 'Špičková péče o to,<br><span style="color: #f59e0b;">co jste usilovně vybudovali</span>';
   }
 };
 
