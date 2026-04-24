@@ -50,10 +50,10 @@ export function RealizationDetailClient({
     try {
       await updateRealization(r.id, {
         title: r.title,
-        description: r.description,
-        location: r.location,
-        duration: r.duration,
-        work_type: r.work_type,
+        description: r.description ?? undefined,
+        location: r.location ?? undefined,
+        duration: r.duration ?? undefined,
+        work_type: r.work_type ?? undefined,
       })
       toast.success('Realizace uložena')
     } catch (err: any) {
