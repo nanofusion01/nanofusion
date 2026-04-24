@@ -148,11 +148,13 @@ export async function GET(request: Request) {
 
     // 6. Ulož celkové hodnocení do firmy_stats (pro dashboard)
     if (overallRating > 0) {
-      await supabase.from('firmy_stats').upsert({
-        rating: overallRating,
-        review_count: reviewCount,
-        updated_at: new Date().toISOString(),
-      }).catch(() => {}) // Tabulka nemusí existovat
+      try {
+        await supabase.from('firmy_stats').upsert({
+          rating: overallRating,
+          review_count: reviewCount,
+          updated_at: new Date().toISOString(),
+        })
+      } catch (_) {} // Tabulka nemusí existovat
     }
 
     console.log(`Firmy.cz sync: ${imported} nových, ${skipped} přeskočeno, ${reviews.length} celkem`)
