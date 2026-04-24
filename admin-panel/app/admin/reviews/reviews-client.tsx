@@ -144,17 +144,16 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
           </p>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={handleSyncFirmy}
-            disabled={isSyncing}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 disabled:opacity-60"
-            style={{ border: '1px solid #f59e0b', background: '#fffbeb', color: '#d97706' }}
+          <a
+            href="https://www.firmy.cz/detail/12954501-nanofusion-s-r-o-blucina.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
+            style={{ border: '1px solid #f59e0b', background: '#fffbeb', color: '#d97706', textDecoration: 'none' }}
           >
-            {isSyncing
-              ? <RefreshCw size={15} className="animate-spin" />
-              : <Download size={15} />}
-            {isSyncing ? 'Importuji...' : 'Sync z Firmy.cz'}
-          </button>
+            <Download size={15} />
+            Otevřít Firmy.cz
+          </a>
           <button
             onClick={() => window.location.reload()}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
@@ -173,7 +172,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
           </button>
         </div>
       </div>
-      {/* Firmy.cz sync info */}
+      {/* Firmy.cz workflow info */}
       <div
         className="flex items-start gap-4 p-4 rounded-2xl"
         style={{ background: '#fffbeb', border: '1px solid #fde68a' }}
@@ -181,20 +180,12 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
         <span className="text-2xl">⭐</span>
         <div className="flex-1">
           <p className="font-bold text-sm" style={{ color: '#92400e' }}>
-            Automatický import z Firmy.cz
+            Jak přidat nové recenze z Firmy.cz?
           </p>
           <p className="text-xs mt-1" style={{ color: '#b45309' }}>
-            Klikněte <b>"Sync z Firmy.cz"</b> pro jednorázový import. Automaticky každý den v 8:00 (Vercel cron). Nové recenze čekají na vaše schválení v záložce "Čekající".
+            Firmy.cz ani Mapy.cz nenabízejí veřejné API — automatický import není možný.
+            Postup: klikněte <b>"Otevřít Firmy.cz"</b> → zkopírujte text recenze a jméno → klikněte <b>"+ Přidat recenzi"</b>. Přidaná recenze se okamžitě zobrazí na webu.
           </p>
-          <a
-            href="https://www.firmy.cz/detail/12954501-nanofusion-s-r-o-blucina.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 mt-2 text-xs font-bold underline"
-            style={{ color: '#d97706' }}
-          >
-            Otevřít Firmy.cz profil →
-          </a>
         </div>
       </div>
 
