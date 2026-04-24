@@ -84,11 +84,13 @@ const hydrateReviews = async () => {
         }
         if (!error && data && data.length > 0) {
             reviewsData = data.map(d => ({
-                name: d.author || d.name,
-                info: d.location || `${d.city || 'Česko'}, ${d.service || 'Služba'}`,
+                name: d.author || d.name || 'Zákazník',
+                info: d.location || d.city
+                    ? `${d.city || ''}, ${d.service || d.source || 'firmy.cz'}`.trim().replace(/^,\s*/, '')
+                    : (d.source === 'firmy.cz' ? 'Ověřeno na Firmy.cz' : (d.source === 'manual' ? 'Přímá zpětná vazba' : 'Ověřený zákazník')),
                 stars: d.rating || d.stars || 5,
-                text: d.content || d.text
-            }));
+                text: d.content || d.text || ''
+            })).filter(r => r.text);
             const target = document.getElementById('reference');
             if (target) {
                 target.dataset.injected = 'false';

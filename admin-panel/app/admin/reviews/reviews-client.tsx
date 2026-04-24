@@ -33,7 +33,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
   const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [newReview, setNewReview] = useState({ author: '', rating: 5, content: '' })
+  const [newReview, setNewReview] = useState({ author: '', rating: 5, content: '', location: '' })
   const [loading, setLoading] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
@@ -95,10 +95,10 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
     }
     setLoading('add')
     try {
-      await addManualReview(newReview)
-      toast.success('Recenze přidána')
+      await addManualReview({ author: newReview.author, rating: newReview.rating, content: newReview.content })
+      toast.success('Recenze přidána a ihned zveřejněna na webu')
       setShowAddModal(false)
-      setNewReview({ author: '', rating: 5, content: '' })
+      setNewReview({ author: '', rating: 5, content: '', location: '' })
     } catch {
       toast.error('Nepodařilo se přidat recenzi')
     } finally {
@@ -142,8 +142,31 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
           </button>
         </div>
       </div>
+      {/* Firmy.cz helper banner */}
+      <div
+        className="flex items-start gap-4 p-4 rounded-2xl"
+        style={{ background: '#fffbeb', border: '1px solid #fde68a' }}
+      >
+        <span className="text-2xl">⭐</span>
+        <div className="flex-1">
+          <p className="font-bold text-sm" style={{ color: '#92400e' }}>
+            Jak přidat recenze z Firmy.cz?
+          </p>
+          <p className="text-xs mt-1" style={{ color: '#b45309' }}>
+            Firmy.cz nenabízí API pro automatické stahování recenzí. Přejděte na váš profil → zkopírujte text recenze → klikněte "Přidat recenzi" výše.
+          </p>
+          <a
+            href="https://www.firmy.cz/detail/12891651-nanofusion-s-r-o-blucina.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 mt-2 text-xs font-bold underline"
+            style={{ color: '#d97706' }}
+          >
+            Otevřít Firmy.cz profil →
+          </a>
+        </div>
+      </div>
 
-      {/* Tabs */}
       <div
         className="flex gap-1 p-1 rounded-xl w-fit"
         style={{ background: 'var(--bg-surface-2)' }}
