@@ -187,7 +187,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             Klikněte <b>"Sync z Firmy.cz"</b> pro jednorázový import. Automaticky každý den v 8:00 (Vercel cron). Nové recenze čekají na vaše schválení v záložce "Čekající".
           </p>
           <a
-            href="https://www.firmy.cz/detail/12891651-nanofusion-s-r-o-blucina.html"
+            href="https://www.firmy.cz/detail/12954501-nanofusion-s-r-o-blucina.html"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 mt-2 text-xs font-bold underline"

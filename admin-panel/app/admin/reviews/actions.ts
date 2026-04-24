@@ -1,10 +1,11 @@
 'use server'
 
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function approveReview(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('external_reviews') as any)
     .update({ approved: true })
     .eq('id', id)
@@ -13,7 +14,8 @@ export async function approveReview(id: string) {
 }
 
 export async function rejectReview(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('external_reviews') as any)
     .update({ approved: false })
     .eq('id', id)
@@ -22,7 +24,8 @@ export async function rejectReview(id: string) {
 }
 
 export async function deleteReview(id: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('external_reviews') as any)
     .delete()
     .eq('id', id)
@@ -35,7 +38,8 @@ export async function addManualReview(data: {
   rating: number
   content: string
 }) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('external_reviews') as any).insert({
     source: 'manual',
     author: data.author,
