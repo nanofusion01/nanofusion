@@ -1,18 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
-import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle, RefreshCw, Download } from 'lucide-react'
+import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { approveReview, rejectReview, deleteReview, addManualReview, syncFirmyReviews, syncGoogleReviews } from './actions'
+import { approveReview, rejectReview, deleteReview, addManualReview } from './actions'
 
 type Review = Tables<'external_reviews'>
-
-const TAB_LABELS = {
-  pending: 'Čekající',
-  approved: 'Schválené',
-  rejected: 'Zamítnuté',
-}
 
 function StarRating({ rating }: { rating: number | null }) {
   return (
@@ -30,120 +24,66 @@ function StarRating({ rating }: { rating: number | null }) {
 }
 
 export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) {
-  const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending')
+  const [tab, setTab] = useState<'approved' | 'pending'>('approved')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [newReview, setNewReview] = useState({ author: '', rating: 5, content: '', location: '' })
+  const [newReview, setNewReview] = useState({ author: '', rating: 5, content: '' })
   const [loading, setLoading] = useState<string | null>(null)
-  const [isSyncing, setIsSyncing] = useState(false)
 
-  const handleSyncFirmy = async () => {
-    setIsSyncing(true)
-    try {
-      const result = await syncFirmyReviews()
-      if (result.imported > 0) {
-        toast.success(`✅ Importováno ${result.imported} nových recenzí z Firmy.cz`)
-        window.location.reload()
-      } else if (result.total === 0) {
-        toast.info('Firmy.cz: žádné recenze v HTML (načítány přes JS) — přidejte ručně')
-      } else {
-        toast.info('Žádné nové Firmy.cz recenze')
-      }
-    } catch (e: any) {
-      toast.error('Sync selhal: ' + e.message)
-    } finally {
-      setIsSyncing(false)
-    }
-  }
-
-  const [isGoogleSyncing, setIsGoogleSyncing] = useState(false)
-
-  const handleSyncGoogle = async () => {
-    setIsGoogleSyncing(true)
-    try {
-      const result = await syncGoogleReviews()
-      if (result.imported > 0) {
-        toast.success(`✅ Importováno ${result.imported} Google recenzí (Google rating: ${result.rating}⭐)`)
-        window.location.reload()
-      } else {
-        toast.info(`Žádné nové Google recenze (${result.total} celkem, vše již importováno)`)
-      }
-    } catch (e: any) {
-      if (e.message.includes('GOOGLE_MAPS_API_KEY')) {
-        toast.error('⚠️ Nastavte GOOGLE_MAPS_API_KEY ve Vercel env vars', { duration: 8000 })
-      } else {
-        toast.error('Google sync selhal: ' + e.message)
-      }
-    } finally {
-      setIsGoogleSyncing(false)
-    }
-  }
-
-  const filtered = useMemo(() => {
-    return initialReviews.filter((r) => {
-      if (tab === 'pending') return !r.approved
-      if (tab === 'approved') return r.approved
-      if (tab === 'rejected') return !r.approved && r.fetched_at < r.fetched_at // placeholder
-      return true
-    })
-  }, [initialReviews, tab])
-
-  // Better pending = not approved, approved = approved
   const pending = initialReviews.filter((r) => !r.approved)
   const approved = initialReviews.filter((r) => r.approved)
-
-  const displayed = tab === 'pending' ? pending : tab === 'approved' ? approved : []
+  const displayed = tab === 'pending' ? pending : approved
 
   const handleApprove = async (id: string) => {
-    setLoading(id + '_approve')
+    setLoading(id)
     try {
       await approveReview(id)
       toast.success('Recenze schválena')
     } catch {
-      toast.error('Nepodařilo se schválit recenzi')
+      toast.error('Chyba při schvalování')
     } finally {
       setLoading(null)
     }
   }
 
   const handleReject = async (id: string) => {
-    setLoading(id + '_reject')
+    setLoading(id)
     try {
       await rejectReview(id)
       toast.success('Recenze zamítnuta')
     } catch {
-      toast.error('Nepodařilo se zamítnout recenzi')
+      toast.error('Chyba při zamítnutí')
     } finally {
       setLoading(null)
     }
   }
 
   const handleDelete = async (id: string) => {
-    setLoading(id + '_delete')
+    setLoading(id)
     try {
       await deleteReview(id)
       toast.success('Recenze smazána')
       setDeleteConfirm(null)
     } catch {
-      toast.error('Nepodařilo se smazat recenzi')
+      toast.error('Chyba při mazání')
     } finally {
       setLoading(null)
     }
   }
 
-  const handleAddReview = async () => {
+  const handleAdd = async () => {
     if (!newReview.author || !newReview.content) {
-      toast.error('Vyplňte autora a text recenze')
+      toast.error('Vyplňte jméno a text recenze')
       return
     }
     setLoading('add')
     try {
-      await addManualReview({ author: newReview.author, rating: newReview.rating, content: newReview.content })
-      toast.success('Recenze přidána a ihned zveřejněna na webu')
+      await addManualReview(newReview)
+      toast.success('Recenze přidána a zobrazena na webu ✅')
       setShowAddModal(false)
-      setNewReview({ author: '', rating: 5, content: '', location: '' })
+      setNewReview({ author: '', rating: 5, content: '' })
     } catch {
-      toast.error('Nepodařilo se přidat recenzi')
+      toast.error('Chyba při přidávání')
     } finally {
       setLoading(null)
     }
@@ -154,80 +94,29 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            Recenze (Firmy.cz)
-          </h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Recenze</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             {pending.length > 0 && (
               <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>
                 {pending.length} čekají na schválení ·{' '}
               </span>
             )}
-            {initialReviews.length} recenzí celkem
+            {initialReviews.length} celkem
           </p>
         </div>
-        <div className="flex gap-3 flex-wrap">
-          <button
-            onClick={handleSyncGoogle}
-            disabled={isGoogleSyncing}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 disabled:opacity-60"
-            style={{ border: '1px solid #4285f4', background: '#eff6ff', color: '#1d4ed8' }}
-          >
-            {isGoogleSyncing
-              ? <RefreshCw size={15} className="animate-spin" />
-              : <Download size={15} />}
-            {isGoogleSyncing ? 'Importuji...' : 'Sync z Google'}
-          </button>
-          <a
-            href="https://www.firmy.cz/detail/12954501-nanofusion-s-r-o-blucina.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
-            style={{ border: '1px solid #f59e0b', background: '#fffbeb', color: '#d97706', textDecoration: 'none' }}
-          >
-            <Download size={15} />
-            Otevřít Firmy.cz
-          </a>
-          <button
-            onClick={() => window.location.reload()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
-            style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
-          >
-            <RefreshCw size={15} />
-            Obnovit
-          </button>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-            style={{ background: 'var(--brand-primary)' }}
-          >
-            <Plus size={15} />
-            Přidat recenzi
-          </button>
-        </div>
-      </div>
-      {/* Firmy.cz workflow info */}
-      <div
-        className="flex items-start gap-4 p-4 rounded-2xl"
-        style={{ background: '#fffbeb', border: '1px solid #fde68a' }}
-      >
-        <span className="text-2xl">⭐</span>
-        <div className="flex-1">
-          <p className="font-bold text-sm" style={{ color: '#92400e' }}>
-            Jak přidat nové recenze z Firmy.cz?
-          </p>
-          <p className="text-xs mt-1" style={{ color: '#b45309' }}>
-            Firmy.cz ani Mapy.cz nenabízejí veřejné API — automatický import není možný.
-            Postup: klikněte <b>"Otevřít Firmy.cz"</b> → zkopírujte text recenze a jméno → klikněte <b>"+ Přidat recenzi"</b>. Přidaná recenze se okamžitě zobrazí na webu.
-          </p>
-        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+          style={{ background: 'var(--brand-primary)' }}
+        >
+          <Plus size={15} />
+          Přidat recenzi
+        </button>
       </div>
 
-      <div
-        className="flex gap-1 p-1 rounded-xl w-fit"
-        style={{ background: 'var(--bg-surface-2)' }}
-      >
-        {(['pending', 'approved'] as const).map((t) => (
+      {/* Tabs */}
+      <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
+        {(['approved', 'pending'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -238,7 +127,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
               boxShadow: tab === t ? 'var(--shadow-sm)' : undefined,
             }}
           >
-            {TAB_LABELS[t]}
+            {t === 'approved' ? 'Schválené' : 'Čekající'}
             {t === 'pending' && pending.length > 0 && (
               <span
                 className="ml-2 rounded-full px-1.5 py-0.5 text-xs font-bold text-white"
@@ -251,7 +140,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
         ))}
       </div>
 
-      {/* Review Cards */}
+      {/* Cards */}
       {displayed.length === 0 ? (
         <div
           className="flex flex-col items-center justify-center py-20 rounded-xl gap-3"
@@ -259,7 +148,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
         >
           <Star size={44} style={{ color: 'var(--text-muted)' }} />
           <p style={{ color: 'var(--text-muted)' }}>
-            {tab === 'pending' ? 'Žádné recenze čekají na schválení' : 'Žádné schválené recenze'}
+            {tab === 'pending' ? 'Žádné recenze čekají na schválení' : 'Zatím žádné schválené recenze'}
           </p>
         </div>
       ) : (
@@ -268,26 +157,14 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             <div
               key={review.id}
               className="rounded-xl p-5 flex gap-4"
-              style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
-                boxShadow: 'var(--shadow-sm)',
-              }}
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}
             >
-              {/* Avatar */}
               <div
                 className="rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                style={{
-                  width: 44,
-                  height: 44,
-                  background: 'var(--brand-primary-light)',
-                  color: 'var(--brand-primary)',
-                }}
+                style={{ width: 44, height: 44, background: 'var(--brand-primary-light)', color: 'var(--brand-primary)' }}
               >
                 {review.author?.charAt(0).toUpperCase() || '?'}
               </div>
-
-              {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -306,36 +183,31 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
                       )}
                     </div>
                   </div>
-                  {/* Actions */}
                   <div className="flex gap-2 flex-shrink-0">
                     {tab === 'pending' && (
                       <button
                         onClick={() => handleApprove(review.id)}
-                        disabled={loading === review.id + '_approve'}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 disabled:opacity-60"
+                        disabled={loading === review.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60"
                         style={{ background: '#f0fdf4', color: '#16a34a' }}
                       >
-                        <CheckCircle size={14} />
-                        Schválit
+                        <CheckCircle size={14} /> Schválit
                       </button>
                     )}
                     {tab === 'approved' && (
                       <button
                         onClick={() => handleReject(review.id)}
-                        disabled={loading === review.id + '_reject'}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 disabled:opacity-60"
+                        disabled={loading === review.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60"
                         style={{ background: '#fffbeb', color: '#d97706' }}
                       >
-                        <XCircle size={14} />
-                        Zamítnout
+                        <XCircle size={14} /> Skrýt
                       </button>
                     )}
                     <button
                       onClick={() => setDeleteConfirm(review.id)}
-                      className="p-1.5 rounded-lg transition-all duration-150"
+                      className="p-1.5 rounded-lg transition-all"
                       style={{ color: '#ef4444' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = '#fef2f2')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = '')}
                     >
                       <Trash2 size={15} />
                     </button>
@@ -352,33 +224,34 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
         </div>
       )}
 
-      {/* Add Review Modal */}
+      {/* Add Modal */}
       {showAddModal && (
         <div
           className="fixed inset-0 flex items-center justify-center p-4 z-50"
           style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
         >
           <div
-            className="w-full max-w-md rounded-2xl overflow-hidden animate-fade-in"
+            className="w-full max-w-md rounded-2xl overflow-hidden"
             style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
           >
             <div className="px-6 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
-              <h2 className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>
-                Přidat recenzi ručně
-              </h2>
+              <h2 className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>Přidat recenzi</h2>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                Zkopírujte recenzi z Firmy.cz nebo Googlu a vložte ji sem
+              </p>
             </div>
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
-                  Autor
+                  Jméno zákazníka
                 </label>
                 <input
                   type="text"
                   value={newReview.author}
                   onChange={(e) => setNewReview({ ...newReview, author: e.target.value })}
-                  placeholder="Jméno zákazníka"
+                  placeholder="Jan Novák"
                   className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
-                  style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                  style={{ border: '1px solid var(--border)', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }}
                 />
               </div>
               <div>
@@ -387,16 +260,8 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
                 </label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setNewReview({ ...newReview, rating: n })}
-                      className="p-1"
-                    >
-                      <Star
-                        size={24}
-                        fill={n <= newReview.rating ? '#f59e0b' : 'none'}
-                        stroke={n <= newReview.rating ? '#f59e0b' : '#cbd5e1'}
-                      />
+                    <button key={n} onClick={() => setNewReview({ ...newReview, rating: n })} className="p-1">
+                      <Star size={26} fill={n <= newReview.rating ? '#f59e0b' : 'none'} stroke={n <= newReview.rating ? '#f59e0b' : '#cbd5e1'} />
                     </button>
                   ))}
                 </div>
@@ -408,27 +273,27 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
                 <textarea
                   value={newReview.content}
                   onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
-                  placeholder="Text recenze zákazníka..."
-                  rows={4}
+                  placeholder="Vložte text recenze zákazníka..."
+                  rows={5}
                   className="w-full px-4 py-2.5 rounded-xl text-sm outline-none resize-none"
-                  style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                  style={{ border: '1px solid var(--border)', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }}
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => { setShowAddModal(false); setNewReview({ author: '', rating: 5, content: '' }) }}
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
                   style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                 >
                   Zrušit
                 </button>
                 <button
-                  onClick={handleAddReview}
+                  onClick={handleAdd}
                   disabled={loading === 'add'}
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
                   style={{ background: 'var(--brand-primary)' }}
                 >
-                  {loading === 'add' ? 'Přidávám...' : 'Přidat'}
+                  {loading === 'add' ? 'Přidávám...' : 'Přidat na web'}
                 </button>
               </div>
             </div>
@@ -443,7 +308,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
           style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
         >
           <div
-            className="w-full max-w-sm rounded-2xl p-6 animate-fade-in"
+            className="w-full max-w-sm rounded-2xl p-6"
             style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
           >
             <div className="flex items-center gap-3 mb-4">
@@ -455,7 +320,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Tato akce je nevratná</p>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
