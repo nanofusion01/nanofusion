@@ -121,7 +121,15 @@ export async function syncFirmyReviews() {
   // 3. Upsert do external_reviews
   let imported = 0
   for (const rev of reviews) {
-    const { error } = await (supabase.from('external_reviews') as any).upsert({
+    // Zkontroluj duplicity ručně (external_id nemá UNIQUE constraint v DB)
+    const { data: existing } = await (supabase.from('external_reviews') as any)
+      .select('id')
+      .eq('external_id', rev.external_id)
+      .maybeSingle()
+
+    if (existing) continue // Přeskoč duplicitu
+
+    const { error } = await (supabase.from('external_reviews') as any).insert({
       source: 'firmy.cz',
       external_id: rev.external_id,
       author: rev.author,
@@ -130,7 +138,7 @@ export async function syncFirmyReviews() {
       published_at: rev.published_at,
       approved: false,
       fetched_at: new Date().toISOString(),
-    }, { onConflict: 'external_id', ignoreDuplicates: true })
+    })
     if (!error) imported++
   }
 
