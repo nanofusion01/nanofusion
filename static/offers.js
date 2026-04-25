@@ -258,8 +258,14 @@ const hydrateFromCloud = async () => {
       beforeAfterRes.data.forEach(item => {
         const svc = servicesData.find(s => s._dbId === item.service_id);
         if (svc && item.before_url && item.after_url) {
-          svc.beforeImg = item.before_url;
-          svc.afterImg = item.after_url;
+          if (!svc.beforeAfterPairs) svc.beforeAfterPairs = [];
+          svc.beforeAfterPairs.push({ beforeImg: item.before_url, afterImg: item.after_url });
+          
+          // Zpětná kompatibilita pro první pár (nebo pokud by modal selhal)
+          if (svc.beforeAfterPairs.length === 1) {
+            svc.beforeImg = item.before_url;
+            svc.afterImg = item.after_url;
+          }
         }
       });
       console.log('Service Before/After loaded from Cloud');
@@ -282,21 +288,34 @@ const openServiceModal = (data) => {
   }
 
   // Build Before/After section
-  const beforeAfterHtml = (data.beforeImg && data.afterImg) ? `
-    <div class="before-after-section" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
-      <h4 style="font-size: 0.875rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 1rem; letter-spacing: 0.05em;">📷 Před a po</h4>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+  let beforeAfterHtml = '';
+  const pairsToRender = data.beforeAfterPairs || [];
+  if (pairsToRender.length === 0 && data.beforeImg && data.afterImg) {
+    // fallback for statically defined items
+    pairsToRender.push({ beforeImg: data.beforeImg, afterImg: data.afterImg });
+  }
+
+  if (pairsToRender.length > 0) {
+    const gridsHtml = pairsToRender.map(pair => `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
         <div style="position: relative; border-radius: 1rem; overflow: hidden; border: 2px solid #fee2e2;">
-          <img src="${data.beforeImg}" alt="Před" style="width: 100%; height: 140px; object-fit: cover;" onerror="this.parentElement.style.display='none'">
+          <img src="${pair.beforeImg}" alt="Před" style="width: 100%; height: 140px; object-fit: cover;" onerror="this.parentElement.style.display='none'">
           <span style="position: absolute; bottom: 0.5rem; left: 0.5rem; background: #ef4444; color: white; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.7rem; font-weight: 800;">PŘED</span>
         </div>
         <div style="position: relative; border-radius: 1rem; overflow: hidden; border: 2px solid #bbf7d0;">
-          <img src="${data.afterImg}" alt="Po" style="width: 100%; height: 140px; object-fit: cover;" onerror="this.parentElement.style.display='none'">
+          <img src="${pair.afterImg}" alt="Po" style="width: 100%; height: 140px; object-fit: cover;" onerror="this.parentElement.style.display='none'">
           <span style="position: absolute; bottom: 0.5rem; left: 0.5rem; background: #22c55e; color: white; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.7rem; font-weight: 800;">PO</span>
         </div>
       </div>
-    </div>
-  ` : '';
+    `).join('');
+
+    beforeAfterHtml = `
+      <div class="before-after-section" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+        <h4 style="font-size: 0.875rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 1rem; letter-spacing: 0.05em;">📷 Před a po</h4>
+        ${gridsHtml}
+      </div>
+    `;
+  }
 
   // Build "Co to obnáší" section
   const involvesHtml = data.involves ? `
