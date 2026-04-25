@@ -3,21 +3,29 @@
 import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { 
-  ArrowLeft, 
-  Save, 
-  Layout, 
-  Camera, 
-  MessageSquareQuote, 
-  Plus, 
-  Trash2, 
+import {
+  ArrowLeft,
+  Save,
+  Layout,
+  Camera,
+  MessageSquareQuote,
+  Plus,
+  Trash2,
   Upload,
   Loader2,
   X
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { compressImage } from '@/lib/utils'
-import { updateService, addServiceFaq, updateServiceFaq, deleteServiceFaq, uploadServiceHeroImage, uploadBeforeAfterPhoto, deleteBeforeAfter } from '../actions'
+import {
+  updateService,
+  addServiceFaq,
+  updateServiceFaq,
+  deleteServiceFaq,
+  uploadServiceHeroImage,
+  uploadBeforeAfterPhoto,
+  deleteBeforeAfter
+} from '../actions'
 
 type Service = Tables<'services'>
 type BeforeAfter = Tables<'service_before_after'>
@@ -99,7 +107,7 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
 
       toast.info('Ukládám záznam...')
       const newItem = await import('../actions').then(m => m.addBeforeAfter(service.id, beforeUrl, afterUrl, baCaption))
-      
+
       setBeforeAfterItems(prev => [...prev, newItem])
       setShowAddBeforeAfter(false)
       setBaCaption('')
@@ -128,8 +136,8 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link 
-            href="/admin/services" 
+          <Link
+            href="/admin/services"
             className="p-2 rounded-xl border hover:bg-slate-50 transition-colors"
             style={{ borderColor: 'var(--border)' }}
           >
@@ -305,7 +313,7 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                 </button>
               </div>
             )}
-            
+
             <div className="grid gap-6">
               {beforeAfterItems.map((item) => (
                 <div key={item.id} className="p-4 rounded-2xl border flex gap-6" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
@@ -348,11 +356,11 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg">Q&A / Časté dotazy k této službě</h3>
-              <button 
+              <button
                 onClick={async () => {
-                   const newFaq = await addServiceFaq(service.id, 'Nová otázka', 'Odpověď...')
-                   setFaqs([...faqs, newFaq])
-                   toast.success('Dotaz přidán')
+                  const newFaq = await addServiceFaq(service.id, 'Nová otázka', 'Odpověď...')
+                  setFaqs([...faqs, newFaq])
+                  toast.success('Dotaz přidán')
                 }}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white"
                 style={{ background: 'var(--brand-primary)' }}
@@ -368,12 +376,12 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                     <div className="flex-1 space-y-4">
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-slate-400">Otázka</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={faq.question}
                           onChange={(e) => {
                             const val = e.target.value
-                            setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, question: val} : f))
+                            setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, question: val } : f))
                           }}
                           onBlur={async (e) => {
                             await updateServiceFaq(faq.id, { question: e.target.value })
@@ -384,11 +392,11 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                       </div>
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-slate-400">Odpověď</label>
-                        <textarea 
+                        <textarea
                           value={faq.answer}
                           onChange={(e) => {
                             const val = e.target.value
-                            setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, answer: val} : f))
+                            setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, answer: val } : f))
                           }}
                           onBlur={async (e) => {
                             await updateServiceFaq(faq.id, { answer: e.target.value })
@@ -400,23 +408,23 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 pt-6">
-                      <button 
-                         onClick={async () => {
-                           if(confirm('Smazat tento dotaz?')) {
-                             await deleteServiceFaq(faq.id)
-                             setFaqs(faqs.filter(f => f.id !== faq.id))
-                             toast.success('Dotaz smazán')
-                           }
-                         }}
-                         className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      <button
+                        onClick={async () => {
+                          if (confirm('Smazat tento dotaz?')) {
+                            await deleteServiceFaq(faq.id)
+                            setFaqs(faqs.filter(f => f.id !== faq.id))
+                            toast.success('Dotaz smazán')
+                          }
+                        }}
+                        className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <Trash2 size={18} />
                       </button>
-                      <button 
+                      <button
                         onClick={async () => {
                           const newStatus = !faq.is_active
                           await updateServiceFaq(faq.id, { is_active: newStatus })
-                          setFaqs(prev => prev.map(f => f.id === faq.id ? {...f, is_active: newStatus} : f))
+                          setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, is_active: newStatus } : f))
                           toast.success(newStatus ? 'Aktivováno' : 'Deaktivováno')
                         }}
                         title={faq.is_active ? 'Skrýt z webu' : 'Zobrazit na webu'}

@@ -192,7 +192,7 @@ let servicesData = [
 // Bridge to Admin CMS (Supabase Cloud Version)
 const syncServicesWithCMS = async () => {
     const { data: cmsData, error } = await supabase.from('services').select('*');
-    const { data: faqData } = await supabase.from('service_faqs').select('*').eq('is_published', true);
+    const { data: faqData } = await supabase.from('service_faqs').select('*').eq('is_active', true);
 
     if (cmsData && Array.isArray(cmsData)) {
       cmsData.forEach(cmsItem => {
