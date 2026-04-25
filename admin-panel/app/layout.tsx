@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: 'NANOfusion Admin',
   description: 'Správa obsahu a poptávek NANOfusion',
   robots: { index: false, follow: false },
+  icons: { icon: '/logo.png' },
   manifest: '/manifest.json',
   themeColor: '#f59e0b',
   appleWebApp: {

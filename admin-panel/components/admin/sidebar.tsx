@@ -28,6 +28,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 export interface NavItem {
   label: string
@@ -164,8 +165,13 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
       {/* Mobile Top Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0f172a] flex items-center justify-between px-4 z-[90] border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
-            <span className="text-white font-black text-xs">NF</span>
+          <div className="relative w-8 h-8 rounded-lg overflow-hidden">
+            <Image 
+              src="/logo.png" 
+              alt="NANOfusion Logo" 
+              fill 
+              className="object-cover"
+            />
           </div>
           <span className="text-white font-bold text-sm">NANOfusion Admin</span>
         </div>
@@ -201,16 +207,13 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
           style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
         >
           <div className="flex items-center gap-3">
-            <div
-              className="flex items-center justify-center rounded-lg"
-              style={{
-                width: 32,
-                height: 32,
-                background: 'var(--brand-primary)',
-                flexShrink: 0,
-              }}
-            >
-              <span className="text-white font-black text-xs">NF</span>
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden">
+              <Image 
+                src="/logo.png" 
+                alt="NANOfusion Logo" 
+                fill 
+                className="object-cover"
+              />
             </div>
             <div>
               <p className="text-white font-bold text-sm leading-tight">NANOfusion</p>
