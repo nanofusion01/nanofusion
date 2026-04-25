@@ -326,5 +326,6 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
         </button>
       </div>
     </aside>
+    </>
   )
 }
