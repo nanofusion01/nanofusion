@@ -193,25 +193,37 @@ let servicesData = [
 const syncServicesWithCMS = async () => {
     const { data: cmsData, error } = await supabase.from('services').select('*');
     const { data: faqData } = await supabase.from('service_faqs').select('*').eq('is_active', true);
+    const { data: globalFaqData } = await supabase.from('faqs').select('*').eq('is_active', true);
 
     if (cmsData && Array.isArray(cmsData)) {
+      const generalSluzbyFaqs = globalFaqData ? globalFaqData.filter(f => f.page_section === 'sluzby') : [];
+
       cmsData.forEach(cmsItem => {
-        const idx = servicesData.findIndex(s => s.id === cmsItem.id);
+        const idx = servicesData.findIndex(s => s.id === cmsItem.slug);
         if (idx !== -1) {
           if (cmsItem.description) servicesData[idx].detail = cmsItem.description;
           if (cmsItem.before1) servicesData[idx].beforeImg = cmsItem.before1;
           if (cmsItem.after1) servicesData[idx].afterImg = cmsItem.after1;
           
-          // Merge live FAQs if available
-          if (faqData) {
-            const serviceFaqs = faqData.filter(f => f.service_id === cmsItem.id);
-            if (serviceFaqs.length > 0) {
-              servicesData[idx].faq = serviceFaqs.map(f => ({ q: f.question, a: f.answer }));
-            }
+          const serviceFaqs = faqData ? faqData.filter(f => f.service_id === cmsItem.id) : [];
+          const sectionFaqs = globalFaqData ? globalFaqData.filter(f => f.page_section === cmsItem.slug) : [];
+          const combinedFaqs = [...serviceFaqs, ...sectionFaqs, ...generalSluzbyFaqs];
+
+          if (combinedFaqs.length > 0) {
+            // Map and remove duplicates if any (by question text)
+            const uniqueFaqs = [];
+            const seen = new Set();
+            combinedFaqs.forEach(f => {
+              if (!seen.has(f.question)) {
+                uniqueFaqs.push({ q: f.question, a: f.answer });
+                seen.add(f.question);
+              }
+            });
+            servicesData[idx].faq = uniqueFaqs;
           }
         }
       });
-      // Trigger UI update if necessary
+      // Trigger UI update
       window.dispatchEvent(new CustomEvent('services_synced'));
     }
   } catch (e) { console.error("Cloud Sync Error:", e); }
