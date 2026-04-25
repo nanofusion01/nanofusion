@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
@@ -43,7 +43,7 @@ export async function toggleHeroMedia(id: string, is_active: boolean) {
   revalidatePath('/')
 }
 
-export async function addHeroMedia(url: string, type: file.type.startsWith('video/') ? 'video' : 'image' | 'video') {
+export async function addHeroMedia(url: string, type: 'image' | 'video') {
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('hero_media') as any)
     .insert({ url, type, is_active: false })
