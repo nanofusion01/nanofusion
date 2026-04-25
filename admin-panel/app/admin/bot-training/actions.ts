@@ -8,7 +8,12 @@ export async function getKnowledgeBase() {
   const { data, error } = await (supabase.from('bot_knowledge') as any)
     .select('*')
     .order('created_at', { ascending: false })
-  if (error) throw new Error(error.message)
+  
+  if (error) {
+    console.error('Knowledge Base Fetch Error:', error.message)
+    // If table doesn't exist yet, just return empty array instead of crashing
+    return []
+  }
   return data || []
 }
 
