@@ -29,11 +29,21 @@ export async function uploadBotDocument(formData: FormData) {
   const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
   const filePath = `bot-docs/${fileName}`
 
-  const { error: uploadError } = await supabase.storage
-    .from('bot-documents')
-    .upload(filePath, file)
+  try {
+    const { error: uploadError } = await supabase.storage
+      .from('bot-documents')
+      .upload(filePath, file)
 
-  if (uploadError) throw new Error('Chyba při nahrávání do úložiště: ' + uploadError.message)
+    if (uploadError) {
+      console.error('Storage Upload Error:', uploadError)
+      if (uploadError.message.includes('bucket not found')) {
+        throw new Error('Chyba: V Supabase Storage chybí bucket "bot-documents". Vytvořte ho prosím.')
+      }
+      throw new Error('Chyba nahrávání: ' + uploadError.message)
+    }
+  } catch (e: any) {
+    throw new Error(e.message)
+  }
 
   const { data: { publicUrl } } = supabase.storage
     .from('bot-documents')
