@@ -30,3 +30,17 @@ CREATE POLICY "Public can read configurator prices" ON public.configurator_price
 DROP POLICY IF EXISTS "Public can read active gallery items" ON public.gallery_items;
 CREATE POLICY "Public can read active gallery items" ON public.gallery_items
   FOR SELECT USING (is_active = true);
+
+-- Služby (detailní obsah k nim)
+DROP POLICY IF EXISTS "Public can read service faqs" ON public.service_faqs;
+CREATE POLICY "Public can read service faqs" ON public.service_faqs
+  FOR SELECT USING (is_active = true);
+
+DROP POLICY IF EXISTS "Public can read service before after" ON public.service_before_after;
+CREATE POLICY "Public can read service before after" ON public.service_before_after
+  FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can read service reviews" ON public.service_reviews;
+CREATE POLICY "Public can read service reviews" ON public.service_reviews
+  FOR SELECT USING (true);
+
