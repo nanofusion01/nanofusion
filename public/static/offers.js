@@ -9,16 +9,7 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Proces zahrnuje aplikaci speciálního přípravku na odstranění organických nečistot, následné nanesení aktivní pěny, oplach studenou vodou pod nízkým tlakem, chemické ošetření povrchu a závěrečnou impregnaci, která fasádu chrání před vlhkostí a nečistotami.',
-    faq: [
-      { q: 'Proč investovat do čištění a impregnace fasády?', a: 'Čištění a impregnace zlepší estetický vzhled domu a prodlouží životnost fasády. Vyhnete se nákladným opravám způsobeným plísněmi, řasami nebo vlhkostí.' },
-      { q: 'Jaké metody používáte?', a: 'Používáme nízkotlaké čištění a speciální čisticí prostředky přizpůsobené typu fasády. Na omítkové fasády nikdy nepoužíváme horkou vodu!' },
-      { q: 'Je impregnace nutná?', a: 'Ano. Po vyčištění je povrch zranitelný. Impregnace vytvoří neviditelnou vrstvu odpuzující vodu a snižující přilnavost nečistot.' },
-      { q: 'Jak dlouho vydrží impregnace?', a: 'Účinek se pohybuje kolem 5–10 let v závislosti na typu fasády a povětrnostních podmínkách.' },
-      { q: 'Jaké typy fasád čistíte?', a: 'Čistíme téměř všechny typy – omítky, zateplovací systémy, cihlové i kamenné povrchy.' },
-      { q: 'Je to bezpečné pro okolní prostředí?', a: 'Ano, používáme ekologicky nezávadné prostředky. Okolní keře a rostliny zakrýváme.' },
-      { q: 'Jak dlouho trvá realizace?', a: 'Rodinný dům (250 m²) cca 2 dny. Bytový dům (2 500 m²) cca 4–5 dní. Závisí na počasí.' },
-      { q: 'Mohu službu využít v zimě?', a: 'V zimě fasády nečistíme. Ideální sezóna je od jara do podzimu.' }
-    ]
+    faq: []
   },
   {
     id: 'roof', title: 'Čištění střech', tag: 'Prodloužení životnosti',
@@ -27,12 +18,7 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Šetrné čištění střešní krytiny od mechů, lišejníků a nečistot. Po vyčištění následuje sanace a aplikace nano impregnace, která chrání střechu až na 7 let.',
-    faq: [
-      { q: 'Poškodí čištění moji střechu?', a: 'Ne. Používáme šetrné metody s regulovaným tlakem, které krytinu nepoškodí.' },
-      { q: 'Jak často je potřeba střechu čistit?', a: 'Doporučujeme cca každých 5–7 let v závislosti na lokalitě a typu krytiny.' },
-      { q: 'Čistíte i okapy?', a: 'Ano, čištění okapů je součástí naší služby.' },
-      { q: 'Jakou impregnaci používáte?', a: 'Používáme špičkovou nano impregnaci s ochranou až na 7 let.' }
-    ]
+    faq: []
   },
   {
     id: 'pavement', title: 'Čištění dlažeb', tag: 'Vzhled nového povrchu',
@@ -41,11 +27,7 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Hloubkové čištění dlažby pomocí chemie a tlakové vody. Následuje sanace proti mechům a lišejníkům a aplikace hydrofobní impregnace nebo oživovacího nátěru.',
-    faq: [
-      { q: 'Čistíte i zámkovou dlažbu?', a: 'Ano, specializujeme se na zámkovou dlažbu, betonové plochy i přírodní kámen.' },
-      { q: 'Doplníte písek do spár?', a: 'Ano, doplnění písku do spár je volitelná služba za 40 Kč/m².' },
-      { q: 'Jaký je minimální rozsah zakázky?', a: 'Minimální výjezdový paušál je 20 000 Kč bez DPH.' }
-    ]
+    faq: []
   },
   {
     id: 'pv', title: 'Solární panely', tag: 'Vyšší účinnost',
@@ -54,10 +36,7 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Čištění pomocí demineralizované vody a speciálních kartáčů, které nepoškrábeú povrch panelů. Následná aplikace keramické nano ochrany pro samočistící efekt.',
-    faq: [
-      { q: 'Zvýší čištění výkon panelů?', a: 'Ano, znečištěné panely mohou ztrácet až 25 % výkonu. Po vyčištění se výkon vrátí na optimální úroveň.' },
-      { q: 'Jak často čistit panely?', a: 'Doporučujeme čištění 1–2× ročně v závislosti na okolním prostředí.' }
-    ]
+    faq: []
   },
   {
     id: 'graffiti', title: 'Odstranění graffiti', tag: 'Rychlá pomoc',
@@ -66,10 +45,7 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Odstraňujeme graffiti z betonu, fasád, pískovce, cihel, vagonů a dalších povrchů. Po odstranění aplikujeme antigraffiti nátěr s dlouhou životností.',
-    faq: [
-      { q: 'Z jakých povrchů odstraňujete graffiti?', a: 'Z betonu, fasád, pískovce, cihel, vagonů i dalších povrchů.' },
-      { q: 'Co je antigraffiti nátěr?', a: 'Ochranný nátěr, díky kterému lze budoucí graffiti snadno smýt bez poškození povrchu.' }
-    ]
+    faq: []
   },
   {
     id: 'industrial', title: 'Průmyslové čištění', tag: 'B2B řešení',
@@ -78,10 +54,7 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Komplexní čištění průmyslových objektů včetně podlah, stěn, stropů, technologických rozvodů a konstrukcí. Schopni pracovat i za plného provozu.',
-    faq: [
-      { q: 'Můžete čistit za provozu?', a: 'Ano, jsme schopni provádět práce i za plného provozu závodu.' },
-      { q: 'Likvidujete odpad?', a: 'Ano, likvidaci veškerého odpadu zajistíme.' }
-    ]
+    faq: []
   },
   // --- Nátěry a další služby (heslovitě) ---
   {
