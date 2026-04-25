@@ -76,36 +76,80 @@ const injectBlog = async () => {
 
     const render = () => {
         blogSection.innerHTML = `
-            <div class="container mx-auto px-6">
+            <div class="container mx-auto px-6 relative">
                 <div class="text-center mb-16 md:mb-24">
-                    <h2 class="text-3xl md:text-5xl font-bold text-slate-800 mb-6 font-heading">Nano-Magazín & Tipy</h2>
+                    <div class="text-amber-500 font-bold uppercase tracking-widest text-sm mb-3">Tipy & Rady</div>
+                    <h2 class="text-3xl md:text-5xl font-bold text-slate-800 mb-6 font-heading">Nano-Magazín</h2>
                     <p class="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed">Sledujte rady a novinky, jak pečovat o váš dům s moderními technologiemi.</p>
                 </div>
                 
-                <div style="position:relative; width:100%; max-width:1400px; margin:0 auto;">
-                    <div id="blog-scroller" style="display: flex; gap: 2rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; scrollbar-width: none;">
-                        ${blogPostsData.length === 0 ? `
-                            <div style="width:100%; text-align:center; padding:3rem; color:#94a3b8; font-weight:600;">Připravujeme pro vás nové články...</div>
-                        ` : blogPostsData.map(post => `
-                            <div class="blog-card-modern" 
-                                onclick="window.nnf_openBlog('${post.id}')"
-                                style="flex: 0 0 calc(33.333% - 1.34rem); min-width: 320px; background: white; border-radius: 2rem; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column;" 
-                            >
-                                <div style="height: 240px; overflow: hidden;">
-                                    <img src="${post.image}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                                <div style="padding: 2rem;">
-                                    <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">AKTUALITA • ${post.date}</div>
-                                    <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; line-height: 1.3;">${post.title}</h3>
-                                    <div style="color: #f59e0b; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">Číst článek <span>→</span></div>
-                                </div>
-                            </div>
-                        `).join('')}
+                <div class="relative group max-w-[1400px] mx-auto">
+                    <button class="carousel-arrow left-arrow" id="blog-prev">←</button>
+                    <button class="carousel-arrow right-arrow" id="blog-next">→</button>
+                    
+                    <div class="portfolio-container" id="blog-container">
+                        <div class="portfolio-track" id="blog-track">
+                            ${blogPostsData.length === 0 ? `
+                                <div style="width:100%; text-align:center; padding:3rem; color:#94a3b8; font-weight:600;">Připravujeme pro vás nové články...</div>
+                            ` : `
+                                ${blogPostsData.map(post => `
+                                    <div class="blog-card-modern" 
+                                        onclick="window.nnf_openBlog('${post.id}')"
+                                        style="flex: 0 0 350px; background: white; border-radius: 2rem; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column;" 
+                                    >
+                                        <div style="height: 200px; overflow: hidden;">
+                                            <img src="${post.image}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                                        </div>
+                                        <div style="padding: 1.5rem 2rem 2rem;">
+                                            <div style="font-size: 0.7rem; color: #f59e0b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">AKTUALITA • ${post.date}</div>
+                                            <h3 style="font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; line-height: 1.3;">${post.title}</h3>
+                                            <div style="color: #f59e0b; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">Číst článek <span>→</span></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${blogPostsData.length >= 3 ? blogPostsData.map(post => `
+                                    <div class="blog-card-modern" 
+                                        onclick="window.nnf_openBlog('${post.id}')"
+                                        style="flex: 0 0 350px; background: white; border-radius: 2rem; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column;" 
+                                    >
+                                        <div style="height: 200px; overflow: hidden;">
+                                            <img src="${post.image}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                                        </div>
+                                        <div style="padding: 1.5rem 2rem 2rem;">
+                                            <div style="font-size: 0.7rem; color: #f59e0b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">AKTUALITA • ${post.date}</div>
+                                            <h3 style="font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; line-height: 1.3;">${post.title}</h3>
+                                            <div style="color: #f59e0b; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">Číst článek <span>→</span></div>
+                                        </div>
+                                    </div>
+                                `).join('') : ''}
+                            `}
+                        </div>
                     </div>
                 </div>
             </div>
-            <style>#blog-scroller::-webkit-scrollbar { display: none; }</style>
         `;
+
+        // Carousel Logic
+        const container = document.getElementById('blog-container');
+        const nextBtn = document.getElementById('blog-next');
+        const prevBtn = document.getElementById('blog-prev');
+
+        if (container && nextBtn && prevBtn && blogPostsData.length > 0) {
+            const scrollAmount = 382; // Card width + gap (350 + 32)
+            nextBtn.onclick = () => container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            prevBtn.onclick = () => container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+
+            // Auto-scroll logic
+            let autoScroll = setInterval(() => {
+                if (container.scrollLeft + container.offsetWidth >= container.scrollWidth - 100) {
+                    container.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            }, 6000);
+
+            container.onmouseenter = () => clearInterval(autoScroll);
+        }
     };
     render();
 };
