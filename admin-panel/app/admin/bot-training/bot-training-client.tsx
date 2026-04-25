@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Trash2, Edit2, Brain, Save, X, Lightbulb } from 'lucide-react'
+import { Plus, Trash2, Edit2, Brain, Save, X, Lightbulb, FileUp, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { saveKnowledge, deleteKnowledge, toggleKnowledgeActive } from './actions'
+import { saveKnowledge, deleteKnowledge, toggleKnowledgeActive, uploadBotDocument } from './actions'
 
 interface Knowledge {
   id: string
@@ -17,6 +17,7 @@ interface Knowledge {
 export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[] }) {
   const [knowledge, setKnowledge] = useState<Knowledge[]>(initialKnowledge)
   const [isEditing, setIsEditing] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -32,11 +33,34 @@ export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[
       }
       await saveKnowledge(dataToSave)
       toast.success(isEditing ? 'Znalost byla aktualizována' : 'Nová znalost byla přidána')
-      
-      // Refresh local state (simplified for this turn)
       window.location.reload()
     } catch (error) {
       toast.error('Chyba při ukládání')
+    }
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.type !== 'application/pdf') {
+      toast.error('Podporovány jsou pouze PDF soubory')
+      return
+    }
+
+    setIsUploading(true)
+    const toastId = toast.loading('Čtu PDF a učím Nanobota...')
+    
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      await uploadBotDocument(formData)
+      toast.success('Dokument byl úspěšně zpracován a naučen', { id: toastId })
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      toast.error('Chyba při zpracování PDF', { id: toastId })
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -156,6 +180,47 @@ export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[
             )}
           </div>
         </form>
+      </div>
+
+      {/* PDF Upload Card */}
+      <div className="bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+          <FileUp size={120} className="text-white" />
+        </div>
+        
+        <div className="relative z-10">
+          <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+            <FileUp className="text-amber-500" size={24} />
+            Hromadné učení z dokumentů
+          </h3>
+          <p className="text-slate-400 mb-6 max-w-xl">
+            Nahrajte ceníky, technické listy nebo obchodní podmínky v PDF. Nanobot si je sám přečte a naučí se z nich odpovídat.
+          </p>
+          
+          <label className={`
+            inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all cursor-pointer
+            ${isUploading ? 'bg-slate-800 text-slate-500 pointer-events-none' : 'bg-white text-slate-900 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-white/5'}
+          `}>
+            {isUploading ? (
+              <>
+                <Loader2 size={20} className="animate-spin" />
+                Zpracovávám PDF...
+              </>
+            ) : (
+              <>
+                <Plus size={20} />
+                Vybrat PDF soubor
+              </>
+            )}
+            <input 
+              type="file" 
+              className="hidden" 
+              accept=".pdf" 
+              onChange={handleFileUpload} 
+              disabled={isUploading}
+            />
+          </label>
+        </div>
       </div>
 
       {/* List */}

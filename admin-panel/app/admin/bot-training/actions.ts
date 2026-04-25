@@ -3,6 +3,8 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+import pdf from 'pdf-parse'
+
 export async function getKnowledgeBase() {
   const supabase = await createAdminClient()
   const { data, error } = await (supabase.from('bot_knowledge') as any)
@@ -11,10 +13,58 @@ export async function getKnowledgeBase() {
   
   if (error) {
     console.error('Knowledge Base Fetch Error:', error.message)
-    // If table doesn't exist yet, just return empty array instead of crashing
     return []
   }
   return data || []
+}
+
+export async function uploadBotDocument(formData: FormData) {
+  const file = formData.get('file') as File
+  if (!file) throw new Error('Nebyl vybrán žádný soubor')
+
+  const supabase = await createAdminClient()
+  
+  // 1. Upload to Storage
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+  const filePath = `bot-docs/${fileName}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('bot-documents')
+    .upload(filePath, file)
+
+  if (uploadError) throw new Error('Chyba při nahrávání do úložiště: ' + uploadError.message)
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('bot-documents')
+    .getPublicUrl(filePath)
+
+  // 2. Parse PDF
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+  const pdfData = await pdf(buffer)
+  const extractedText = pdfData.text
+
+  // 3. Save to bot_knowledge as a special entry
+  const { error: kbError } = await (supabase.from('bot_knowledge') as any).insert([{
+    title: `Dokument: ${file.name}`,
+    content: extractedText,
+    category: 'dokumenty',
+    is_active: true
+  }])
+
+  if (kbError) throw new Error('Chyba při ukládání textu: ' + kbError.message)
+
+  // 4. Log to bot_documents
+  await (supabase.from('bot_documents') as any).insert([{
+    name: file.name,
+    file_url: publicUrl,
+    file_path: filePath,
+    content: extractedText
+  }])
+
+  revalidatePath('/admin/bot-training')
+  return { success: true }
 }
 
 export async function saveKnowledge(data: {
