@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
@@ -100,6 +100,13 @@ export async function deleteBeforeAfter(id: string, serviceId: string) {
   const { error } = await (supabase.from('service_before_after') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+}
+
+export async function uploadServiceFile(serviceId: string, formData: FormData) {
+  const supabase = await createAdminClient()
+  const file = formData.get('file') as File
+  if (!file) throw new Error('Chybí soubor')
+  return await uploadFile(supabase, file, 'services', `${serviceId}/before-after`)
 }
 
 export async function uploadBeforeAfterPhoto(serviceId: string, formData: FormData) {

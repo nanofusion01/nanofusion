@@ -82,11 +82,20 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
     }
     setAddingBeforeAfter(true)
     try {
-      const fd = new FormData()
-      fd.append('before', beforeFile)
-      fd.append('after', afterFile)
-      fd.append('caption', baCaption)
-      const newItem = await uploadBeforeAfterPhoto(service.id, fd)
+      // Nahráváme fotky postupně kvůli Vercel limitu na velikost payloadu (4.5MB)
+      toast.info('Nahrávám fotku PŘED...')
+      const fdBefore = new FormData()
+      fdBefore.append('file', beforeFile)
+      const beforeUrl = await import('../actions').then(m => m.uploadServiceFile(service.id, fdBefore))
+
+      toast.info('Nahrávám fotku PO...')
+      const fdAfter = new FormData()
+      fdAfter.append('file', afterFile)
+      const afterUrl = await import('../actions').then(m => m.uploadServiceFile(service.id, fdAfter))
+
+      toast.info('Ukládám záznam...')
+      const newItem = await import('../actions').then(m => m.addBeforeAfter(service.id, beforeUrl, afterUrl, baCaption))
+      
       setBeforeAfterItems(prev => [...prev, newItem])
       setShowAddBeforeAfter(false)
       setBaCaption('')
