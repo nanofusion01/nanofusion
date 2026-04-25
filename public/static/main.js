@@ -124,11 +124,17 @@ const syncHeroWithCMS = async (headingEl) => {
         if (activeMedia.type === 'image') {
             mediaOverlay.innerHTML = `<div style="width:100%; height:100%; background-image:url('${normalizedUrl}'); background-size:cover; background-position:center; opacity:0.6;"></div>`;
         } else {
+            const ytMatch = activeMedia.url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([^\/\?\&]+)/);
+            const videoId = ytMatch ? ytMatch[1] : activeMedia.url.split('/').pop();
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${videoId}&controls=0&rel=0&iv_load_policy=3&disablekb=1&modestbranding=1`;
+            
             mediaOverlay.innerHTML = `
                 <iframe 
-                    src="${normalizedUrl}?autoplay=1&mute=1&playsinline=1&controls=0&showinfo=0&rel=0&loop=1&playlist=${normalizedUrl.split('/').pop()}" 
+                    src="${embedUrl}" 
                     style="width:100%; height:100%; border:none; opacity:0.4; pointer-events:none; transform:scale(1.3);" 
-                    allow="autoplay; encrypted-media">
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    playsinline
+                    muted>
                 </iframe>
             `;
         }
