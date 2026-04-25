@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { RealizationDetailClient } from './realization-detail-client'
 
-export default async function RealizationDetailPage({ params }: { params: { id: string } }) {
+export default async function RealizationDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   const supabase = await createClient()
 
   const { data: realization } = await (supabase.from('realizations') as any)
