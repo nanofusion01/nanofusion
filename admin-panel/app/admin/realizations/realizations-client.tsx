@@ -24,7 +24,7 @@ import {
   togglePublished,
 } from './actions'
 
-type Realization = {
+export type Realization = {
   id: string
   title: string
   description: string | null
@@ -109,7 +109,8 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
     setSaving(true)
     try {
       if (modal === 'create') {
-        await createRealization(form)
+        const newRealization = await createRealization(form)
+        setRealizations((prev) => [newRealization, ...prev])
         toast.success('Realizace vytvořena')
       } else if (editingId) {
         await updateRealization(editingId, form)

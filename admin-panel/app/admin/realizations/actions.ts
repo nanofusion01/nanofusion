@@ -1,8 +1,9 @@
-﻿'use server'
+'use server'
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
+import { Realization } from './realizations-client'
 
 export async function createRealization(data: {
   title: string
@@ -14,11 +15,11 @@ export async function createRealization(data: {
   const supabase = await createAdminClient()
   const { data: realization, error } = await (supabase.from('realizations') as any)
     .insert(data)
-    .select('id')
+    .select('*')
     .single()
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
-  return (realization as any).id
+  return realization as Realization
 }
 
 export async function updateRealization(id: string, data: Partial<{
