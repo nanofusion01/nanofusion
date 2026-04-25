@@ -42,6 +42,15 @@ export const loadHeroMedia = async () => {
       const existingMedia = heroSection.querySelector('video, iframe');
       if (existingMedia) existingMedia.parentElement.remove();
       
+      // Skrytí původního obrázku, aby neprosvítal pod videem
+      heroSection.style.backgroundImage = 'none';
+      const existingImgs = heroSection.querySelectorAll('img');
+      existingImgs.forEach(img => {
+          if (img.className.includes('absolute') || img.className.includes('object-cover') || img.style.position === 'absolute') {
+              img.style.display = 'none';
+          }
+      });
+      
       const videoWrap = document.createElement('div');
       videoWrap.style.cssText = 'position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;';
       const iframe = document.createElement('iframe');
@@ -66,6 +75,14 @@ export const loadHeroMedia = async () => {
         console.log('NANOfusion: Hero video nahrazeno z DB:', data.url);
       } else {
         // Video neexistuje — vytvoř nový element
+        heroSection.style.backgroundImage = 'none';
+        const existingImgs = heroSection.querySelectorAll('img');
+        existingImgs.forEach(img => {
+            if (img.className.includes('absolute') || img.className.includes('object-cover') || img.style.position === 'absolute') {
+                img.style.display = 'none';
+            }
+        });
+
         const videoWrap = document.createElement('div');
         videoWrap.style.cssText = 'position:absolute;inset:0;z-index:0;overflow:hidden;';
         const video = document.createElement('video');
