@@ -129,27 +129,41 @@ const injectBlog = async () => {
             </div>
         `;
 
-        // Carousel Logic
-        const container = document.getElementById('blog-container');
-        const nextBtn = document.getElementById('blog-next');
-        const prevBtn = document.getElementById('blog-prev');
+        // Robust Carousel Logic
+        setTimeout(() => {
+            const container = document.getElementById('blog-container');
+            const nextBtn = document.getElementById('blog-next');
+            const prevBtn = document.getElementById('blog-prev');
 
-        if (container && nextBtn && prevBtn && blogPostsData.length > 0) {
-            const scrollAmount = 382; // Card width + gap (350 + 32)
-            nextBtn.onclick = () => container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-            prevBtn.onclick = () => container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-
-            // Auto-scroll logic
-            let autoScroll = setInterval(() => {
-                if (container.scrollLeft + container.offsetWidth >= container.scrollWidth - 100) {
-                    container.scrollTo({ left: 0, behavior: 'smooth' });
-                } else {
+            if (container && nextBtn && prevBtn && blogPostsData.length > 0) {
+                // Disable snap for JS control
+                container.style.scrollSnapType = 'none';
+                
+                const scrollAmount = 380; 
+                
+                nextBtn.onclick = (e) => {
+                    e.preventDefault();
                     container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                }
-            }, 6000);
+                };
+                
+                prevBtn.onclick = (e) => {
+                    e.preventDefault();
+                    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                };
 
-            container.onmouseenter = () => clearInterval(autoScroll);
-        }
+                // Auto-scroll logic (every 5s)
+                let autoScroll = setInterval(() => {
+                    if (container.scrollLeft + container.offsetWidth >= container.scrollWidth - 50) {
+                        container.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    }
+                }, 5000);
+
+                container.onmouseenter = () => clearInterval(autoScroll);
+                container.onmousedown = () => clearInterval(autoScroll);
+            }
+        }, 100);
     };
     render();
 };

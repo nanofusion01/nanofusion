@@ -582,7 +582,6 @@ button.primary-btn:hover {
 }
 
 .reviews-track, .portfolio-track {
-  animation: none !important;
   display: flex !important;
   width: max-content !important;
 }
