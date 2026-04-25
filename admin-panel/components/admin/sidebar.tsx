@@ -20,11 +20,14 @@ import {
   UserCircle,
   ChevronRight,
   LogOut,
+  Menu,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useState, useEffect } from 'react'
 
 export interface NavItem {
   label: string
@@ -136,6 +139,11 @@ interface SidebarProps {
 export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
 
   const handleLogout = async () => {
     const { createClient } = await import('@/lib/supabase/client')
@@ -152,35 +160,70 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
   }
 
   return (
-    <aside
-      className="fixed top-0 left-0 h-full flex flex-col z-[100]"
-      style={{
-        width: '256px',
-        background: '#0f172a', // Hardcoded for resilience
-        borderRight: '1px solid rgba(255,255,255,0.05)',
-      }}
-    >
-      {/* Logo */}
-      <div
-        className="flex items-center gap-3 px-6 py-6"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
-      >
-        <div
-          className="flex items-center justify-center rounded-lg"
-          style={{
-            width: 32,
-            height: 32,
-            background: 'var(--brand-primary)',
-            flexShrink: 0,
-          }}
+    <>
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0f172a] flex items-center justify-between px-4 z-[90] border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
+            <span className="text-white font-black text-xs">NF</span>
+          </div>
+          <span className="text-white font-bold text-sm">NANOfusion Admin</span>
+        </div>
+        <button 
+          onClick={() => setIsOpen(true)}
+          className="p-2 text-slate-400 hover:text-white transition-colors"
         >
-          <span className="text-white font-black text-xs">NF</span>
-        </div>
-        <div>
-          <p className="text-white font-bold text-sm leading-tight">NANOfusion</p>
-          <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>Admin Panel</p>
-        </div>
+          <Menu size={24} />
+        </button>
       </div>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[95]"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <aside
+        className={cn(
+          "fixed top-0 left-0 h-full flex flex-col z-[100] transition-transform duration-300 lg:translate-x-0 w-64 bg-[#0f172a]",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+        style={{
+          borderRight: '1px solid rgba(255,255,255,0.05)',
+        }}
+      >
+        {/* Logo & Close Button (Mobile) */}
+        <div
+          className="flex items-center justify-between px-6 py-6"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="flex items-center justify-center rounded-lg"
+              style={{
+                width: 32,
+                height: 32,
+                background: 'var(--brand-primary)',
+                flexShrink: 0,
+              }}
+            >
+              <span className="text-white font-black text-xs">NF</span>
+            </div>
+            <div>
+              <p className="text-white font-bold text-sm leading-tight">NANOfusion</p>
+              <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>Admin Panel</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setIsOpen(false)}
+            className="lg:hidden p-2 text-slate-400 hover:text-white"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-6 px-0">

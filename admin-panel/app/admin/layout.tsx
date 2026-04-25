@@ -63,8 +63,8 @@ export default async function AdminLayout({
     .eq('approved', false)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex' }}>
-      {/* Sidebar */}
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
+      {/* Sidebar - handles its own mobile/desktop visibility internally now */}
       <Sidebar
         pendingReviews={pendingReviews ?? 0}
         userEmail={user.email}
@@ -72,8 +72,8 @@ export default async function AdminLayout({
       />
 
       {/* Main content */}
-      <div style={{ marginLeft: '256px', width: 'calc(100% - 256px)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <main style={{ flex: 1, padding: '40px' }}>
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-64 transition-all duration-300 pt-16 lg:pt-0">
+        <main className="flex-1 p-4 md:p-8 lg:p-10">
           {children}
         </main>
       </div>
