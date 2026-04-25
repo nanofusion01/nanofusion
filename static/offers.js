@@ -194,7 +194,7 @@ const hydrateFromCloud = async () => {
 
     // Načti služby, FAQs a Before/After paralelně
     const [servicesRes, faqsRes, beforeAfterRes] = await Promise.all([
-      supabase.from('services').select('*'),
+      supabase.from('services').select('*').eq('is_active', true),
       supabase.from('service_faqs').select('*').eq('is_active', true).order('order_index', { ascending: true }),
       supabase.from('service_before_after').select('*').order('order_index', { ascending: true }),
     ]);
@@ -217,6 +217,7 @@ const hydrateFromCloud = async () => {
             detail: cloudService.description || cloudService.detail || servicesData[index].detail,
             image: cloudService.hero_image_url || cloudService.image || servicesData[index].image,
             tag: cloudService.category || cloudService.tag || servicesData[index].tag,
+            order_index: cloudService.order_index ?? 999,
           };
         } else {
           const mapped = {
@@ -227,10 +228,14 @@ const hydrateFromCloud = async () => {
             image: cloudService.hero_image_url || cloudService.image,
             tag: cloudService.category || cloudService.tag,
             faq: [],
+            order_index: cloudService.order_index ?? 999,
           };
           if (mapped.title && mapped.detail) servicesData.push(mapped);
         }
       });
+      
+      // Seřadíme pole podle admin panelu
+      servicesData.sort((a, b) => (a.order_index ?? 999) - (b.order_index ?? 999));
     }
 
     // Napoj FAQs na příslušné služby (podle service_id = _dbId)
@@ -463,14 +468,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const serviceGrid = document.querySelector('#sluzby .grid');
     if (!serviceGrid) return;
 
-    // We only want to inject services that are NOT already in the main React grid
-    // Based on inspection, we add the ones from id 61 ('graffiti') and onwards
-    const supplemental = servicesData.slice(4); // Industrial, Graffiti, Paints, etc.
+    // Vymažeme statický React grid a nahradíme ho aktuálními daty
+    serviceGrid.innerHTML = '';
 
-    supplemental.forEach(service => {
-      // Check if already exists by checking text content (simple heuristic)
-      if (serviceGrid.innerText.includes(service.title)) return;
-
+    // Vykreslíme všechny služby seřazené podle pořadí, s aplikovanými úpravami z admin panelu
+    servicesData.forEach(service => {
       const card = document.createElement('div');
       card.className = 'group relative bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 cursor-pointer animate-fade-in';
       card.innerHTML = `
