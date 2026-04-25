@@ -126,7 +126,7 @@ const syncHeroWithCMS = async (headingEl) => {
         } else {
             mediaOverlay.innerHTML = `
                 <iframe 
-                    src="${normalizedUrl}&autoplay=1&mute=1&controls=0&loop=1&playlist=${normalizedUrl.split('/').pop()}" 
+                    src="${normalizedUrl}?autoplay=1&mute=1&playsinline=1&controls=0&showinfo=0&rel=0&loop=1&playlist=${normalizedUrl.split('/').pop()}" 
                     style="width:100%; height:100%; border:none; opacity:0.4; pointer-events:none; transform:scale(1.3);" 
                     allow="autoplay; encrypted-media">
                 </iframe>
