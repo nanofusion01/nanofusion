@@ -164,7 +164,7 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
       {/* Mobile Top Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0f172a] flex items-center justify-between px-4 z-[90] border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="relative w-8 h-8 rounded-lg overflow-hidden">
+          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white p-1 shadow-sm">
             <NextImage 
               src="/logo.png" 
               alt="NANOfusion Logo" 
@@ -206,7 +206,7 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
           style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
         >
           <div className="flex items-center gap-3">
-            <div className="relative w-8 h-8 rounded-lg overflow-hidden">
+            <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white p-1 shadow-sm">
               <NextImage 
                 src="/logo.png" 
                 alt="NANOfusion Logo" 
