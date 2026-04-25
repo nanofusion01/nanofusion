@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: "..",
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '20mb',
+    },
+  },
 };
 
 export default nextConfig;

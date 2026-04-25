@@ -16,6 +16,7 @@ import {
   X
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
+import { compressImage } from '@/lib/utils'
 import { updateService, addServiceFaq, updateServiceFaq, deleteServiceFaq, uploadServiceHeroImage, uploadBeforeAfterPhoto, deleteBeforeAfter } from '../actions'
 
 type Service = Tables<'services'>
@@ -60,8 +61,9 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
   const handleHeroUpload = async (file: File) => {
     setUploadingHero(true)
     try {
+      const compressedFile = await compressImage(file)
       const fd = new FormData()
-      fd.append('file', file)
+      fd.append('file', compressedFile)
       const url = await uploadServiceHeroImage(service.id, fd)
       setService({ ...service, hero_image_url: url })
       toast.success('Hero obrázek nahrán')
@@ -82,15 +84,17 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
     }
     setAddingBeforeAfter(true)
     try {
-      // Nahráváme fotky postupně kvůli Vercel limitu na velikost payloadu (4.5MB)
-      toast.info('Nahrávám fotku PŘED...')
+      // Nahráváme fotky postupně a s kompresí kvůli Vercel limitu na velikost payloadu (4.5MB)
+      toast.info('Komprimuji a nahrávám fotku PŘED...')
+      const compressedBefore = await compressImage(beforeFile)
       const fdBefore = new FormData()
-      fdBefore.append('file', beforeFile)
+      fdBefore.append('file', compressedBefore)
       const beforeUrl = await import('../actions').then(m => m.uploadServiceFile(service.id, fdBefore))
 
-      toast.info('Nahrávám fotku PO...')
+      toast.info('Komprimuji a nahrávám fotku PO...')
+      const compressedAfter = await compressImage(afterFile)
       const fdAfter = new FormData()
-      fdAfter.append('file', afterFile)
+      fdAfter.append('file', compressedAfter)
       const afterUrl = await import('../actions').then(m => m.uploadServiceFile(service.id, fdAfter))
 
       toast.info('Ukládám záznam...')
