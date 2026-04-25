@@ -3,7 +3,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-import pdf from 'pdf-parse'
+// No static import for pdf-parse to avoid build errors
 
 export async function getKnowledgeBase() {
   const supabase = await createAdminClient()
@@ -39,7 +39,8 @@ export async function uploadBotDocument(formData: FormData) {
     .from('bot-documents')
     .getPublicUrl(filePath)
 
-  // 2. Parse PDF
+  // 2. Parse PDF using require to avoid build issues
+  const pdf = require('pdf-parse')
   const arrayBuffer = await file.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
   const pdfData = await pdf(buffer)
