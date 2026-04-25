@@ -1,0 +1,215 @@
+'use client'
+
+import { useState } from 'react'
+import { Plus, Trash2, Edit2, Brain, Save, X, Lightbulb } from 'lucide-react'
+import { toast } from 'sonner'
+import { saveKnowledge, deleteKnowledge, toggleKnowledgeActive } from './actions'
+
+interface Knowledge {
+  id: string
+  title: string
+  content: string
+  category: string
+  is_active: boolean
+  created_at: string
+}
+
+export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[] }) {
+  const [knowledge, setKnowledge] = useState<Knowledge[]>(initialKnowledge)
+  const [isEditing, setIsEditing] = useState<string | null>(null)
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    category: 'obecné'
+  })
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const dataToSave = {
+        ...formData,
+        id: isEditing || undefined
+      }
+      await saveKnowledge(dataToSave)
+      toast.success(isEditing ? 'Znalost byla aktualizována' : 'Nová znalost byla přidána')
+      
+      // Refresh local state (simplified for this turn)
+      window.location.reload()
+    } catch (error) {
+      toast.error('Chyba při ukládání')
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Opravdu chcete tuto znalost smazat?')) return
+    try {
+      await deleteKnowledge(id)
+      setKnowledge(knowledge.filter(k => k.id !== id))
+      toast.success('Smazáno')
+    } catch (error) {
+      toast.error('Chyba při mazání')
+    }
+  }
+
+  const handleToggle = async (id: string, current: boolean) => {
+    try {
+      await toggleKnowledgeActive(id, !current)
+      setKnowledge(knowledge.map(k => k.id === id ? { ...k, is_active: !current } : k))
+      toast.success(current ? 'Deaktivováno' : 'Aktivováno')
+    } catch (error) {
+      toast.error('Chyba při změně stavu')
+    }
+  }
+
+  const startEdit = (k: Knowledge) => {
+    setIsEditing(k.id)
+    setFormData({ title: k.title, content: k.content, category: k.category })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3" style={{ color: 'var(--text-primary)' }}>
+            <Brain className="text-amber-500" size={32} />
+            Trénink Nanobota
+          </h1>
+          <p className="text-slate-500 mt-2">
+            Naučte AI asistenta fakta o vaší firmě, službách a cenách.
+          </p>
+        </div>
+      </div>
+
+      {/* Editor Card */}
+      <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
+            <Lightbulb size={20} />
+          </div>
+          <h2 className="text-xl font-bold">{isEditing ? 'Upravit znalost' : 'Nová znalost pro Nanobota'}</h2>
+        </div>
+
+        <form onSubmit={handleSave} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700">Název / Téma</label>
+              <input
+                type="text"
+                required
+                placeholder="Např. O firmě NANOfusion"
+                className="w-full px-5 py-3 rounded-xl border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
+                value={formData.title}
+                onChange={e => setFormData({ ...formData, title: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700">Kategorie</label>
+              <select
+                className="w-full px-5 py-3 rounded-xl border border-slate-200 focus:border-amber-500 outline-none transition-all appearance-none bg-white"
+                value={formData.category}
+                onChange={e => setFormData({ ...formData, category: e.target.value })}
+              >
+                <option value="obecné">Obecné</option>
+                <option value="služby">Služby</option>
+                <option value="ceny">Ceny a platby</option>
+                <option value="technologie">Technologie</option>
+                <option value="kontakt">Kontakt a lokalita</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-slate-700">Obsah (Fakta pro AI)</label>
+            <textarea
+              required
+              rows={6}
+              placeholder="Zde napište veškeré informace, které má bot znát..."
+              className="w-full px-5 py-3 rounded-2xl border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all resize-none"
+              value={formData.content}
+              onChange={e => setFormData({ ...formData, content: e.target.value })}
+            />
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
+              style={{ background: 'var(--brand-primary)' }}
+            >
+              <Save size={20} />
+              {isEditing ? 'Uložit změny' : 'Naučit Nanobota'}
+            </button>
+            {isEditing && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditing(null)
+                  setFormData({ title: '', content: '', category: 'obecné' })
+                }}
+                className="flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold text-slate-600 bg-slate-100 transition-all hover:bg-slate-200"
+              >
+                <X size={20} />
+                Zrušit
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      {/* List */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold text-slate-800 px-2">Aktuální znalostní báze</h3>
+        <div className="grid grid-cols-1 gap-4">
+          {knowledge.length === 0 ? (
+            <div className="bg-slate-50 border border-dashed border-slate-200 rounded-3xl p-12 text-center">
+              <p className="text-slate-400 font-medium text-lg">Zatím jste bota nic nenaučili. Začněte přidáním prvního bloku informací výše.</p>
+            </div>
+          ) : (
+            knowledge.map(k => (
+              <div 
+                key={k.id} 
+                className="bg-white p-6 rounded-3xl border border-slate-100 flex items-start justify-between gap-6 transition-all hover:shadow-md group"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                      {k.category}
+                    </span>
+                    <h4 className="font-bold text-slate-900 truncate">{k.title}</h4>
+                  </div>
+                  <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">
+                    {k.content}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => handleToggle(k.id, k.is_active)}
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+                      k.is_active ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-400'
+                    }`}
+                  >
+                    {k.is_active ? 'Aktivní' : 'Vypnuto'}
+                  </button>
+                  <button 
+                    onClick={() => startEdit(k)}
+                    className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition-all"
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(k.id)}
+                    className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
