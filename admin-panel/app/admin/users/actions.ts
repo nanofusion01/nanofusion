@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
@@ -38,10 +38,11 @@ export async function addUser(email: string) {
   if (error) throw new Error(error.message)
 
   const supabase = await createAdminClient() as any
-  await supabase.from('profiles').update({
+  await supabase.from('profiles').upsert({
+    id: data.user.id,
     role: 'admin',
     force_password_change: true
-  }).eq('id', data.user.id)
+  })
 
   revalidatePath('/admin/users')
   return tempPassword

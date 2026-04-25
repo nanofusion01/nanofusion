@@ -165,16 +165,16 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0f172a] flex items-center justify-between px-4 z-[90] border-b border-white/5">
         <div className="flex items-center gap-3">
           <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white p-1 shadow-sm">
-            <NextImage 
-              src="/logo.png" 
-              alt="NANOfusion Logo" 
-              fill 
+            <NextImage
+              src="/logo.png"
+              alt="NANOfusion Logo"
+              fill
               className="object-cover"
             />
           </div>
           <span className="text-white font-bold text-sm">NANOfusion Admin</span>
         </div>
-        <button 
+        <button
           onClick={() => setIsOpen(true)}
           className="p-2 text-slate-400 hover:text-white transition-colors"
         >
@@ -184,7 +184,7 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
 
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[95]"
           onClick={() => setIsOpen(false)}
         />
@@ -207,10 +207,10 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
         >
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white p-1 shadow-sm">
-              <NextImage 
-                src="/logo.png" 
-                alt="NANOfusion Logo" 
-                fill 
+              <NextImage
+                src="/logo.png"
+                alt="NANOfusion Logo"
+                fill
                 className="object-cover"
               />
             </div>
@@ -219,7 +219,7 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
               <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>Admin Panel</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => setIsOpen(false)}
             className="lg:hidden p-2 text-slate-400 hover:text-white"
           >
@@ -227,107 +227,107 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
           </button>
         </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-6 px-0">
-        {navSections.map((section) => (
-          <div key={section.title} className="mb-8">
-            <p
-              className="px-6 mb-3 font-bold uppercase tracking-[0.1em]"
-              style={{ fontSize: 9, color: 'rgba(148,163,184,0.4)' }}
-            >
-              {section.title}
-            </p>
-            <ul className="space-y-1">
-              {section.items.map((item) => {
-                const active = isActive(item.href)
-                const isPendingReviews =
-                  item.href === '/admin/reviews' && pendingReviews > 0
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-6 px-0">
+          {navSections.map((section) => (
+            <div key={section.title} className="mb-8">
+              <p
+                className="px-6 mb-3 font-bold uppercase tracking-[0.1em]"
+                style={{ fontSize: 9, color: 'rgba(148,163,184,0.4)' }}
+              >
+                {section.title}
+              </p>
+              <ul className="space-y-1">
+                {section.items.map((item) => {
+                  const active = isActive(item.href)
+                  const isPendingReviews =
+                    item.href === '/admin/reviews' && pendingReviews > 0
 
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        'flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-150 relative',
-                        active
-                          ? 'text-white'
-                          : 'text-[#94a3b8] hover:text-white hover:bg-white/5'
-                      )}
-                      style={{
-                        background: active
-                          ? 'rgba(245, 158, 11, 0.1)'
-                          : undefined,
-                      }}
-                    >
-                      {active && (
-                        <div 
-                          className="absolute right-0 top-0 bottom-0 w-[3px]"
-                          style={{ background: 'var(--brand-primary)' }}
-                        />
-                      )}
-                      <span
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          'flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-150 relative',
+                          active
+                            ? 'text-white'
+                            : 'text-[#94a3b8] hover:text-white hover:bg-white/5'
+                        )}
                         style={{
-                          color: active
-                            ? 'var(--brand-primary)'
-                            : 'inherit',
+                          background: active
+                            ? 'rgba(245, 158, 11, 0.1)'
+                            : undefined,
                         }}
-                        className="flex-shrink-0"
                       >
-                        {item.icon}
-                      </span>
-                      <span className="flex-1 truncate">{item.label}</span>
-                      {isPendingReviews && (
+                        {active && (
+                          <div
+                            className="absolute right-0 top-0 bottom-0 w-[3px]"
+                            style={{ background: 'var(--brand-primary)' }}
+                          />
+                        )}
                         <span
-                          className="rounded-full text-white font-bold px-1.5 py-0.5 min-w-[18px] text-center"
-                          style={{ background: 'var(--brand-primary)', fontSize: 9 }}
+                          style={{
+                            color: active
+                              ? 'var(--brand-primary)'
+                              : 'inherit',
+                          }}
+                          className="flex-shrink-0"
                         >
-                          {pendingReviews}
+                          {item.icon}
                         </span>
-                      )}
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        ))}
-      </nav>
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {isPendingReviews && (
+                          <span
+                            className="rounded-full text-white font-bold px-1.5 py-0.5 min-w-[18px] text-center"
+                            style={{ background: 'var(--brand-primary)', fontSize: 9 }}
+                          >
+                            {pendingReviews}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          ))}
+        </nav>
 
-      {/* User Section */}
-      <div
-        className="p-6"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div
-            className="rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
-            style={{
-              width: 32,
-              height: 32,
-              background: 'rgba(245, 158, 11, 0.15)',
-              color: 'var(--brand-primary)',
-            }}
-          >
-            {userEmail?.charAt(0).toUpperCase() || 'A'}
-          </div>
-          <div className="min-w-0">
-            <p className="text-white text-xs font-semibold truncate leading-none mb-1">
-              {userEmail || 'Admin'}
-            </p>
-            <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>
-              {userRole === 'admin' ? 'Administrátor' : 'Editor'}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 w-full py-2 text-xs font-medium transition-colors duration-150 text-red-500 hover:text-red-400"
+        {/* User Section */}
+        <div
+          className="p-6"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
         >
-          <LogOut size={14} />
-          <span>Odhlásit se</span>
-        </button>
-      </div>
-    </aside>
+          <div className="flex items-center gap-3 mb-4">
+            <div
+              className="rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
+              style={{
+                width: 32,
+                height: 32,
+                background: 'rgba(245, 158, 11, 0.15)',
+                color: 'var(--brand-primary)',
+              }}
+            >
+              {userEmail?.charAt(0).toUpperCase() || 'A'}
+            </div>
+            <div className="min-w-0">
+              <p className="text-white text-xs font-semibold truncate leading-none mb-1">
+                {userEmail || 'Admin'}
+              </p>
+              <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>
+                {userRole === 'admin' ? 'Administrátor' : 'Editor'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 w-full py-2 text-xs font-medium transition-colors duration-150 text-red-500 hover:text-red-400"
+          >
+            <LogOut size={14} />
+            <span>Odhlásit se</span>
+          </button>
+        </div>
+      </aside>
     </>
   )
 }
