@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import Image from 'next/image'
+import NextImage from 'next/image'
 import {
   LayoutDashboard,
   Image as ImageIcon,
@@ -28,7 +28,6 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 
 export interface NavItem {
   label: string
@@ -166,7 +165,7 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0f172a] flex items-center justify-between px-4 z-[90] border-b border-white/5">
         <div className="flex items-center gap-3">
           <div className="relative w-8 h-8 rounded-lg overflow-hidden">
-            <Image 
+            <NextImage 
               src="/logo.png" 
               alt="NANOfusion Logo" 
               fill 
@@ -208,7 +207,7 @@ export function Sidebar({ pendingReviews = 0, userEmail, userRole }: SidebarProp
         >
           <div className="flex items-center gap-3">
             <div className="relative w-8 h-8 rounded-lg overflow-hidden">
-              <Image 
+              <NextImage 
                 src="/logo.png" 
                 alt="NANOfusion Logo" 
                 fill 
