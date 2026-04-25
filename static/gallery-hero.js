@@ -32,7 +32,30 @@ export const loadHeroMedia = async () => {
       return;
     }
 
-    if (data.type === 'video') {
+    const isYoutube = data.url.includes('youtube.com') || data.url.includes('youtu.be');
+    
+    if (isYoutube) {
+      let videoId = '';
+      if (data.url.includes('youtu.be/')) videoId = data.url.split('youtu.be/')[1].split('?')[0];
+      else if (data.url.includes('v=')) videoId = data.url.split('v=')[1].split('&')[0];
+      
+      const existingMedia = heroSection.querySelector('video, iframe');
+      if (existingMedia) existingMedia.parentElement.remove();
+      
+      const videoWrap = document.createElement('div');
+      videoWrap.style.cssText = 'position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;';
+      const iframe = document.createElement('iframe');
+      // iframe must be larger than container to hide youtube black bars and UI
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&playlist=${videoId}&modestbranding=1`;
+      iframe.style.cssText = 'width:100vw;height:56.25vw;min-height:100vh;min-width:177.77vh;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);';
+      iframe.frameBorder = '0';
+      iframe.allow = 'autoplay; fullscreen; encrypted-media';
+      videoWrap.appendChild(iframe);
+      heroSection.style.position = 'relative';
+      heroSection.prepend(videoWrap);
+      console.log('NANOfusion: Hero YouTube video načteno z DB:', videoId);
+      
+    } else if (data.type === 'video') {
       // Video je uvnitř div.absolute.inset-0 > video
       const existingVideo = heroSection.querySelector('video');
       if (existingVideo) {
@@ -58,11 +81,11 @@ export const loadHeroMedia = async () => {
         console.log('NANOfusion: Hero video vytvořeno z DB:', data.url);
       }
     } else if (data.type === 'image') {
-      const existingVideo = heroSection.querySelector('video');
-      if (existingVideo) {
+      const existingMedia = heroSection.querySelector('video, iframe');
+      if (existingMedia) {
         // Skryj video a nahraď obrázkem
-        const wrap = existingVideo.parentElement;
-        existingVideo.remove();
+        const wrap = existingMedia.parentElement;
+        existingMedia.remove();
         const img = document.createElement('img');
         img.src = data.url;
         img.alt = 'NANOfusion hero';

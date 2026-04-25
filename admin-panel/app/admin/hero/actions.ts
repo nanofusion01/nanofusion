@@ -10,7 +10,7 @@ export async function uploadHeroFile(formData: FormData) {
   if (!file) throw new Error('Chybí soubor')
   const publicUrl = await uploadFile(supabase, file, 'heroes', 'hero')
   const { error } = await (supabase.from('hero_media') as any)
-    .insert({ url: publicUrl, type: 'image', is_active: false })
+    .insert({ url: publicUrl, type: file.type.startsWith('video/') ? 'video' : 'image', is_active: false })
   if (error) throw new Error(error.message)
   revalidatePath('/admin/hero')
   return publicUrl
@@ -43,7 +43,7 @@ export async function toggleHeroMedia(id: string, is_active: boolean) {
   revalidatePath('/')
 }
 
-export async function addHeroMedia(url: string, type: 'image' | 'video') {
+export async function addHeroMedia(url: string, type: file.type.startsWith('video/') ? 'video' : 'image' | 'video') {
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('hero_media') as any)
     .insert({ url, type, is_active: false })
