@@ -375,7 +375,12 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                   <div className="flex items-start gap-4">
                     <div className="flex-1 space-y-4">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-slate-400">Otázka</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 flex items-center justify-between">
+                          <span>Otázka</span>
+                          {(faq as any).is_global && (
+                            <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[9px] font-black tracking-tighter">GLOBÁLNÍ</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           value={faq.question}
@@ -384,7 +389,11 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                             setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, question: val } : f))
                           }}
                           onBlur={async (e) => {
-                            await updateServiceFaq(faq.id, { question: e.target.value })
+                            if ((faq as any).is_global) {
+                              await import('../../faqs/actions').then(m => m.updateFaq(faq.id, { question: e.target.value }))
+                            } else {
+                              await updateServiceFaq(faq.id, { question: e.target.value })
+                            }
                           }}
                           className="w-full px-4 py-2 rounded-lg border font-bold text-sm outline-none focus:border-amber-500"
                           style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
@@ -399,7 +408,11 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                             setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, answer: val } : f))
                           }}
                           onBlur={async (e) => {
-                            await updateServiceFaq(faq.id, { answer: e.target.value })
+                            if ((faq as any).is_global) {
+                              await import('../../faqs/actions').then(m => m.updateFaq(faq.id, { answer: e.target.value }))
+                            } else {
+                              await updateServiceFaq(faq.id, { answer: e.target.value })
+                            }
                           }}
                           className="w-full px-4 py-2 rounded-lg border text-sm outline-none focus:border-amber-500 resize-none"
                           style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
@@ -411,7 +424,11 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                       <button
                         onClick={async () => {
                           if (confirm('Smazat tento dotaz?')) {
-                            await deleteServiceFaq(faq.id)
+                            if ((faq as any).is_global) {
+                              await import('../../faqs/actions').then(m => m.deleteFaq(faq.id))
+                            } else {
+                              await deleteServiceFaq(faq.id)
+                            }
                             setFaqs(faqs.filter(f => f.id !== faq.id))
                             toast.success('Dotaz smazán')
                           }
@@ -423,7 +440,11 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
                       <button
                         onClick={async () => {
                           const newStatus = !faq.is_active
-                          await updateServiceFaq(faq.id, { is_active: newStatus })
+                          if ((faq as any).is_global) {
+                            await import('../../faqs/actions').then(m => m.updateFaq(faq.id, { is_active: newStatus }))
+                          } else {
+                            await updateServiceFaq(faq.id, { is_active: newStatus })
+                          }
                           setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, is_active: newStatus } : f))
                           toast.success(newStatus ? 'Aktivováno' : 'Deaktivováno')
                         }}
