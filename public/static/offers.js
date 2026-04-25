@@ -191,6 +191,7 @@ let servicesData = [
 
 // Bridge to Admin CMS (Supabase Cloud Version)
 const syncServicesWithCMS = async () => {
+  try {
     const { data: cmsData, error } = await supabase.from('services').select('*');
     const { data: faqData } = await supabase.from('service_faqs').select('*').eq('is_active', true);
     const { data: globalFaqData } = await supabase.from('faqs').select('*').eq('is_active', true);
@@ -204,6 +205,9 @@ const syncServicesWithCMS = async () => {
           if (cmsItem.description) servicesData[idx].detail = cmsItem.description;
           if (cmsItem.before1) servicesData[idx].beforeImg = cmsItem.before1;
           if (cmsItem.after1) servicesData[idx].afterImg = cmsItem.after1;
+
+          // CRITICAL: Clear hardcoded FAQs to make database the source of truth
+          servicesData[idx].faq = [];
           
           const serviceFaqs = faqData ? faqData.filter(f => f.service_id === cmsItem.id) : [];
           const sectionFaqs = globalFaqData ? globalFaqData.filter(f => f.page_section === cmsItem.slug) : [];
@@ -226,7 +230,9 @@ const syncServicesWithCMS = async () => {
       // Trigger UI update
       window.dispatchEvent(new CustomEvent('services_synced'));
     }
-  } catch (e) { console.error("Cloud Sync Error:", e); }
+  } catch (e) {
+    console.error("Cloud Sync Error:", e);
+  }
 };
 syncServicesWithCMS();
 
