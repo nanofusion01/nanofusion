@@ -13,6 +13,25 @@ document.addEventListener('DOMContentLoaded', () => {
         markup: 1.10 // 10% premium for safe anchoring
     };
 
+    // --- LIVE PRICE SYNC ---
+    const syncPrices = async () => {
+        try {
+            const { supabase } = await import('./supabase-config.js');
+            const { data, error } = await supabase.from('configurator_prices').select('item_key, price');
+            if (!error && data) {
+                data.forEach(item => {
+                    if (chatConfig.prices[item.item_key] !== undefined) {
+                        chatConfig.prices[item.item_key] = item.price;
+                    }
+                });
+                console.log('Nanobot: Ceny synchronizovány s Adminem');
+            }
+        } catch (e) {
+            console.warn('Nanobot: Cloud Sync cen nedostupný, používám lokální data.');
+        }
+    };
+    syncPrices();
+
     let chatState = 'INIT';
     let currentContext = 'GENERAL';
     let chatHistory = []; // Pro sledování celého chatu
