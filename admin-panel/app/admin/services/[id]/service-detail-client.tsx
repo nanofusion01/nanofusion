@@ -221,6 +221,53 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
               />
             </div>
 
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Co to obnáší (Proces)</label>
+              <textarea
+                value={service.process_description || ''}
+                onChange={(e) => setService({ ...service, process_description: e.target.value })}
+                rows={6}
+                className="w-full px-4 py-3 rounded-xl border outline-none resize-none"
+                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Vlastnosti / Fajfky</label>
+              <div className="space-y-2">
+                {(service.features || []).map((feature, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={feature}
+                      onChange={(e) => {
+                        const newFeatures = [...(service.features || [])]
+                        newFeatures[idx] = e.target.value
+                        setService({ ...service, features: newFeatures })
+                      }}
+                      className="flex-1 px-4 py-2 rounded-lg border text-sm outline-none"
+                      style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+                    />
+                    <button
+                      onClick={() => {
+                        const newFeatures = (service.features || []).filter((_, i) => i !== idx)
+                        setService({ ...service, features: newFeatures })
+                      }}
+                      className="p-2 text-red-400 hover:text-red-600"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setService({ ...service, features: [...(service.features || []), ''] })}
+                  className="flex items-center gap-2 text-sm font-bold text-amber-600 hover:text-amber-700 mt-2"
+                >
+                  <Plus size={16} /> Přidat vlastnost
+                </button>
+              </div>
+            </div>
+
             {/* Hero image upload */}
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Hero Obrázek</label>

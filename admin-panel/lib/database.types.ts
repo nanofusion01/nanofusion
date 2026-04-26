@@ -71,6 +71,8 @@ export type Database = {
           order_index: number
           is_active: boolean
           updated_at: string | null
+          process_description: string | null
+          features: string[] | null
         }
         Insert: {
           id?: string
@@ -81,6 +83,8 @@ export type Database = {
           order_index?: number
           is_active?: boolean
           updated_at?: string | null
+          process_description?: string | null
+          features?: string[] | null
         }
         Update: {
           id?: string
@@ -91,6 +95,8 @@ export type Database = {
           order_index?: number
           is_active?: boolean
           updated_at?: string | null
+          process_description?: string | null
+          features?: string[] | null
         }
       }
       service_before_after: {

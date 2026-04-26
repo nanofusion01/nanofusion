@@ -176,6 +176,11 @@ const syncServicesWithCMS = async () => {
         const idx = servicesData.findIndex(s => s.id === cmsItem.slug);
         if (idx !== -1) {
           if (cmsItem.description) servicesData[idx].detail = cmsItem.description;
+          if (cmsItem.process_description) servicesData[idx].involves = cmsItem.process_description;
+          if (cmsItem.features && Array.isArray(cmsItem.features) && cmsItem.features.length > 0) {
+            servicesData[idx].bulletPoints = cmsItem.features;
+            servicesData[idx].isBulletStyle = true;
+          }
           if (cmsItem.before1) servicesData[idx].beforeImg = cmsItem.before1;
           if (cmsItem.after1) servicesData[idx].afterImg = cmsItem.after1;
 
@@ -247,19 +252,13 @@ const openServiceModal = (data) => {
   const bulletHtml = (data.isBulletStyle && data.bulletPoints) ? `
     <div style="margin-top: 1rem;">
       <ul style="list-style: none; padding: 0; margin: 0;">
-        ${data.bulletPoints.map(bp => `
+        ${(data.bulletPoints || ['Certifikovaná technologie', 'Záruka až 10 let', 'Zaměření zdarma']).map(bp => `
           <li style="display: flex; align-items: center; gap: 0.5rem; color: #1e293b; margin-bottom: 0.4rem; font-weight: 500; font-size: 0.875rem;">
-            <span style="color: #F59E0B; font-size: 0.75rem;">●</span> ${bp}
+            <span style="color: #F59E0B; font-size: 1rem;">✓</span> ${bp}
           </li>
         `).join('')}
       </ul>
     </div>
-  ` : `
-    <ul style="list-style: none; padding: 0; margin-top: 1rem;">
-      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; margin-bottom: 0.5rem; font-weight: 600;"> <span style="color: #F59E0B;">✓</span> Certifikovaná technologie </li>
-      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; margin-bottom: 0.5rem; font-weight: 600;"> <span style="color: #F59E0B;">✓</span> Záruka až 10 let </li>
-      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; font-weight: 600;"> <span style="color: #F59E0B;">✓</span> Zaměření zdarma </li>
-    </ul>
   `;
 
   // Build FAQ section
