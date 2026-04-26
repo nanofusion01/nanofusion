@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Plus, Trash2, Edit2, Brain, Save, X, Lightbulb, FileUp, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { saveKnowledge, deleteKnowledge, toggleKnowledgeActive, uploadBotDocument } from './actions'
+import { TiptapEditor } from '@/components/admin/editor'
 
 interface Knowledge {
   id: string
@@ -144,15 +145,11 @@ export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <label className="text-sm font-bold text-slate-700">Obsah (Fakta pro AI)</label>
-            <textarea
-              required
-              rows={6}
-              placeholder="Zde napište veškeré informace, které má bot znát..."
-              className="w-full px-5 py-3 rounded-2xl border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all resize-none"
-              value={formData.content}
-              onChange={e => setFormData({ ...formData, content: e.target.value })}
+            <TiptapEditor 
+              content={formData.content} 
+              onChange={(html) => setFormData({ ...formData, content: html })} 
             />
           </div>
 

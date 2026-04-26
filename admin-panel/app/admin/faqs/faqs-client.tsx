@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp, AlertTriangle, Save, X } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { createFaq, updateFaq, deleteFaq } from './actions'
+import { TiptapEditor } from '@/components/admin/editor'
 
 type Faq = Tables<'faqs'>
 
@@ -226,16 +227,13 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                       style={{ border: '1px solid var(--brand-primary)', color: 'var(--text-primary)' }}
                     />
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
                       Odpověď
                     </label>
-                    <textarea
-                      value={editing.answer}
-                      onChange={(e) => setEditing({ ...editing, answer: e.target.value })}
-                      rows={4}
-                      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none resize-none"
-                      style={{ border: '1px solid var(--brand-primary)', color: 'var(--text-primary)' }}
+                    <TiptapEditor 
+                      content={editing.answer} 
+                      onChange={(html) => setEditing({ ...editing, answer: html })} 
                     />
                   </div>
                   <div>

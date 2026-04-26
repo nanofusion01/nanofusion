@@ -26,6 +26,7 @@ import {
   uploadBeforeAfterPhoto,
   deleteBeforeAfter
 } from '../actions'
+import { TiptapEditor } from '@/components/admin/editor'
 
 type Service = Tables<'services'>
 type BeforeAfter = Tables<'service_before_after'>
@@ -210,25 +211,19 @@ export function ServiceDetailClient({ service: initialService, beforeAfterItems:
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Hlavní popis</label>
-              <textarea
-                value={service.description || ''}
-                onChange={(e) => setService({ ...service, description: e.target.value })}
-                rows={6}
-                className="w-full px-4 py-3 rounded-xl border outline-none resize-none"
-                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
+            <div className="space-y-4">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Hlavní popis (Web)</label>
+              <TiptapEditor 
+                content={service.description || ''} 
+                onChange={(html) => setService({ ...service, description: html })} 
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Co to obnáší (Proces)</label>
-              <textarea
-                value={service.process_description || ''}
-                onChange={(e) => setService({ ...service, process_description: e.target.value })}
-                rows={6}
-                className="w-full px-4 py-3 rounded-xl border outline-none resize-none"
-                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
+              <TiptapEditor 
+                content={service.process_description || ''} 
+                onChange={(html) => setService({ ...service, process_description: html })} 
               />
             </div>
 

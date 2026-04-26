@@ -8,6 +8,7 @@ import {
   MapPin, Clock, Wrench, Loader2, ImageIcon, Plus
 } from 'lucide-react'
 import { updateRealization, togglePublished, uploadRealizationPhoto, deleteRealizationPhoto } from '../actions'
+import { TiptapEditor } from '@/components/admin/editor'
 
 type Realization = {
   id: string
@@ -232,15 +233,11 @@ export function RealizationDetailClient({
               </select>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Popis realizace</label>
-              <textarea
-                value={r.description || ''}
-                onChange={e => setR({ ...r, description: e.target.value })}
-                rows={7}
-                placeholder="Popište výzvu, postup práce a výsledek..."
-                className="w-full px-4 py-3 rounded-xl border outline-none resize-none text-sm leading-relaxed"
-                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+              <TiptapEditor 
+                content={r.description || ''} 
+                onChange={(html) => setR({ ...r, description: html })} 
               />
             </div>
           </div>
