@@ -187,6 +187,30 @@ let servicesData = [
   }
 ];
 
+// --- Dynamic Prices Sync ---
+let remotePrices = {
+  roof: 190, facade: 150, pavement: 120, pv: 80, graffiti: 250, industrial: 130,
+  'facade-paint': 200, 'roof-paint': 180, impregnation: 70, antislip: 120, ceramfloor: 250, antibac: 80
+};
+
+const syncRemotePrices = async () => {
+  try {
+    const { supabase } = await import('./supabase-config.js');
+    const { data, error } = await supabase.from('configurator_prices').select('item_key, price');
+    if (!error && data) {
+      data.forEach(item => {
+        if (remotePrices[item.item_key] !== undefined) {
+          remotePrices[item.item_key] = item.price;
+        }
+      });
+      console.log('Offers: Ceny synchronizovány s Adminem');
+    }
+  } catch (e) {
+    console.warn('Offers: Cloud Sync cen nedostupný.');
+  }
+};
+syncRemotePrices();
+
 // --- Cloud Hydration (Supabase) ---
 const hydrateFromCloud = async () => {
   try {
@@ -451,11 +475,7 @@ const openServiceModal = (data) => {
     const area = parseInt(document.getElementById('m-area').value) || 0;
     if (!name || !phone) return alert('Prosím vyplňte jméno a telefon.');
 
-    const prices = {
-      roof: 190, facade: 150, pavement: 120, pv: 80, graffiti: 250, industrial: 130,
-      'facade-paint': 200, 'roof-paint': 180, impregnation: 70, antislip: 120, ceramfloor: 250, antibac: 80
-    };
-    const base = (prices[data.id] || 150) * area;
+    const base = (remotePrices[data.id] || 150) * area;
     const min = Math.round(base * 1.05 / 10) * 10;
     const max = Math.round(base * 1.15 / 10) * 10;
 
