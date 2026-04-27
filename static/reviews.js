@@ -5,7 +5,7 @@ let reviewsData = [
   { name: 'Jana Novotná', info: 'Brno, Čištění fasády', stars: 5, text: 'Fasáda prokoukla během jediného dne. Kluci byli moc šikovní, vše po sobě uklidili a výsledek je i po roce stále skvělý.' },
   { name: 'Marek Kučera', info: 'Plzeň, Zámková dlažba', stars: 5, text: 'Čištění před firmou dopadlo výborně. Zmizela všechna léta usazená špína a olejové skvrny. Výborná komunikace.' },
   { name: 'Lucie Marešová', info: 'Ostrava, Celková renovace', stars: 5, text: 'Oceňuji rychlost domluvy a zaměření zdarma. Cena byla férová a výsledek předčil naše očekávání. Určitě doporučuji!' },
-  { name: 'David Černý', info: 'Liberec, Fotovoltaika', stars: 5, text: 'Nano-ochrana fotovoltaiky nám reálně zvýšila účinnost panelů. Velmi profesionální přístup a čistá práce.' },
+  { name: 'David Černý', info: 'Liberec, Fotovoltaika', stars: 5, text: 'Nano-ochrana fotovoltaiky nám reálně zvýšila účinnost panelů. Velmi profesionální přístup and čistá práce.' },
   { name: 'Eva Králová', info: 'Hradec Králové, Čištění střechy', stars: 5, text: 'Skvělý výsledek. Po práci po sobě vše uklidili, dům vypadá skvěle a sousedi se už ptají na kontakt. Děkujeme!' },
   { name: 'Martin Horák', info: 'Pardubice, Fasáda', stars: 5, text: 'Efekt nano-ochrany je neskutečný. Voda z fasády prostě stéká a fasáda se sama omývá deštěm. Úžasná technologie.' },
   { name: 'Pavel Holub', info: 'České Budějovice, Terasa', stars: 5, text: 'Neskutečný rozdíl před a po. Terasa vypadá jako nově postavená a impregnace funguje skvěle.' },
@@ -18,8 +18,8 @@ const injectReviews = () => {
     if (!reviewsSection || reviewsSection.dataset.injected === 'true') return false;
 
     reviewsSection.innerHTML = `
-        <div class="py-24 bg-slate-950 section-reveal">
-            <div class="container mx-auto px-6 pt-24"> <!-- Added pt-24 here to offset the text from top -->
+        <div class="py-24 bg-slate-950 section-reveal"> <!-- Section padding reverted to standard -->
+            <div class="container mx-auto px-6 pt-32"> <!-- ONLY THIS TEXT AND BELOW IS OFFSET LOWER -->
                 <div class="text-center mb-16">
                     <h2 class="text-4xl md:text-6xl font-bold text-white mb-6">Co o nás říkají naši klienti</h2>
                     <p class="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed opacity-80">
@@ -95,7 +95,7 @@ const injectReviews = () => {
             @media (max-width: 768px) {
                 .review-card-premium { flex: 0 0 85% !important; padding: 2rem !important; }
                 .review-arrow-btn { display: none !important; }
-                .pt-24 { padding-top: 2rem !important; }
+                .pt-32 { padding-top: 2rem !important; }
             }
         </style>
     `;
