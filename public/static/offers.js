@@ -256,7 +256,7 @@ const openServiceModal = (data) => {
   const involvesHtml = data.involves ? `
     <div style="margin-top: 1.25rem; padding: 1.25rem; background: #f0f9ff; border-radius: 1rem; border: 1px solid #e0f2fe;">
       <h4 style="font-size: 0.813rem; font-weight: 800; text-transform: uppercase; color: #0369a1; margin-bottom: 0.5rem; letter-spacing: 0.05em;">📋 Co to obnáší?</h4>
-      <p style="color: #334155; font-size: 0.875rem; line-height: 1.6; margin: 0;">${data.involves}</p>
+      <div style="color: #334155; font-size: 0.875rem; line-height: 1.6; margin: 0;">${data.involves}</div>
     </div>
   ` : '';
 
@@ -310,7 +310,7 @@ const openServiceModal = (data) => {
           <div style="padding: 2.5rem; padding-top: 0;">
             <span class="service-tag" style="position: relative; z-index: 5; margin-top: -1rem; background: #FEF3C7; color: #F59E0B; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 700; display: inline-block;">${data.tag}</span>
             <h3 class="modal-service-title">${data.title}</h3>
-            <p style="color: #475569; line-height: 1.6; margin-bottom: 0.5rem;">${data.detail}</p>
+            <div style="line-height: 1.6; margin-bottom: 1.5rem; color: #475569;">${data.detail}</div>
             ${involvesHtml}
             ${bulletHtml}
             ${beforeAfterHtml}
@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-wider">${service.tag}</span>
           </div>
           <h3 class="text-xl font-bold mb-2">${service.title}</h3>
-          <p class="text-muted-foreground text-sm line-clamp-2">${service.detail}</p>
+          <div class="text-muted-foreground text-sm line-clamp-2">${service.detail}</div>
           <div class="mt-4 flex items-center text-primary font-bold text-sm">
             Zjistit více <span class="ml-2 transition-transform group-hover:translate-x-1">→</span>
           </div>
