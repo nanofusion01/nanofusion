@@ -18,45 +18,45 @@ const injectReviews = () => {
     if (!reviewsSection || reviewsSection.dataset.injected === 'true') return false;
 
     reviewsSection.innerHTML = `
-        <div class="py-40 bg-slate-950 section-reveal">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-20">
-                    <h2 class="text-4xl md:text-6xl font-bold text-white mb-8">Co o nás říkají naši klienti</h2>
+        <div class="py-24 bg-slate-950 section-reveal">
+            <div class="container mx-auto px-6 pt-24"> <!-- Added pt-24 here to offset the text from top -->
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-6xl font-bold text-white mb-6">Co o nás říkají naši klienti</h2>
                     <p class="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed opacity-80">
                         Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
                     </p>
                 </div>
 
                 <div style="position: relative; width: 100%; max-width: 1300px; margin: 0 auto;">
-                    <div id="reviews-scroller" style="display: flex; gap: 2.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 2rem 0 4rem; scrollbar-width: none; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);">
+                    <div id="reviews-scroller" style="display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; scrollbar-width: none; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);">
                         ${reviewsData.map(rev => `
                             <div class="review-card-premium"
-                                 style="flex: 0 0 400px; background: #1e293b; border-radius: 2rem; padding: 3rem; box-shadow: 0 25px 50px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 2rem; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s ease;">
-                                <div style="display: flex; gap: 6px;">
-                                    ${Array(rev.stars || 5).fill('<span style="color: #f59e0b; font-size: 1.4rem;">★</span>').join('')}
+                                 style="flex: 0 0 350px; background: #1e293b; border-radius: 1.5rem; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 1.5rem;">
+                                <div style="display: flex; gap: 4px;">
+                                    ${Array(rev.stars || 5).fill('<span style="color: #f59e0b; font-size: 1.2rem;">★</span>').join('')}
                                 </div>
-                                <p style="color: #cbd5e1; font-style: italic; font-size: 1.1rem; line-height: 1.8; flex-grow: 1;">
+                                <p style="color: #cbd5e1; font-style: italic; font-size: 1rem; line-height: 1.7; flex-grow: 1;">
                                     "${rev.text}"
                                 </p>
-                                <div style="border-top: 1px solid rgba(255,255,255,0.1); pt-6; margin-top: 1rem; padding-top: 1.5rem;">
-                                    <h4 style="color: white; font-weight: 800; font-size: 1.2rem; margin-bottom: 0.4rem;">${rev.name}</h4>
-                                    <p style="color: #64748b; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">${rev.info || 'Ověřený zákazník'}</p>
+                                <div>
+                                    <h4 style="color: white; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem;">${rev.name}</h4>
+                                    <p style="color: #64748b; font-size: 0.85rem;">${rev.info || 'Ověřený zákazník'}</p>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
 
-                    <!-- Premium Navigation Arrows - Repositioned to be outside on large screens -->
-                    <button onclick="document.getElementById('reviews-scroller').scrollLeft -= 450"
+                    <!-- Navigation Arrows -->
+                    <button onclick="document.getElementById('reviews-scroller').scrollLeft -= 400"
                         class="review-arrow-btn left-arrow">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15 18L9 12L15 6" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M15 18L9 12L15 6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
-                    <button onclick="document.getElementById('reviews-scroller').scrollLeft += 450"
+                    <button onclick="document.getElementById('reviews-scroller').scrollLeft += 400"
                         class="review-arrow-btn right-arrow">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 18L15 12L9 6" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 18L15 12L9 6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
                 </div>
@@ -68,9 +68,9 @@ const injectReviews = () => {
                 position: absolute;
                 top: 50%;
                 transform: translateY(-50%);
-                width: 70px;
-                height: 70px;
-                border-radius: 22px;
+                width: 60px;
+                height: 60px;
+                border-radius: 15px;
                 background: #f59e0b;
                 border: none;
                 color: white;
@@ -78,41 +78,24 @@ const injectReviews = () => {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 15px 35px rgba(245,158,11,0.35);
-                z-index: 20;
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                box-shadow: 0 10px 30px rgba(245,158,11,0.3);
+                z-index: 10;
+                transition: all 0.3s ease;
             }
-            .review-arrow-btn:hover {
-                background: #d97706;
-                transform: translateY(-50%) scale(1.1);
-                box-shadow: 0 20px 45px rgba(245,158,11,0.45);
-            }
-            .review-arrow-btn:active { transform: translateY(-50%) scale(0.95); }
+            .review-arrow-btn:hover { background: #d97706; transform: translateY(-50%) scale(1.05); }
             
-            .left-arrow { left: -90px; }
-            .right-arrow { right: -90px; }
-
-            .review-card-premium:hover {
-                transform: translateY(-10px);
-                border-color: rgba(245,158,11,0.3);
-            }
-
-            @media (max-width: 1450px) {
-                .left-arrow { left: -40px; }
-                .right-arrow { right: -40px; }
-            }
+            .left-arrow { left: -30px; }
+            .right-arrow { right: -30px; }
 
             @media (max-width: 1200px) {
-                .review-arrow-btn { width: 56px; height: 56px; border-radius: 16px; }
-                .left-arrow { left: -20px; }
-                .right-arrow { right: -20px; }
+                .left-arrow { left: -10px; }
+                .right-arrow { right: -10px; }
             }
 
             @media (max-width: 768px) {
                 .review-card-premium { flex: 0 0 85% !important; padding: 2rem !important; }
                 .review-arrow-btn { display: none !important; }
-                #reviews-scroller { mask-image: none; -webkit-mask-image: none; padding: 1rem 0 2rem; }
-                .py-40 { padding-top: 5rem; padding-bottom: 5rem; }
+                .pt-24 { padding-top: 2rem !important; }
             }
         </style>
     `;
