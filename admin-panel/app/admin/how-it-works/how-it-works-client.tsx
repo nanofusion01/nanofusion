@@ -321,7 +321,6 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
                           newSteps[idx].description = html
                           setSteps(newSteps)
                         }}
-                        placeholder="Popište, co se v tomto kroku děje..."
                       />
                     </div>
                   </div>
