@@ -23,22 +23,22 @@ const injectFaqs = async () => {
 
     const render = (faqs) => {
         const faqHtml = `
-            <div class="container mx-auto px-6 py-24">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-5xl font-bold text-slate-800 mb-6">Časté dotazy</h2>
-                    <p class="text-slate-500 max-w-2xl mx-auto">Vše, co potřebujete vědět o našich technologiích a postupech.</p>
+            <div class="container mx-auto px-6 pt-12 pb-16"> <!-- Reduced padding to move title up -->
+                <div class="text-center mb-10"> <!-- Reduced margin below header -->
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Časté dotazy</h2> <!-- Slightly smaller font -->
+                    <p class="text-slate-500 max-w-2xl mx-auto text-sm md:text-base">Vše, co potřebujete vědět o našich technologiích a postupech.</p>
                 </div>
-                <div class="max-w-3xl mx-auto space-y-4">
+                <div class="max-w-3xl mx-auto space-y-3"> <!-- Tighter spacing between items -->
                     ${faqs.map((f, i) => `
-                        <div class="faq-item" style="border: 1px solid #e2e8f0; border-radius: 1rem; overflow: hidden; background: white;">
+                        <div class="faq-item" style="border: 1px solid #e2e8f0; border-radius: 0.875rem; overflow: hidden; background: white; transition: all 0.3s ease;">
                             <button onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')"
-                                    style="width: 100%; text-align: left; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer;">
-                                <span style="font-weight: 700; color: #1e293b;">${f.question}</span>
-                                <svg class="transition-transform flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    style="width: 100%; text-align: left; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer;">
+                                <span style="font-weight: 700; color: #1e293b; font-size: 0.938rem;">${f.question}</span>
+                                <svg class="transition-transform flex-shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M6 9l6 6 6-6"></path>
                                 </svg>
                             </button>
-                            <div class="hidden" style="padding: 0 1.5rem 1.5rem; color: #64748b; line-height: 1.6;">
+                            <div class="hidden" style="padding: 0 1.5rem 1.25rem; color: #64748b; line-height: 1.6; font-size: 0.875rem;">
                                 ${f.answer}
                             </div>
                         </div>
