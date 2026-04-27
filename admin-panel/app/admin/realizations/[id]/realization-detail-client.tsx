@@ -249,7 +249,7 @@ export function RealizationDetailClient({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-lg">Fotografie realizace</h3>
-                <p className="text-sm opacity-50 mt-1">První fotka se zobrazí jako hlavní na webu</p>
+                <p className="text-sm opacity-50 mt-1">První fotka se zobrazí jako hlavní. Doporučujeme maximálně 10 fotografií.</p>
               </div>
               <div>
                 <input
@@ -262,12 +262,12 @@ export function RealizationDetailClient({
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
+                  disabled={uploading || photos.length >= 10}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-50"
-                  style={{ background: 'var(--brand-primary)' }}
+                  style={{ background: photos.length >= 10 ? '#94a3b8' : 'var(--brand-primary)' }}
                 >
                   {uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-                  {uploading ? 'Nahrávám...' : 'Nahrát fotky'}
+                  {uploading ? 'Nahrávám...' : photos.length >= 10 ? 'Limit 10 fotek dosažen' : 'Nahrát fotky'}
                 </button>
               </div>
             </div>

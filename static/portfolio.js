@@ -15,7 +15,8 @@ const injectPortfolio = async () => {
     } else if (processSection?.parentNode) {
         processSection.parentNode.insertBefore(portfolioSection, processSection.nextSibling);
     } else {
-        document.querySelector('#root > div')?.appendChild(portfolioSection);
+        const root = document.querySelector('#root > div') || document.body;
+        root.appendChild(portfolioSection);
     }
 
     // Hardcoded záloha
@@ -49,6 +50,103 @@ const injectPortfolio = async () => {
         },
     ];
 
+    const openCaseStudy = (p) => {
+        let modal = document.getElementById('case-study-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'case-study-modal';
+            modal.className = 'modal-overlay';
+            document.body.appendChild(modal);
+        }
+
+        const mainPhoto = p.photos?.[0]?.url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800';
+        
+        // Gallery logic
+        const galleryHtml = p.photos && p.photos.length > 1
+            ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:0.75rem;margin-top:1.5rem;" id="modal-gallery-thumbs">
+                ${p.photos.map((ph, idx) => `
+                    <div style="position:relative;aspect-ratio:4/3;border-radius:0.75rem;overflow:hidden;cursor:pointer;border:2px solid ${idx === 0 ? '#F59E0B' : 'transparent'};transition:all 0.2s;" 
+                         onclick="document.getElementById('modal-main-img').src='${ph.url}'; Array.from(this.parentElement.children).forEach(el=>el.style.borderColor='transparent'); this.style.borderColor='#F59E0B'">
+                        <img src="${ph.url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+                    </div>`).join('')}
+               </div>`
+            : '';
+
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width:960px;max-height:90vh;overflow-y:auto;">
+                <button class="close-modal-btn" onclick="window.location.hash = 'realizace'">&times;</button>
+                <div style="padding:2.5rem;">
+                    <div style="position:relative;margin-bottom:1.5rem;border-radius:1.5rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);">
+                        <img id="modal-main-img" src="${mainPhoto}" alt="${p.title}" style="width:100%;height:450px;object-fit:cover;cursor:zoom-in;" onclick="window.open(this.src, '_blank')">
+                    </div>
+                    
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1.5rem;margin-bottom:1.5rem;">
+                        <div style="flex:1;min-width:300px;">
+                            <h2 style="font-size:2.25rem;font-weight:900;color:#0f172a;margin-bottom:1rem;line-height:1.2;">${p.title}</h2>
+                            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+                                <span style="background:#fff7ed;color:#f59e0b;padding:0.5rem 1.25rem;border-radius:99px;font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;">${p.work_type}</span>
+                                ${p.duration ? `<span style="background:#f1f5f9;color:#475569;padding:0.5rem 1.25rem;border-radius:99px;font-size:0.75rem;font-weight:700;">⏱ ${p.duration}</span>` : ''}
+                                ${p.location ? `<span style="background:#f1f5f9;color:#475569;padding:0.5rem 1.25rem;border-radius:99px;font-size:0.75rem;font-weight:700;">📍 ${p.location}</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="width:100%;max-width:320px;background:#F59E0B;padding:2rem;border-radius:1.5rem;color:white;box-shadow:0 15px 35px rgba(245,158,11,0.2);">
+                            <h4 style="font-weight:900;font-size:1.1rem;margin-bottom:0.5rem;">Zaujala vás tato práce?</h4>
+                            <p style="font-size:0.9rem;opacity:0.9;margin-bottom:1.5rem;line-height:1.5;">Rádi pro vás připravíme nezávaznou kalkulaci zdarma.</p>
+                            <button onclick="document.getElementById('case-study-modal').style.display='none';document.getElementById('ai-chat-launcher').click();"
+                                style="width:100%;background:white;color:#F59E0B;border:none;padding:1rem;border-radius:1rem;font-weight:900;cursor:pointer;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.05em;transition:all 0.3s;"
+                                onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 5px 15px rgba(0,0,0,0.1)'"
+                                onmouseleave="this.style.transform='translateY(0)'">
+                                MÁM ZÁJEM 💬
+                            </button>
+                        </div>
+                    </div>
+                    
+                    ${p.description ? `
+                    <div style="background:white;padding:2.5rem;border-radius:1.5rem;margin-bottom:2rem;border:1px solid #e2e8f0;">
+                        <h4 style="font-size:0.75rem;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:1rem;letter-spacing:0.1em;">Detaily realizace</h4>
+                        <div style="color:#334155;line-height:1.8;font-size:1.1rem;">${p.description}</div>
+                    </div>` : ''}
+                    
+                    ${p.photos && p.photos.length > 1 ? `
+                        <div style="margin-top:2.5rem;">
+                            <h4 style="font-size:0.75rem;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:1rem;letter-spacing:0.1em;">Fotogalerie projektu (${p.photos.length})</h4>
+                            ${galleryHtml}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        modal.style.display = 'flex';
+        modal.querySelector('.close-modal-btn').onclick = () => {
+            modal.style.display = 'none';
+            if (window.location.hash.startsWith('#realizace/')) {
+                window.location.hash = 'realizace';
+            }
+        };
+        modal.onclick = (e) => { 
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                if (window.location.hash.startsWith('#realizace/')) {
+                    window.location.hash = 'realizace';
+                }
+            }
+        };
+    };
+
+    const handleRouting = () => {
+        const hash = window.location.hash;
+        if (hash.startsWith('#realizace/')) {
+            const id = hash.split('/')[1];
+            const project = projectsData.find(p => String(p.id) === String(id));
+            if (project) {
+                openCaseStudy(project);
+            }
+        } else if (hash === '#realizace') {
+            const modal = document.getElementById('case-study-modal');
+            if (modal) modal.style.display = 'none';
+        }
+    };
+
     // Hydratace z Supabase
     try {
         const { supabase } = await import('./supabase-config.js');
@@ -68,74 +166,16 @@ const injectPortfolio = async () => {
                 description: r.description || '',
                 photos: (r.realization_photos || []).sort((a, b) => a.order_index - b.order_index),
             }));
-            render();
         }
     } catch (e) {
         console.warn('Portfolio Sync: Cloud data nedostupná.');
     }
 
-    const openCaseStudy = (p) => {
-        let modal = document.getElementById('case-study-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'case-study-modal';
-            modal.className = 'modal-overlay';
-            document.body.appendChild(modal);
-        }
-
-        const mainPhoto = p.photos?.[0]?.url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800';
-        const galleryHtml = p.photos && p.photos.length > 1
-            ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.75rem;margin-top:1.5rem;">
-                ${p.photos.map(ph => `<img src="${ph.url}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:0.75rem;cursor:pointer;" onclick="window.open('${ph.url}', '_blank')" loading="lazy">`).join('')}
-               </div>`
-            : '';
-
-        modal.innerHTML = `
-            <div class="modal-content" style="max-width:860px;max-height:90vh;overflow-y:auto;">
-                <button class="close-modal-btn">&times;</button>
-                <div style="padding:2rem;">
-                    <img src="${mainPhoto}" alt="${p.title}" style="width:100%;height:320px;object-fit:cover;border-radius:1.25rem;margin-bottom:1.5rem;cursor:zoom-in;" onclick="window.open('${mainPhoto}', '_blank')">
-                    
-                    <h2 style="font-size:2rem;font-weight:800;color:#1e293b;margin-bottom:0.75rem;">${p.title}</h2>
-                    
-                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
-                        <span style="background:#fef3c7;color:#92400e;padding:0.4rem 1rem;border-radius:99px;font-size:0.8rem;font-weight:800;text-transform:uppercase;">${p.work_type}</span>
-                        ${p.duration ? `<span style="background:#f1f5f9;color:#475569;padding:0.4rem 1rem;border-radius:99px;font-size:0.8rem;font-weight:700;">⏱ ${p.duration}</span>` : ''}
-                        ${p.location ? `<span style="background:#f1f5f9;color:#475569;padding:0.4rem 1rem;border-radius:99px;font-size:0.8rem;font-weight:700;">📍 ${p.location}</span>` : ''}
-                    </div>
-                    
-                    ${p.description ? `
-                    <div style="background:#f8fafc;padding:2rem;border-radius:1.5rem;margin-bottom:1.5rem;border:1px solid #e2e8f0;">
-                        <h4 style="font-size:0.75rem;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:0.75rem;letter-spacing:0.05em;">Popis realizace</h4>
-                        <div style="color:#334155;line-height:1.8;font-size:1rem;">${p.description}</div>
-                    </div>` : ''}
-                    
-                    ${galleryHtml}
-                    
-                    <div style="margin-top:2.5rem;text-align:center;">
-                        <button onclick="document.getElementById('case-study-modal').style.display='none';document.getElementById('ai-chat-launcher').click();"
-                            style="width:100%;background:#F59E0B;color:white;border:none;padding:1.5rem;border-radius:1.25rem;font-weight:900;cursor:pointer;font-size:1.1rem;box-shadow:0 10px 30px rgba(245,158,11,0.3);text-transform:uppercase;letter-spacing:0.02em;">
-                            CHCI PODOBNÝ VÝSLEDEK 💬
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        modal.style.display = 'flex';
-        modal.querySelector('.close-modal-btn').onclick = () => modal.style.display = 'none';
-        modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
-    };
-
     const render = () => {
-        window.portfolioOpenStudy = (id) => {
-            const project = projectsData.find(p => String(p.id) === String(id));
-            if (project) openCaseStudy(project);
-        };
-
         const generateCards = (list) => list.map(p => {
             const img = p.photos?.[0]?.url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800';
             return `
-            <div class="portfolio-card-modern" onclick="window.portfolioOpenStudy('${p.id}')">
+            <a href="#realizace/${p.id}" class="portfolio-card-modern" style="text-decoration: none; display: block;">
                 <div class="portfolio-img-wrap">
                     <img src="${img}" alt="${p.title}" loading="lazy">
                     <div class="portfolio-overlay">
@@ -147,7 +187,7 @@ const injectPortfolio = async () => {
                     <h3 class="portfolio-h3">${p.title}</h3>
                     ${p.location ? `<p style="font-size:0.85rem;color:#64748b;margin-top:0.4rem;display:flex;items-center;gap:0.4rem;">📍 ${p.location}</p>` : ''}
                 </div>
-            </div>`;
+            </a>`;
         }).join('');
 
         portfolioSection.innerHTML = `
@@ -310,6 +350,7 @@ const injectPortfolio = async () => {
                 @media (max-width: 768px) {
                     .portfolio-card-modern { flex: 0 0 320px; border-radius: 1.5rem; }
                     .portfolio-img-wrap { height: 240px; }
+                    #modal-main-img { height: 280px !important; }
                     .portfolio-h3 { font-size: 1.1rem; }
                     .portfolio-arrow { display: none !important; }
                     .portfolio-container-new { mask-image: none; -webkit-mask-image: none; }
@@ -327,7 +368,6 @@ const injectPortfolio = async () => {
             
             const startAutoplay = () => {
                 autoplayInterval = setInterval(() => {
-                    // Pokud jsme na konci (polovina délky u zdvojeného seznamu), skoč na začátek
                     if (scroller.scrollLeft >= (scroller.scrollWidth / 2)) {
                         scroller.scrollLeft = 0;
                     } else {
@@ -338,7 +378,6 @@ const injectPortfolio = async () => {
 
             const stopAutoplay = () => clearInterval(autoplayInterval);
 
-            // Navigační šipky
             arrowLeft.addEventListener('click', (e) => {
                 e.stopPropagation();
                 scroller.scrollLeft -= 480;
@@ -349,19 +388,20 @@ const injectPortfolio = async () => {
                 scroller.scrollLeft += 480;
             });
 
-            // Pozastavení při najetí
             scroller.addEventListener('mouseenter', stopAutoplay);
             scroller.addEventListener('mouseleave', startAutoplay);
-            
-            // Šipky také pozastaví scroller
             arrowLeft.addEventListener('mouseenter', stopAutoplay);
             arrowRight.addEventListener('mouseenter', stopAutoplay);
 
             startAutoplay();
         }
+        
+        // Initial route check
+        handleRouting();
     };
 
     render();
+    window.addEventListener('hashchange', handleRouting);
 };
 
 // Start
