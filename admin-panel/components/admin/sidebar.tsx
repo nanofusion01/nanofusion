@@ -81,6 +81,11 @@ const navSections = [
         href: '/admin/faqs',
         icon: <HelpCircle size={18} />,
       },
+      {
+        label: 'Jak to funguje',
+        href: '/admin/how-it-works',
+        icon: <Brain size={18} />,
+      },
     ],
   },
   {
