@@ -17,7 +17,7 @@ import {
   Info
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { Editor } from '@/components/admin/editor'
+import { TiptapEditor } from '@/components/admin/editor'
 
 interface Step {
   id: string
@@ -314,7 +314,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
                     </div>
                     <div className="md:col-span-2 space-y-2">
                       <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Popis kroku</label>
-                      <Editor
+                      <TiptapEditor
                         content={step.description}
                         onChange={(html) => {
                           const newSteps = [...steps]
