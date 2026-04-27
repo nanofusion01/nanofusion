@@ -18,9 +18,9 @@ const injectReviews = () => {
     if (!reviewsSection || reviewsSection.dataset.injected === 'true') return false;
 
     reviewsSection.innerHTML = `
-        <div class="py-24 bg-slate-950 section-reveal"> <!-- Section padding reverted to standard -->
-            <div class="container mx-auto px-6 pt-32"> <!-- ONLY THIS TEXT AND BELOW IS OFFSET LOWER -->
-                <div class="text-center mb-16">
+        <div class="py-24 bg-slate-950 section-reveal">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 pt-32"> <!-- Offset ONLY the header part -->
                     <h2 class="text-4xl md:text-6xl font-bold text-white mb-6">Co o nás říkají naši klienti</h2>
                     <p class="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed opacity-80">
                         Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
@@ -95,7 +95,7 @@ const injectReviews = () => {
             @media (max-width: 768px) {
                 .review-card-premium { flex: 0 0 85% !important; padding: 2rem !important; }
                 .review-arrow-btn { display: none !important; }
-                .pt-32 { padding-top: 2rem !important; }
+                .pt-32 { padding-top: 3rem !important; }
             }
         </style>
     `;
