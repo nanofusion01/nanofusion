@@ -84,7 +84,7 @@ let servicesData = [
   },
   {
     id: 'facade-paint', title: 'Nátěry fasád', tag: 'Nový vzhled',
-    detail: 'Ve spolupráci s firmou Caparol nabízíme nátěry fasád té nejvyšší kvality. Zdravá a čistá fasáda se zárukou až 12 let.',
+    detail: 'Ve spolupráci s firmou Caparol nabízíme nátěry fasád té nejvyšší kvality. Zdravá a čistá fasáda se zárukou až 14 let.',
     image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
@@ -92,7 +92,7 @@ let servicesData = [
     isBulletStyle: true,
     bulletPoints: [
       'Prémiové barvy Caparol',
-      'Záruka pigmentu až 12 let',
+      'Záruka pigmentu až 14 let',
       'Ochrana proti plísním a řasám',
       'Čištění fasády před nátěrem v ceně',
       'Vhodné pro rodinné i bytové domy'

@@ -141,8 +141,8 @@ const observeAll = () => {
   // Format Footer Description Text
   const footerDescTexts = document.querySelectorAll('footer p.text-sm.text-neutral-400');
   footerDescTexts.forEach(p => {
-    if (!p.dataset.brUpdated && (p.textContent.includes('Od roku 2012') || p.textContent.includes('13 let'))) {
-      p.innerHTML = 'Profesionální čištění, impregnace a nátěry.<br>Již 12 let pečujeme o váš majetek po celé ČR.';
+    if (!p.dataset.brUpdated && (p.textContent.includes('Od roku 2012') || p.textContent.includes('13 let') || p.textContent.includes('12 let'))) {
+      p.innerHTML = 'Profesionální čištění, impregnace a nátěry.<br>Již 14 let pečujeme o váš majetek po celé ČR.';
       p.dataset.brUpdated = 'true';
     }
   });
@@ -151,11 +151,11 @@ const observeAll = () => {
   const statsLabels = document.querySelectorAll('div, p, span, h2, h3, h4');
   statsLabels.forEach(el => {
     if (el.children.length === 0) {
-      if (el.textContent.includes('13 let zkušeností')) {
-        el.textContent = el.textContent.replace('13 let zkušeností', '12 let zkušeností');
+      if (el.textContent.includes('12 let zkušeností') || el.textContent.includes('13 let zkušeností')) {
+        el.textContent = el.textContent.replace('12 let zkušeností', '14 let zkušeností').replace('13 let zkušeností', '14 let zkušeností');
       }
-      if (el.textContent.trim() === '13' && el.nextElementSibling && el.nextElementSibling.textContent.includes('Let zkušeností')) {
-        el.textContent = '12';
+      if ((el.textContent.trim() === '12' || el.textContent.trim() === '13') && el.nextElementSibling && el.nextElementSibling.textContent.includes('Let zkušeností')) {
+        el.textContent = '14';
       }
     }
   });

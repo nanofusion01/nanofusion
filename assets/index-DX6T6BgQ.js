@@ -28058,7 +28058,7 @@ const vI = [
   },
   {
     q: "Jaká je záruka na vaše práce?",
-    a: "Na naše služby poskytujeme záruku. Konkrétní délka záruky závisí na typu služby – u nátěrů až 12 let, u impregnací až 10 let.",
+    a: "Na naše služby poskytujeme záruku. Konkrétní délka záruky závisí na typu služby – u nátěrů až 14 let, u impregnací až 10 let.",
   },
 ];
 function wI() {
