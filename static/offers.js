@@ -241,6 +241,9 @@ const hydrateFromCloud = async () => {
             detail: cloudService.description || cloudService.detail || servicesData[index].detail,
             image: cloudService.hero_image_url || cloudService.image || servicesData[index].image,
             tag: cloudService.category || cloudService.tag || servicesData[index].tag,
+            involves: cloudService.process_description || servicesData[index].involves,
+            bulletPoints: cloudService.features || servicesData[index].bulletPoints,
+            isBulletStyle: !!cloudService.features || servicesData[index].isBulletStyle,
             order_index: cloudService.order_index ?? 999,
           };
         } else {
@@ -251,6 +254,9 @@ const hydrateFromCloud = async () => {
             detail: cloudService.description || cloudService.detail,
             image: cloudService.hero_image_url || cloudService.image,
             tag: cloudService.category || cloudService.tag,
+            involves: cloudService.process_description,
+            bulletPoints: cloudService.features,
+            isBulletStyle: !!cloudService.features,
             faq: [],
             order_index: cloudService.order_index ?? 999,
           };
@@ -322,11 +328,11 @@ const openServiceModal = (data) => {
   if (pairsToRender.length > 0) {
     const gridsHtml = pairsToRender.map(pair => `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
-        <div style="position: relative; border-radius: 1rem; overflow: hidden; border: 2px solid #fee2e2;">
+        <div style="position: relative; border-radius: 1rem; overflow: hidden; border: 2px solid #fee2e2; cursor: pointer;" onclick="window.nnf_openLightbox('${pair.beforeImg}')">
           <img src="${pair.beforeImg}" alt="Před" style="width: 100%; height: 140px; object-fit: cover;" onerror="this.parentElement.style.display='none'">
           <span style="position: absolute; bottom: 0.5rem; left: 0.5rem; background: #ef4444; color: white; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.7rem; font-weight: 800;">PŘED</span>
         </div>
-        <div style="position: relative; border-radius: 1rem; overflow: hidden; border: 2px solid #bbf7d0;">
+        <div style="position: relative; border-radius: 1rem; overflow: hidden; border: 2px solid #bbf7d0; cursor: pointer;" onclick="window.nnf_openLightbox('${pair.afterImg}')">
           <img src="${pair.afterImg}" alt="Po" style="width: 100%; height: 140px; object-fit: cover;" onerror="this.parentElement.style.display='none'">
           <span style="position: absolute; bottom: 0.5rem; left: 0.5rem; background: #22c55e; color: white; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.7rem; font-weight: 800;">PO</span>
         </div>
@@ -350,12 +356,12 @@ const openServiceModal = (data) => {
   ` : '';
 
   // Build Bullet Points section (for coating/secondary services)
-  const bulletHtml = (data.isBulletStyle && data.bulletPoints) ? `
+  const bulletHtml = (data.isBulletStyle && data.bulletPoints && data.bulletPoints.length > 0) ? `
     <div style="margin-top: 1rem;">
       <ul style="list-style: none; padding: 0; margin: 0;">
         ${data.bulletPoints.map(bp => `
           <li style="display: flex; align-items: center; gap: 0.5rem; color: #1e293b; margin-bottom: 0.4rem; font-weight: 500; font-size: 0.875rem;">
-            <span style="color: #F59E0B; font-size: 0.75rem;">●</span> ${bp}
+            <span style="color: #F59E0B; font-size: 0.875rem; font-weight: 800;">✓</span> ${bp}
           </li>
         `).join('')}
       </ul>
@@ -567,4 +573,20 @@ document.addEventListener('click', (e) => {
 window.nnf_openService = (id) => {
   const data = servicesData.find(s => s.id === id);
   if (data) openServiceModal(data);
+};
+
+// --- Lightbox Implementation ---
+window.nnf_openLightbox = (url) => {
+  let lb = document.getElementById('nnf-lightbox');
+  if (!lb) {
+    lb = document.createElement('div');
+    lb.id = 'nnf-lightbox';
+    lb.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:999999; display:none; align-items:center; justify-content:center; cursor:zoom-out; padding:2rem;';
+    lb.innerHTML = '<img id="nnf-lb-img" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:0.5rem; box-shadow:0 0 50px rgba(0,0,0,0.5); transition:transform 0.3s ease;">';
+    lb.onclick = () => lb.style.display = 'none';
+    document.body.appendChild(lb);
+  }
+  const img = document.getElementById('nnf-lb-img');
+  img.src = url;
+  lb.style.display = 'flex';
 };
