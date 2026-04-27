@@ -160,17 +160,17 @@ const injectPortfolio = async () => {
             
             <div class="relative max-w-[1600px] mx-auto group">
                 <div id="portfolio-scroller" class="portfolio-container-new">
-                    <div class="portfolio-track-new">
+                    <div id="portfolio-track" class="portfolio-track-new">
                         ${generateCards(projectsData)}
                         ${generateCards(projectsData)}
                     </div>
                 </div>
 
                 <!-- Navigation Arrows -->
-                <button class="portfolio-arrow left" onclick="document.getElementById('portfolio-scroller').scrollLeft -= 500">
+                <button id="p-arrow-left" class="portfolio-arrow left">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
-                <button class="portfolio-arrow right" onclick="document.getElementById('portfolio-scroller').scrollLeft += 500">
+                <button id="p-arrow-right" class="portfolio-arrow right">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                 </button>
             </div>
@@ -317,27 +317,47 @@ const injectPortfolio = async () => {
             </style>
         `;
 
-        // Autoplay Logic
+        // Scroller Logic
         const scroller = document.getElementById('portfolio-scroller');
-        if (scroller) {
-            let autoplayInterval = setInterval(() => {
-                if (scroller.scrollLeft >= (scroller.scrollWidth / 2)) {
-                    scroller.scrollLeft = 0;
-                } else {
-                    scroller.scrollLeft += 1;
-                }
-            }, 30);
-
-            scroller.addEventListener('mouseenter', () => clearInterval(autoplayInterval));
-            scroller.addEventListener('mouseleave', () => {
+        const arrowLeft = document.getElementById('p-arrow-left');
+        const arrowRight = document.getElementById('p-arrow-right');
+        
+        if (scroller && arrowLeft && arrowRight) {
+            let autoplayInterval;
+            
+            const startAutoplay = () => {
                 autoplayInterval = setInterval(() => {
+                    // Pokud jsme na konci (polovina délky u zdvojeného seznamu), skoč na začátek
                     if (scroller.scrollLeft >= (scroller.scrollWidth / 2)) {
                         scroller.scrollLeft = 0;
                     } else {
                         scroller.scrollLeft += 1;
                     }
                 }, 30);
+            };
+
+            const stopAutoplay = () => clearInterval(autoplayInterval);
+
+            // Navigační šipky
+            arrowLeft.addEventListener('click', (e) => {
+                e.stopPropagation();
+                scroller.scrollLeft -= 480;
             });
+
+            arrowRight.addEventListener('click', (e) => {
+                e.stopPropagation();
+                scroller.scrollLeft += 480;
+            });
+
+            // Pozastavení při najetí
+            scroller.addEventListener('mouseenter', stopAutoplay);
+            scroller.addEventListener('mouseleave', startAutoplay);
+            
+            // Šipky také pozastaví scroller
+            arrowLeft.addEventListener('mouseenter', stopAutoplay);
+            arrowRight.addEventListener('mouseenter', stopAutoplay);
+
+            startAutoplay();
         }
     };
 
