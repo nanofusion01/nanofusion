@@ -166,6 +166,8 @@ const injectPortfolio = async () => {
                 description: r.description || '',
                 photos: (r.realization_photos || []).sort((a, b) => a.order_index - b.order_index),
             }));
+            // Re-render with live data
+            render();
             // Trigger routing again after data is loaded
             handleRouting();
         }
