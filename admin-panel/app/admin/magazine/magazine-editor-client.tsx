@@ -11,7 +11,8 @@ import {
   Eye, 
   Trash2, 
   Image as ImageIcon,
-  Type
+  Type,
+  Loader2
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { saveArticle, deleteArticle } from './actions'
