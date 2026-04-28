@@ -21,7 +21,7 @@ const injectReviews = () => {
         <div class="pt-48 pb-16 bg-slate-950 section-reveal"> <!-- Shifted padding to move text down without changing total height -->
             <div class="container mx-auto px-6">
                 <div class="text-center mb-16">
-                    <h2 class="text-4xl md:text-6xl font-bold text-white mb-6">Co o nás říkají naši klienti</h2>
+                    <h2 class="text-4xl md:text-6xl font-bold text-white mb-6" style="margin-top: 4rem;">Co o nás říkají naši klienti</h2>
                     <p class="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed opacity-80">
                         Reference čerpáme z portálu firmy.cz. Spokojenost našich klientů je pro nás prioritou číslo jedna.
                     </p>
