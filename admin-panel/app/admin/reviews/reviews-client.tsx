@@ -105,14 +105,34 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             {initialReviews.length} celkem
           </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-          style={{ background: 'var(--brand-primary)' }}
-        >
-          <Plus size={15} />
-          Přidat recenzi
-        </button>
+        <div class="flex gap-2">
+          <button
+            onClick={async () => {
+              setLoading('sync')
+              try {
+                const res = await (await import('./actions')).syncFirmyReviews()
+                toast.success(`Synchronizace dokončena: ${res.imported} nových recenzí`)
+              } catch (e: any) {
+                toast.error(e.message)
+              } finally {
+                setLoading(null)
+              }
+            }}
+            disabled={loading === 'sync'}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 disabled:opacity-60 transition-all"
+          >
+            <Star size={15} />
+            {loading === 'sync' ? 'Synchronizuji...' : 'Synchronizovat Firmy.cz'}
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+            style={{ background: 'var(--brand-primary)' }}
+          >
+            <Plus size={15} />
+            Přidat recenzi
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

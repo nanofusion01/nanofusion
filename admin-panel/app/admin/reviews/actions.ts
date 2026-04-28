@@ -140,7 +140,7 @@ export async function syncFirmyReviews() {
       rating: rev.rating,
       content: rev.content,
       published_at: rev.published_at,
-      approved: false,
+      approved: rev.rating === 5, // Auto-schválení 5* recenzí pro lepší propustnost na web
       fetched_at: new Date().toISOString(),
     })
     if (!error) imported++
