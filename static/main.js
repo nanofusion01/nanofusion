@@ -83,6 +83,13 @@ const observeAll = () => {
       }
     });
 
+    if (!document.querySelector('a[href="#kalkulacka"]')) {
+      const configLink = referenceLink.cloneNode(true);
+      configLink.textContent = 'Konfigurátor';
+      configLink.href = '#kalkulacka';
+      referenceLink.parentNode.insertBefore(configLink, referenceLink);
+    }
+
     if (!document.querySelector('a[href="#galerie"]')) {
       const galleryLink = referenceLink.cloneNode(true);
       galleryLink.textContent = 'Galerie';
