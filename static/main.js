@@ -261,7 +261,7 @@ const observeAll = () => {
       gallerySection.innerHTML = `
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-5xl font-bold text-slate-900 mb-6 font-heading">Špičková péče o váš majetek v detailech</h2>
+                <h2 class="text-3xl md:text-5xl font-bold text-slate-900 mb-6 font-heading" style="margin-top: 3rem;">Špičková péče o váš majetek v detailech</h2>
                 <div class="w-20 h-1 bg-amber-500 mx-auto rounded-full"></div>
             </div>
         </div>
