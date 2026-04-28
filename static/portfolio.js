@@ -398,6 +398,8 @@ const injectPortfolio = async () => {
         
         // Initial route check
         handleRouting();
+    };
+
     render();
     window.addEventListener('hashchange', handleRouting);
 };
