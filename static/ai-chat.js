@@ -24,13 +24,41 @@ document.addEventListener('DOMContentLoaded', () => {
                         chatConfig.prices[item.item_key] = item.price;
                     }
                 });
-                console.log('Nanobot: Ceny synchronizovány s Adminem');
+                console.log('Nanobot: Ceny synchronizovány');
             }
         } catch (e) {
-            console.warn('Nanobot: Cloud Sync cen nedostupný, používám lokální data.');
+            console.warn('Nanobot: Cloud Sync cen nedostupný');
         }
     };
+
+    const syncKnowledge = async () => {
+        try {
+            const { supabase } = await import('./supabase-config.js');
+            const { data, error } = await supabase.from('bot_knowledge').select('*').eq('is_active', true);
+            if (!error && data) {
+                // Predefined answers mapping
+                data.filter(k => k.category === 'předdefinované').forEach(k => {
+                    const key = k.title.toLowerCase().replace(/\s/g, '_');
+                    knowledgeBase[key] = {
+                        keywords: k.title.toLowerCase().split(',').map(s => s.trim()),
+                        answer: k.content
+                    };
+                });
+                
+                // Greeting buttons if any
+                const greetingEntry = data.find(k => k.title === 'GREETING_BUTTONS');
+                if (greetingEntry) {
+                    chatConfig.greetingButtons = greetingEntry.content.split(',').map(s => s.trim());
+                }
+                console.log('Nanobot: Znalostní báze synchronizována');
+            }
+        } catch (e) {
+            console.warn('Nanobot: Cloud Sync znalostí nedostupný');
+        }
+    };
+    
     syncPrices();
+    syncKnowledge();
 
     let chatState = 'INIT';
     let currentContext = 'GENERAL';
@@ -223,12 +251,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const startChat = () => {
         chatState = 'ASK_SERVICE';
-        botSay(getGreeting(), [
+        const buttons = chatConfig.greetingButtons || [
             'Čištění střechy/fasády',
             'Solární panely',
             'Nátěry střech/fasád',
             'Služby pro firmy'
-        ]);
+        ];
+        botSay(getGreeting(), buttons);
     };
 
     const handleInput = (input) => {
@@ -258,13 +287,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const processLogic = (original, text) => {
+    const processLogic = async (original, text) => {
         // First, check for general questions (FAQ)
         for (let key in knowledgeBase) {
             const entry = knowledgeBase[key];
             if (entry.keywords.some(k => text.includes(k))) {
                 botSay(entry.answer);
-                // After answering, we wait a bit and ask the current state question if not finished
                 if (chatState !== 'FINISHED') {
                     setTimeout(() => botSay(`Vraťme se ale k vaší poptávce. **${getStateQuestion()}**`), 2500);
                 }
@@ -272,6 +300,52 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // If we are in the middle of lead generation, continue it
+        if (['ASK_ADDRESS', 'ASK_AREA', 'ASK_CONTACT'].includes(chatState)) {
+            handleLeadFlow(original, text);
+            return;
+        }
+
+        // Otherwise, ask OpenAI (Edge Function)
+        botSay('Půjdu se na to zeptat mého nano-mozku... 🧠', [], 400);
+        
+        try {
+            const { supabase } = await import('./supabase-config.js');
+            const session = await supabase.auth.getSession();
+            
+            // Format history for OpenAI
+            const history = chatHistory.slice(-5).map(h => ({
+                role: h.type === 'Asistent' ? 'assistant' : 'user',
+                content: h.text
+            }));
+
+            const response = await fetch('https://mgmtkdwvhgrzefmyucvr.supabase.co/functions/v1/nano-assistant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${supabase.supabaseKey}`
+                },
+                body: JSON.stringify({ messages: history })
+            });
+
+            const data = await response.json();
+            if (data.reply) {
+                botSay(data.reply);
+                
+                // If the bot extracted a LEAD, we could handle it here
+                if (data.reply.includes('[LEAD:')) {
+                    console.log('Nanobot extracted a lead!');
+                }
+            } else {
+                throw new Error('No reply');
+            }
+        } catch (e) {
+            console.error('AI Error:', e);
+            handleLeadFlow(original, text); // Fallback to lead flow
+        }
+    };
+
+    const handleLeadFlow = (original, text) => {
         switch (chatState) {
             case 'ASK_SERVICE':
                 userData.service = original;
@@ -301,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
 
             case 'ASK_CONTACT':
-                const phonePattern = /^(\+420)?\s?\d{3}\s?\d{3}\s?\d{3}$/;
                 const sanitizedPhone = original.replace(/\s/g, '');
                 if (sanitizedPhone.length < 9) {
                     botSay('Zadejte prosím platné telefonní číslo (např. 777 123 456). 📱');
@@ -321,20 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // --- Save to Supabase ---
                 import('./supabase-config.js').then(({ supabase }) => {
-                    // Save as a chat session
-                    supabase.from('chat_sessions').insert({
-                        user_identifier: original,
-                        messages: chatHistory,
-                        status: 'open',
-                        last_activity: new Date().toISOString()
-                    }).then(({ error }) => {
-                        if (error) console.error('Chat Save Error:', error);
-                    });
-
-                    // Also save as an inquiry
                     supabase.from('inquiries').insert({
                         name: 'Zákazník z Chatu',
-                        phone: original,
+                        phone: userData.contact,
                         address: userData.location,
                         service: userData.service,
                         message: `Poptávka z AI Chatu. Plocha: ${userData.area} m2.`,

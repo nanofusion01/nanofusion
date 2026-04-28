@@ -139,6 +139,7 @@ export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[
                 <option value="obecné">Obecné</option>
                 <option value="služby">Služby</option>
                 <option value="ceny">Ceny a platby</option>
+                <option value="předdefinované">Předdefinované (FAQ)</option>
                 <option value="technologie">Technologie</option>
                 <option value="kontakt">Kontakt a lokalita</option>
               </select>

@@ -21,35 +21,46 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // 2. FETCH LIVE PRICES FROM DB
-    const { data: prices } = await supabase
-      .from('configurator_prices')
-      .select('item_key, label, price, unit')
+    // 2. FETCH LIVE PRICES & KNOWLEDGE FROM DB
+    const [pricesRes, knowledgeRes] = await Promise.all([
+      supabase.from('configurator_prices').select('item_key, label, price, unit'),
+      supabase.from('bot_knowledge').select('title, content, category').eq('is_active', true)
+    ])
 
-    // Format prices for the prompt
+    const prices = pricesRes.data
+    const knowledge = knowledgeRes.data
+
+    // Format data for the prompt
     const priceList = prices?.map(p => `- ${p.label}: ${p.price} Kč/${p.unit || 'm2'}`).join('\n') || 
       'Ceny jsou k dispozici na vyžádání.';
+    
+    const knowledgeContext = knowledge?.map(k => `### ${k.title} (${k.category})\n${k.content}`).join('\n\n') || 
+      'Zatím nemáme doplňující informace.';
 
     const systemPrompt = `
-      Jsi Nano-asistent pro firmu NANOfusion s.r.o., specialista na hloubkové čištění a nano-ochranu povrchů.
+      Jsi Nano-asistent pro firmu NANOfusion s.r.o., špičkový odborník na hloubkové čištění a nano-ochranu povrchů (střechy, fasády, dlažby, fotovoltaika).
       
-      AKTUÁLNÍ CENÍK (synchronizováno z Admin Panelu):
+      ZNALOSTNÍ BÁZE (tréninková data):
+      ${knowledgeContext}
+      
+      AKTUÁLNÍ CENÍK:
       ${priceList}
       
-      DŮLEŽITÉ INFORMACE:
-      - Záruka na nano-ochranu: až 10 let.
-      - Termíny realizace: obvykle do 14 dnů.
-      - Zaměření a konzultace: ZDARMA.
-      - Sídlo: Blučina (jižní Morava), působíme po celé ČR.
+      DŮLEŽITÉ KONSTANTY:
+      - Záruka: až 10 let.
+      - Termíny: do 14 dnů.
+      - Zaměření/konzultace: ZDARMA po celé ČR.
+      - Sídlo: Blučina u Brna.
       
       TVŮJ CÍL:
-      1. Odpovídat na technické dotazy.
-      2. Pomoci s kalkulací (vždy počítej s plochou a cenou z ceníku výše).
+      1. Odpovídat na technické dotazy na základě znalostní báze. Pokud informaci nemáš, buď upřímný, ale nabídni konzultaci s technikem.
+      2. Pomoci s orientační kalkulací.
       3. ZÍSKAT KONTAKT (Jméno, Adresa, Plocha, Telefon).
       
-      PRAVIDLA:
-      - Buď profesionální, stručný a přátelský.
-      - Pokud získáš klíčové údaje, uveď je na konci v tagu: [LEAD: Jméno, Telefon, Adresa, Plocha].
+      PRAVIDLA KOMUNIKACE:
+      - Piš přátelsky, odborně a stručně.
+      - Používej odrážky pro přehlednost.
+      - Pokud získáš údaje pro poptávku, uveď je na konci zprávy v tagu: [LEAD: Jméno, Telefon, Adresa, Plocha].
     `;
 
     // 3. Call OpenAI
