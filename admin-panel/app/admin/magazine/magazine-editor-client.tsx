@@ -16,6 +16,9 @@ import {
 import { Tables } from '@/lib/database.types'
 import { saveArticle, deleteArticle } from './actions'
 import { TiptapEditor } from '@/components/admin/editor'
+import { createClient } from '@/lib/supabase/client'
+import { uploadFile } from '@/lib/storage'
+import { useRef } from 'react'
 
 type Article = Tables<'articles'>
 
@@ -26,6 +29,9 @@ interface Props {
 export function MagazineEditorClient({ article: initialArticle }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const supabase = createClient()
   const [article, setArticle] = useState<Partial<Article>>(
     initialArticle || {
       title: '',
@@ -79,6 +85,22 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
       .replace(/[^a-z0-9]/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '')
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const url = await uploadFile(supabase, file, 'articles', article.slug || 'temp')
+      setArticle({ ...article, hero_image_url: url })
+      toast.success('Obrázek nahrán')
+    } catch (err: any) {
+      toast.error('Chyba nahrávání: ' + err.message)
+    } finally {
+      setUploading(false)
+    }
   }
 
   const onTitleChange = (val: string) => {
@@ -184,21 +206,38 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
                   <img src={article.hero_image_url} className="w-full h-full object-cover" />
                 ) : (
                   <>
-                    <ImageIcon size={32} className="opacity-20 mb-2" />
-                    <span className="text-xs opacity-40">Klikněte pro vložení URL</span>
+                    {uploading ? <Loader2 className="animate-spin opacity-20" size={32} /> : <ImageIcon size={32} className="opacity-20 mb-2" />}
+                    <span className="text-xs opacity-40">{uploading ? 'Nahrávám...' : 'Nahrát z počítače'}</span>
                   </>
                 )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                    <button 
-                    onClick={() => {
-                      const url = prompt('URL obrázku:')
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      fileInputRef.current?.click()
+                    }}
+                    className="bg-white px-4 py-2 rounded-lg text-xs font-bold shadow-xl hover:bg-slate-50"
+                   >
+                    Nahrát z PC
+                   </button>
+                   <button 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const url = prompt('Nebo vložte URL:')
                       if(url) setArticle({...article, hero_image_url: url})
                     }}
-                    className="bg-white px-4 py-2 rounded-lg text-xs font-bold shadow-xl"
+                    className="text-white text-[10px] font-bold underline opacity-80"
                    >
-                    Změnit URL
+                    Zadat URL
                    </button>
                 </div>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileUpload} 
+                  className="hidden" 
+                  accept="image/*" 
+                />
               </div>
 
               <div className="space-y-1">

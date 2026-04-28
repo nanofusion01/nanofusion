@@ -166,6 +166,8 @@ const injectPortfolio = async () => {
                 description: r.description || '',
                 photos: (r.realization_photos || []).sort((a, b) => a.order_index - b.order_index),
             }));
+            // Trigger routing again after data is loaded
+            handleRouting();
         }
     } catch (e) {
         console.warn('Portfolio Sync: Cloud data nedostupná.');

@@ -95,10 +95,10 @@ const injectCalculator = async () => {
             <div style="background: #f8fafc; padding: 2rem; border-radius: 1.5rem; margin: 2rem 0;">
               <p class="calc-label" style="margin-bottom: 1rem; text-align: center;">Uveďte kontakt pro zaslání kalkulace</p>
               <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <input class="calc-input" id="calc-name" placeholder="Vaše jméno" style="width: 100%; border-radius: 0.75rem;" type="text">
-                <input class="calc-input" id="calc-email" placeholder="E-mail" style="width: 100%; border-radius: 0.75rem;" type="email">
-                <input class="calc-input" id="calc-phone" placeholder="Telefon" style="width: 100%; border-radius: 0.75rem;" type="tel">
-                <input class="calc-input" id="calc-address" placeholder="Adresa zaměření" style="width: 100%; border-radius: 0.75rem; display: none;" type="text">
+                <input class="calc-input" id="calc-name" name="name" placeholder="Vaše jméno" style="width: 100%; border-radius: 0.75rem;" type="text">
+                <input class="calc-input" id="calc-email" name="email" placeholder="E-mail" style="width: 100%; border-radius: 0.75rem;" type="email">
+                <input class="calc-input" id="calc-phone" name="phone" placeholder="Telefon" style="width: 100%; border-radius: 0.75rem;" type="tel">
+                <input class="calc-input" id="calc-address" name="address" placeholder="Adresa zaměření" style="width: 100%; border-radius: 0.75rem; display: none;" type="text">
               </div>
             </div>
 

@@ -170,6 +170,15 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
               ))}
             </select>
           </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+              Odpověď
+            </label>
+            <TiptapEditor 
+              content={newFaq.answer} 
+              onChange={(html) => setNewFaq({ ...newFaq, answer: html })} 
+            />
+          </div>
           <div className="flex gap-3">
             <button
               onClick={() => { setShowAdd(false); setNewFaq({ question: '', answer: '', page_section: 'global' }) }}

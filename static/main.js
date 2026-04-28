@@ -449,10 +449,12 @@ const observeAll = () => {
         a.href = '#';
         a.textContent = item.name;
         a.className = 'footer-service-link';
-        a.style.color = '#f59e0b';
-        a.style.fontWeight = '700';
+        a.style.color = '#94a3b8'; // Match contact style
+        a.style.fontWeight = '400'; // Unbold (odtučnit)
+        a.style.fontSize = '0.9rem'; // Standardize size
         a.style.transition = 'all 0.3s ease';
         a.style.display = 'block';
+        a.style.opacity = '0.8';
 
         a.onclick = (e) => {
           e.preventDefault();
@@ -465,8 +467,8 @@ const observeAll = () => {
           }
         };
 
-        a.onmouseenter = () => { a.style.transform = 'translateX(8px)'; a.style.opacity = '0.8'; };
-        a.onmouseleave = () => { a.style.transform = 'translateX(0)'; a.style.opacity = '1'; };
+        a.onmouseenter = () => { a.style.transform = 'translateX(8px)'; a.style.opacity = '1'; a.style.color = '#f59e0b'; };
+        a.onmouseleave = () => { a.style.transform = 'translateX(0)'; a.style.opacity = '0.8'; a.style.color = '#94a3b8'; };
 
         li.appendChild(a);
         servicesUl.appendChild(li);
@@ -511,6 +513,16 @@ const observeAll = () => {
       revealObserver.observe(mapContainer);
     }
   }
+
+  // Uniform Footer Styling (Simple fix for tagline and contact)
+  document.querySelectorAll('footer p, footer span, footer div').forEach(el => {
+    if (el.textContent.includes('Profesionální čištění') || el.textContent.includes('Již 14 let')) {
+      el.style.fontWeight = '400';
+      el.style.color = '#94a3b8';
+      el.style.fontSize = '0.9rem';
+      el.style.lineHeight = '1.6';
+    }
+  });
 };
 
 // Global reveal registration
