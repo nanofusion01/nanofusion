@@ -18,7 +18,6 @@ export default async function ConfiguratorPage() {
       .limit(50),
     (supabase.from('inquiries') as any)
       .select('*')
-      .eq('source', 'calculator')
       .order('created_at', { ascending: false }),
   ])
 
