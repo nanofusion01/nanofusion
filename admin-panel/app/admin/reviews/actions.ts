@@ -224,3 +224,41 @@ export async function syncGoogleReviews() {
   revalidatePath('/admin/reviews')
   return { imported, total: googleReviews.length, rating: data.result?.rating }
 }
+
+export async function bulkAddReviews(rawText: string) {
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client nedostupný')
+
+  // Pokročilý parser pro copy-pasted text
+  const reviewBlocks = rawText.split(/\n\s*\n/)
+  let imported = 0
+  
+  for (const block of reviewBlocks) {
+    const blockLines = block.split('\n').map(l => l.trim()).filter(Boolean)
+    if (blockLines.length < 2) continue
+
+    const author = blockLines[0]
+    let rating = 5
+    let content = ''
+
+    const ratingMatch = block.match(/([1-5])\s*(?:hvězd|hv|stars|★)/i) || block.match(/^([1-5])$/m)
+    if (ratingMatch) rating = parseInt(ratingMatch[1])
+
+    content = blockLines.slice(1).filter(l => !l.match(/^[1-5]$/) && !l.match(/hvězd/i)).join(' ')
+
+    if (content.length > 5) {
+      const { error } = await (supabase.from('external_reviews') as any).insert({
+        source: 'manual_bulk',
+        author,
+        rating,
+        content,
+        approved: false,
+        published_at: new Date().toISOString(),
+      })
+      if (!error) imported++
+    }
+  }
+
+  revalidatePath('/admin/reviews')
+  return { imported }
+}

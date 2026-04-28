@@ -29,11 +29,28 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [newReview, setNewReview] = useState({ author: '', rating: 5, content: '' })
+  const [showBulkModal, setShowBulkModal] = useState(false)
+  const [bulkText, setBulkText] = useState('')
   const [loading, setLoading] = useState<string | null>(null)
 
   const pending = initialReviews.filter((r) => !r.approved)
   const approved = initialReviews.filter((r) => r.approved)
   const displayed = tab === 'pending' ? pending : approved
+
+  const handleBulkImport = async () => {
+    if (!bulkText) return
+    setLoading('bulk')
+    try {
+      const res = await (await import('./actions')).bulkAddReviews(bulkText)
+      toast.success(`Importováno ${res.imported} recenzí`)
+      setShowBulkModal(false)
+      setBulkText('')
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setLoading(null)
+    }
+  }
 
   const handleApprove = async (id: string) => {
     setLoading(id)
@@ -123,6 +140,12 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
           >
             <Star size={15} />
             {loading === 'sync' ? 'Synchronizuji...' : 'Synchronizovat Firmy.cz'}
+          </button>
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all"
+          >
+            Hromadný import
           </button>
           <button
             onClick={() => setShowAddModal(true)}
@@ -242,6 +265,52 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Bulk Import Modal */}
+      {showBulkModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4 z-50"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="w-full max-w-2xl rounded-2xl overflow-hidden"
+            style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
+          >
+            <div className="px-6 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
+              <h2 className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>Hromadný import recenzí</h2>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                Zkopírujte text recenzí z Firmy.cz (včetně jmen) a vložte je sem. Oddělte recenze prázdným řádkem.
+              </p>
+            </div>
+            <div className="p-6 space-y-4">
+              <textarea
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+                placeholder="Jan Novák&#10;5 hvězd&#10;Skvělá práce, doporučuji!&#10;&#10;Petr Svoboda&#10;4 hvězdy&#10;Dobrá komunikace."
+                className="w-full h-64 px-4 py-3 rounded-xl text-sm outline-none font-mono"
+                style={{ border: '1px solid var(--border)', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }}
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowBulkModal(false)}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+                  style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                >
+                  Zrušit
+                </button>
+                <button
+                  onClick={handleBulkImport}
+                  disabled={loading === 'bulk'}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
+                  style={{ background: 'var(--brand-primary)' }}
+                >
+                  {loading === 'bulk' ? 'Importuji...' : 'Importovat vše'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
