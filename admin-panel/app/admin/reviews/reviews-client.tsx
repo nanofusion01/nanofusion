@@ -105,7 +105,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             {initialReviews.length} celkem
           </p>
         </div>
-        <div class="flex gap-2">
+        <div className="flex gap-2">
           <button
             onClick={async () => {
               setLoading('sync')
