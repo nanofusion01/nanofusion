@@ -210,7 +210,29 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.innerHTML = text;
         msgContainer.appendChild(msgDiv);
         
-        chatHistory.push({ type: type === 'bot' ? 'Asistent' : 'Zákazník', text: text, time: new Date().toLocaleTimeString('cs-CZ') });
+        chatHistory.push({ 
+            type: type === 'bot' ? 'Asistent' : 'Zákazník', 
+            text: text, 
+            time: new Date().toLocaleTimeString('cs-CZ'),
+            role: type === 'bot' ? 'assistant' : 'user'
+        });
+
+        // --- REAL-TIME SYNC TO ADMIN ---
+        if (!chatConfig.sessionId) {
+            chatConfig.sessionId = 'chat_' + Math.random().toString(36).substring(2, 11);
+        }
+
+        import('./supabase-config.js').then(({ supabase }) => {
+            supabase.from('chat_sessions').upsert({
+                session_token: chatConfig.sessionId,
+                user_identifier: userData.contact || userData.location || 'Návštěvník',
+                messages: chatHistory,
+                status: 'open',
+                last_activity: new Date().toISOString()
+            }, { onConflict: 'session_token' }).then(({ error }) => {
+                if (error) console.error('Nanobot Sync Error:', error);
+            });
+        });
 
         if (quickReplies.length > 0) {
             const repliesDiv = document.createElement('div');
@@ -392,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     '🔗 Ostatní Služby'
                 ]);
                 
-                // --- Save to Supabase ---
+                // Final sync for inquiry
                 import('./supabase-config.js').then(({ supabase }) => {
                     supabase.from('inquiries').insert({
                         name: 'Zákazník z Chatu',
@@ -405,6 +427,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }).then(({ error }) => {
                         if (error) console.error('Inquiry Save Error:', error);
                     });
+
+                    // Mark session as lead generated
+                    supabase.from('chat_sessions').update({
+                        user_identifier: userData.contact,
+                        status: 'closed' // Optional: close it or keep open
+                    }).eq('session_token', chatConfig.sessionId);
                 });
                 break;
 

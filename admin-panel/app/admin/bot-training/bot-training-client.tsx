@@ -109,11 +109,18 @@ export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[
 
       {/* Editor Card */}
       <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
-            <Lightbulb size={20} />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
+              <Lightbulb size={20} />
+            </div>
+            <h2 className="text-xl font-bold">{isEditing ? 'Upravit znalost' : 'Nová znalost pro Nanobota'}</h2>
           </div>
-          <h2 className="text-xl font-bold">{isEditing ? 'Upravit znalost' : 'Nová znalost pro Nanobota'}</h2>
+          {isEditing && (
+            <span className="px-3 py-1 rounded-full bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider animate-pulse">
+              Režim úprav
+            </span>
+          )}
         </div>
 
         <form onSubmit={handleSave} className="space-y-6">
@@ -147,11 +154,37 @@ export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[
           </div>
 
           <div className="space-y-4">
-            <label className="text-sm font-bold text-slate-700">Obsah (Fakta pro AI)</label>
-            <TiptapEditor 
-              content={formData.content} 
-              onChange={(html) => setFormData({ ...formData, content: html })} 
-            />
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-bold text-slate-700">
+                {formData.category === 'předdefinované' ? 'Odpověď (pouze text)' : 'Obsah (Fakta pro AI)'}
+              </label>
+              {formData.category === 'předdefinované' && (
+                <span className="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-lg">
+                  REŽIM ČISTÉHO TEXTU
+                </span>
+              )}
+            </div>
+            
+            {formData.category === 'předdefinované' ? (
+              <textarea
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                placeholder="Napište odpověď, kterou má bot poslat..."
+                className="w-full h-48 px-5 py-4 rounded-2xl border border-slate-200 focus:border-amber-500 outline-none transition-all font-medium"
+                style={{ background: 'var(--bg-surface-2)' }}
+              />
+            ) : (
+              <TiptapEditor 
+                content={formData.content} 
+                onChange={(html) => setFormData({ ...formData, content: html })} 
+              />
+            )}
+            
+            {formData.category === 'předdefinované' && (
+              <p className="text-[11px] text-slate-400 italic">
+                * Pro tuto kategorii nepoužívejte formátování, bot pošle přesně to, co napíšete.
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-3 pt-2">
