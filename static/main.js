@@ -83,26 +83,34 @@ const observeAll = () => {
       }
     });
 
-    if (!document.querySelector('a[href="#kalkulacka"]')) {
-      const configLink = referenceLink.cloneNode(true);
-      configLink.textContent = 'Konfigurátor';
-      configLink.href = '#kalkulacka';
-      referenceLink.parentNode.insertBefore(configLink, referenceLink);
-    }
+    // Find all navigation containers (desktop and mobile)
+    const navContainers = Array.from(new Set(navLinks.map(a => a.parentNode).filter(p => p)));
+    
+    navContainers.forEach(container => {
+      const refInContainer = Array.from(container.querySelectorAll('a')).find(a => a.textContent.trim() === 'Reference');
+      if (refInContainer) {
+        if (!container.querySelector('a[href="#kalkulacka"]')) {
+          const configLink = refInContainer.cloneNode(true);
+          configLink.textContent = 'Konfigurátor';
+          configLink.href = '#kalkulacka';
+          refInContainer.parentNode.insertBefore(configLink, refInContainer);
+        }
 
-    if (!document.querySelector('a[href="#galerie"]')) {
-      const galleryLink = referenceLink.cloneNode(true);
-      galleryLink.textContent = 'Galerie';
-      galleryLink.href = '#galerie';
-      referenceLink.parentNode.insertBefore(galleryLink, referenceLink.nextSibling);
-    }
+        if (!container.querySelector('a[href="#galerie"]')) {
+          const galleryLink = refInContainer.cloneNode(true);
+          galleryLink.textContent = 'Galerie';
+          galleryLink.href = '#galerie';
+          refInContainer.parentNode.insertBefore(galleryLink, refInContainer.nextSibling);
+        }
 
-    if (!document.querySelector('a[href="#blog"]')) {
-      const blogLink = referenceLink.cloneNode(true);
-      blogLink.textContent = 'Blog';
-      blogLink.href = '#blog';
-      referenceLink.parentNode.insertBefore(blogLink, referenceLink.nextSibling);
-    }
+        if (!container.querySelector('a[href="#blog"]')) {
+          const blogLink = refInContainer.cloneNode(true);
+          blogLink.textContent = 'Blog';
+          blogLink.href = '#blog';
+          refInContainer.parentNode.insertBefore(blogLink, refInContainer.nextSibling);
+        }
+      }
+    });
 
     // Set active state for links
     const currentPath = window.location.pathname;
