@@ -490,18 +490,18 @@ const openServiceModal = (data) => {
     document.getElementById('m-form').style.display = 'none';
     document.getElementById('m-result').style.display = 'block';
 
-    // --- Supabase Lead Saving ---
+    // --- Supabase Inquiry Saving ---
     import('./supabase-config.js').then(({ supabase }) => {
-      supabase.from('leads').insert({
+      supabase.from('inquiries').insert({
         name: name,
         phone: phone,
         service: data.title,
-        area: area,
+        message: `Plocha: ${area} m2, Odhad ceny: ${min} - ${max} Kč`,
         source: 'Modal / Kalkulačka',
-        total_price_est: `${min} - ${max} Kč`
+        status: 'new'
       }).then(({ error }) => {
         if (error) console.error('Cloud Save Error:', error);
-        else console.log('Service lead saved to STRV Cloud');
+        else console.log('Service inquiry saved to STRV Cloud');
       });
     });
   };
