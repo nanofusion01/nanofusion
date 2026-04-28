@@ -276,7 +276,7 @@ export function BotTrainingClient({ initialKnowledge }: { initialKnowledge: any[
                     <h4 className="font-bold text-slate-900 truncate">{k.title}</h4>
                   </div>
                   <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">
-                    {k.content}
+                    {k.content.replace(/<[^>]*>/g, '')}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
