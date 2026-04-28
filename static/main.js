@@ -16,7 +16,12 @@ const syncHeroText = async (heading) => {
     const { supabase } = await import('./supabase-config.js');
     const { data, error } = await supabase.from('site_config').select('value').eq('key', 'hero_title').single();
     if (!error && data) {
-      heading.innerHTML = data.value;
+      heading.style.transition = 'opacity 0.3s ease';
+      heading.style.opacity = '0';
+      setTimeout(() => {
+        heading.innerHTML = data.value;
+        heading.style.opacity = '1';
+      }, 300);
       console.log('NANOfusion: Hero text synchronizován');
     } else {
       heading.innerHTML = 'Špičková péče o to,<br><span style="color: #f59e0b;">co jste usilovně vybudovali</span>';

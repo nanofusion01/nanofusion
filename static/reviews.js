@@ -99,6 +99,8 @@ const injectReviews = () => {
             }
         </style>
     `;
+    reviewsSection.style.opacity = '0';
+    reviewsSection.style.transition = 'opacity 0.6s ease-out';
     reviewsSection.dataset.injected = 'true';
     return true;
 };
@@ -124,6 +126,7 @@ const hydrateReviews = async () => {
             if (target) {
                 target.dataset.injected = 'false';
                 injectReviews();
+                setTimeout(() => { target.style.opacity = '1'; }, 100);
             }
         }
     } catch (e) {

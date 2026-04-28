@@ -4,6 +4,11 @@ const injectFaqs = async () => {
     let faqSection = document.getElementById('faq');
     if (!faqSection || faqSection.dataset.injected === 'true') return;
 
+    // Clear section immediately to prevent "flickering" of old hardcoded content
+    faqSection.innerHTML = '<div style="opacity: 0; height: 300px;"></div>';
+    faqSection.style.transition = 'opacity 0.5s ease-in-out';
+    faqSection.style.opacity = '0';
+
     const hydrateFaqs = async () => {
         try {
             const { supabase } = await import('./supabase-config.js');
@@ -15,6 +20,7 @@ const injectFaqs = async () => {
             if (!error && data && data.length > 0) {
                 console.log('NANOfusion: FAQs synchronized from Cloud');
                 render(data);
+                setTimeout(() => { faqSection.style.opacity = '1'; }, 50);
             }
         } catch (e) {
             console.error('FAQ Sync Error:', e);

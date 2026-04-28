@@ -176,6 +176,10 @@ const injectPortfolio = async () => {
     }
 
     const render = () => {
+        // Set opacity to 0 initially to prevent flickering
+        portfolioSection.style.opacity = '0';
+        portfolioSection.style.transition = 'opacity 0.6s ease-out';
+
         const generateCards = (list) => list.map(p => {
             const img = p.photos?.[0]?.url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800';
             return `
@@ -402,6 +406,9 @@ const injectPortfolio = async () => {
         
         // Initial route check
         handleRouting();
+
+        // Final fade-in
+        setTimeout(() => { portfolioSection.style.opacity = '1'; }, 100);
     };
 
     render();
