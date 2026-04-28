@@ -122,6 +122,38 @@ export async function syncFirmyReviews() {
     } catch (_) {}
   }
 
+  // 2b. Fallback: HTML scraping (ReviewItem classes) - captures more than JSON-LD
+  if (reviews.length === 0) {
+    const authorPattern = /class="reviewItem__authorName[^"]*"[^>]*>([^<]+)</gi
+    const textPattern = /class="reviewItem__text[^"]*"[^>]*>([\s\S]*?)<\/p>/gi
+    const datePattern = /class="reviewItem__date[^"]*"[^>]*>([^<]+)</gi
+
+    const authors: string[] = []
+    const texts: string[] = []
+    const dates: string[] = []
+
+    let m: RegExpExecArray | null
+    while ((m = authorPattern.exec(html)) !== null) authors.push(m[1].trim())
+    while ((m = textPattern.exec(html)) !== null) texts.push(m[1].replace(/<[^>]+>/g, '').trim())
+    while ((m = datePattern.exec(html)) !== null) dates.push(m[1].trim())
+
+    for (let i = 0; i < Math.min(authors.length, texts.length); i++) {
+      if (texts[i].length < 5) continue
+      const extId = `firmy_html_${Buffer.from(authors[i] + texts[i].substring(0, 20)).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+      
+      // Prevent duplicates in same run
+      if (!reviews.find(r => r.external_id === extId)) {
+        reviews.push({
+          external_id: extId,
+          author: authors[i] || 'Anonymní',
+          rating: 5,
+          content: texts[i],
+          published_at: dates[i] || null
+        })
+      }
+    }
+  }
+
   // 3. Upsert do external_reviews
   let imported = 0
   for (const rev of reviews) {
