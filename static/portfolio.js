@@ -398,12 +398,43 @@ const injectPortfolio = async () => {
         
         // Initial route check
         handleRouting();
-    };
-
     render();
     window.addEventListener('hashchange', handleRouting);
 };
 
+// --- Initialization Logic ---
+const initPortfolio = () => {
+    if (document.getElementById('realizace')) return;
+    
+    const referenceSection = document.getElementById('reference');
+    const processSection = document.getElementById('proces');
+    
+    if (referenceSection?.parentNode || processSection?.parentNode) {
+        injectPortfolio();
+        return true;
+    }
+    return false;
+};
+
+const runInit = () => {
+    if (initPortfolio()) return;
+
+    const observer = new MutationObserver(() => {
+        if (initPortfolio()) {
+            observer.disconnect();
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Fallback if sections never appear (inject at bottom)
+    setTimeout(() => {
+        if (!document.getElementById('realizace')) {
+            observer.disconnect();
+            injectPortfolio();
+        }
+    }, 5000);
+};
+
 // Start
-injectPortfolio();
-window.addEventListener('load', () => setTimeout(injectPortfolio, 1000));
+runInit();
