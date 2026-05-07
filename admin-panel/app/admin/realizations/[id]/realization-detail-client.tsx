@@ -13,10 +13,13 @@ import { TiptapEditor } from '@/components/admin/editor'
 type Realization = {
   id: string
   title: string
+  subtitle: string | null
   description: string | null
   location: string | null
   duration: string | null
   work_type: string | null
+  category: string | null
+  youtube_id: string | null
   is_published: boolean
 }
 
@@ -51,10 +54,13 @@ export function RealizationDetailClient({
     try {
       await updateRealization(r.id, {
         title: r.title,
+        subtitle: r.subtitle ?? undefined,
         description: r.description ?? undefined,
         location: r.location ?? undefined,
         duration: r.duration ?? undefined,
         work_type: r.work_type ?? undefined,
+        category: r.category ?? undefined,
+        youtube_id: r.youtube_id ?? undefined,
       })
       toast.success('Realizace uložena')
     } catch (err: any) {
@@ -189,6 +195,18 @@ export function RealizationDetailClient({
               />
             </div>
 
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Podnadpis (Subtitle)</label>
+              <input
+                type="text"
+                value={r.subtitle || ''}
+                onChange={e => setR({ ...r, subtitle: e.target.value })}
+                placeholder="Krátký výstižný podnadpis"
+                className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
+                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
@@ -218,19 +236,34 @@ export function RealizationDetailClient({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                <Wrench size={12} /> Typ práce
-              </label>
-              <select
-                value={r.work_type || ''}
-                onChange={e => setR({ ...r, work_type: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
-                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-              >
-                <option value="">-- Vyberte typ --</option>
-                {WORK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                  <Wrench size={12} /> Typ práce
+                </label>
+                <select
+                  value={r.work_type || ''}
+                  onChange={e => setR({ ...r, work_type: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
+                  style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                >
+                  <option value="">-- Vyberte typ --</option>
+                  {WORK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                  YouTube Video ID
+                </label>
+                <input
+                  type="text"
+                  value={r.youtube_id || ''}
+                  onChange={e => setR({ ...r, youtube_id: e.target.value })}
+                  placeholder="např. dQw4w9WgXcQ"
+                  className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
+                  style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                />
+              </div>
             </div>
 
             <div className="space-y-4">

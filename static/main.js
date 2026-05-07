@@ -233,80 +233,125 @@ const finalizeServices = (heading) => {
   }
 };
 
-const galleryShowcaseData = [
-  {
-    id: 1,
-    title: 'Kompletní renovace střechy Praha - RD',
-    category: 'ČIŠTĚNÍ STŘECH',
-    description: 'Důkladná hloubková očista střešní krytiny rodinného domu v Praze. Odstranění organických nánosů (mechy, řasy) a následná aplikace hydrofobní nano-impregnace, která zajišťuje samočistící schopnost a prodlužuje životnost materiálu o desítky let.',
-    image: 'https://images.unsplash.com/photo-1635339001328-8007ebfd4a60?auto=format&fit=crop&q=80&w=1200',
-    hasVideo: true
-  },
-  {
-    id: 2,
-    title: 'Nátěr a ošetření dlažby Poruba',
-    category: 'ČIŠTĚNÍ DLAŽEB',
-    description: 'Oživení zašlé zámkové dlažby pomocí speciálního nátěru a hloubkové nano-ochrany. Povrch nyní odpuzuje vodu i mastnotu, což usnadňuje běžnou údržbu a zabraňuje růstu travin ve spárách.',
-    image: 'https://images.unsplash.com/photo-1584622502840-771746be22f2?auto=format&fit=crop&q=80&w=1200',
-    hasVideo: false
-  },
-  {
-    id: 3,
-    title: 'Čištění fasády bytového domu Brno',
-    category: 'RENOVACE FASÁD',
-    description: 'Sanace fasády bytového komplexu v Brně s důrazem na likvidaci plísní. Realizace zahrnovala chemické čištění pod nízkým tlakem a nanesení prémiového nátěru s fotokatalytickým efektem proti smogu.',
-    image: 'https://images.unsplash.com/photo-1590480500072-5561504930bc?auto=format&fit=crop&q=80&w=1200',
-    hasVideo: true
-  },
-  {
-    id: 4,
-    title: 'Údržba solárních panelů Ostrava',
-    category: 'SERVIS FVE',
-    description: 'Zlepšení energetické výtěžnosti fotovoltaické elektrárny o 15 % díky šetrnému odstranění prachu a pylů demineralizovanou vodou. Na povrch byla následně nanesena ultra-tenká vrstva nano-sklenné ochrany.',
-    image: 'https://images.unsplash.com/photo-1509391366360-fe5bb65830bb?auto=format&fit=crop&q=80&w=1200',
-    hasVideo: false
+let galleryItems = [];
+
+const syncGalleryData = async () => {
+  try {
+    const { supabase } = await import('./supabase-config.js');
+    const { data, error } = await supabase
+      .from('realizations')
+      .select('*, realization_photos(*)')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      galleryItems = data;
+      renderGalleryContent();
+    }
+  } catch (e) {
+    console.warn('NANOfusion: Gallery sync failed', e);
   }
-];
+};
+
+const renderGalleryContent = () => {
+  const scroller = document.getElementById('gallery-scroller-inner');
+  if (!scroller) return;
+
+  if (galleryItems.length === 0) {
+    scroller.innerHTML = '<p style="color: #94a3b8; padding: 2rem;">Zatím zde nejsou žádné realizace.</p>';
+    return;
+  }
+
+  scroller.innerHTML = galleryItems.map(item => {
+    const mainImg = item.realization_photos?.[0]?.url || item.image_url || 'https://images.unsplash.com/photo-1635339001328-8007ebfd4a60?w=800';
+    return `
+      <div class="gallery-item-v" onclick="window.nnf_openGallery('${item.id}')" style="flex: 0 0 450px; background: #0f172a; border-radius: 2rem; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease; border: 1px solid rgba(255,255,255,0.05);">
+          <div style="height: 250px; position: relative;">
+              <img src="${mainImg}" style="width: 100%; height: 100%; object-fit: cover;">
+              ${item.youtube_id ? `<div style="position: absolute; inset: 0; background: rgba(15, 23, 42, 0.4); display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 60px; height: 60px; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  </div>
+              </div>` : ''}
+          </div>
+          <div style="padding: 2rem;">
+              <div style="color: #f59e0b; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 0.5rem; text-transform: uppercase;">${item.work_type || 'Realizace'}</div>
+              <h3 style="color: white; font-weight: 800; font-size: 1.25rem; margin-bottom: 1rem;">${item.title}</h3>
+              <div style="color: #94a3b8; font-size: 0.875rem; line-height: 1.6;">${(item.description || '').substring(0, 100).replace(/<[^>]*>?/gm, '')}...</div>
+          </div>
+      </div>
+    `;
+  }).join('');
+};
 
 window.nnf_openGallery = (id) => {
-  const item = galleryShowcaseData.find(g => g.id === id);
+  const item = galleryItems.find(g => String(g.id) === String(id));
   if (!item) return;
 
   let overlay = document.getElementById('gallery-modal-overlay');
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'gallery-modal-overlay';
-    overlay.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,0.9); backdrop-filter:blur(10px); z-index:999999; display:none; align-items:center; justify-content:center; padding:20px;';
+    overlay.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,0.95); backdrop-filter:blur(15px); z-index:999999; display:none; align-items:center; justify-content:center; padding:20px;';
     document.body.appendChild(overlay);
   }
 
+  const photos = item.realization_photos || [];
+  const mainImg = photos[0]?.url || item.image_url || 'https://images.unsplash.com/photo-1635339001328-8007ebfd4a60?w=1200';
+
   overlay.innerHTML = `
-    <div style="background:white; width:100%; max-width:900px; max-height:90vh; border-radius:32px; overflow:hidden; display:flex; flex-direction:column; position:relative; box-shadow:0 30px 60px rgba(0,0,0,0.5);">
-      <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.9); border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:24px; z-index:100; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.1);">&times;</button>
+    <div style="background:white; width:100%; max-width:1000px; max-height:95vh; border-radius:32px; overflow:hidden; display:flex; flex-direction:column; position:relative; box-shadow:0 30px 100px rgba(0,0,0,0.5);">
+      <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.9); border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:24px; z-index:100; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.1);">&times;</button>
       
-      <div style="flex: 1; overflow-y:auto;">
-        <div style="height:400px; position:relative;">
-          <img src="${item.image}" style="width:100%; height:100%; object-fit:cover;">
-          ${item.hasVideo ? `<div style="position:absolute; inset:0; background:rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;">
-              <div style="width:80px; height:80px; background:#f59e0b; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              </div>
-          </div>` : ''}
+      <div style="flex: 1; overflow-y:auto; padding-bottom: 40px;">
+        <!-- Visual Header (Video or Image) -->
+        <div style="background: #000;">
+          ${item.youtube_id 
+            ? `<div style="aspect-ratio: 16/9; width: 100%;">
+                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${item.youtube_id}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+               </div>`
+            : `<div style="height:500px; position:relative;">
+                <img id="modal-main-view" src="${mainImg}" style="width:100%; height:100%; object-fit:cover;">
+               </div>`
+          }
         </div>
         
         <div style="padding:40px; background:white;">
-          <div style="color:#f59e0b; font-weight:800; text-transform:uppercase; font-size:14px; margin-bottom:12px; letter-spacing:0.15em;">Realizace • ${item.category}</div>
-          <h2 style="font-size:36px; font-weight:900; color:#0f172a; line-height:1.1; margin-bottom:24px; letter-spacing:-0.03em;">${item.title}</h2>
-          <p style="font-size:18px; line-height:1.8; color:#475569; margin-bottom:30px; font-weight:500;">${item.description}</p>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+              <div style="color:#f59e0b; font-weight:800; text-transform:uppercase; font-size:13px; margin-bottom:12px; letter-spacing:0.15em;">Realizace • ${item.work_type || 'NANO-OCHRANA'}</div>
+              <h2 style="font-size:32px; font-weight:900; color:#0f172a; line-height:1.1; margin-bottom:16px; letter-spacing:-0.03em;">${item.title}</h2>
+              <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                ${item.location ? `<span style="background:#f1f5f9; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#64748b;">📍 ${item.location}</span>` : ''}
+                ${item.duration ? `<span style="background:#f1f5f9; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#64748b;">⏱ ${item.duration}</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:17px; line-height:1.7; color:#334155; margin-bottom:30px;">${item.description || ''}</div>
           
-          <div style="background:#f8fafc; padding:24px; border-radius:24px; border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; gap:20px;">
+          <!-- Thumbnail Gallery -->
+          ${photos.length > 1 ? `
+            <div style="margin-bottom: 40px;">
+              <h4 style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:16px; letter-spacing:0.1em;">Fotogalerie projektu</h4>
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:12px;">
+                ${photos.map(p => `
+                  <div onclick="const main = document.getElementById('modal-main-view'); if(main) main.src='${p.url}'; window.scrollTo({top:0, behavior:'smooth'})" style="aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:all 0.2s;" onmouseenter="this.style.borderColor='#f59e0b'" onmouseleave="this.style.borderColor='transparent'">
+                    <img src="${p.url}" style="width:100%; height:100%; object-fit:cover;">
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <div style="background:#0f172a; padding:32px; border-radius:24px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap: wrap;">
             <div>
-              <div style="font-weight:800; color:#0f172a; font-size:18px;">Zaujal vás tento výsledek?</div>
-              <div style="color:#64748b; font-size:14px;">Zeptejte se Nanobota na cenu či detaily.</div>
+              <div style="font-weight:800; color:white; font-size:20px;">Líbí se vám tento výsledek?</div>
+              <div style="color:#94a3b8; font-size:14px;">Napište nám a získejte cenovou nabídku zdarma.</div>
             </div>
             <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'; setTimeout(() => document.getElementById('ai-chat-launcher').click(), 200)" 
               style="background:#f59e0b; color:white; border:none; padding:16px 32px; border-radius:16px; font-weight:800; cursor:pointer; transition:all 0.3s ease; white-space:nowrap; box-shadow:0 10px 20px rgba(245, 158, 11, 0.2);">
-              CHCI TAKÉ TAKOVÉ VÝSLEDKY
+              CHCI TAKÉ TAKOVOU PÉČI
             </button>
           </div>
         </div>
@@ -343,28 +388,14 @@ const injectGallery = () => {
           </button>
         </div>
 
-        <div id="gallery-scroller-inner" style="display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; -ms-overflow-style: none; scrollbar-width: none;">
+        <div id="gallery-scroller-inner" style="display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 1rem 0 3rem; -ms-overflow-style: none; scrollbar-width: none; min-height: 400px;">
           <style>#gallery-scroller-inner::-webkit-scrollbar { display: none; }</style>
-          ${galleryShowcaseData.map(item => `
-            <div class="gallery-item-v" onclick="window.nnf_openGallery(${item.id})" style="flex: 0 0 450px; background: #0f172a; border-radius: 2rem; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;">
-                <div style="height: 250px; position: relative;">
-                    <img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover;">
-                    ${item.hasVideo ? `<div style="position: absolute; inset: 0; background: rgba(15, 23, 42, 0.4); display: flex; align-items: center; justify-content: center;">
-                        <div style="width: 60px; height: 60px; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                    </div>` : ''}
-                </div>
-                <div style="padding: 2rem;">
-                    <div style="color: #f59e0b; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 0.5rem;">${item.category}</div>
-                    <h3 style="color: white; font-weight: 800; font-size: 1.25rem; margin-bottom: 1rem;">${item.title}</h3>
-                    <div style="color: #94a3b8; font-size: 0.875rem; line-height: 1.6;">${item.description.substring(0, 80)}...</div>
-                </div>
-            </div>
-          `).join('')}
+          <!-- Načítání dat... -->
         </div>
       </div>
     `;
+    
+    syncGalleryData();
 
     const scroller = document.getElementById('gallery-scroller-inner');
     const nextBtn = document.getElementById('gallery-next');

@@ -27,10 +27,13 @@ import {
 export type Realization = {
   id: string
   title: string
+  subtitle?: string | null
   description: string | null
   location: string | null
   duration: string | null
   work_type: string | null
+  category?: string | null
+  youtube_id?: string | null
   is_published: boolean
   created_at: string
   updated_at: string
@@ -65,10 +68,13 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
   const [uploading, setUploading] = useState(false)
   const [form, setForm] = useState({
     title: '',
+    subtitle: '',
     description: '',
     location: '',
     duration: '',
     work_type: '',
+    category: '',
+    youtube_id: '',
   })
 
   const filtered = useMemo(() => {
@@ -84,7 +90,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
   }, [realizations, search, workTypeFilter])
 
   const openCreate = () => {
-    setForm({ title: '', description: '', location: '', duration: '', work_type: '' })
+    setForm({ title: '', subtitle: '', description: '', location: '', duration: '', work_type: '', category: '', youtube_id: '' })
     setEditingId(null)
     setModal('create')
   }
@@ -92,10 +98,13 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
   const openEdit = (r: Realization) => {
     setForm({
       title: r.title,
+      subtitle: r.subtitle || '',
       description: r.description || '',
       location: r.location || '',
       duration: r.duration || '',
       work_type: r.work_type || '',
+      category: r.category || '',
+      youtube_id: r.youtube_id || '',
     })
     setEditingId(r.id)
     setModal('edit')
@@ -315,8 +324,10 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
             <div className="p-6 space-y-4">
               {[
                 { key: 'title', label: 'Název *', placeholder: 'Název realizace' },
+                { key: 'subtitle', label: 'Podnadpis', placeholder: 'Stručný podnadpis' },
                 { key: 'location', label: 'Lokalita', placeholder: 'např. Praha, Brno' },
                 { key: 'duration', label: 'Délka projektu', placeholder: 'např. 2 dny' },
+                { key: 'youtube_id', label: 'YouTube ID', placeholder: 'ID videa (např. dQw4w9WgXcQ)' },
               ].map((field) => (
                 <div key={field.key}>
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>

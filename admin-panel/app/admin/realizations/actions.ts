@@ -7,10 +7,13 @@ import { Realization } from './realizations-client'
 
 export async function createRealization(data: {
   title: string
+  subtitle?: string
   description?: string
   location?: string
   duration?: string
   work_type?: string
+  category?: string
+  youtube_id?: string
 }) {
   const supabase = await createAdminClient()
   const { data: realization, error } = await (supabase.from('realizations') as any)
@@ -24,10 +27,13 @@ export async function createRealization(data: {
 
 export async function updateRealization(id: string, data: Partial<{
   title: string
+  subtitle: string
   description: string
   location: string
   duration: string
   work_type: string
+  category: string
+  youtube_id: string
   is_published: boolean
 }>) {
   const supabase = await createAdminClient()
