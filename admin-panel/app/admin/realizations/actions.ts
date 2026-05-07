@@ -60,6 +60,35 @@ export async function togglePublished(id: string, is_published: boolean) {
   revalidatePath('/admin/realizations')
 }
 
+export async function uploadMultipleRealizationPhotos(
+  realizationId: string,
+  formData: FormData
+) {
+  const supabase = await createAdminClient()
+  const files = formData.getAll('files') as File[]
+  if (!files || files.length === 0) throw new Error('No files provided')
+
+  const results = []
+  for (const file of files) {
+    try {
+      const publicUrl = await uploadFile(supabase, file, 'realizations', realizationId)
+      const { data: insertData, error: dbError } = await (supabase.from('realization_photos') as any).insert({
+        realization_id: realizationId,
+        url: publicUrl,
+        order_index: Math.floor(Date.now() / 1000) + results.length,
+      }).select().single()
+
+      if (dbError) throw dbError
+      results.push(insertData)
+    } catch (err) {
+      console.error(`Batch upload failed for one file:`, err)
+    }
+  }
+
+  revalidatePath('/admin/realizations')
+  return results
+}
+
 export async function uploadRealizationPhoto(
   realizationId: string,
   file: FormData

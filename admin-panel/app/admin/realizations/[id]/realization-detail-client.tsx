@@ -7,7 +7,14 @@ import {
   ArrowLeft, Save, Upload, Trash2, Eye, EyeOff,
   MapPin, Clock, Wrench, Loader2, ImageIcon, Plus
 } from 'lucide-react'
-import { updateRealization, togglePublished, uploadRealizationPhoto, deleteRealizationPhoto, updateRealizationPhotos } from '../actions'
+import { 
+  updateRealization, 
+  togglePublished, 
+  uploadRealizationPhoto, 
+  deleteRealizationPhoto, 
+  updateRealizationPhotos,
+  uploadMultipleRealizationPhotos 
+} from '../actions'
 import { TiptapEditor } from '@/components/admin/editor'
 
 type Realization = {
@@ -91,23 +98,29 @@ export function RealizationDetailClient({
 
   const handlePhotoUpload = async (files: FileList) => {
     setUploading(true)
+    const fileArray = Array.from(files)
+    
     try {
-      for (const file of Array.from(files)) {
-        const fd = new FormData()
-        fd.append('file', file)
-        const url = await uploadRealizationPhoto(r.id, fd)
-        // Note: For a production app, we'd want the real ID from the server here.
-        // For now, we'll suggest a page refresh or assume the next save will fix order.
-        setPhotos(prev => [...prev, {
-          id: 'new-' + Math.random().toString(36).substr(2, 9),
-          url,
-          caption: null,
-          order_index: prev.length,
-        }])
+      const fd = new FormData()
+      fileArray.forEach(f => fd.append('files', f))
+      
+      const newPhotosData = await uploadMultipleRealizationPhotos(r.id, fd)
+      
+      if (newPhotosData && newPhotosData.length > 0) {
+        const mappedPhotos = newPhotosData.map((p: any) => ({
+          id: p.id,
+          url: p.url,
+          caption: p.caption,
+          order_index: p.order_index
+        }))
+        setPhotos(prev => [...prev, ...mappedPhotos])
+        toast.success(`${mappedPhotos.length} fotek nahráno.`)
+      } else {
+        toast.error('Nebyly nahrány žádné fotky. Zkontrolujte velikost souborů (max 4MB na fotku).')
       }
-      toast.success(`${files.length > 1 ? files.length + ' fotek nahráno' : 'Fotka nahrána'}. Po uložení se projeví změny.`)
     } catch (err: any) {
-      toast.error('Chyba uploadu: ' + err.message)
+      console.error('Batch upload error:', err)
+      toast.error('Chyba hromadného nahrávání. Zkuste nahrávat fotky po menších skupinách.')
     } finally {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
