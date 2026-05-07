@@ -152,7 +152,10 @@ const observeAll = () => {
     });
     
     // Transform Social Links
-    const socialContainer = footer.querySelector('.social-links') || footer.querySelector('div.flex.gap-4');
+    const existingSocial = Array.from(footer.querySelectorAll('a')).find(a => 
+      a.href.includes('facebook.com') || a.href.includes('instagram.com') || a.href.includes('linkedin.com')
+    );
+    const socialContainer = existingSocial ? existingSocial.parentElement : null;
     
     // Inject TikTok if missing
     if (socialContainer && !socialContainer.querySelector('a[href*="tiktok"]')) {
