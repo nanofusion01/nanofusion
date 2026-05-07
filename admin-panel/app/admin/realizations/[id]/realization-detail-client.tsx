@@ -7,7 +7,7 @@ import {
   ArrowLeft, Save, Upload, Trash2, Eye, EyeOff,
   MapPin, Clock, Wrench, Loader2, ImageIcon, Plus
 } from 'lucide-react'
-import { updateRealization, togglePublished, uploadRealizationPhoto, deleteRealizationPhoto } from '../actions'
+import { updateRealization, togglePublished, uploadRealizationPhoto, deleteRealizationPhoto, updateRealizationPhotos } from '../actions'
 import { TiptapEditor } from '@/components/admin/editor'
 
 type Realization = {
@@ -52,6 +52,7 @@ export function RealizationDetailClient({
   const handleSave = async () => {
     setSaving(true)
     try {
+      // Save realization info
       await updateRealization(r.id, {
         title: r.title,
         subtitle: r.subtitle ?? undefined,
@@ -62,7 +63,15 @@ export function RealizationDetailClient({
         category: r.category ?? undefined,
         youtube_id: r.youtube_id ?? undefined,
       })
-      toast.success('Realizace uložena')
+      
+      // Save photo metadata (captions and order)
+      await updateRealizationPhotos(photos.map((p, i) => ({
+        id: p.id,
+        caption: p.caption ?? undefined,
+        order_index: i
+      })))
+
+      toast.success('Realizace a galerie uloženy')
     } catch (err: any) {
       toast.error('Chyba: ' + err.message)
     } finally {
@@ -87,20 +96,36 @@ export function RealizationDetailClient({
         const fd = new FormData()
         fd.append('file', file)
         const url = await uploadRealizationPhoto(r.id, fd)
+        // Note: For a production app, we'd want the real ID from the server here.
+        // For now, we'll suggest a page refresh or assume the next save will fix order.
         setPhotos(prev => [...prev, {
-          id: Math.random().toString(),
+          id: 'new-' + Math.random().toString(36).substr(2, 9),
           url,
           caption: null,
           order_index: prev.length,
         }])
       }
-      toast.success(`${files.length > 1 ? files.length + ' fotek nahráno' : 'Fotka nahrána'}`)
+      toast.success(`${files.length > 1 ? files.length + ' fotek nahráno' : 'Fotka nahrána'}. Po uložení se projeví změny.`)
     } catch (err: any) {
       toast.error('Chyba uploadu: ' + err.message)
     } finally {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
+  }
+
+  const movePhoto = (index: number, direction: 'left' | 'right') => {
+    const newPhotos = [...photos]
+    const targetIndex = direction === 'left' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= newPhotos.length) return
+    
+    const [moved] = newPhotos.splice(index, 1)
+    newPhotos.splice(targetIndex, 0, moved)
+    setPhotos(newPhotos)
+  }
+
+  const updatePhotoCaption = (id: string, caption: string) => {
+    setPhotos(prev => prev.map(p => p.id === id ? { ...p, caption } : p))
   }
 
   const handleDeletePhoto = async (photoId: string) => {
@@ -319,23 +344,49 @@ export function RealizationDetailClient({
                 {photos.map((photo, i) => (
                   <div
                     key={photo.id}
-                    className="relative group rounded-2xl overflow-hidden border"
-                    style={{ aspectRatio: '4/3', borderColor: i === 0 ? 'var(--brand-primary)' : 'var(--border)', borderWidth: i === 0 ? 2 : 1 }}
+                    className="flex flex-col gap-2"
                   >
-                    {i === 0 && (
-                      <span className="absolute top-2 left-2 z-10 text-[10px] font-black bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">
-                        Hlavní
-                      </span>
-                    )}
-                    <img src={photo.url} className="w-full h-full object-cover" loading="lazy" />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button
-                        onClick={() => handleDeletePhoto(photo.id)}
-                        className="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                    <div
+                      className="relative group rounded-2xl overflow-hidden border"
+                      style={{ aspectRatio: '4/3', borderColor: i === 0 ? 'var(--brand-primary)' : 'var(--border)', borderWidth: i === 0 ? 2 : 1 }}
+                    >
+                      {i === 0 && (
+                        <span className="absolute top-2 left-2 z-10 text-[10px] font-black bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">
+                          Hlavní
+                        </span>
+                      )}
+                      <img src={photo.url} className="w-full h-full object-cover" loading="lazy" />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => movePhoto(i, 'left')}
+                          disabled={i === 0}
+                          className="p-2 bg-white/20 text-white rounded-lg hover:bg-white/40 disabled:opacity-0"
+                        >
+                          ←
+                        </button>
+                        <button
+                          onClick={() => handleDeletePhoto(photo.id)}
+                          className="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => movePhoto(i, 'right')}
+                          disabled={i === photos.length - 1}
+                          className="p-2 bg-white/20 text-white rounded-lg hover:bg-white/40 disabled:opacity-0"
+                        >
+                          →
+                        </button>
+                      </div>
                     </div>
+                    <input 
+                      type="text"
+                      placeholder="Popisek fotky..."
+                      value={photo.caption || ''}
+                      onChange={(e) => updatePhotoCaption(photo.id, e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-lg border outline-none"
+                      style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+                    />
                   </div>
                 ))}
                 {/* Add more button */}

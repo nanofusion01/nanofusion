@@ -94,3 +94,21 @@ export async function deleteRealizationPhoto(photoId: string) {
   if (error) throw new Error(error.message)
   revalidatePath('/admin/realizations')
 }
+
+export async function updateRealizationPhotos(photos: { id: string, caption?: string, order_index: number }[]) {
+  const supabase = await createAdminClient()
+  
+  for (const photo of photos) {
+    const { error } = await (supabase.from('realization_photos') as any)
+      .update({ 
+        caption: photo.caption, 
+        order_index: photo.order_index,
+        updated_at: new Date().toISOString() 
+      })
+      .eq('id', photo.id)
+    
+    if (error) console.error(`Error updating photo ${photo.id}:`, error.message)
+  }
+  
+  revalidatePath('/admin/realizations')
+}
