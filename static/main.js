@@ -151,6 +151,75 @@ const observeAll = () => {
       }
     });
     
+    // Transform Social Links
+    footer.querySelectorAll('a').forEach(link => {
+      if (link.dataset.iconized) return;
+      if (link.href.includes('facebook') || link.href.includes('instagram') || link.href.includes('linkedin') || link.href.includes('youtube') || link.href.includes('tiktok')) {
+        link.style.display = 'inline-flex';
+        link.style.alignItems = 'center';
+        link.style.justifyContent = 'center';
+        link.style.width = '44px';
+        link.style.height = '44px';
+        link.style.borderRadius = '12px';
+        link.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+        link.style.color = 'white';
+        link.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        link.style.marginRight = '8px';
+        link.style.opacity = '1';
+
+        let iconSvg = '';
+        if (link.href.includes('facebook')) {
+          iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>`;
+        } else if (link.href.includes('instagram')) {
+          iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`;
+        } else if (link.href.includes('linkedin')) {
+          iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>`;
+        } else if (link.href.includes('youtube')) {
+          iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>`;
+        } else if (link.href.includes('tiktok')) {
+          iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>`;
+        }
+
+        link.innerHTML = iconSvg;
+        link.dataset.iconized = 'true';
+      }
+    });
+
+    // Transform Footer Headings & Map
+    const footerHeadings = Array.from(footer.querySelectorAll('h3, h4, p.font-bold'));
+    const servicesHeading = footerHeadings.find(h => h.textContent.includes('Služby'));
+    const contactHeading = footerHeadings.find(h => h.textContent.includes('Kontakt'));
+
+    if (servicesHeading) {
+      servicesHeading.style.color = '#f59e0b';
+      servicesHeading.style.fontWeight = '800';
+    }
+
+    if (contactHeading) {
+      contactHeading.style.color = '#f59e0b';
+      contactHeading.style.fontWeight = '800';
+      
+      const contactCol = contactHeading.parentElement;
+      if (contactCol && !contactCol.querySelector('.footer-map-container')) {
+        const mapContainer = document.createElement('div');
+        mapContainer.className = 'footer-map-container';
+        mapContainer.style.marginTop = '1.5rem';
+        mapContainer.style.borderRadius = '1rem';
+        mapContainer.style.overflow = 'hidden';
+        mapContainer.style.border = '2px solid #f59e0b';
+        mapContainer.style.height = '200px';
+        mapContainer.style.position = 'relative';
+        mapContainer.innerHTML = `
+          <iframe 
+            src="https://www.google.com/maps?q=Cezavy%20627,664%2056%20Blučina&output=embed" 
+            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
+          </iframe>
+          <div style="position: absolute; inset: 0; background: transparent;" onclick="window.open('https://www.google.com/maps?q=Cezavy%20627,664%2056%20Blučina', '_blank')"></div>
+        `;
+        contactCol.appendChild(mapContainer);
+      }
+    }
+
     footer.dataset.patched = 'true';
   }
 
@@ -287,15 +356,26 @@ const renderGalleryContent = () => {
   }).join('');
 };
 
-window.nnf_openGallery = (id) => {
-  // Debug log to confirm function is firing
-  console.log('NANOfusion: Opening gallery for ID', id);
-  
-  const item = galleryItems.find(g => String(g.id) === String(id));
-  if (!item) {
-    console.warn('NANOfusion: Item not found in cache', id);
-    return;
+window.nnf_switchModalMedia = (url, isVideo = false, youtubeId = null) => {
+  const container = document.getElementById('modal-media-viewport');
+  if (!container) return;
+
+  if (isVideo && youtubeId) {
+    container.innerHTML = `
+      <div style="aspect-ratio: 16/9; width: 100%;">
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <div style="height:500px; position:relative;">
+        <img src="${url}" style="width:100%; height:100%; object-fit:cover; animation: fadeIn 0.5s ease;">
+      </div>`;
   }
+};
+
+window.nnf_openGallery = (id) => {
+  const item = galleryItems.find(g => String(g.id) === String(id));
+  if (!item) return;
 
   let overlay = document.getElementById('gallery-modal-overlay');
   if (!overlay) {
@@ -313,14 +393,13 @@ window.nnf_openGallery = (id) => {
       <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.9); border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:24px; z-index:101; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.1);">&times;</button>
       
       <div style="flex: 1; overflow-y:auto; padding-bottom: 40px;">
-        <!-- Visual Header (Video or Image) -->
-        <div style="background: #000;">
+        <div id="modal-media-viewport" style="background: #000;">
           ${item.youtube_id 
             ? `<div style="aspect-ratio: 16/9; width: 100%;">
                 <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${item.youtube_id}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                </div>`
             : `<div style="height:500px; position:relative;">
-                <img id="modal-main-view" src="${mainImg}" style="width:100%; height:100%; object-fit:cover;">
+                <img src="${mainImg}" style="width:100%; height:100%; object-fit:cover;">
                </div>`
           }
         </div>
@@ -339,19 +418,24 @@ window.nnf_openGallery = (id) => {
 
           <div style="font-size:17px; line-height:1.7; color:#334155; margin-bottom:30px;">${item.description || ''}</div>
           
-          <!-- Thumbnail Gallery -->
-          ${photos.length > 1 ? `
-            <div style="margin-bottom: 40px;">
-              <h4 style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:16px; letter-spacing:0.1em;">Fotogalerie projektu</h4>
-              <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:12px;">
-                ${photos.map(p => `
-                  <div onclick="const main = document.getElementById('modal-main-view'); if(main) main.src='${p.url}'; window.scrollTo({top:0, behavior:'smooth'})" style="aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:all 0.2s;" onmouseenter="this.style.borderColor='#f59e0b'" onmouseleave="this.style.borderColor='transparent'">
-                    <img src="${p.url}" style="width:100%; height:100%; object-fit:cover;">
+          <div style="margin-bottom: 40px;">
+            <h4 style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:16px; letter-spacing:0.1em;">Galerie & Video</h4>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:12px;">
+              ${item.youtube_id ? `
+                <div onclick="window.nnf_switchModalMedia(null, true, '${item.youtube_id}')" style="aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid #f59e0b; position:relative;">
+                  <img src="https://img.youtube.com/vi/${item.youtube_id}/0.jpg" style="width:100%; height:100%; object-fit:cover; opacity:0.6;">
+                  <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:white;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                   </div>
-                `).join('')}
-              </div>
+                </div>
+              ` : ''}
+              ${photos.map(p => `
+                <div onclick="window.nnf_switchModalMedia('${p.url}')" style="aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:all 0.2s;" onmouseenter="this.style.borderColor='#f59e0b'" onmouseleave="this.style.borderColor='transparent'">
+                  <img src="${p.url}" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+              `).join('')}
             </div>
-          ` : ''}
+          </div>
 
           <div style="background:#0f172a; padding:32px; border-radius:24px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap: wrap;">
             <div>
@@ -366,6 +450,9 @@ window.nnf_openGallery = (id) => {
         </div>
       </div>
     </div>
+    <style>
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
   `;
   overlay.style.display = 'flex';
   overlay.onclick = (e) => { if(e.target === overlay) overlay.style.display = 'none'; };
