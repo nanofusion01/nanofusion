@@ -120,7 +120,7 @@ const injectCalculator = async () => {
                 Specialista NanoFusion Vás bude kontaktovat pro zjištění potřebných detailů pro vypracování cenové nabídky a domluvení termínu **bezplatného zaměření**.
               </p>
             </div>
-            <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => location.reload(), 800)" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
+            <button id="restart-calc" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
           </div>
         </div>
       </section>
@@ -241,6 +241,55 @@ const injectCalculator = async () => {
       
       window.scrollTo({ top: document.getElementById('kalkulacka').offsetTop - 50, behavior: 'smooth' });
     });
+
+    // Reset Calculator Logic (CTO Fix)
+    const restartBtn = document.getElementById('restart-calc');
+    if (restartBtn) {
+      restartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // 1. Reset visibility
+        document.getElementById('step-3').style.display = 'none';
+        document.getElementById('step-1').style.display = 'block';
+        document.getElementById('progress-2').style.background = '#e2e8f0';
+        document.getElementById('progress-3').style.background = '#e2e8f0';
+
+        // 2. Clear inputs
+        document.getElementById('calc-name').value = '';
+        document.getElementById('calc-email').value = '';
+        document.getElementById('calc-phone').value = '';
+        document.getElementById('calc-address').value = '';
+        document.getElementById('area').value = '100';
+        document.getElementById('area-unknown').checked = false;
+        document.getElementById('area').disabled = false;
+        document.getElementById('area').style.opacity = '1';
+        document.getElementById('calc-address').style.display = 'none';
+
+        // 3. Reset state
+        state.pricePerUnit = services[0].price;
+        state.serviceName = services[0].name;
+        state.objName = 'Rodinný dům';
+        state.userName = '';
+
+        // 4. Reset selection visuals
+        serviceCards.forEach(c => { c.style.borderColor = '#e2e8f0'; c.style.backgroundColor = 'transparent'; });
+        if (serviceCards[0]) {
+          serviceCards[0].style.borderColor = '#F59E0B';
+          serviceCards[0].style.backgroundColor = '#FEF3C7';
+        }
+        objCards.forEach(c => { c.style.borderColor = '#e2e8f0'; c.style.backgroundColor = 'transparent'; });
+        if (objCards[0]) {
+          objCards[0].style.borderColor = '#F59E0B';
+          objCards[0].style.backgroundColor = '#FEF3C7';
+        }
+
+        // 5. Precise scroll
+        window.scrollTo({ 
+          top: document.getElementById('kalkulacka').offsetTop - 100, 
+          behavior: 'smooth' 
+        });
+      });
+    }
 
     return true;
   }
