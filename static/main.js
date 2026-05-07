@@ -327,10 +327,19 @@ const syncGalleryData = async () => {
       .eq('is_published', true)
       .order('created_at', { ascending: false });
     
-    if (!error && data) {
-      galleryItems = data;
-      renderGalleryContent();
-    }
+    if (error) throw error;
+    galleryItems = data || [];
+    console.log(`NANOfusion: Sync completed. Loaded ${galleryItems.length} realizations.`);
+    
+    // Debug: Check if photos are present
+    galleryItems.forEach(item => {
+      const photoCount = item.realization_photos ? item.realization_photos.length : 0;
+      if (photoCount > 0) {
+        console.log(`Item "${item.title}" has ${photoCount} photos.`);
+      }
+    });
+
+    renderGalleryContent();
   } catch (e) {
     console.warn('NANOfusion: Gallery sync failed', e);
   }
@@ -374,6 +383,12 @@ window.nnf_switchModalMedia = (url, isVideo = false, youtubeId = null) => {
   const container = document.getElementById('modal-media-viewport');
   if (!container) return;
 
+  // Visual feedback: border on thumbnails
+  const thumbs = document.querySelectorAll('.modal-thumb-item');
+  thumbs.forEach(t => {
+    t.style.borderColor = (t.dataset.photoUrl === url) ? '#f59e0b' : 'transparent';
+  });
+
   if (isVideo && youtubeId) {
     container.innerHTML = `
       <div style="aspect-ratio: 16/9; width: 100%;">
@@ -385,6 +400,10 @@ window.nnf_switchModalMedia = (url, isVideo = false, youtubeId = null) => {
         <img src="${url}" style="width:100%; height:100%; object-fit:cover; animation: fadeIn 0.5s ease;">
       </div>`;
   }
+  
+  // Scroll to top of modal if needed
+  const modalBody = container.closest('div[style*="overflow-y:auto"]');
+  if (modalBody) modalBody.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 window.nnf_openGallery = (id) => {
@@ -434,17 +453,17 @@ window.nnf_openGallery = (id) => {
           
           <div style="margin-bottom: 40px;">
             <h4 style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:16px; letter-spacing:0.1em;">Galerie & Video</h4>
-            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:12px;">
+            <div id="modal-thumbnails-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:12px;">
               ${item.youtube_id ? `
-                <div onclick="window.nnf_switchModalMedia(null, true, '${item.youtube_id}')" style="aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid #f59e0b; position:relative;">
+                <div onclick="window.nnf_switchModalMedia('', true, '${item.youtube_id}')" style="aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid #f59e0b; position:relative;">
                   <img src="https://img.youtube.com/vi/${item.youtube_id}/0.jpg" style="width:100%; height:100%; object-fit:cover; opacity:0.6;">
                   <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:white;">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                   </div>
                 </div>
               ` : ''}
-              ${photos.map(p => `
-                <div onclick="window.nnf_switchModalMedia('${p.url}')" style="aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:all 0.2s;" onmouseenter="this.style.borderColor='#f59e0b'" onmouseleave="this.style.borderColor='transparent'">
+              ${photos.map((p, idx) => `
+                <div onclick="window.nnf_switchModalMedia('${p.url}')" data-photo-url="${p.url}" style="aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid ${idx === 0 && !item.youtube_id ? '#f59e0b' : 'transparent'}; transition:all 0.2s;" class="modal-thumb-item">
                   <img src="${p.url}" style="width:100%; height:100%; object-fit:cover;">
                 </div>
               `).join('')}

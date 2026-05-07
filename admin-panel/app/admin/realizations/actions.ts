@@ -70,20 +70,19 @@ export async function uploadRealizationPhoto(
 
   const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
 
-  const { count } = await (supabase.from('realization_photos') as any)
-    .select('*', { count: 'exact', head: true })
-    .eq('realization_id', realizationId)
-
-  const { error: dbError } = await (supabase.from('realization_photos') as any).insert({
+  const { data: insertData, error: dbError } = await (supabase.from('realization_photos') as any).insert({
     realization_id: realizationId,
     url: publicUrl,
-    order_index: count ?? 0,
-  })
+    order_index: Math.floor(Date.now() / 1000), // Use seconds (32-bit safe) instead of milliseconds
+  }).select().single()
 
-  if (dbError) throw new Error(`Database write failed: ${dbError.message}`)
+  if (dbError) {
+    console.error(`[Admin] Database write failed for photo ${publicUrl}:`, dbError)
+    throw new Error(`Database write failed: ${dbError.message}`)
+  }
 
   revalidatePath('/admin/realizations')
-  return publicUrl
+  return insertData?.url || publicUrl
 }
 
 export async function deleteRealizationPhoto(photoId: string) {
