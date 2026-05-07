@@ -152,9 +152,20 @@ const observeAll = () => {
     });
     
     // Transform Social Links
+    const socialContainer = footer.querySelector('.social-links') || footer.querySelector('div.flex.gap-4');
+    
+    // Inject TikTok if missing
+    if (socialContainer && !socialContainer.querySelector('a[href*="tiktok"]')) {
+      const tiktokLink = document.createElement('a');
+      tiktokLink.href = 'https://www.tiktok.com/@nano_fusion_cz';
+      tiktokLink.target = '_blank';
+      socialContainer.appendChild(tiktokLink);
+    }
+
     footer.querySelectorAll('a').forEach(link => {
       if (link.dataset.iconized) return;
-      if (link.href.includes('facebook') || link.href.includes('instagram') || link.href.includes('linkedin') || link.href.includes('youtube') || link.href.includes('tiktok')) {
+      const h = link.href.toLowerCase();
+      if (h.includes('facebook') || h.includes('instagram') || h.includes('linkedin') || h.includes('youtube') || h.includes('tiktok')) {
         link.style.display = 'inline-flex';
         link.style.alignItems = 'center';
         link.style.justifyContent = 'center';
