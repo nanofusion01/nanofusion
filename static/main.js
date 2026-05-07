@@ -265,9 +265,9 @@ const renderGalleryContent = () => {
   scroller.innerHTML = galleryItems.map(item => {
     const mainImg = item.realization_photos?.[0]?.url || item.image_url || 'https://images.unsplash.com/photo-1635339001328-8007ebfd4a60?w=800';
     return `
-      <div class="gallery-item-v" onclick="window.nnf_openGallery('${item.id}')" style="flex: 0 0 450px; background: #0f172a; border-radius: 2rem; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease; border: 1px solid rgba(255,255,255,0.05);">
+      <a href="#galerie/${item.id}" class="gallery-item-v" style="flex: 0 0 450px; background: #0f172a; border-radius: 2rem; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); text-decoration: none; display: block;">
           <div style="height: 250px; position: relative;">
-              <img src="${mainImg}" style="width: 100%; height: 100%; object-fit: cover;">
+              <img src="${mainImg}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
               ${item.youtube_id ? `<div style="position: absolute; inset: 0; background: rgba(15, 23, 42, 0.4); display: flex; align-items: center; justify-content: center;">
                   <div style="width: 60px; height: 60px; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -279,10 +279,22 @@ const renderGalleryContent = () => {
               <h3 style="color: white; font-weight: 800; font-size: 1.25rem; margin-bottom: 1rem;">${item.title}</h3>
               <div style="color: #94a3b8; font-size: 0.875rem; line-height: 1.6;">${(item.description || '').substring(0, 100).replace(/<[^>]*>?/gm, '')}...</div>
           </div>
-      </div>
+      </a>
     `;
   }).join('');
 };
+
+const handleGalleryRouting = () => {
+  const hash = window.location.hash;
+  if (hash.startsWith('#galerie/')) {
+    const id = hash.split('/')[1];
+    window.nnf_openGallery(id);
+  } else if (hash === '#galerie') {
+    const overlay = document.getElementById('gallery-modal-overlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+};
+window.addEventListener('hashchange', handleGalleryRouting);
 
 window.nnf_openGallery = (id) => {
   const item = galleryItems.find(g => String(g.id) === String(id));
@@ -301,7 +313,7 @@ window.nnf_openGallery = (id) => {
 
   overlay.innerHTML = `
     <div style="background:white; width:100%; max-width:1000px; max-height:95vh; border-radius:32px; overflow:hidden; display:flex; flex-direction:column; position:relative; box-shadow:0 30px 100px rgba(0,0,0,0.5);">
-      <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.9); border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:24px; z-index:100; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.1);">&times;</button>
+      <button onclick="window.location.hash='#galerie'" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.9); border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:24px; z-index:100; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.1);">&times;</button>
       
       <div style="flex: 1; overflow-y:auto; padding-bottom: 40px;">
         <!-- Visual Header (Video or Image) -->
@@ -349,7 +361,7 @@ window.nnf_openGallery = (id) => {
               <div style="font-weight:800; color:white; font-size:20px;">Líbí se vám tento výsledek?</div>
               <div style="color:#94a3b8; font-size:14px;">Napište nám a získejte cenovou nabídku zdarma.</div>
             </div>
-            <button onclick="document.getElementById('gallery-modal-overlay').style.display='none'; setTimeout(() => document.getElementById('ai-chat-launcher').click(), 200)" 
+            <button onclick="window.location.hash='#galerie'; setTimeout(() => document.getElementById('ai-chat-launcher').click(), 200)" 
               style="background:#f59e0b; color:white; border:none; padding:16px 32px; border-radius:16px; font-weight:800; cursor:pointer; transition:all 0.3s ease; white-space:nowrap; box-shadow:0 10px 20px rgba(245, 158, 11, 0.2);">
               CHCI TAKÉ TAKOVOU PÉČI
             </button>
@@ -359,6 +371,7 @@ window.nnf_openGallery = (id) => {
     </div>
   `;
   overlay.style.display = 'flex';
+  overlay.onclick = (e) => { if(e.target === overlay) window.location.hash='#galerie'; };
 };
 
 const injectGallery = () => {
@@ -395,7 +408,9 @@ const injectGallery = () => {
       </div>
     `;
     
-    syncGalleryData();
+    syncGalleryData().then(() => {
+      handleGalleryRouting(); // Initial check if hash is already present
+    });
 
     const scroller = document.getElementById('gallery-scroller-inner');
     const nextBtn = document.getElementById('gallery-next');
