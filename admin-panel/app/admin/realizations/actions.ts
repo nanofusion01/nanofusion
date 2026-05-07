@@ -72,7 +72,7 @@ export async function uploadMultipleRealizationPhotos(
   for (const file of files) {
     try {
       const publicUrl = await uploadFile(supabase, file, 'realizations', realizationId)
-      const res = await (supabase.from('realization_photos') as any).insert({
+      const res: any = await (supabase.from('realization_photos') as any).insert({
         realization_id: realizationId,
         url: publicUrl,
         order_index: Math.floor(Date.now() / 1000) + results.length,
@@ -99,10 +99,10 @@ export async function uploadRealizationPhoto(
 
   const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
 
-  const res = await (supabase.from('realization_photos') as any).insert({
+  const res: any = await (supabase.from('realization_photos') as any).insert({
     realization_id: realizationId,
     url: publicUrl,
-    order_index: Math.floor(Date.now() / 1000), // Use seconds (32-bit safe) instead of milliseconds
+    order_index: Math.floor(Date.now() / 1000), 
   }).select().single()
 
   if (res.error) {
