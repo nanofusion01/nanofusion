@@ -72,14 +72,14 @@ export async function uploadMultipleRealizationPhotos(
   for (const file of files) {
     try {
       const publicUrl = await uploadFile(supabase, file, 'realizations', realizationId)
-      const { data: insertData, error: dbError } = await (supabase.from('realization_photos') as any).insert({
+      const res = await (supabase.from('realization_photos') as any).insert({
         realization_id: realizationId,
         url: publicUrl,
         order_index: Math.floor(Date.now() / 1000) + results.length,
       }).select().single()
 
-      if (dbError) throw dbError
-      results.push(insertData)
+      if (res.error) throw res.error
+      results.push(res.data)
     } catch (err) {
       console.error(`Batch upload failed for one file:`, err)
     }
@@ -99,19 +99,19 @@ export async function uploadRealizationPhoto(
 
   const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
 
-  const { data: insertData, error: dbError } = await (supabase.from('realization_photos') as any).insert({
+  const res = await (supabase.from('realization_photos') as any).insert({
     realization_id: realizationId,
     url: publicUrl,
     order_index: Math.floor(Date.now() / 1000), // Use seconds (32-bit safe) instead of milliseconds
   }).select().single()
 
-  if (dbError) {
-    console.error(`[Admin] Database write failed for photo ${publicUrl}:`, dbError)
-    throw new Error(`Database write failed: ${dbError.message}`)
+  if (res.error) {
+    console.error(`[Admin] Database write failed for photo ${publicUrl}:`, res.error)
+    throw new Error(`Database write failed: ${res.error.message}`)
   }
 
   revalidatePath('/admin/realizations')
-  return insertData?.url || publicUrl
+  return res.data?.url || publicUrl
 }
 
 export async function deleteRealizationPhoto(photoId: string) {
