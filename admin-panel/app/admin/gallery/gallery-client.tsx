@@ -39,6 +39,8 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
   const [expandedAlbumId, setExpandedAlbumId] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const albumFileRef = useRef<HTMLInputElement>(null)
+  const newAlbumFileRef = useRef<HTMLInputElement>(null)
+  const [selectedNewFiles, setSelectedNewFiles] = useState<number>(0)
 
   const MAX_ITEMS = 8
 
@@ -114,11 +116,33 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
     setAdding(true)
     try {
       const newAlbum = await createGalleryAlbum(albumTitle, caption)
-      setAlbums(prev => [...prev, { ...newAlbum, gallery_items: [] } as GalleryAlbum])
-      toast.success('Album vytvořeno')
-      setAddMode(null); setAlbumTitle(''); setCaption('')
+      let uploaded: GalleryItem[] = []
+      
+      const files = Array.from(newAlbumFileRef.current?.files ?? [])
+      if (files.length > 0) {
+        const toUpload = files.slice(0, MAX_ITEMS)
+        setUploading({ id: newAlbum.id, progress: `0 / ${toUpload.length}` })
+        
+        for (let i = 0; i < toUpload.length; i++) {
+           const fd = new FormData()
+           fd.append('file', toUpload[i])
+           try {
+             const newItem = await uploadAlbumPhoto(newAlbum.id, fd)
+             uploaded.push(newItem as GalleryItem)
+             setUploading({ id: newAlbum.id, progress: `${i + 1} / ${toUpload.length}` })
+           } catch {
+             toast.error(`Chyba u souboru: ${toUpload[i].name}`)
+           }
+        }
+      }
+
+      setAlbums(prev => [...prev, { ...newAlbum, gallery_items: uploaded } as GalleryAlbum])
+      toast.success(uploaded.length > 0 ? `Album vytvořeno a nahráno ${uploaded.length} fotek` : 'Album vytvořeno')
+      setAddMode(null); setAlbumTitle(''); setCaption(''); setSelectedNewFiles(0); setUploading(null)
+      if (newAlbumFileRef.current) newAlbumFileRef.current.value = ''
     } catch (err: any) {
       toast.error(err.message || 'Chyba')
+      setUploading(null)
     } finally { setAdding(false) }
   }
 
@@ -243,7 +267,22 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
             <div className="space-y-3">
               <input type="text" value={albumTitle} onChange={e => setAlbumTitle(e.target.value)} placeholder="Název alba (např. Realizace Praha)..." className="w-full px-4 py-2 rounded-lg border bg-transparent" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }} />
               <input type="text" value={caption} onChange={e => setCaption(e.target.value)} placeholder="Krátký popis..." className="w-full px-4 py-2 rounded-lg border bg-transparent" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }} />
-              <button onClick={handleCreateAlbum} disabled={adding} className="w-full py-2 rounded-lg bg-emerald-500 text-white font-semibold">{adding ? 'Vytvářím...' : 'Vytvořit album'}</button>
+              
+              <div className="border-2 border-dashed p-4 rounded-xl text-center cursor-pointer hover:bg-gray-50/5" style={{ borderColor: 'var(--border)' }} onClick={() => !adding && newAlbumFileRef.current?.click()}>
+                <Upload size={24} className="mx-auto mb-2 text-gray-400" />
+                {adding && uploading ? (
+                  <p className="text-sm font-semibold text-emerald-500">Nahrávám {uploading.progress}...</p>
+                ) : (
+                  <p className="text-sm text-gray-400">Připojit fotky rovnou do alba (max {MAX_ITEMS})<br/>
+                    {selectedNewFiles > 0 && <span className="text-emerald-500 font-semibold">{selectedNewFiles} souborů vybráno</span>}
+                  </p>
+                )}
+                <input ref={newAlbumFileRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => {
+                  setSelectedNewFiles(e.target.files?.length || 0)
+                }} />
+              </div>
+
+              <button onClick={handleCreateAlbum} disabled={adding} className="w-full py-2 rounded-lg bg-emerald-500 text-white font-semibold">{adding ? 'Vytvářím a nahrávám...' : 'Vytvořit album'}</button>
             </div>
           )}
 
