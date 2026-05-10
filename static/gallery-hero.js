@@ -42,7 +42,6 @@ export const loadHeroMedia = async () => {
       const existingMedia = heroSection.querySelector('video, iframe');
       if (existingMedia) existingMedia.parentElement.remove();
       
-      // Skrytí původního obrázku, aby neprosvítal pod videem
       heroSection.style.backgroundImage = 'none';
       const existingImgs = heroSection.querySelectorAll('img');
       existingImgs.forEach(img => {
@@ -54,7 +53,6 @@ export const loadHeroMedia = async () => {
       const videoWrap = document.createElement('div');
       videoWrap.style.cssText = 'position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;';
       const iframe = document.createElement('iframe');
-      // iframe must be larger than container to hide youtube black bars and UI
       iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&playlist=${videoId}&modestbranding=1`;
       iframe.style.cssText = 'width:100vw;height:56.25vw;min-height:100vh;min-width:177.77vh;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);';
       iframe.frameBorder = '0';
@@ -65,16 +63,13 @@ export const loadHeroMedia = async () => {
       console.log('NANOfusion: Hero YouTube video načteno z DB:', videoId);
       
     } else if (data.type === 'video') {
-      // Video je uvnitř div.absolute.inset-0 > video
       const existingVideo = heroSection.querySelector('video');
       if (existingVideo) {
-        // Nahraď src existujícího videa — neměň strukturu
         existingVideo.src = data.url;
         existingVideo.load();
-        existingVideo.play().catch(() => {}); // autoplay může být blokován
+        existingVideo.play().catch(() => {});
         console.log('NANOfusion: Hero video nahrazeno z DB:', data.url);
       } else {
-        // Video neexistuje — vytvoř nový element
         heroSection.style.backgroundImage = 'none';
         const existingImgs = heroSection.querySelectorAll('img');
         existingImgs.forEach(img => {
@@ -100,7 +95,6 @@ export const loadHeroMedia = async () => {
     } else if (data.type === 'image') {
       const existingMedia = heroSection.querySelector('video, iframe');
       if (existingMedia) {
-        // Skryj video a nahraď obrázkem
         const wrap = existingMedia.parentElement;
         existingMedia.remove();
         const img = document.createElement('img');
@@ -164,9 +158,17 @@ export const loadGalleryFromDB = async () => {
           </div>`;
       } else {
         return `
-          <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;">
-            <div style="height:250px;position:relative;">
-              <img src="${item.url}" alt="${item.caption || 'Galerie'}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+          <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;position:relative;"
+               onclick="window.__nnfLightbox && window.__nnfLightbox.open('${item.id}')">
+            <div style="height:250px;position:relative;overflow:hidden;">
+              <img src="${item.url}" alt="${item.caption || 'Galerie'}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.45s ease;" loading="lazy">
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background 0.3s;"
+                   onmouseenter="this.style.background='rgba(0,0,0,0.4)';this.querySelector('.nnf-lb-hint').style.opacity='1';this.previousElementSibling.style.transform='scale(1.07)'"
+                   onmouseleave="this.style.background='rgba(0,0,0,0)';this.querySelector('.nnf-lb-hint').style.opacity='0';this.previousElementSibling.style.transform='scale(1)'">
+                <div class="nnf-lb-hint" style="background:rgba(255,255,255,0.92);border-radius:10px;padding:7px 16px;font-size:12px;font-weight:800;color:#0f172a;opacity:0;transition:opacity 0.25s;pointer-events:none;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+                  🔍 Zobrazit galerii
+                </div>
+              </div>
             </div>
             <div style="padding:2rem;">
               ${item.caption ? `<h3 style="color:white;font-weight:800;font-size:1.1rem;">${item.caption}</h3>` : ''}
@@ -175,11 +177,99 @@ export const loadGalleryFromDB = async () => {
       }
     }).join('');
 
+    // Lightbox inicializace — pouze pro obrázky (YouTube má vlastní přehrávač v iframe)
+    const imageItems = data.filter(i => i.type === 'image');
+    if (imageItems.length > 0) _initLightbox(imageItems);
+
     return true;
   } catch (e) {
     console.warn('Gallery DB load failed:', e);
     return false;
   }
+};
+
+// ============================================================
+// LIGHTBOX — full-screen zobrazení s klávesnicí + šipkami
+// ============================================================
+const _initLightbox = (items) => {
+  let cur = 0;
+
+  const build = () => {
+    let el = document.getElementById('nnf-gallery-lb');
+    if (el) { el._items = items; return el; }
+
+    el = document.createElement('div');
+    el.id = 'nnf-gallery-lb';
+    el.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999999;background:rgba(9,12,22,0.97);backdrop-filter:blur(12px);align-items:center;justify-content:center;';
+
+    el.innerHTML = `
+      <button id="nnf-lb-x"   style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.1);border:none;width:46px;height:46px;border-radius:50%;cursor:pointer;color:white;font-size:22px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Zavrit (Esc)">&#10005;</button>
+      <button id="nnf-lb-lft" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;width:52px;height:52px;border-radius:50%;cursor:pointer;color:white;font-size:28px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Predchozi (&#8592;)">&#8249;</button>
+      <button id="nnf-lb-rgt" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;width:52px;height:52px;border-radius:50%;cursor:pointer;color:white;font-size:28px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Dalsi (&#8594;)">&#8250;</button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 72px;">
+        <img id="nnf-lb-img" src="" alt="" style="max-width:88vw;max-height:76vh;object-fit:contain;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,0.7);transition:opacity .22s;">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <span id="nnf-lb-cap" style="color:rgba(255,255,255,0.65);font-size:13px;font-weight:500;"></span>
+          <span id="nnf-lb-cnt" style="color:rgba(255,255,255,0.3);font-size:12px;"></span>
+        </div>
+      </div>`;
+
+    document.body.appendChild(el);
+
+    const amber = 'rgba(245,158,11,0.75)';
+    const dim   = 'rgba(255,255,255,0.1)';
+    ['nnf-lb-x','nnf-lb-lft','nnf-lb-rgt'].forEach(id => {
+      const b = document.getElementById(id);
+      b.onmouseenter = () => (b.style.background = amber);
+      b.onmouseleave = () => (b.style.background = dim);
+    });
+
+    const close = () => { el.style.display = 'none'; document.body.style.overflow = ''; };
+
+    const go = (idx) => {
+      const list = el._items;
+      cur = ((idx % list.length) + list.length) % list.length;
+      const it  = list[cur];
+      const img = document.getElementById('nnf-lb-img');
+      img.style.opacity = '0';
+      setTimeout(() => { img.src = it.url; img.alt = it.caption || ''; img.style.opacity = '1'; }, 160);
+      document.getElementById('nnf-lb-cap').textContent = it.caption || '';
+      document.getElementById('nnf-lb-cnt').textContent = list.length > 1 ? `${cur + 1} / ${list.length}` : '';
+      const multi = list.length > 1;
+      document.getElementById('nnf-lb-lft').style.display = multi ? 'flex' : 'none';
+      document.getElementById('nnf-lb-rgt').style.display = multi ? 'flex' : 'none';
+    };
+
+    document.getElementById('nnf-lb-x').onclick   = close;
+    document.getElementById('nnf-lb-lft').onclick = () => go(cur - 1);
+    document.getElementById('nnf-lb-rgt').onclick = () => go(cur + 1);
+    el.onclick = (e) => { if (e.target === el) close(); };
+
+    document.addEventListener('keydown', (e) => {
+      if (el.style.display === 'none') return;
+      if (e.key === 'Escape')     close();
+      if (e.key === 'ArrowLeft')  go(cur - 1);
+      if (e.key === 'ArrowRight') go(cur + 1);
+    });
+
+    el._go    = go;
+    el._items = items;
+    return el;
+  };
+
+  // Vytvoř overlay při inicializaci (bez zobrazení)
+  const overlay = build();
+
+  window.__nnfLightbox = {
+    open: (itemId) => {
+      const list = overlay._items;
+      const idx  = list.findIndex(i => String(i.id) === String(itemId));
+      if (idx === -1) return;
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      overlay._go(idx);
+    },
+  };
 };
 
 // Inicializace — zavolá se z main.js po injektování galerie do DOM

@@ -190,10 +190,13 @@ export type Database = {
         Row: {
           id: string
           title: string
+          subtitle: string | null
           description: string | null
           location: string | null
           duration: string | null
           work_type: string | null
+          category: string | null
+          youtube_id: string | null
           is_published: boolean
           created_at: string
           updated_at: string
@@ -201,10 +204,13 @@ export type Database = {
         Insert: {
           id?: string
           title: string
+          subtitle?: string | null
           description?: string | null
           location?: string | null
           duration?: string | null
           work_type?: string | null
+          category?: string | null
+          youtube_id?: string | null
           is_published?: boolean
           created_at?: string
           updated_at?: string
@@ -212,10 +218,13 @@ export type Database = {
         Update: {
           id?: string
           title?: string
+          subtitle?: string | null
           description?: string | null
           location?: string | null
           duration?: string | null
           work_type?: string | null
+          category?: string | null
+          youtube_id?: string | null
           is_published?: boolean
           created_at?: string
           updated_at?: string
@@ -228,6 +237,7 @@ export type Database = {
           url: string
           caption: string | null
           order_index: number
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -235,6 +245,7 @@ export type Database = {
           url: string
           caption?: string | null
           order_index?: number
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -242,6 +253,7 @@ export type Database = {
           url?: string
           caption?: string | null
           order_index?: number
+          updated_at?: string | null
         }
       }
       external_reviews: {

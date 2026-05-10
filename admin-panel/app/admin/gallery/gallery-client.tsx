@@ -3,20 +3,27 @@
 import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 import {
-  Plus,
   Trash2,
   Eye,
   EyeOff,
-  Play,
   Image as ImageIcon,
   AlertTriangle,
   Link,
   X,
   Upload,
+  ChevronUp,
+  ChevronDown,
+  Save,
 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { Tables } from '@/lib/database.types'
-import { addYoutubeItem, deleteGalleryItem, toggleGalleryItemActive } from './actions'
+import {
+  addYoutubeItem,
+  deleteGalleryItem,
+  toggleGalleryItemActive,
+  uploadGalleryImage,
+  updateGalleryOrder,
+  updateGalleryCaption,
+} from './actions'
 
 type GalleryItem = Tables<'gallery_items'>
 
@@ -33,56 +40,63 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
   const [caption, setCaption] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null)
   const [adding, setAdding] = useState(false)
+  const [orderDirty, setOrderDirty] = useState(false)
+  const [savingOrder, setSavingOrder] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
-  const supabase = createClient()
+
+  const MAX_ITEMS = 8
+  const atLimit = items.length >= MAX_ITEMS
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files ?? [])
+    if (files.length === 0) return
 
-    // Validate
-    if (!file.type.startsWith('image/')) {
-      toast.error('Povoleny jsou pouze obrázky')
+    // Kolik můžeme ještě přidat
+    const slots = MAX_ITEMS - items.length
+    const toUpload = files.slice(0, slots)
+
+    if (files.length > slots) {
+      toast.error(`Máte místo jen pro ${slots} dalších položek (max ${MAX_ITEMS})`)
+    }
+
+    const invalid = toUpload.filter(f => !f.type.startsWith('image/'))
+    if (invalid.length > 0) {
+      toast.error('Povolené formáty: JPG, PNG, WEBP, GIF')
       return
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Obrázek je příliš velký (max 10MB)')
+    const tooBig = toUpload.filter(f => f.size > 10 * 1024 * 1024)
+    if (tooBig.length > 0) {
+      toast.error(`${tooBig.length} souborů překračuje 10 MB`)
       return
     }
 
     setUploading(true)
-    try {
-      const ext = file.name.split('.').pop()
-      const path = `gallery/${Date.now()}.${ext}`
-      const { data, error } = await supabase.storage
-        .from('gallery')
-        .upload(path, file, { cacheControl: '3600', upsert: false })
+    setUploadProgress({ done: 0, total: toUpload.length })
+    const uploaded: GalleryItem[] = []
 
-      if (error) throw error
-
-      const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(data.path)
-
-      const { data: newItem, error: dbError } = await (supabase.from('gallery_items') as any).insert({
-        type: 'image',
-        url: publicUrl,
-        caption: caption || null,
-        order_index: items.length,
-        is_active: true,
-      }).select().single()
-
-      if (dbError) throw dbError
-
-      setItems((prev) => [...prev, newItem])
-      toast.success('Obrázek přidán')
-      setAddMode(null)
-      setCaption('')
-    } catch {
-      toast.error('Nepodařilo se nahrát obrázek')
-    } finally {
-      setUploading(false)
-      if (fileRef.current) fileRef.current.value = ''
+    for (const file of toUpload) {
+      try {
+        const fd = new FormData()
+        fd.append('file', file)
+        const newItem = await uploadGalleryImage(fd)
+        uploaded.push(newItem as GalleryItem)
+        setUploadProgress(p => p ? { ...p, done: p.done + 1 } : null)
+      } catch {
+        toast.error(`Chyba při nahrávání: ${file.name}`)
+      }
     }
+
+    if (uploaded.length > 0) {
+      setItems(prev => [...prev, ...uploaded])
+      toast.success(`Nahráno ${uploaded.length} z ${toUpload.length} obrázků`)
+    }
+
+    setUploading(false)
+    setUploadProgress(null)
+    setAddMode(null)
+    if (fileRef.current) fileRef.current.value = ''
   }
 
   const handleAddYoutube = async () => {
@@ -92,16 +106,38 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
     }
     setAdding(true)
     try {
-      await addYoutubeItem(youtubeUrl, caption)
+      const newItem = await addYoutubeItem(youtubeUrl, caption)
+      setItems((prev) => [...prev, newItem as GalleryItem])
       toast.success('YouTube video přidáno')
       setAddMode(null)
       setYoutubeUrl('')
       setCaption('')
-      window.location.reload()
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Nepodařilo se přidat video')
     } finally {
       setAdding(false)
+    }
+  }
+
+  const moveItem = (index: number, direction: 'up' | 'down') => {
+    const next = direction === 'up' ? index - 1 : index + 1
+    if (next < 0 || next >= items.length) return
+    const updated = [...items]
+    ;[updated[index], updated[next]] = [updated[next], updated[index]]
+    setItems(updated)
+    setOrderDirty(true)
+  }
+
+  const handleSaveOrder = async () => {
+    setSavingOrder(true)
+    try {
+      await updateGalleryOrder(items.map((item, i) => ({ id: item.id, order_index: i })))
+      setOrderDirty(false)
+      toast.success('Pořadí uloženo')
+    } catch {
+      toast.error('Nepodařilo se uložit pořadí')
+    } finally {
+      setSavingOrder(false)
     }
   }
 
@@ -141,18 +177,33 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
             {items.length} položek · {items.filter((i) => i.is_active).length} zobrazeno
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {orderDirty && (
+            <button
+              onClick={handleSaveOrder}
+              disabled={savingOrder}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
+              style={{ background: 'var(--brand-primary)' }}
+            >
+              <Save size={16} />
+              {savingOrder ? 'Ukládám...' : 'Uložit pořadí'}
+            </button>
+          )}
           <button
-            onClick={() => setAddMode('image')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+            onClick={() => { if (!atLimit) setAddMode('image') }}
+            disabled={atLimit}
+            title={atLimit ? `Maximálně ${MAX_ITEMS} položek` : undefined}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
           >
             <Upload size={16} />
             Nahrát obrázek
           </button>
           <button
-            onClick={() => setAddMode('youtube')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+            onClick={() => { if (!atLimit) setAddMode('youtube') }}
+            disabled={atLimit}
+            title={atLimit ? `Maximálně ${MAX_ITEMS} položek` : undefined}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: '#ef4444' }}
           >
             <Link size={16} />
@@ -216,32 +267,42 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
           style={{ background: 'var(--bg-surface)', border: '2px solid var(--brand-primary)' }}
         >
           <div className="flex items-center gap-2">
-            <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Nahrát obrázek</h2>
+            <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Nahrát fotografie</h2>
             <button onClick={() => setAddMode(null)} style={{ color: 'var(--text-muted)', marginLeft: 'auto' }}>
               <X size={18} />
             </button>
           </div>
-          <input
-            type="text"
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Popis obrázku (volitelné)"
-            className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
-            style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-          />
           <div
             className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all"
-            style={{ borderColor: 'var(--border)' }}
-            onClick={() => fileRef.current?.click()}
+            style={{ borderColor: uploading ? 'var(--brand-primary)' : 'var(--border)' }}
+            onClick={() => !uploading && fileRef.current?.click()}
           >
             <Upload size={32} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-              {uploading ? 'Nahrávám...' : 'Klikněte pro výběr obrázku (max 10MB)'}
-            </p>
+            {uploading && uploadProgress ? (
+              <>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  Nahrávám {uploadProgress.done + 1} / {uploadProgress.total}...
+                </p>
+                <div className="mt-3 rounded-full overflow-hidden" style={{ height: 4, background: 'var(--border)' }}>
+                  <div
+                    className="h-full transition-all duration-300"
+                    style={{
+                      width: `${Math.round((uploadProgress.done / uploadProgress.total) * 100)}%`,
+                      background: 'var(--brand-primary)',
+                    }}
+                  />
+                </div>
+              </>
+            ) : (
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                Klikněte pro výběr až {MAX_ITEMS - items.length} obrázků najednou (max 10 MB / kus)
+              </p>
+            )}
             <input
               ref={fileRef}
               type="file"
               accept="image/*"
+              multiple
               className="hidden"
               onChange={handleImageUpload}
             />
@@ -260,7 +321,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
           className="grid gap-4"
           style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))' }}
         >
-          {items.map((item) => (
+          {items.map((item, idx) => (
             <div
               key={item.id}
               className="rounded-xl overflow-hidden transition-all duration-150"
@@ -298,6 +359,7 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     </div>
                   </div>
                 )}
+                {/* Eye + Delete — top right */}
                 <div className="absolute top-2 right-2 flex gap-1.5">
                   <button
                     onClick={() => handleToggleActive(item)}
@@ -314,14 +376,50 @@ export function GalleryClient({ initialItems }: GalleryClientProps) {
                     <Trash2 size={14} />
                   </button>
                 </div>
-              </div>
-              {item.caption && (
-                <div className="px-3 py-2">
-                  <p className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
-                    {item.caption}
-                  </p>
+                {/* Up / Down — bottom left */}
+                <div className="absolute bottom-2 left-2 flex gap-1">
+                  <button
+                    onClick={() => moveItem(idx, 'up')}
+                    disabled={idx === 0}
+                    className="p-1 rounded-md disabled:opacity-0"
+                    style={{ background: 'rgba(255,255,255,0.85)' }}
+                    title="Posunout výše"
+                  >
+                    <ChevronUp size={14} />
+                  </button>
+                  <button
+                    onClick={() => moveItem(idx, 'down')}
+                    disabled={idx === items.length - 1}
+                    className="p-1 rounded-md disabled:opacity-0"
+                    style={{ background: 'rgba(255,255,255,0.85)' }}
+                    title="Posunout níže"
+                  >
+                    <ChevronDown size={14} />
+                  </button>
                 </div>
-              )}
+              </div>
+              {/* Inline caption edit */}
+              <div className="px-3 py-2">
+                <input
+                  type="text"
+                  defaultValue={item.caption ?? ''}
+                  placeholder="Popisek (volitelný)..."
+                  onBlur={async (e) => {
+                    const val = e.target.value.trim()
+                    if (val === (item.caption ?? '')) return
+                    try {
+                      await updateGalleryCaption(item.id, val)
+                      setItems(prev => prev.map(i => i.id === item.id ? { ...i, caption: val || null } : i))
+                    } catch {
+                      toast.error('Nepodařilo se uložit popisek')
+                    }
+                  }}
+                  className="w-full text-xs outline-none bg-transparent"
+                  style={{ color: 'var(--text-secondary)', borderBottom: '1px solid transparent' }}
+                  onFocus={e => (e.target.style.borderBottomColor = 'var(--border)')}
+                  onBlurCapture={e => (e.target.style.borderBottomColor = 'transparent')}
+                />
+              </div>
             </div>
           ))}
         </div>

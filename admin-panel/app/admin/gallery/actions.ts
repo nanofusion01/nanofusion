@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
@@ -16,15 +16,18 @@ export async function addYoutubeItem(url: string, caption?: string) {
   const { count } = await (supabase.from('gallery_items') as any)
     .select('*', { count: 'exact', head: true })
 
-  await (supabase.from('gallery_items') as any).insert({
+  const { data, error } = await (supabase.from('gallery_items') as any).insert({
     type: 'youtube',
     url,
     youtube_id: youtubeId,
     caption: caption || null,
     order_index: count ?? 0,
     is_active: true,
-  })
+  }).select().single()
+
+  if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
+  return data
 }
 
 export async function addImageItem(url: string, caption?: string) {
@@ -33,14 +36,17 @@ export async function addImageItem(url: string, caption?: string) {
   const { count } = await (supabase.from('gallery_items') as any)
     .select('*', { count: 'exact', head: true })
 
-  await (supabase.from('gallery_items') as any).insert({
+  const { data, error } = await (supabase.from('gallery_items') as any).insert({
     type: 'image',
     url,
     caption: caption || null,
     order_index: count ?? 0,
     is_active: true,
-  })
+  }).select().single()
+
+  if (error) throw new Error(error.message)
   revalidatePath('/admin/gallery')
+  return data
 }
 
 export async function uploadGalleryImage(file: FormData) {
@@ -49,8 +55,8 @@ export async function uploadGalleryImage(file: FormData) {
   if (!fileData) throw new Error('No file provided')
 
   const publicUrl = await uploadFile(supabase, fileData, 'gallery', 'items')
-  await addImageItem(publicUrl, file.get('caption') as string | undefined)
-  return publicUrl
+  const item = await addImageItem(publicUrl, file.get('caption') as string | undefined)
+  return item
 }
 
 export async function deleteGalleryItem(id: string) {
@@ -66,6 +72,17 @@ export async function updateGalleryCaption(id: string, caption: string) {
     .update({ caption })
     .eq('id', id)
   if (error) throw new Error(error.message)
+  revalidatePath('/admin/gallery')
+}
+
+export async function updateGalleryOrder(updates: { id: string; order_index: number }[]) {
+  const supabase = await createAdminClient()
+  for (const { id, order_index } of updates) {
+    const { error } = await (supabase.from('gallery_items') as any)
+      .update({ order_index })
+      .eq('id', id)
+    if (error) console.error(`Error updating order for ${id}:`, error.message)
+  }
   revalidatePath('/admin/gallery')
 }
 
