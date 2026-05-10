@@ -120,26 +120,60 @@ export const loadHeroMedia = async () => {
 // ============================================================
 export const loadGalleryFromDB = async () => {
   try {
-    const { data, error } = await supabase
-      .from('gallery_items')
-      .select('*')
-      .eq('is_active', true)
-      .order('order_index', { ascending: true });
+    const [itemsRes, albumsRes] = await Promise.all([
+      supabase.from('gallery_items').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+      supabase.from('gallery_albums').select('*').eq('is_active', true).order('order_index', { ascending: true })
+    ]);
 
-    if (error || !data || data.length === 0) {
+    if (itemsRes.error || !itemsRes.data) {
       console.warn('NANOfusion: Žádné gallery_items v DB nebo chyba RLS');
       return false;
     }
 
-    console.log(`NANOfusion: Načteno ${data.length} položek galerie z DB`);
+    const allItems = itemsRes.data;
+    const albums = albumsRes.data || [];
+    const standaloneItems = allItems.filter(i => !i.album_id);
+    
+    console.log(`NANOfusion: Načteno ${standaloneItems.length} samostatných položek a ${albums.length} alb z DB`);
 
-    // Aktualizuj existující gallery scroller vytvořený v main.js
     const scroller = document.getElementById('gallery-scroller-inner');
     if (!scroller) return false;
 
-    scroller.innerHTML = data.map(item => {
+    let html = '';
+
+    // 1. Alba
+    albums.forEach(album => {
+      const albumPhotos = allItems.filter(i => i.album_id === album.id && i.type === 'image');
+      if (albumPhotos.length === 0) return;
+      const cover = albumPhotos[0];
+
+      html += `
+        <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;position:relative;"
+             onclick="window.__nnfLightboxAlbums && window.__nnfLightboxAlbums['${album.id}'] && window.__nnfLightboxAlbums['${album.id}'].open('${cover.id}')">
+          <div style="height:250px;position:relative;overflow:hidden;">
+            <img src="${cover.url}" alt="${album.title}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.45s ease;" loading="lazy">
+            <div style="position:absolute;top:16px;left:16px;background:rgba(15,23,42,0.85);backdrop-filter:blur(4px);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:6px;">
+              <span style="color:white;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Album (${albumPhotos.length})</span>
+            </div>
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background 0.3s;"
+                 onmouseenter="this.style.background='rgba(0,0,0,0.4)';this.querySelector('.nnf-lb-hint').style.opacity='1';this.previousElementSibling.previousElementSibling.style.transform='scale(1.07)'"
+                 onmouseleave="this.style.background='rgba(0,0,0,0)';this.querySelector('.nnf-lb-hint').style.opacity='0';this.previousElementSibling.previousElementSibling.style.transform='scale(1)'">
+              <div class="nnf-lb-hint" style="background:rgba(255,255,255,0.92);border-radius:10px;padding:7px 16px;font-size:12px;font-weight:800;color:#0f172a;opacity:0;transition:opacity 0.25s;pointer-events:none;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+                Zobrazit fotografie
+              </div>
+            </div>
+          </div>
+          <div style="padding:2rem;">
+            <h3 style="color:white;font-weight:800;font-size:1.25rem;margin-bottom:0.25rem;">${album.title}</h3>
+            ${album.caption ? `<p style="color:rgba(255,255,255,0.6);font-size:0.9rem;font-weight:500;">${album.caption}</p>` : ''}
+          </div>
+        </div>`;
+    });
+
+    // 2. Samostatné položky
+    standaloneItems.forEach(item => {
       if (item.type === 'youtube') {
-        return `
+        html += `
           <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;">
             <div style="height:250px;position:relative;">
               <iframe
@@ -157,16 +191,16 @@ export const loadGalleryFromDB = async () => {
             </div>
           </div>`;
       } else {
-        return `
+        html += `
           <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;position:relative;"
-               onclick="window.__nnfLightbox && window.__nnfLightbox.open('${item.id}')">
+               onclick="window.__nnfLightboxStandalone && window.__nnfLightboxStandalone.open('${item.id}')">
             <div style="height:250px;position:relative;overflow:hidden;">
               <img src="${item.url}" alt="${item.caption || 'Galerie'}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.45s ease;" loading="lazy">
               <div style="position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background 0.3s;"
                    onmouseenter="this.style.background='rgba(0,0,0,0.4)';this.querySelector('.nnf-lb-hint').style.opacity='1';this.previousElementSibling.style.transform='scale(1.07)'"
                    onmouseleave="this.style.background='rgba(0,0,0,0)';this.querySelector('.nnf-lb-hint').style.opacity='0';this.previousElementSibling.style.transform='scale(1)'">
                 <div class="nnf-lb-hint" style="background:rgba(255,255,255,0.92);border-radius:10px;padding:7px 16px;font-size:12px;font-weight:800;color:#0f172a;opacity:0;transition:opacity 0.25s;pointer-events:none;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
-                  🔍 Zobrazit galerii
+                  🔍 Zobrazit
                 </div>
               </div>
             </div>
@@ -175,11 +209,22 @@ export const loadGalleryFromDB = async () => {
             </div>
           </div>`;
       }
-    }).join('');
+    });
 
-    // Lightbox inicializace — pouze pro obrázky (YouTube má vlastní přehrávač v iframe)
-    const imageItems = data.filter(i => i.type === 'image');
-    if (imageItems.length > 0) _initLightbox(imageItems);
+    scroller.innerHTML = html;
+
+    const standaloneImages = standaloneItems.filter(i => i.type === 'image');
+    if (standaloneImages.length > 0) {
+      window.__nnfLightboxStandalone = _createLightboxInstance(standaloneImages, 'lb-standalone');
+    }
+    
+    window.__nnfLightboxAlbums = {};
+    albums.forEach(album => {
+      const albumPhotos = allItems.filter(i => i.album_id === album.id && i.type === 'image');
+      if (albumPhotos.length > 0) {
+        window.__nnfLightboxAlbums[album.id] = _createLightboxInstance(albumPhotos, `lb-album-${album.id}`);
+      }
+    });
 
     return true;
   } catch (e) {
@@ -191,26 +236,26 @@ export const loadGalleryFromDB = async () => {
 // ============================================================
 // LIGHTBOX — full-screen zobrazení s klávesnicí + šipkami
 // ============================================================
-const _initLightbox = (items) => {
+const _createLightboxInstance = (items, instanceId) => {
   let cur = 0;
 
   const build = () => {
-    let el = document.getElementById('nnf-gallery-lb');
+    let el = document.getElementById(`nnf-gallery-lb-${instanceId}`);
     if (el) { el._items = items; return el; }
 
     el = document.createElement('div');
-    el.id = 'nnf-gallery-lb';
+    el.id = `nnf-gallery-lb-${instanceId}`;
     el.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999999;background:rgba(9,12,22,0.97);backdrop-filter:blur(12px);align-items:center;justify-content:center;';
 
     el.innerHTML = `
-      <button id="nnf-lb-x"   style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.1);border:none;width:46px;height:46px;border-radius:50%;cursor:pointer;color:white;font-size:22px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Zavrit (Esc)">&#10005;</button>
-      <button id="nnf-lb-lft" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;width:52px;height:52px;border-radius:50%;cursor:pointer;color:white;font-size:28px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Predchozi (&#8592;)">&#8249;</button>
-      <button id="nnf-lb-rgt" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;width:52px;height:52px;border-radius:50%;cursor:pointer;color:white;font-size:28px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Dalsi (&#8594;)">&#8250;</button>
+      <button id="nnf-lb-x-${instanceId}"   style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.1);border:none;width:46px;height:46px;border-radius:50%;cursor:pointer;color:white;font-size:22px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Zavrit (Esc)">&#10005;</button>
+      <button id="nnf-lb-lft-${instanceId}" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;width:52px;height:52px;border-radius:50%;cursor:pointer;color:white;font-size:28px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Predchozi (&#8592;)">&#8249;</button>
+      <button id="nnf-lb-rgt-${instanceId}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;width:52px;height:52px;border-radius:50%;cursor:pointer;color:white;font-size:28px;display:flex;align-items:center;justify-content:center;transition:background .2s;" title="Dalsi (&#8594;)">&#8250;</button>
       <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 72px;">
-        <img id="nnf-lb-img" src="" alt="" style="max-width:88vw;max-height:76vh;object-fit:contain;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,0.7);transition:opacity .22s;">
+        <img id="nnf-lb-img-${instanceId}" src="" alt="" style="max-width:88vw;max-height:76vh;object-fit:contain;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,0.7);transition:opacity .22s;">
         <div style="display:flex;gap:10px;align-items:center;">
-          <span id="nnf-lb-cap" style="color:rgba(255,255,255,0.65);font-size:13px;font-weight:500;"></span>
-          <span id="nnf-lb-cnt" style="color:rgba(255,255,255,0.3);font-size:12px;"></span>
+          <span id="nnf-lb-cap-${instanceId}" style="color:rgba(255,255,255,0.65);font-size:13px;font-weight:500;"></span>
+          <span id="nnf-lb-cnt-${instanceId}" style="color:rgba(255,255,255,0.3);font-size:12px;"></span>
         </div>
       </div>`;
 
@@ -218,7 +263,7 @@ const _initLightbox = (items) => {
 
     const amber = 'rgba(245,158,11,0.75)';
     const dim   = 'rgba(255,255,255,0.1)';
-    ['nnf-lb-x','nnf-lb-lft','nnf-lb-rgt'].forEach(id => {
+    [`nnf-lb-x-${instanceId}`,`nnf-lb-lft-${instanceId}`,`nnf-lb-rgt-${instanceId}`].forEach(id => {
       const b = document.getElementById(id);
       b.onmouseenter = () => (b.style.background = amber);
       b.onmouseleave = () => (b.style.background = dim);
@@ -230,19 +275,19 @@ const _initLightbox = (items) => {
       const list = el._items;
       cur = ((idx % list.length) + list.length) % list.length;
       const it  = list[cur];
-      const img = document.getElementById('nnf-lb-img');
+      const img = document.getElementById(`nnf-lb-img-${instanceId}`);
       img.style.opacity = '0';
       setTimeout(() => { img.src = it.url; img.alt = it.caption || ''; img.style.opacity = '1'; }, 160);
-      document.getElementById('nnf-lb-cap').textContent = it.caption || '';
-      document.getElementById('nnf-lb-cnt').textContent = list.length > 1 ? `${cur + 1} / ${list.length}` : '';
+      document.getElementById(`nnf-lb-cap-${instanceId}`).textContent = it.caption || '';
+      document.getElementById(`nnf-lb-cnt-${instanceId}`).textContent = list.length > 1 ? `${cur + 1} / ${list.length}` : '';
       const multi = list.length > 1;
-      document.getElementById('nnf-lb-lft').style.display = multi ? 'flex' : 'none';
-      document.getElementById('nnf-lb-rgt').style.display = multi ? 'flex' : 'none';
+      document.getElementById(`nnf-lb-lft-${instanceId}`).style.display = multi ? 'flex' : 'none';
+      document.getElementById(`nnf-lb-rgt-${instanceId}`).style.display = multi ? 'flex' : 'none';
     };
 
-    document.getElementById('nnf-lb-x').onclick   = close;
-    document.getElementById('nnf-lb-lft').onclick = () => go(cur - 1);
-    document.getElementById('nnf-lb-rgt').onclick = () => go(cur + 1);
+    document.getElementById(`nnf-lb-x-${instanceId}`).onclick   = close;
+    document.getElementById(`nnf-lb-lft-${instanceId}`).onclick = () => go(cur - 1);
+    document.getElementById(`nnf-lb-rgt-${instanceId}`).onclick = () => go(cur + 1);
     el.onclick = (e) => { if (e.target === el) close(); };
 
     document.addEventListener('keydown', (e) => {
@@ -257,10 +302,9 @@ const _initLightbox = (items) => {
     return el;
   };
 
-  // Vytvoř overlay při inicializaci (bez zobrazení)
   const overlay = build();
 
-  window.__nnfLightbox = {
+  return {
     open: (itemId) => {
       const list = overlay._items;
       const idx  = list.findIndex(i => String(i.id) === String(itemId));

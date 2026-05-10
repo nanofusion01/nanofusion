@@ -335,6 +335,7 @@ export type Database = {
           caption: string | null
           order_index: number
           is_active: boolean
+          album_id: string | null
         }
         Insert: {
           id?: string
@@ -344,6 +345,7 @@ export type Database = {
           caption?: string | null
           order_index?: number
           is_active?: boolean
+          album_id?: string | null
         }
         Update: {
           id?: string
@@ -353,6 +355,33 @@ export type Database = {
           caption?: string | null
           order_index?: number
           is_active?: boolean
+          album_id?: string | null
+        }
+      }
+      gallery_albums: {
+        Row: {
+          id: string
+          title: string
+          caption: string | null
+          order_index: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          caption?: string | null
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          caption?: string | null
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
         }
       }
       faqs: {
