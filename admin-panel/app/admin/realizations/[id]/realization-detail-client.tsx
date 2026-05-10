@@ -101,26 +101,37 @@ export function RealizationDetailClient({
     const fileArray = Array.from(files)
     
     try {
-      const fd = new FormData()
-      fileArray.forEach(f => fd.append('files', f))
-      
-      const newPhotosData = await uploadMultipleRealizationPhotos(r.id, fd)
-      
-      if (newPhotosData && newPhotosData.length > 0) {
-        const mappedPhotos = newPhotosData.map((p: any) => ({
-          id: p.id,
-          url: p.url,
-          caption: p.caption,
-          order_index: p.order_index
-        }))
-        setPhotos(prev => [...prev, ...mappedPhotos])
-        toast.success(`${mappedPhotos.length} fotek nahráno.`)
+      // Chunk files to stay under Vercel's 4.5MB payload limit for Server Actions
+      const CHUNK_SIZE = 2; 
+      let totalUploaded = 0;
+
+      for (let i = 0; i < fileArray.length; i += CHUNK_SIZE) {
+        const chunk = fileArray.slice(i, i + CHUNK_SIZE);
+        const fd = new FormData()
+        chunk.forEach(f => fd.append('files', f))
+        
+        const newPhotosData = await uploadMultipleRealizationPhotos(r.id, fd)
+        
+        if (newPhotosData && newPhotosData.length > 0) {
+          const mappedPhotos = newPhotosData.map((p: any) => ({
+            id: p.id,
+            url: p.url,
+            caption: p.caption,
+            order_index: p.order_index
+          }))
+          setPhotos(prev => [...prev, ...mappedPhotos])
+          totalUploaded += mappedPhotos.length
+        }
+      }
+
+      if (totalUploaded > 0) {
+        toast.success(`Nahráno ${totalUploaded} fotek. Nezapomeňte kliknout na ULOŽIT.`);
       } else {
-        toast.error('Nebyly nahrány žádné fotky. Zkontrolujte velikost souborů (max 4MB na fotku).')
+        toast.error('Nepodařilo se nahrát žádné fotky.')
       }
     } catch (err: any) {
       console.error('Batch upload error:', err)
-      toast.error('Chyba hromadného nahrávání. Zkuste nahrávat fotky po menších skupinách.')
+      toast.error('Chyba nahrávání. Fotky jsou pravděpodobně příliš velké.')
     } finally {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''

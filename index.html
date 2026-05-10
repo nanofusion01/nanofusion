@@ -78,21 +78,6 @@
   <meta content="black" name="apple-mobile-web-app-status-bar-style" />
   <meta content="NANOfusion" name="apple-mobile-web-app-title" />
   <link href="https://nanofusion.cz" rel="canonical" />
-  <script>
-    // Mock failing backend APIs to prevent app crash
-    const originalFetch = window.fetch;
-    window.fetch = async (...args) => {
-      const url = args[0].toString();
-      if (url.includes('/api/apps/')) {
-        console.log('Mocking API call:', url);
-        return new Response(JSON.stringify({ success: true, data: {} }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-      return originalFetch(...args);
-    };
-  </script>
   <script type="module" crossorigin src="/assets/index-DnPFhj9u.js"></script>
 
   <link rel="stylesheet" crossorigin href="/assets/index-D7rL3D6v.css">
