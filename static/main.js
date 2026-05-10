@@ -329,6 +329,16 @@ const syncGalleryData = async () => {
     
     if (error) throw error;
     galleryItems = data || [];
+    console.log(`NANOfusion: Sync completed. Loaded ${galleryItems.length} realizations.`);
+    
+    // Debug: Check if photos are present
+    galleryItems.forEach(item => {
+      const photoCount = item.realization_photos ? item.realization_photos.length : 0;
+      if (photoCount > 0) {
+        console.log(`Item "${item.title}" has ${photoCount} photos.`);
+      }
+    });
+
     renderGalleryContent();
   } catch (e) {
     console.warn('NANOfusion: Gallery sync failed', e);
@@ -479,15 +489,6 @@ window.nnf_openGallery = (id) => {
   `;
   overlay.style.display = 'flex';
   overlay.onclick = (e) => { if(e.target === overlay) overlay.style.display = 'none'; };
-  
-  // Close on Escape key
-  const escHandler = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      overlay.style.display = 'none';
-      document.removeEventListener('keydown', escHandler);
-    }
-  };
-  document.addEventListener('keydown', escHandler);
 };
 
 const injectGallery = () => {
