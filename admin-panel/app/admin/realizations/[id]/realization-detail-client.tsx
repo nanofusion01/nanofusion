@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import {
@@ -12,8 +13,7 @@ import {
   togglePublished, 
   uploadRealizationPhoto, 
   deleteRealizationPhoto, 
-  updateRealizationPhotos,
-  uploadMultipleRealizationPhotos 
+  updateRealizationPhotos
 } from '../actions'
 import { TiptapEditor } from '@/components/admin/editor'
 
@@ -49,17 +49,18 @@ export function RealizationDetailClient({
   realization: Realization
   initialPhotos: Photo[]
 }) {
+  const router = useRouter()
   const [r, setR] = useState(initial)
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null)
   const [activeTab, setActiveTab] = useState<'info' | 'photos'>('info')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      // Save realization info
       await updateRealization(r.id, {
         title: r.title,
         subtitle: r.subtitle ?? undefined,
@@ -71,14 +72,18 @@ export function RealizationDetailClient({
         youtube_id: r.youtube_id ?? undefined,
       })
       
-      // Save photo metadata (captions and order)
-      await updateRealizationPhotos(photos.map((p, i) => ({
-        id: p.id,
-        caption: p.caption ?? undefined,
-        order_index: i
-      })))
+      // Only update photos that have real DB IDs (skip pending- ones just uploaded)
+      const savedPhotos = photos.filter(p => !p.id.startsWith('pending-'))
+      if (savedPhotos.length > 0) {
+        await updateRealizationPhotos(savedPhotos.map((p, i) => ({
+          id: p.id,
+          caption: p.caption ?? undefined,
+          order_index: i
+        })))
+      }
 
-      toast.success('Realizace a galerie uloženy')
+      toast.success('Uloženo! Obnovuji stránku...')
+      setTimeout(() => router.refresh(), 800)
     } catch (err: any) {
       toast.error('Chyba: ' + err.message)
     } finally {
@@ -97,44 +102,47 @@ export function RealizationDetailClient({
   }
 
   const handlePhotoUpload = async (files: FileList) => {
-    setUploading(true)
     const fileArray = Array.from(files)
-    
-    try {
-      // Chunk files to stay under Vercel's 4.5MB payload limit for Server Actions
-      const CHUNK_SIZE = 2; 
-      let totalUploaded = 0;
+    if (fileArray.length === 0) return
 
-      for (let i = 0; i < fileArray.length; i += CHUNK_SIZE) {
-        const chunk = fileArray.slice(i, i + CHUNK_SIZE);
+    setUploading(true)
+    setUploadProgress({ current: 0, total: fileArray.length })
+    let successCount = 0
+    let failCount = 0
+
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i]
+      setUploadProgress({ current: i + 1, total: fileArray.length })
+
+      try {
         const fd = new FormData()
-        chunk.forEach(f => fd.append('files', f))
-        
-        const newPhotosData = await uploadMultipleRealizationPhotos(r.id, fd)
-        
-        if (newPhotosData && newPhotosData.length > 0) {
-          const mappedPhotos = newPhotosData.map((p: any) => ({
-            id: p.id,
-            url: p.url,
-            caption: p.caption,
-            order_index: p.order_index
-          }))
-          setPhotos(prev => [...prev, ...mappedPhotos])
-          totalUploaded += mappedPhotos.length
-        }
-      }
+        fd.append('file', file)
+        const url = await uploadRealizationPhoto(r.id, fd)
 
-      if (totalUploaded > 0) {
-        toast.success(`Nahráno ${totalUploaded} fotek. Nezapomeňte kliknout na ULOŽIT.`);
-      } else {
-        toast.error('Nepodařilo se nahrát žádné fotky.')
+        // uploadRealizationPhoto returns a URL string
+        // We need to reload photos from server to get real IDs
+        setPhotos(prev => [...prev, {
+          id: `pending-${Date.now()}-${i}`,
+          url: url as string,
+          caption: null,
+          order_index: prev.length,
+        }])
+        successCount++
+      } catch (err: any) {
+        console.error(`[Upload] Failed for ${file.name}:`, err.message)
+        failCount++
       }
-    } catch (err: any) {
-      console.error('Batch upload error:', err)
-      toast.error('Chyba nahrávání. Fotky jsou pravděpodobně příliš velké.')
-    } finally {
-      setUploading(false)
-      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+
+    setUploading(false)
+    setUploadProgress(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+
+    if (successCount > 0) {
+      toast.success(`Nahráno ${successCount} fotek. Klikněte ULOŽIT a stránka se obnoví.`)
+    }
+    if (failCount > 0) {
+      toast.error(`${failCount} fotek se nepodařilo nahrát.`)
     }
   }
 
@@ -349,7 +357,9 @@ export function RealizationDetailClient({
                   style={{ background: photos.length >= 10 ? '#94a3b8' : 'var(--brand-primary)' }}
                 >
                   {uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-                  {uploading ? 'Nahrávám...' : photos.length >= 10 ? 'Limit 10 fotek dosažen' : 'Nahrát fotky'}
+                  {uploading && uploadProgress
+                    ? `Nahrávám ${uploadProgress.current}/${uploadProgress.total}...`
+                    : photos.length >= 10 ? 'Limit 10 fotek dosažen' : 'Nahrát fotky (max 8)'}
                 </button>
               </div>
             </div>

@@ -99,17 +99,23 @@ export async function uploadRealizationPhoto(
 
   const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
 
+  // Use current photo count as order_index to ensure correct sequential ordering
+  const { count } = await (supabase.from('realization_photos') as any)
+    .select('id', { count: 'exact', head: true })
+    .eq('realization_id', realizationId)
+
   const res: any = await (supabase.from('realization_photos') as any).insert({
     realization_id: realizationId,
     url: publicUrl,
-    order_index: Math.floor(Date.now() / 1000), 
+    order_index: count ?? 0,
   }).select().single()
 
   if (res.error) {
-    console.error(`[Admin] Database write failed for photo ${publicUrl}:`, res.error)
+    console.error(`[Admin] DB write failed for photo:`, res.error)
     throw new Error(`Database write failed: ${res.error.message}`)
   }
 
+  revalidatePath(`/admin/realizations/${realizationId}`)
   revalidatePath('/admin/realizations')
   return res.data?.url || publicUrl
 }
