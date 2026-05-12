@@ -183,6 +183,11 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
     }
   }
 
+  const unifiedList = [
+    ...albums.map(a => ({ ...a, _type: 'album' as const })),
+    ...items.map(i => ({ ...i, _type: 'item' as const }))
+  ].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
+
   const moveOrder = (type: 'unified'|'photo', idx: number, dir: 'up'|'down', parentId?: string) => {
     if (type === 'photo' && parentId) {
       const list = [...(albums.find(a => a.id === parentId)?.gallery_items || [])]
