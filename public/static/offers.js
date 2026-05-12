@@ -310,8 +310,15 @@ const openServiceModal = (data) => {
           <div style="padding: 2.5rem; padding-top: 0;">
             <span class="service-tag" style="position: relative; z-index: 5; margin-top: -1rem; background: #FEF3C7; color: #F59E0B; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 700; display: inline-block;">${data.tag}</span>
             <h3 class="modal-service-title">${data.title}</h3>
-            <div style="line-height: 1.6; margin-bottom: 1.5rem; color: #475569;">${data.detail}</div>
-            ${involvesHtml}
+            <style>
+              .rich-text p { margin-bottom: 1em; }
+              .rich-text p:last-child { margin-bottom: 0; }
+              .rich-text ul { list-style: disc; margin-left: 1.5rem; margin-bottom: 1em; }
+              .rich-text ol { list-style: decimal; margin-left: 1.5rem; margin-bottom: 1em; }
+              .rich-text strong { font-weight: 700; color: #1e293b; }
+            </style>
+            <div class="rich-text" style="line-height: 1.6; margin-bottom: 1.5rem; color: #475569;">${data.detail}</div>
+            <div class="rich-text">${involvesHtml}</div>
             ${bulletHtml}
             ${beforeAfterHtml}
             ${faqHtml}
