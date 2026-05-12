@@ -210,7 +210,7 @@ export function TiptapEditor({ content, onChange }: EditorProps) {
   // Synchronizace prop content do editoru (Tiptap ignoruje změny props by default)
   React.useEffect(() => {
     if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content, false)
+      editor.commands.setContent(content, { emitUpdate: false })
     }
   }, [content, editor])
 
