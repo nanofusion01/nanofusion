@@ -139,75 +139,65 @@ export const loadGalleryFromDB = async () => {
     const scroller = document.getElementById('gallery-scroller-inner');
     if (!scroller) return false;
 
+    // Combine for unified rendering
+    const mixed = [
+      ...albums.map(a => ({ ...a, _isAlbum: true })),
+      ...standaloneItems.map(i => ({ ...i, _isAlbum: false }))
+    ].sort((a, b) => a.order_index - b.order_index);
+
     let html = '';
 
-    // 1. Alba
-    albums.forEach(album => {
-      const albumPhotos = allItems.filter(i => i.album_id === album.id && i.type === 'image');
-      if (albumPhotos.length === 0) return;
-      const cover = albumPhotos[0];
+    mixed.forEach(item => {
+      if (item._isAlbum) {
+        const albumPhotos = allItems.filter(i => i.album_id === item.id && i.type === 'image');
+        if (albumPhotos.length === 0) return;
+        const cover = albumPhotos[0];
 
-      html += `
-        <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;position:relative;"
-             onclick="window.__nnfLightboxAlbums && window.__nnfLightboxAlbums['${album.id}'] && window.__nnfLightboxAlbums['${album.id}'].open('${cover.id}')">
-          <div style="height:250px;position:relative;overflow:hidden;">
-            <img src="${cover.url}" alt="${album.title}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.45s ease;" loading="lazy">
-            <div style="position:absolute;top:16px;left:16px;background:rgba(15,23,42,0.85);backdrop-filter:blur(4px);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:6px;">
-              <span style="color:white;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Album (${albumPhotos.length})</span>
-            </div>
-            <div style="position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background 0.3s;"
-                 onmouseenter="this.style.background='rgba(0,0,0,0.4)';this.querySelector('.nnf-lb-hint').style.opacity='1';this.previousElementSibling.previousElementSibling.style.transform='scale(1.07)'"
-                 onmouseleave="this.style.background='rgba(0,0,0,0)';this.querySelector('.nnf-lb-hint').style.opacity='0';this.previousElementSibling.previousElementSibling.style.transform='scale(1)'">
-              <div class="nnf-lb-hint" style="background:rgba(255,255,255,0.92);border-radius:10px;padding:7px 16px;font-size:12px;font-weight:800;color:#0f172a;opacity:0;transition:opacity 0.25s;pointer-events:none;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
-                Zobrazit fotografie
+        html += `
+          <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;position:relative;"
+               onclick="if(window.__nnfLightboxAlbums && window.__nnfLightboxAlbums['${item.id}']) window.__nnfLightboxAlbums['${item.id}'].open('${cover.id}'); else console.log('Lightbox neni ready pro album ${item.id}');">
+            <div style="height:250px;position:relative;overflow:hidden;pointer-events:none;">
+              <img src="${cover.url}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.45s ease;" loading="lazy">
+              <div style="position:absolute;top:16px;left:16px;background:rgba(15,23,42,0.85);backdrop-filter:blur(4px);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:6px;">
+                <span style="color:white;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Album (${albumPhotos.length})</span>
               </div>
             </div>
-          </div>
-          <div style="padding:2rem;">
-            <h3 style="color:white;font-weight:800;font-size:1.25rem;margin-bottom:0.25rem;">${album.title}</h3>
-            ${album.caption ? `<p style="color:rgba(255,255,255,0.6);font-size:0.9rem;font-weight:500;">${album.caption}</p>` : ''}
-          </div>
-        </div>`;
-    });
-
-    // 2. Samostatné položky
-    standaloneItems.forEach(item => {
-      if (item.type === 'youtube') {
-        html += `
-          <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;">
-            <div style="height:250px;position:relative;">
-              <iframe
-                src="https://www.youtube.com/embed/${item.youtube_id}"
-                title="${item.caption || 'Video'}"
-                frameborder="0"
-                allowfullscreen
-                loading="lazy"
-                style="width:100%;height:100%;border:0;"
-              ></iframe>
-            </div>
-            <div style="padding:2rem;">
-              <div style="color:#f59e0b;font-weight:800;font-size:0.75rem;letter-spacing:0.1em;margin-bottom:0.5rem;">VIDEO</div>
-              ${item.caption ? `<h3 style="color:white;font-weight:800;font-size:1.1rem;">${item.caption}</h3>` : ''}
+            <div style="padding:2rem;pointer-events:none;">
+              <h3 style="color:white;font-weight:800;font-size:1.25rem;margin-bottom:0.25rem;">${item.title}</h3>
+              ${item.caption ? `<p style="color:rgba(255,255,255,0.6);font-size:0.9rem;font-weight:500;">${item.caption}</p>` : ''}
             </div>
           </div>`;
       } else {
-        html += `
-          <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;position:relative;"
-               onclick="window.__nnfLightboxStandalone && window.__nnfLightboxStandalone.open('${item.id}')">
-            <div style="height:250px;position:relative;overflow:hidden;">
-              <img src="${item.url}" alt="${item.caption || 'Galerie'}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.45s ease;" loading="lazy">
-              <div style="position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background 0.3s;"
-                   onmouseenter="this.style.background='rgba(0,0,0,0.4)';this.querySelector('.nnf-lb-hint').style.opacity='1';this.previousElementSibling.style.transform='scale(1.07)'"
-                   onmouseleave="this.style.background='rgba(0,0,0,0)';this.querySelector('.nnf-lb-hint').style.opacity='0';this.previousElementSibling.style.transform='scale(1)'">
-                <div class="nnf-lb-hint" style="background:rgba(255,255,255,0.92);border-radius:10px;padding:7px 16px;font-size:12px;font-weight:800;color:#0f172a;opacity:0;transition:opacity 0.25s;pointer-events:none;box-shadow:0 4px 15px rgba(0,0,0,0.2);">
-                  🔍 Zobrazit
-                </div>
+        if (item.type === 'youtube') {
+          html += `
+            <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;">
+              <div style="height:250px;position:relative;">
+                <iframe
+                  src="https://www.youtube.com/embed/${item.youtube_id}"
+                  title="${item.caption || 'Video'}"
+                  frameborder="0"
+                  allowfullscreen
+                  loading="lazy"
+                  style="width:100%;height:100%;border:0;"
+                ></iframe>
               </div>
-            </div>
-            <div style="padding:2rem;">
-              ${item.caption ? `<h3 style="color:white;font-weight:800;font-size:1.1rem;">${item.caption}</h3>` : ''}
-            </div>
-          </div>`;
+              <div style="padding:2rem;">
+                <div style="color:#f59e0b;font-weight:800;font-size:0.75rem;letter-spacing:0.1em;margin-bottom:0.5rem;">VIDEO</div>
+                ${item.caption ? `<h3 style="color:white;font-weight:800;font-size:1.1rem;">${item.caption}</h3>` : ''}
+              </div>
+            </div>`;
+        } else {
+          html += `
+            <div class="gallery-item-v" style="flex:0 0 450px;background:#0f172a;border-radius:2rem;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.3s ease;position:relative;"
+                 onclick="if(window.__nnfLightboxStandalone) window.__nnfLightboxStandalone.open('${item.id}')">
+              <div style="height:250px;position:relative;overflow:hidden;pointer-events:none;">
+                <img src="${item.url}" alt="${item.caption || 'Galerie'}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.45s ease;" loading="lazy">
+              </div>
+              <div style="padding:2rem;pointer-events:none;">
+                ${item.caption ? `<h3 style="color:white;font-weight:800;font-size:1.1rem;">${item.caption}</h3>` : ''}
+              </div>
+            </div>`;
+        }
       }
     });
 

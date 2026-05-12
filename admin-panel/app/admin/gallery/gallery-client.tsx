@@ -25,17 +25,17 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
   const [items, setItems] = useState<GalleryItem[]>(initialItems || [])
   const [albums, setAlbums] = useState<GalleryAlbum[]>(initialAlbums || [])
   const [addMode, setAddMode] = useState<AddMode>(null)
-  
+
   const [youtubeUrl, setYoutubeUrl] = useState('')
   const [caption, setCaption] = useState('')
   const [albumTitle, setAlbumTitle] = useState('')
-  
+
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'item' | 'album' | 'album_photo', id: string, parentId?: string } | null>(null)
   const [uploading, setUploading] = useState<{ id: string | null, progress: string } | null>(null)
   const [adding, setAdding] = useState(false)
   const [orderDirty, setOrderDirty] = useState(false)
   const [savingOrder, setSavingOrder] = useState(false)
-  
+
   const [expandedAlbumId, setExpandedAlbumId] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const albumFileRef = useRef<HTMLInputElement>(null)
@@ -45,15 +45,15 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
   const MAX_ITEMS = 8
 
   // === HANDLERS ===
-  
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetAlbumId: string | null = null) => {
     const files = Array.from(e.target.files ?? [])
     if (files.length === 0) return
 
-    const currentCount = targetAlbumId 
+    const currentCount = targetAlbumId
       ? (albums.find(a => a.id === targetAlbumId)?.gallery_items?.length || 0)
       : items.length
-      
+
     const slots = MAX_ITEMS - currentCount
     const toUpload = files.slice(0, slots)
 
@@ -71,11 +71,11 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
       try {
         const fd = new FormData()
         fd.append('file', toUpload[i])
-        
+
         const newItem = targetAlbumId
           ? await uploadAlbumPhoto(targetAlbumId, fd)
           : await uploadGalleryImage(fd)
-          
+
         uploaded.push(newItem as GalleryItem)
         setUploading({ id: targetAlbumId, progress: `${i + 1} / ${toUpload.length}` })
       } catch {
@@ -117,22 +117,22 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
     try {
       const newAlbum = await createGalleryAlbum(albumTitle, caption)
       let uploaded: GalleryItem[] = []
-      
+
       const files = Array.from(newAlbumFileRef.current?.files ?? [])
       if (files.length > 0) {
         const toUpload = files.slice(0, MAX_ITEMS)
         setUploading({ id: newAlbum.id, progress: `0 / ${toUpload.length}` })
-        
+
         for (let i = 0; i < toUpload.length; i++) {
-           const fd = new FormData()
-           fd.append('file', toUpload[i])
-           try {
-             const newItem = await uploadAlbumPhoto(newAlbum.id, fd)
-             uploaded.push(newItem as GalleryItem)
-             setUploading({ id: newAlbum.id, progress: `${i + 1} / ${toUpload.length}` })
-           } catch {
-             toast.error(`Chyba u souboru: ${toUpload[i].name}`)
-           }
+          const fd = new FormData()
+          fd.append('file', toUpload[i])
+          try {
+            const newItem = await uploadAlbumPhoto(newAlbum.id, fd)
+            uploaded.push(newItem as GalleryItem)
+            setUploading({ id: newAlbum.id, progress: `${i + 1} / ${toUpload.length}` })
+          } catch {
+            toast.error(`Chyba u souboru: ${toUpload[i].name}`)
+          }
         }
       }
 
@@ -168,7 +168,7 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
     }
   }
 
-  const handleToggleVisibility = async (type: 'item'|'album', id: string, current: boolean) => {
+  const handleToggleVisibility = async (type: 'item' | 'album', id: string, current: boolean) => {
     try {
       if (type === 'item') {
         await toggleGalleryItemActive(id, !current)
@@ -183,22 +183,32 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
     }
   }
 
-  const moveOrder = (type: 'item'|'album'|'photo', idx: number, dir: 'up'|'down', parentId?: string) => {
-    const list = type === 'item' ? [...items] : type === 'album' ? [...albums] : [...(albums.find(a => a.id === parentId)?.gallery_items || [])]
-    const next = dir === 'up' ? idx - 1 : idx + 1
-    if (next < 0 || next >= list.length) return
-    
-    ;[list[idx], list[next]] = [list[next], list[idx]]
-    
-    if (type === 'item') setItems(list as GalleryItem[])
-    else if (type === 'album') setAlbums(list as GalleryAlbum[])
-    else if (type === 'photo' && parentId) {
+  const moveOrder = (type: 'unified'|'photo', idx: number, dir: 'up'|'down', parentId?: string) => {
+    if (type === 'photo' && parentId) {
+      const list = [...(albums.find(a => a.id === parentId)?.gallery_items || [])]
+      const next = dir === 'up' ? idx - 1 : idx + 1
+      if (next < 0 || next >= list.length) return
+      ;[list[idx], list[next]] = [list[next], list[idx]]
       setAlbums(prev => prev.map(a => a.id === parentId ? { ...a, gallery_items: list as GalleryItem[] } : a))
-      // For album photos, save instantly to avoid dirty state complex logic
-      updateGalleryOrder(list.map((i, idx) => ({ id: i.id, order_index: idx }))).catch(() => toast.error('Chyba řazení'))
+      updateGalleryOrder(list.map((i, iIdx) => ({ id: i.id, order_index: iIdx }))).catch(() => toast.error('Chyba řazení'))
       return
     }
-    setOrderDirty(true)
+
+    if (type === 'unified') {
+      const list = [...unifiedList]
+      const next = dir === 'up' ? idx - 1 : idx + 1
+      if (next < 0 || next >= list.length) return
+      
+      ;[list[idx], list[next]] = [list[next], list[idx]]
+      list.forEach((item, i) => { item.order_index = i })
+      
+      const newAlbums = list.filter(x => x._type === 'album') as GalleryAlbum[]
+      const newItems = list.filter(x => x._type === 'item') as GalleryItem[]
+      
+      setAlbums(newAlbums)
+      setItems(newItems)
+      setOrderDirty(true)
+    }
   }
 
   const handleSaveOrder = async () => {
@@ -252,9 +262,9 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
             <h2 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
               {addMode === 'album' ? 'Vytvořit nové album' : addMode === 'youtube' ? 'Přidat YouTube Video' : 'Nahrát samostatné foto'}
             </h2>
-            <button onClick={() => setAddMode(null)} className="text-gray-400 hover:text-gray-600"><X size={20}/></button>
+            <button onClick={() => setAddMode(null)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
           </div>
-          
+
           {addMode === 'youtube' && (
             <div className="space-y-3">
               <input type="url" value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} placeholder="YouTube URL..." className="w-full px-4 py-2 rounded-lg border bg-transparent" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }} />
@@ -267,13 +277,13 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
             <div className="space-y-3">
               <input type="text" value={albumTitle} onChange={e => setAlbumTitle(e.target.value)} placeholder="Název alba (např. Realizace Praha)..." className="w-full px-4 py-2 rounded-lg border bg-transparent" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }} />
               <input type="text" value={caption} onChange={e => setCaption(e.target.value)} placeholder="Krátký popis..." className="w-full px-4 py-2 rounded-lg border bg-transparent" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }} />
-              
+
               <div className="border-2 border-dashed p-4 rounded-xl text-center cursor-pointer hover:bg-gray-50/5" style={{ borderColor: 'var(--border)' }} onClick={() => !adding && newAlbumFileRef.current?.click()}>
                 <Upload size={24} className="mx-auto mb-2 text-gray-400" />
                 {adding && uploading ? (
                   <p className="text-sm font-semibold text-emerald-500">Nahrávám {uploading.progress}...</p>
                 ) : (
-                  <p className="text-sm text-gray-400">Připojit fotky rovnou do alba (max {MAX_ITEMS})<br/>
+                  <p className="text-sm text-gray-400">Připojit fotky rovnou do alba (max {MAX_ITEMS})<br />
                     {selectedNewFiles > 0 && <span className="text-emerald-500 font-semibold">{selectedNewFiles} souborů vybráno</span>}
                   </p>
                 )}
@@ -298,116 +308,113 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
         </div>
       )}
 
-      {/* ALBUMS SECTION */}
-      {albums.length > 0 && (
+      {/* UNIFIED GALLERY LIST */}
+      {unifiedList.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold border-b pb-2" style={{ color: 'var(--text-primary)', borderColor: 'var(--border)' }}>Alba projektů</h2>
+          <h2 className="text-xl font-bold border-b pb-2" style={{ color: 'var(--text-primary)', borderColor: 'var(--border)' }}>Položky a Alba</h2>
           <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-            {albums.map((album, idx) => (
-              <div key={album.id} className="rounded-xl border overflow-hidden" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)', opacity: album.is_active ? 1 : 0.6 }}>
-                <div className="p-4 flex flex-col gap-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-lg line-clamp-1" style={{ color: 'var(--text-primary)' }}>{album.title}</h3>
-                      <p className="text-sm text-gray-400">{album.gallery_items?.length || 0} fotografií</p>
-                    </div>
-                    <div className="flex gap-1">
-                      <button onClick={() => moveOrder('album', idx, 'up')} disabled={idx===0} className="p-1 hover:bg-white/10 rounded disabled:opacity-0"><ChevronUp size={16}/></button>
-                      <button onClick={() => moveOrder('album', idx, 'down')} disabled={idx===albums.length-1} className="p-1 hover:bg-white/10 rounded disabled:opacity-0"><ChevronDown size={16}/></button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2 mt-2">
-                    <button onClick={() => setExpandedAlbumId(expandedAlbumId === album.id ? null : album.id)} className="flex-1 py-1.5 rounded-lg text-sm font-semibold bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2">
-                      <FolderOpen size={16}/> {expandedAlbumId === album.id ? 'Zavřít' : 'Spravovat'}
-                    </button>
-                    <button onClick={() => handleToggleVisibility('album', album.id, album.is_active)} className="px-3 py-1.5 rounded-lg border hover:bg-white/5" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
-                      {album.is_active ? <Eye size={16}/> : <EyeOff size={16}/>}
-                    </button>
-                    <button onClick={() => setDeleteConfirm({ type: 'album', id: album.id })} className="px-3 py-1.5 rounded-lg border border-red-500/30 text-red-500 hover:bg-red-500/10">
-                      <Trash2 size={16}/>
-                    </button>
-                  </div>
-                </div>
-
-                {/* EXPANDED ALBUM PHOTOS */}
-                {expandedAlbumId === album.id && (
-                  <div className="p-4 border-t bg-black/20" style={{ borderColor: 'var(--border)' }}>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Fotografie alba</span>
-                      <button 
-                        onClick={() => albumFileRef.current?.click()} 
-                        disabled={(album.gallery_items?.length || 0) >= MAX_ITEMS}
-                        className="text-xs font-semibold px-2 py-1 rounded bg-amber-500 text-white disabled:opacity-50"
-                      >
-                        + Přidat (max {MAX_ITEMS})
-                      </button>
-                      <input ref={albumFileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => handleImageUpload(e, album.id)} />
-                    </div>
-                    
-                    {uploading && uploading.id === album.id && (
-                      <div className="text-xs text-amber-500 mb-2 font-semibold">Nahrávám {uploading.progress}...</div>
-                    )}
-
-                    <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-thin">
-                      {(!album.gallery_items || album.gallery_items.length === 0) && (
-                        <div className="text-sm text-gray-500 py-4 italic">Zatím žádné fotografie</div>
-                      )}
-                      {album.gallery_items?.map((photo, pIdx) => (
-                        <div key={photo.id} className="relative group shrink-0" style={{ width: 100, height: 100 }}>
-                          <img src={photo.url} alt="" className="w-full h-full object-cover rounded-lg border" style={{ borderColor: 'var(--border)' }} />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col justify-between p-1">
-                            <div className="flex justify-between">
-                              <button onClick={() => moveOrder('photo', pIdx, 'up', album.id)} disabled={pIdx===0} className="text-white hover:text-amber-400 disabled:opacity-0"><ChevronUp size={16}/></button>
-                              <button onClick={() => setDeleteConfirm({ type: 'album_photo', id: photo.id, parentId: album.id })} className="text-red-400 hover:text-red-500"><X size={16}/></button>
-                            </div>
-                            <div className="flex justify-center">
-                              <button onClick={() => moveOrder('photo', pIdx, 'down', album.id)} disabled={pIdx===(album.gallery_items?.length || 0)-1} className="text-white hover:text-amber-400 disabled:opacity-0"><ChevronDown size={16}/></button>
-                            </div>
-                          </div>
+            {unifiedList.map((uniItem, idx) => {
+              if (uniItem._type === 'album') {
+                const album = uniItem as GalleryAlbum;
+                return (
+                  <div key={`album-${album.id}`} className="rounded-xl border overflow-hidden" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)', opacity: album.is_active ? 1 : 0.6 }}>
+                    <div className="p-4 flex flex-col gap-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-bold text-lg line-clamp-1" style={{ color: 'var(--text-primary)' }}>{album.title}</h3>
+                          <p className="text-sm text-gray-400">{album.gallery_items?.length || 0} fotografií</p>
                         </div>
-                      ))}
+                        <div className="flex gap-1">
+                          <button onClick={() => moveOrder('unified', idx, 'up')} disabled={idx === 0} className="p-1 hover:bg-white/10 rounded disabled:opacity-0"><ChevronUp size={16} /></button>
+                          <button onClick={() => moveOrder('unified', idx, 'down')} disabled={idx === unifiedList.length - 1} className="p-1 hover:bg-white/10 rounded disabled:opacity-0"><ChevronDown size={16} /></button>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 mt-2">
+                        <button onClick={() => setExpandedAlbumId(expandedAlbumId === album.id ? null : album.id)} className="flex-1 py-1.5 rounded-lg text-sm font-semibold bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2">
+                          <FolderOpen size={16} /> {expandedAlbumId === album.id ? 'Zavřít' : 'Spravovat'}
+                        </button>
+                        <button onClick={() => handleToggleVisibility('album', album.id, album.is_active)} className="px-3 py-1.5 rounded-lg border hover:bg-white/5" style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
+                          {album.is_active ? <Eye size={16} /> : <EyeOff size={16} />}
+                        </button>
+                        <button onClick={() => setDeleteConfirm({ type: 'album', id: album.id })} className="px-3 py-1.5 rounded-lg border border-red-500/30 text-red-500 hover:bg-red-500/10">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {expandedAlbumId === album.id && (
+                      <div className="p-4 border-t bg-black/20" style={{ borderColor: 'var(--border)' }}>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Fotografie alba</span>
+                          <button
+                            onClick={() => albumFileRef.current?.click()}
+                            disabled={(album.gallery_items?.length || 0) >= MAX_ITEMS}
+                            className="text-xs font-semibold px-2 py-1 rounded bg-amber-500 text-white disabled:opacity-50"
+                          >
+                            + Přidat (max {MAX_ITEMS})
+                          </button>
+                          <input ref={albumFileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => handleImageUpload(e, album.id)} />
+                        </div>
+
+                        {uploading && uploading.id === album.id && (
+                          <div className="text-xs text-amber-500 mb-2 font-semibold">Nahrávám {uploading.progress}...</div>
+                        )}
+
+                        <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-thin">
+                          {(!album.gallery_items || album.gallery_items.length === 0) && (
+                            <div className="text-sm text-gray-500 py-4 italic">Zatím žádné fotografie</div>
+                          )}
+                          {album.gallery_items?.map((photo, pIdx) => (
+                            <div key={photo.id} className="relative group shrink-0" style={{ width: 100, height: 100 }}>
+                              <img src={photo.url} alt="" className="w-full h-full object-cover rounded-lg border" style={{ borderColor: 'var(--border)' }} />
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col justify-between p-1">
+                                <div className="flex justify-between">
+                                  <button onClick={() => moveOrder('photo', pIdx, 'up', album.id)} disabled={pIdx === 0} className="text-white hover:text-amber-400 disabled:opacity-0"><ChevronUp size={16} /></button>
+                                  <button onClick={() => setDeleteConfirm({ type: 'album_photo', id: photo.id, parentId: album.id })} className="text-red-400 hover:text-red-500"><X size={16} /></button>
+                                </div>
+                                <div className="flex justify-center">
+                                  <button onClick={() => moveOrder('photo', pIdx, 'down', album.id)} disabled={pIdx === (album.gallery_items?.length || 0) - 1} className="text-white hover:text-amber-400 disabled:opacity-0"><ChevronDown size={16} /></button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              } else {
+                const item = uniItem as GalleryItem;
+                return (
+                  <div key={`item-${item.id}`} className="rounded-xl border overflow-hidden flex flex-col" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)', opacity: item.is_active ? 1 : 0.5 }}>
+                    <div className="relative h-[250px] bg-gray-900 shrink-0" style={{ backgroundImage: `url(${item.type === 'youtube' && item.youtube_id ? getYoutubeThumb(item.youtube_id) : item.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                      {item.type === 'youtube' && <div className="absolute inset-0 flex items-center justify-center bg-black/30"><div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white">▶</div></div>}
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <button onClick={() => handleToggleVisibility('item', item.id, item.is_active)} className="p-1.5 rounded-lg bg-white/90 text-gray-700 hover:bg-white">{item.is_active ? <Eye size={14} /> : <EyeOff size={14} />}</button>
+                        <button onClick={() => setDeleteConfirm({ type: 'item', id: item.id })} className="p-1.5 rounded-lg bg-white/90 text-red-500 hover:bg-white"><Trash2 size={14} /></button>
+                      </div>
+                      <div className="absolute bottom-2 left-2 flex gap-1">
+                        <button onClick={() => moveOrder('unified', idx, 'up')} disabled={idx === 0} className="p-1 bg-white/80 rounded hover:bg-white disabled:opacity-0"><ChevronUp size={14} /></button>
+                        <button onClick={() => moveOrder('unified', idx, 'down')} disabled={idx === unifiedList.length - 1} className="p-1 bg-white/80 rounded hover:bg-white disabled:opacity-0"><ChevronDown size={14} /></button>
+                      </div>
+                    </div>
+                    <div className="p-4 flex-1">
+                      <input type="text" defaultValue={item.caption ?? ''} placeholder="Popisek fotky / videa..."
+                        onBlur={async e => {
+                          const val = e.target.value.trim()
+                          if (val !== (item.caption ?? '')) {
+                            updateGalleryCaption(item.id, val).catch(() => toast.error('Chyba uložení'))
+                            setItems(prev => prev.map(i => i.id === item.id ? { ...i, caption: val || null } : i))
+                          }
+                        }}
+                        className="w-full font-bold outline-none bg-transparent" style={{ color: 'var(--text-primary)' }}
+                      />
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* STANDALONE ITEMS SECTION */}
-      {items.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold border-b pb-2" style={{ color: 'var(--text-primary)', borderColor: 'var(--border)' }}>Samostatné položky (Obrázky & Videa)</h2>
-          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))' }}>
-            {items.map((item, idx) => (
-              <div key={item.id} className="rounded-xl border overflow-hidden" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)', opacity: item.is_active ? 1 : 0.5 }}>
-                <div className="relative h-40 bg-gray-900" style={{ backgroundImage: `url(${item.type === 'youtube' && item.youtube_id ? getYoutubeThumb(item.youtube_id) : item.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                  {item.type === 'youtube' && <div className="absolute inset-0 flex items-center justify-center bg-black/30"><div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white">▶</div></div>}
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    <button onClick={() => handleToggleVisibility('item', item.id, item.is_active)} className="p-1.5 rounded-lg bg-white/90 text-gray-700 hover:bg-white">{item.is_active ? <Eye size={14}/> : <EyeOff size={14}/>}</button>
-                    <button onClick={() => setDeleteConfirm({ type: 'item', id: item.id })} className="p-1.5 rounded-lg bg-white/90 text-red-500 hover:bg-white"><Trash2 size={14}/></button>
-                  </div>
-                  <div className="absolute bottom-2 left-2 flex gap-1">
-                    <button onClick={() => moveOrder('item', idx, 'up')} disabled={idx===0} className="p-1 bg-white/80 rounded hover:bg-white disabled:opacity-0"><ChevronUp size={14}/></button>
-                    <button onClick={() => moveOrder('item', idx, 'down')} disabled={idx===items.length-1} className="p-1 bg-white/80 rounded hover:bg-white disabled:opacity-0"><ChevronDown size={14}/></button>
-                  </div>
-                </div>
-                <div className="px-3 py-2">
-                  <input type="text" defaultValue={item.caption ?? ''} placeholder="Popisek..." 
-                    onBlur={async e => {
-                      const val = e.target.value.trim()
-                      if (val !== (item.caption ?? '')) {
-                        updateGalleryCaption(item.id, val).catch(() => toast.error('Chyba uložení'))
-                        setItems(prev => prev.map(i => i.id === item.id ? { ...i, caption: val || null } : i))
-                      }
-                    }}
-                    className="w-full text-xs outline-none bg-transparent" style={{ color: 'var(--text-secondary)' }}
-                  />
-                </div>
-              </div>
-            ))}
+                );
+              }
+            })}
           </div>
         </div>
       )}
