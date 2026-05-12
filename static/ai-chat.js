@@ -352,12 +352,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (data.reply) {
-                botSay(data.reply);
+                let finalReply = data.reply;
                 
-                // If the bot extracted a LEAD, we could handle it here
-                if (data.reply.includes('[LEAD:')) {
-                    console.log('Nanobot extracted a lead!');
+                // If the bot extracted a LEAD, handle it and remove the tag from the UI
+                const leadMatch = finalReply.match(/\[LEAD:\s*(.*?)\]/i);
+                if (leadMatch) {
+                    const leadData = leadMatch[1].split(',').map(s => s.trim());
+                    const [name, phone, address, area] = leadData;
+                    
+                    console.log('Nanobot extracted a lead:', { name, phone, address, area });
+                    
+                    import('./supabase-config.js').then(({ supabase }) => {
+                        supabase.from('inquiries').insert({
+                            name: name || 'Zákazník z AI Chatu',
+                            phone: phone || userData.contact || 'Neznámé',
+                            address: address || userData.location || 'Neznámé',
+                            service: userData.service || 'Konzultace z chatu',
+                            message: `Poptávka vygenerovaná plně přes AI Chat.\nPlocha: ${area || 'Neznámé'}\nJméno: ${name || 'Neznámé'}`,
+                            source: 'chat',
+                            status: 'new'
+                        }).then(({ error }) => {
+                            if (error) console.error('AI Inquiry Save Error:', error);
+                        });
+
+                        supabase.from('chat_sessions').update({
+                            user_identifier: phone || name || 'Zákazník',
+                            status: 'closed'
+                        }).eq('session_token', chatConfig.sessionId);
+                    });
+
+                    // Remove the tag from the text displayed to the user
+                    finalReply = finalReply.replace(/\[LEAD:\s*(.*?)\]/i, '').trim();
+                    chatState = 'FINISHED';
                 }
+                
+                botSay(finalReply);
             } else {
                 throw new Error('No reply');
             }
