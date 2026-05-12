@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
@@ -205,6 +206,13 @@ export function TiptapEditor({ content, onChange }: EditorProps) {
       }
     }
   })
+
+  // Synchronizace prop content do editoru (Tiptap ignoruje změny props by default)
+  React.useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content, false)
+    }
+  }, [content, editor])
 
   return (
     <div className="border rounded-xl flex flex-col overflow-hidden transition-all focus-within:ring-4 focus-within:ring-amber-500/10 focus-within:border-amber-500/50" style={{ borderColor: 'var(--border)' }}>
