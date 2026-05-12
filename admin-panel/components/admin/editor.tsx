@@ -87,15 +87,16 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
       {/* Color Picker */}
       <div className="relative flex items-center group ml-1">
-        <label className="p-2 rounded-lg hover:bg-slate-200 cursor-pointer transition-colors flex items-center gap-1" title="Barva textu">
+        <div className="relative p-2 rounded-lg hover:bg-slate-200 cursor-pointer transition-colors flex items-center gap-1" title="Barva textu">
           <Pipette size={18} style={{ color: editor.getAttributes('textStyle').color || 'inherit' }} />
           <input
             type="color"
             onInput={e => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
+            onChange={e => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
             value={editor.getAttributes('textStyle').color || '#000000'}
-            className="w-0 h-0 absolute opacity-0"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
-        </label>
+        </div>
       </div>
 
       <div className="w-px h-6 bg-slate-300 mx-1" />
