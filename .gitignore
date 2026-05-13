@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vite/
+*.log
+npm-debug.log*
+.env*
+.DS_Store
+.vscode/
+.idea/
+scratch/
+.temp/
+.supabase/
