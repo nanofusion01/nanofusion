@@ -15,7 +15,7 @@
       "destination": "/static/$1"
     },
     {
-      "source": "/((?!admin|api|assets|static).*)",
+      "source": "/((?!admin|api|assets|static|faq|o-nas).*)",
       "destination": "/index.html"
     }
   ],

@@ -65,7 +65,19 @@ const syncHowItWorks = async () => {
   }
 };
 
-// Spustit po načtení DOM a s mírným zpožděním pro React
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(syncHowItWorks, 1600);
-});
+// Spustit ihned jakmile se sekce objeví v DOM pro bleskovou rychlost
+const runInit = () => {
+  if (document.getElementById('proces')) {
+    syncHowItWorks();
+    return;
+  }
+  const observer = new MutationObserver(() => {
+    if (document.getElementById('proces')) {
+      observer.disconnect();
+      syncHowItWorks();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+};
+
+runInit();

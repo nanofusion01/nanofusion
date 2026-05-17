@@ -1,6 +1,5 @@
-import { supabase, normalizeMediaUrl } from './supabase-client.js'
+/* Clean Interactivity for NANOfusion Services - Extended */
 
-// Senior CTO: Dynamic Data Source (CMS Bridge)
 let servicesData = [
   {
     id: 'facade', title: 'Čištění fasád', tag: 'Prémiová ochrana',
@@ -9,7 +8,16 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Proces zahrnuje aplikaci speciálního přípravku na odstranění organických nečistot, následné nanesení aktivní pěny, oplach studenou vodou pod nízkým tlakem, chemické ošetření povrchu a závěrečnou impregnaci, která fasádu chrání před vlhkostí a nečistotami.',
-    faq: []
+    faq: [
+      { q: 'Proč investovat do čištění a impregnace fasády?', a: 'Čištění a impregnace zlepší estetický vzhled domu a prodlouží životnost fasády. Vyhnete se nákladným opravám způsobeným plísněmi, řasami nebo vlhkostí.' },
+      { q: 'Jaké metody používáte?', a: 'Používáme nízkotlaké čištění a speciální čisticí prostředky přizpůsobené typu fasády. Na omítkové fasády nikdy nepoužíváme horkou vodu!' },
+      { q: 'Je impregnace nutná?', a: 'Ano. Po vyčištění je povrch zranitelný. Impregnace vytvoří neviditelnou vrstvu odpuzující vodu a snižující přilnavost nečistot.' },
+      { q: 'Jak dlouho vydrží impregnace?', a: 'Účinek se pohybuje kolem 5–10 let v závislosti na typu fasády a povětrnostních podmínkách.' },
+      { q: 'Jaké typy fasád čistíte?', a: 'Čistíme téměř všechny typy – omítky, zateplovací systémy, cihlové i kamenné povrchy.' },
+      { q: 'Je to bezpečné pro okolní prostředí?', a: 'Ano, používáme ekologicky nezávadné prostředky. Okolní keře a rostliny zakrýváme.' },
+      { q: 'Jak dlouho trva realizace?', a: 'Rodinný dům (250 m²) cca 2 dny. Bytový dům (2 500 m²) cca 4–5 dní. Závisí na počasí.' },
+      { q: 'Mohu službu využít v zimě?', a: 'V zimě fasády nečistíme. Ideální sezóna je od jara do podzimu.' }
+    ]
   },
   {
     id: 'roof', title: 'Čištění střech', tag: 'Prodloužení životnosti',
@@ -18,7 +26,12 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Šetrné čištění střešní krytiny od mechů, lišejníků a nečistot. Po vyčištění následuje sanace a aplikace nano impregnace, která chrání střechu až na 7 let.',
-    faq: []
+    faq: [
+      { q: 'Poškodí čištění moji střechu?', a: 'Ne. Používáme šetrné metody s regulovaným tlakem, které krytinu nepoškodí.' },
+      { q: 'Jak často je potřeba střechu čistit?', a: 'Doporučujeme cca každých 5–7 let v závislosti na lokalitě a typu krytiny.' },
+      { q: 'Čistíte i okapy?', a: 'Ano, čištění okapů je součástí naší služby.' },
+      { q: 'Jakou impregnaci používáte?', a: 'Používáme špičkovou nano impregnaci s ochranou až na 7 let.' }
+    ]
   },
   {
     id: 'pavement', title: 'Čištění dlažeb', tag: 'Vzhled nového povrchu',
@@ -27,7 +40,11 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Hloubkové čištění dlažby pomocí chemie a tlakové vody. Následuje sanace proti mechům a lišejníkům a aplikace hydrofobní impregnace nebo oživovacího nátěru.',
-    faq: []
+    faq: [
+      { q: 'Čistíte i zámkovou dlažbu?', a: 'Ano, specializujeme se na zámkovou dlažbu, betonové plochy i přírodní kámen.' },
+      { q: 'Doplníte písek do spár?', a: 'Ano, doplnění písku do spár je volitelná služba za 40 Kč/m².' },
+      { q: 'Jaký je minimální rozsah zakázky?', a: 'Minimální výjezdový paušál je 20 000 Kč bez DPH.' }
+    ]
   },
   {
     id: 'pv', title: 'Solární panely', tag: 'Vyšší účinnost',
@@ -36,7 +53,10 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Čištění pomocí demineralizované vody a speciálních kartáčů, které nepoškrábeú povrch panelů. Následná aplikace keramické nano ochrany pro samočistící efekt.',
-    faq: []
+    faq: [
+      { q: 'Zvýší čištění výkon panelů?', a: 'Ano, znečištěné panely mohou ztrácet až 25 % výkonu. Po vyčištění se výkon vrátí na optimální úroveň.' },
+      { q: 'Jak často čistit panely?', a: 'Doporučujeme čištění 1–2× ročně v závislosti na okolním prostředí.' }
+    ]
   },
   {
     id: 'graffiti', title: 'Odstranění graffiti', tag: 'Rychlá pomoc',
@@ -45,7 +65,10 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Odstraňujeme graffiti z betonu, fasád, pískovce, cihel, vagonů a dalších povrchů. Po odstranění aplikujeme antigraffiti nátěr s dlouhou životností.',
-    faq: []
+    faq: [
+      { q: 'Z jakých povrchů odstraňujete graffiti?', a: 'Z betonu, fasád, pískovce, cihel, vagonů i dalších povrchů.' },
+      { q: 'Co je antigraffiti nátěr?', a: 'Ochranný nátěr, díky kterému lze budoucí graffiti snadno smýt bez poškození povrchu.' }
+    ]
   },
   {
     id: 'industrial', title: 'Průmyslové čištění', tag: 'B2B řešení',
@@ -54,9 +77,11 @@ let servicesData = [
     beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
     afterImg: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     involves: 'Komplexní čištění průmyslových objektů včetně podlah, stěn, stropů, technologických rozvodů a konstrukcí. Schopni pracovat i za plného provozu.',
-    faq: []
+    faq: [
+      { q: 'Můžete čistit za provozu?', a: 'Ano, jsme schopni provádět práce i za plného provozu závodu.' },
+      { q: 'Likvidujete odpad?', a: 'Ano, likvidaci veškerého odpadu zajistíme.' }
+    ]
   },
-  // --- Nátěry a další služby (heslovitě) ---
   {
     id: 'facade-paint', title: 'Nátěry fasád', tag: 'Nový vzhled',
     detail: 'Ve spolupráci s firmou Caparol nabízíme nátěry fasád té nejvyšší kvality. Zdravá a čistá fasáda se zárukou až 14 let.',
@@ -162,57 +187,129 @@ let servicesData = [
   }
 ];
 
-// Bridge to Admin CMS (Supabase Cloud Version)
-const syncServicesWithCMS = async () => {
+// --- Dynamic Prices Sync ---
+let remotePrices = {
+  roof: 190, facade: 150, pavement: 120, pv: 80, graffiti: 250, industrial: 130,
+  'facade-paint': 200, 'roof-paint': 180, impregnation: 70, antislip: 120, ceramfloor: 250, antibac: 80
+};
+
+const syncRemotePrices = async () => {
   try {
-    const { data: cmsData, error } = await supabase.from('services').select('*');
-    const { data: faqData } = await supabase.from('service_faqs').select('*').eq('is_active', true);
-    const { data: globalFaqData } = await supabase.from('faqs').select('*').eq('is_active', true);
+    const { supabase } = await import('./supabase-config.js');
+    const { data, error } = await supabase.from('configurator_prices').select('item_key, price');
+    if (!error && data) {
+      data.forEach(item => {
+        if (remotePrices[item.item_key] !== undefined) {
+          remotePrices[item.item_key] = item.price;
+        }
+      });
+      console.log('Offers: Ceny synchronizovány s Adminem');
+    }
+  } catch (e) {
+    console.warn('Offers: Cloud Sync cen nedostupný.');
+  }
+};
+syncRemotePrices();
 
-    if (cmsData && Array.isArray(cmsData)) {
-      const generalSluzbyFaqs = globalFaqData ? globalFaqData.filter(f => f.page_section === 'sluzby') : [];
+// --- Cloud Hydration (Supabase) ---
+const hydrateFromCloud = async () => {
+  try {
+    const { supabase } = await import('./supabase-config.js');
 
-      cmsData.forEach(cmsItem => {
-        const idx = servicesData.findIndex(s => s.id === cmsItem.slug);
-        if (idx !== -1) {
-          if (cmsItem.description) servicesData[idx].detail = cmsItem.description;
-          if (cmsItem.process_description) servicesData[idx].involves = cmsItem.process_description;
-          if (cmsItem.features && Array.isArray(cmsItem.features) && cmsItem.features.length > 0) {
-            servicesData[idx].bulletPoints = cmsItem.features;
-            servicesData[idx].isBulletStyle = true;
+    // Načti služby, FAQs a Before/After paralelně
+    const [servicesRes, faqsRes, beforeAfterRes] = await Promise.all([
+      supabase.from('services').select('*').eq('is_active', true),
+      supabase.from('service_faqs').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+      supabase.from('service_before_after').select('*').order('order_index', { ascending: true }),
+    ]);
+
+    // Merge služby
+    if (!servicesRes.error && servicesRes.data && servicesRes.data.length > 0) {
+      console.log('Hydrating services from Cloud...');
+      servicesRes.data.forEach(cloudService => {
+        const cloudSlug = (cloudService.slug || '').replace(/^\//, '') // strip leading /
+        const index = servicesData.findIndex(s =>
+          s.id === cloudService.id ||
+          s.id === cloudSlug ||
+          s.id === cloudService.slug
+        );
+        if (index !== -1) {
+          servicesData[index] = {
+            ...servicesData[index],
+            _dbId: cloudService.id, // uložíme UUID pro FAQ lookup
+            title: cloudService.name || cloudService.title || servicesData[index].title,
+            detail: cloudService.description || cloudService.detail || servicesData[index].detail,
+            image: cloudService.hero_image_url || cloudService.image || servicesData[index].image,
+            tag: cloudService.category || cloudService.tag || servicesData[index].tag,
+            involves: cloudService.process_description || servicesData[index].involves,
+            bulletPoints: cloudService.features || servicesData[index].bulletPoints,
+            isBulletStyle: !!cloudService.features || servicesData[index].isBulletStyle,
+            order_index: cloudService.order_index ?? 999,
+          };
+        } else {
+          const mapped = {
+            id: cloudService.slug || cloudService.id,
+            _dbId: cloudService.id,
+            title: cloudService.name || cloudService.title,
+            detail: cloudService.description || cloudService.detail,
+            image: cloudService.hero_image_url || cloudService.image,
+            tag: cloudService.category || cloudService.tag,
+            involves: cloudService.process_description,
+            bulletPoints: cloudService.features,
+            isBulletStyle: !!cloudService.features,
+            faq: [],
+            order_index: cloudService.order_index ?? 999,
+          };
+          if (mapped.title && mapped.detail) servicesData.push(mapped);
+        }
+      });
+      
+      // Seřadíme pole podle admin panelu
+      servicesData.sort((a, b) => (a.order_index ?? 999) - (b.order_index ?? 999));
+    }
+
+    // Napoj FAQs na příslušné služby (podle service_id = _dbId)
+    if (!faqsRes.error && faqsRes.data && faqsRes.data.length > 0) {
+      faqsRes.data.forEach(faq => {
+        const svc = servicesData.find(s => s._dbId === faq.service_id);
+        if (svc) {
+          // Pokud poprvé narážíme na cloud FAQ pro tuto službu, vymažeme ty lokální (hardkódované)
+          if (!svc._faqsHydrated) {
+            svc.faq = [];
+            svc._faqsHydrated = true;
           }
-          if (cmsItem.before1) servicesData[idx].beforeImg = cmsItem.before1;
-          if (cmsItem.after1) servicesData[idx].afterImg = cmsItem.after1;
-
-          // CRITICAL: Clear hardcoded FAQs to make database the source of truth
-          servicesData[idx].faq = [];
           
-          const serviceFaqs = faqData ? faqData.filter(f => f.service_id === cmsItem.id) : [];
-          const sectionFaqs = globalFaqData ? globalFaqData.filter(f => f.page_section === cmsItem.slug) : [];
-          const combinedFaqs = [...serviceFaqs, ...sectionFaqs, ...generalSluzbyFaqs];
+          // Přidej dotaz z cloudu
+          svc.faq.push({ q: faq.question, a: faq.answer });
+        }
+      });
+      console.log('Service FAQs loaded from Cloud');
+    }
 
-          if (combinedFaqs.length > 0) {
-            // Map and remove duplicates if any (by question text)
-            const uniqueFaqs = [];
-            const seen = new Set();
-            combinedFaqs.forEach(f => {
-              if (!seen.has(f.question)) {
-                uniqueFaqs.push({ q: f.question, a: f.answer });
-                seen.add(f.question);
-              }
-            });
-            servicesData[idx].faq = uniqueFaqs;
+    // Napoj Before/After fotky na příslušné služby
+    if (!beforeAfterRes.error && beforeAfterRes.data && beforeAfterRes.data.length > 0) {
+      beforeAfterRes.data.forEach(item => {
+        const svc = servicesData.find(s => s._dbId === item.service_id);
+        if (svc && item.before_url && item.after_url) {
+          if (!svc.beforeAfterPairs) svc.beforeAfterPairs = [];
+          svc.beforeAfterPairs.push({ beforeImg: item.before_url, afterImg: item.after_url });
+          
+          // Zpětná kompatibilita pro první pár (nebo pokud by modal selhal)
+          if (svc.beforeAfterPairs.length === 1) {
+            svc.beforeImg = item.before_url;
+            svc.afterImg = item.after_url;
           }
         }
       });
-      // Trigger UI update
-      window.dispatchEvent(new CustomEvent('services_synced'));
+      console.log('Service Before/After loaded from Cloud');
     }
+
   } catch (e) {
-    console.error("Cloud Sync Error:", e);
+    console.warn('Cloud hydration skipped (offline or not configured)');
   }
 };
-syncServicesWithCMS();
+hydrateFromCloud();
+
 
 const openServiceModal = (data) => {
   let modal = document.getElementById('service-modal-overlay');
@@ -227,6 +324,7 @@ const openServiceModal = (data) => {
   let beforeAfterHtml = '';
   const pairsToRender = data.beforeAfterPairs || [];
   if (pairsToRender.length === 0 && data.beforeImg && data.afterImg) {
+    // fallback for statically defined items
     pairsToRender.push({ beforeImg: data.beforeImg, afterImg: data.afterImg });
   }
 
@@ -273,9 +371,9 @@ const openServiceModal = (data) => {
     </div>
   ` : `
     <ul style="list-style: none; padding: 0; margin-top: 1rem;">
-      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; margin-bottom: 0.5rem; font-weight: 600;"> <span style="color: #F59E0B; font-size: 0.875rem; font-weight: 800;">✓</span> Certifikovaná technologie </li>
-      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; margin-bottom: 0.5rem; font-weight: 600;"> <span style="color: #F59E0B; font-size: 0.875rem; font-weight: 800;">✓</span> Záruka až 10 let </li>
-      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; font-weight: 600;"> <span style="color: #F59E0B; font-size: 0.875rem; font-weight: 800;">✓</span> Zaměření zdarma </li>
+      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; margin-bottom: 0.5rem; font-weight: 600;"> <span style="color: #F59E0B;">✓</span> Certifikovaná technologie </li>
+      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; margin-bottom: 0.5rem; font-weight: 600;"> <span style="color: #F59E0B;">✓</span> Záruka až 10 let </li>
+      <li style="display: flex; align-items: center; gap: 0.75rem; color: #1e293b; font-weight: 600;"> <span style="color: #F59E0B;">✓</span> Zaměření zdarma </li>
     </ul>
   `;
 
@@ -288,7 +386,9 @@ const openServiceModal = (data) => {
           <div class="faq-item" style="border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden;">
             <button class="faq-toggle" data-idx="${idx}" style="width: 100%; text-align: left; padding: 0.875rem 1rem; background: #fafafa; border: none; cursor: pointer; font-weight: 600; font-size: 0.813rem; color: #1e293b; display: flex; justify-content: space-between; align-items: center;">
               <span>${item.q}</span>
-              <span class="faq-arrow" style="transform: rotate(0deg); transition: transform 0.2s; font-size: 0.75rem; color: #94a3b8;">▼</span>
+              <svg class="faq-arrow transition-transform flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(0deg); transition: transform 0.2s;">
+                <path d="M6 9l6 6 6-6"></path>
+              </svg>
             </button>
             <div class="faq-answer" style="display: none; padding: 0.75rem 1rem; background: white; font-size: 0.813rem; color: #475569; line-height: 1.6;">
               ${item.a}
@@ -393,11 +493,7 @@ const openServiceModal = (data) => {
     const area = parseInt(document.getElementById('m-area').value) || 0;
     if (!name || !phone) return alert('Prosím vyplňte jméno a telefon.');
 
-    const prices = {
-      roof: 190, facade: 150, pavement: 120, pv: 80, graffiti: 250, industrial: 130,
-      'facade-paint': 200, 'roof-paint': 180, impregnation: 70, antislip: 120, ceramfloor: 250, antibac: 80
-    };
-    const base = (prices[data.id] || 150) * area;
+    const base = (remotePrices[data.id] || 150) * area;
     const min = Math.round(base * 1.05 / 10) * 10;
     const max = Math.round(base * 1.15 / 10) * 10;
 
@@ -406,10 +502,20 @@ const openServiceModal = (data) => {
     document.getElementById('m-form').style.display = 'none';
     document.getElementById('m-result').style.display = 'block';
 
-    // Save lead
-    const leads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
-    leads.unshift({ id: Date.now(), date: new Date().toLocaleString('cs-CZ'), name, phone, service: data.title, source: 'Modal' });
-    localStorage.setItem('nanofusion_leads', JSON.stringify(leads));
+    // --- Supabase Inquiry Saving ---
+    import('./supabase-config.js').then(({ supabase }) => {
+      supabase.from('inquiries').insert({
+        name: name,
+        phone: phone,
+        service: data.title,
+        message: `Plocha: ${area} m2, Odhad ceny: ${min} - ${max} Kč`,
+        source: 'Modal / Kalkulačka',
+        status: 'new'
+      }).then(({ error }) => {
+        if (error) console.error('Cloud Save Error:', error);
+        else console.log('Service inquiry saved to STRV Cloud');
+      });
+    });
   };
 };
 
@@ -419,14 +525,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const serviceGrid = document.querySelector('#sluzby .grid');
     if (!serviceGrid) return;
 
-    // We only want to inject services that are NOT already in the main React grid
-    // Based on inspection, we add the ones from id 61 ('graffiti') and onwards
-    const supplemental = servicesData.slice(4); // Industrial, Graffiti, Paints, etc.
+    // Vymažeme statický React grid a nahradíme ho aktuálními daty
+    serviceGrid.innerHTML = '';
 
-    supplemental.forEach(service => {
-      // Check if already exists by checking text content (simple heuristic)
-      if (serviceGrid.innerText.includes(service.title)) return;
-
+    // Vykreslíme všechny služby seřazené podle pořadí, s aplikovanými úpravami z admin panelu
+    servicesData.forEach(service => {
       const card = document.createElement('div');
       card.className = 'group relative bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 cursor-pointer animate-fade-in';
       card.innerHTML = `
@@ -440,7 +543,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <h3 class="text-xl font-bold mb-2">${service.title}</h3>
           <div class="text-muted-foreground text-sm line-clamp-2">${service.detail}</div>
           <div class="mt-4 flex items-center text-primary font-bold text-sm">
-            Zjistit více <span class="ml-2 transition-transform group-hover:translate-x-1">→</span>
+            Zjistit více 
+            <svg class="ml-2 transition-transform group-hover:translate-x-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14m-7-7l7 7-7 7"></path>
+            </svg>
           </div>
         </div>
       `;

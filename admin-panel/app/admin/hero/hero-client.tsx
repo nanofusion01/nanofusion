@@ -51,8 +51,9 @@ export function HeroClient({
       const fd = new FormData()
       fd.append('file', file)
       const publicUrl = await uploadHeroFile(fd)
-      setItems(prev => [...prev, { id: Date.now().toString(), url: publicUrl, type: 'image', is_active: false, updated_at: new Date().toISOString() }])
-      toast.success('Obrázek nahrán do knihovny')
+      const inferredType = file.type.startsWith('video/') ? 'video' : 'image'
+      setItems(prev => [...prev, { id: Date.now().toString(), url: publicUrl, type: inferredType, is_active: false, updated_at: new Date().toISOString() }])
+      toast.success(inferredType === 'video' ? 'Video nahráno do knihovny' : 'Obrázek nahrán do knihovny')
     } catch (e: any) {
       toast.error('Chyba při nahrávání: ' + e.message)
     } finally {
@@ -79,13 +80,12 @@ export function HeroClient({
     if (!newUrl) return
     setIsAdding(true)
     try {
-      await addHeroMedia(newUrl, newType)
+      // Odkazy na YouTube jsou vždy typu video
+      await addHeroMedia(newUrl, 'video')
       setNewUrl('')
-      toast.success('Nové médium bylo přidáno do knihovny')
-      // Note: Revalidation will refresh the page and initialItems, 
-      // but for immediate UI we could also append locally if needed.
+      toast.success('Nové video bylo přidáno do knihovny')
     } catch (e) {
-      toast.error('Chyba při přidávání média')
+      toast.error('Chyba při přidávání videa')
     } finally {
       setIsAdding(false)
     }

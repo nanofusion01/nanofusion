@@ -86,6 +86,11 @@ const navSections = [
         href: '/admin/how-it-works',
         icon: <Brain size={18} />,
       },
+      {
+        label: 'O nás',
+        href: '/admin/about-us',
+        icon: <Users size={18} />,
+      },
     ],
   },
   {

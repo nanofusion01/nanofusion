@@ -1,6 +1,33 @@
 <!doctype html>
 <html lang="cs">
 <head>
+  <!-- DIAGNOSTICKÝ OVERLAY PRO CHYBY -->
+  <script>
+    (function() {
+      function showErrorOverlay(title, message, stack) {
+        var el = document.getElementById('nnf-debug-overlay');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'nnf-debug-overlay';
+          el.style.cssText = 'position:fixed;inset:0;background:#990000;color:white;z-index:999999999;padding:40px;font-family:monospace;font-size:16px;line-height:1.5;overflow-y:auto;';
+          document.documentElement.appendChild(el);
+        }
+        el.innerHTML = '<h1>${heroTitle}</h1>' +
+          '<p><strong>Zpráva:</strong> ' + message + '</p>' +
+          (stack ? '<pre style="background:#440000;padding:20px;border-radius:10px;overflow-x:auto;">' + stack + '</pre>' : '');
+      }
+      window.onerror = function(msg, url, line, col, error) {
+        showErrorOverlay('Synchronní JS chyba', msg + ' (' + url + ':' + line + ':' + col + ')', error ? error.stack : '');
+        return false;
+      };
+      window.onunhandledrejection = function(event) {
+        var reason = event.reason || {};
+        showErrorOverlay('Asynchronní Promise chyba', reason.message || reason, reason.stack || '');
+      };
+      console.log('NANOfusion Diagnostic Error Catcher: Active');
+    })();
+  </script>
+
   <meta charset="utf-8" />
   <link href="/static/logo.jpg" rel="icon" type="image/jpeg" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -149,5 +176,6 @@
   <script src="/static/ai-chat.js?v=2" type="module"></script>
   <script src="/static/gallery-hero.js" type="module"></script>
   <script src="/static/faq.js" type="module"></script>
+  <script src="/static/about-us.js" type="module"></script>
 </body>
 </html>

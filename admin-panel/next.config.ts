@@ -6,6 +6,18 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: "..",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mgmtkdwvhgrzefmyucvr.supabase.co',
+      },
+    ],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '20mb',

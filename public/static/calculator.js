@@ -1,8 +1,10 @@
-/* Pokročilá kalkulačka inspirovaná umyjemto.cz pro NANOfusion */
+/* Pokročilá kalkulačka s napojením na Supabase (Admin Panel) pro NANOfusion */
 
-const injectCalculator = () => {
+const injectCalculator = async () => {
   const contactSection = document.getElementById('kontakt');
   if (contactSection && !document.getElementById('kalkulacka')) {
+    
+    // Defaultní ceny jako záloha (kdyby Supabase neodpovídal)
     let services = [
       { id: 'roof', name: 'Čištění střech', price: 190, desc: 'Čištění + nano-ochrana' },
       { id: 'facade', name: 'Čištění fasád', price: 150, desc: 'Čištění + nano-ochrana' },
@@ -18,22 +20,22 @@ const injectCalculator = () => {
       { id: 'antibac', name: 'Antibakteriální', price: 80, desc: 'Ochrana 120 dní' }
     ];
 
-    // --- Cloud Sync: Fetch Prices from Supabase ---
-    const syncPrices = async () => {
-        const sb = await initSupabase();
-        if (!sb) return;
-        const { data: cmsPrices, error } = await sb.from('prices').select('*');
-        if (cmsPrices && Array.isArray(cmsPrices)) {
-            services = services.map(s => {
-                const cmsP = cmsPrices.find(p => p.id === s.id);
-                if (cmsP) return { ...s, price: cmsP.base };
-                return s;
-            });
-            // Re-render current step if necessary
-            renderStep(currentStep);
-        }
-    };
-    syncPrices();
+    // --- LIVE SYNC S ADMINEM (SUPABASE) ---
+    try {
+      const { supabase } = await import('./supabase-config.js');
+      const { data: remotePrices, error } = await supabase.from('configurator_prices').select('*');
+      
+      if (!error && remotePrices && remotePrices.length > 0) {
+        console.log('NANOfusion: Ceny načteny z Admin Panelu');
+        // Přepíšeme defaultní ceny těmi z databáze
+        services = services.map(localS => {
+          const remoteS = remotePrices.find(r => r.item_key === localS.id);
+          return remoteS ? { ...localS, price: remoteS.price } : localS;
+        });
+      }
+    } catch (e) {
+      console.warn('NANOfusion: Cloud Sync nedostupný, používám lokální ceny.');
+    }
 
     const objectTypes = [
       { id: 'rd', name: 'Rodinný dům' },
@@ -42,18 +44,16 @@ const injectCalculator = () => {
     ];
 
     const calculatorHtml = `
-      <section class="calc-section animate-fade-in" id="konfigurator" style="scroll-margin-top: 100px; background: #ffffff; border-radius: 2rem; border: 1px solid #edf2f7; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 4rem;">
+      <section class="calc-section animate-fade-in" id="kalkulacka" style="scroll-margin-top: 100px; background: #ffffff; border-radius: 2rem; border: 1px solid #edf2f7; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 4rem;">
         <div class="calc-container" id="calc-steps" style="max-width: 700px; margin: 0 auto; padding: 2rem 1rem;">
           <h2 class="calc-title" style="margin-bottom: 2rem; text-align: center;">Konfigurátor</h2>
           
-          <!-- Progress Bar -->
           <div style="display: flex; gap: 8px; margin-bottom: 3rem; justify-content: center;">
             <div class="calc-progress-bar" id="progress-1" style="flex: 1; height: 6px; background: #F59E0B; border-radius: 10px;"></div>
             <div class="calc-progress-bar" id="progress-2" style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 10px;"></div>
             <div class="calc-progress-bar" id="progress-3" style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 10px;"></div>
           </div>
 
-          <!-- Step 1: Selection -->
           <div id="step-1">
             <p class="calc-label" style="text-align: center; margin-bottom: 1.5rem;">1. Co budeme čistit?</p>
             <div class="calc-service-grid" style="display: grid; gap: 0.75rem; margin-bottom: 2rem;">
@@ -77,7 +77,6 @@ const injectCalculator = () => {
             <button class="calc-cta" id="go-to-step-2" style="border: none; cursor: pointer; font-size: 1.125rem;">Pokračovat k ploše →</button>
           </div>
 
-          <!-- Step 2: Area & Contact -->
           <div id="step-2" style="display: none;">
             <p class="calc-label" style="text-align: center; margin-bottom: 2rem;">2. Upřesněte zadání</p>
             
@@ -96,10 +95,10 @@ const injectCalculator = () => {
             <div style="background: #f8fafc; padding: 2rem; border-radius: 1.5rem; margin: 2rem 0;">
               <p class="calc-label" style="margin-bottom: 1rem; text-align: center;">Uveďte kontakt pro zaslání kalkulace</p>
               <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <input class="calc-input" id="calc-name" placeholder="Vaše jméno" style="width: 100%; border-radius: 0.75rem;" type="text">
-                <input class="calc-input" id="calc-email" placeholder="E-mail" style="width: 100%; border-radius: 0.75rem;" type="email">
-                <input class="calc-input" id="calc-phone" placeholder="Telefon" style="width: 100%; border-radius: 0.75rem;" type="tel">
-                <input class="calc-input" id="calc-address" placeholder="Adresa zaměření" style="width: 100%; border-radius: 0.75rem; display: none;" type="text">
+                <input class="calc-input" id="calc-name" name="name" placeholder="Vaše jméno" style="width: 100%; border-radius: 0.75rem;" type="text">
+                <input class="calc-input" id="calc-email" name="email" placeholder="E-mail" style="width: 100%; border-radius: 0.75rem;" type="email">
+                <input class="calc-input" id="calc-phone" name="phone" placeholder="Telefon" style="width: 100%; border-radius: 0.75rem;" type="tel">
+                <input class="calc-input" id="calc-address" name="address" placeholder="Adresa zaměření" style="width: 100%; border-radius: 0.75rem; display: none;" type="text">
               </div>
             </div>
 
@@ -109,7 +108,6 @@ const injectCalculator = () => {
             </div>
           </div>
 
-          <!-- Step 3: Result -->
           <div id="step-3" style="display: none;">
             <div class="calc-result-box" style="margin-top: 0; background: #0f172a; border-radius: 2rem; padding: 3rem 1rem; text-align: center;">
               <div class="calc-result-label" id="result-user-name" style="color: #94a3b8; font-size: 1.125rem; margin-bottom: 0.5rem;">Děkujeme!</div>
@@ -122,9 +120,8 @@ const injectCalculator = () => {
                 Specialista NanoFusion Vás bude kontaktovat pro zjištění potřebných detailů pro vypracování cenové nabídky a domluvení termínu **bezplatného zaměření**.
               </p>
             </div>
-            <button id="calc-reset-btn" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
+            <button id="restart-calc" style="display: block; width: 100%; margin-top: 2rem; background: none; border: none; color: #64748b; font-weight: 500; cursor: pointer; text-decoration: underline;">Začít znovu</button>
           </div>
-
         </div>
       </section>
     `;
@@ -140,8 +137,8 @@ const injectCalculator = () => {
     const areaUnknown = document.getElementById('area-unknown');
     
     let state = {
-      pricePerUnit: 190,
-      serviceName: 'Střecha',
+      pricePerUnit: services[0].price,
+      serviceName: services[0].name,
       objName: 'Rodinný dům',
       userName: ''
     };
@@ -213,8 +210,6 @@ const injectCalculator = () => {
 
       const areaValue = areaUnknown.checked ? 0 : (parseInt(areaInput.value) || 0);
       
-      // Pricing Logic: Apply +10% and show range min-max
-      // min = base + 5%, max = base + 15% (centered around +10%)
       const baseTotal = state.pricePerUnit * areaValue;
       const minTotal = Math.round(baseTotal * 1.05 / 10) * 10;
       const maxTotal = Math.round(baseTotal * 1.15 / 10) * 10;
@@ -225,129 +220,147 @@ const injectCalculator = () => {
       document.getElementById('result-user-name').textContent = `Děkujeme, ${state.userName}!`;
       
       // Save Lead
-      const lead = {
-        id: Date.now(),
-        date: new Date().toLocaleString('cs-CZ'),
-        name: state.userName,
-        email: email,
-        phone: phone,
-        service: state.serviceName,
-        message: `Kalkulačka Wizard: ${state.objName}, Plocha: ${areaUnknown.checked ? 'Neznámo (Vyžaduje zaměření)' : areaValue + 'm2'}, Adresa: ${address || 'Neuvedena'}, Cena: ${totalDisplay}`,
-        source: 'Konfigurátor'
-      };
-
-      // --- Cloud Sync: Save Calculator Lead to Supabase ---
-      initSupabase().then(sb => {
-          if (sb) {
-            sb.from('inquiries').insert([{
-                name: lead.name,
-                phone: lead.phone,
-                email: lead.email,
-                service: lead.service,
-                message: lead.message || lead.details,
-                source: 'Konfigurátor',
-                status: 'new'
-            }]).catch(e => console.error('Supabase Error:', e));
-          }
+      import('./supabase-config.js').then(({ supabase }) => {
+        supabase.from('inquiries').insert({
+          name: state.userName,
+          email: email,
+          phone: phone,
+          service: state.serviceName,
+          message: `Kalkulačka: ${state.objName}, Plocha: ${areaUnknown.checked ? 'Neznámo' : areaValue + 'm2'}, Cena: ${totalDisplay}`,
+          source: 'Konfigurátor',
+          status: 'new'
+        }).then(({ error }) => {
+          if (error) console.error('[Kalkulačka] Chyba při ukládání poptávky:', error.message, error.code);
+          else console.log('[Kalkulačka] Poptávka uložena do databáze');
+        });
       });
-
-      const localLeads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
-      localLeads.unshift(lead);
-      localStorage.setItem('nanofusion_leads', JSON.stringify(localLeads));
 
       document.getElementById('step-2').style.display = 'none';
       document.getElementById('step-3').style.display = 'block';
       document.getElementById('progress-3').style.background = '#F59E0B';
       
-      window.scrollTo({ top: document.getElementById('konfigurator').offsetTop - 50, behavior: 'smooth' });
+      window.scrollTo({ top: document.getElementById('kalkulacka').offsetTop - 50, behavior: 'smooth' });
     });
 
-    document.getElementById('calc-reset-btn').addEventListener('click', () => {
-      // Reset state
-      document.getElementById('step-3').style.display = 'none';
-      document.getElementById('step-1').style.display = 'block';
-      document.getElementById('progress-2').style.background = '#e2e8f0';
-      document.getElementById('progress-3').style.background = '#e2e8f0';
-      
-      // Reset inputs
-      areaInput.value = '100';
-      areaUnknown.checked = false;
-      areaInput.disabled = false;
-      areaInput.style.opacity = '1';
-      document.getElementById('calc-name').value = '';
-      document.getElementById('calc-email').value = '';
-      document.getElementById('calc-phone').value = '';
-      document.getElementById('calc-address').value = '';
-      document.getElementById('calc-address').style.display = 'none';
+    // Reset Calculator Logic (CTO Fix)
+    const restartBtn = document.getElementById('restart-calc');
+    if (restartBtn) {
+      restartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // 1. Reset visibility
+        document.getElementById('step-3').style.display = 'none';
+        document.getElementById('step-1').style.display = 'block';
+        document.getElementById('progress-2').style.background = '#e2e8f0';
+        document.getElementById('progress-3').style.background = '#e2e8f0';
 
-      // Scroll to start
-      setTimeout(() => {
-        document.getElementById('konfigurator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
-    });
+        // 2. Clear inputs
+        document.getElementById('calc-name').value = '';
+        document.getElementById('calc-email').value = '';
+        document.getElementById('calc-phone').value = '';
+        document.getElementById('calc-address').value = '';
+        document.getElementById('area').value = '100';
+        document.getElementById('area-unknown').checked = false;
+        document.getElementById('area').disabled = false;
+        document.getElementById('area').style.opacity = '1';
+        document.getElementById('calc-address').style.display = 'none';
+
+        // 3. Reset state
+        state.pricePerUnit = services[0].price;
+        state.serviceName = services[0].name;
+        state.objName = 'Rodinný dům';
+        state.userName = '';
+
+        // 4. Reset selection visuals
+        serviceCards.forEach(c => { c.style.borderColor = '#e2e8f0'; c.style.backgroundColor = 'transparent'; });
+        if (serviceCards[0]) {
+          serviceCards[0].style.borderColor = '#F59E0B';
+          serviceCards[0].style.backgroundColor = '#FEF3C7';
+        }
+        objCards.forEach(c => { c.style.borderColor = '#e2e8f0'; c.style.backgroundColor = 'transparent'; });
+        if (objCards[0]) {
+          objCards[0].style.borderColor = '#F59E0B';
+          objCards[0].style.backgroundColor = '#FEF3C7';
+        }
+
+        // 5. Precise scroll
+        window.scrollTo({ 
+          top: document.getElementById('kalkulacka').offsetTop - 100, 
+          behavior: 'smooth' 
+        });
+      });
+    }
 
     return true;
   }
   return false;
 };
 
-// Lead Capture for Admin Dashboard
+// Lead Capture Logic
 const setupLeadCapture = () => {
   const form = document.querySelector('form');
   if (form && !form.dataset.captured) {
     form.dataset.captured = 'true';
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      
       const formData = new FormData(form);
-      const lead = {
-        id: Date.now(),
-        date: new Date().toLocaleString('cs-CZ'),
-        name: formData.get('name') || document.querySelector('input[name="name"]')?.value || 'N/A',
-        email: formData.get('email') || document.querySelector('input[name="email"]')?.value || 'N/A',
-        phone: formData.get('phone') || document.querySelector('input[name="phone"]')?.value || 'N/A',
-        service: formData.get('service') || document.querySelector('select[name="service"]')?.value || 'Poptávka',
-        message: formData.get('message') || document.querySelector('textarea[name="message"]')?.value || '',
-        source: window.location.hash === '#kalkulacka' ? 'Kalkulačka' : 'Kontaktní formulář'
-      };
+      const name = formData.get('name') || document.querySelector('input[name="name"]')?.value || 'N/A';
+      const email = formData.get('email') || document.querySelector('input[name="email"]')?.value || 'N/A';
+      const phone = formData.get('phone') || document.querySelector('input[name="phone"]')?.value || 'N/A';
 
-      // --- Cloud Sync: Save Form Lead to Supabase ---
-      initSupabase().then(sb => {
-          if (sb) {
-            sb.from('inquiries').insert([{
-                name: lead.name,
-                phone: lead.phone,
-                email: lead.email,
-                service: lead.service,
-                message: lead.message,
-                address: 'Web Form',
-                source: lead.source === 'Kalkulačka' ? 'configurator' : 'contact_form',
-                status: 'new'
-            }]).catch(e => console.error('Supabase Error:', e));
+      import('./supabase-config.js').then(({ supabase }) => {
+        supabase.from('inquiries').insert({
+          name, email, phone,
+          source: 'Kontaktní formulář',
+          status: 'new'
+        }).then(({ error }) => {
+          if (error) {
+            console.error('[Formulář] Chyba při ukládání poptávky:', error.message, error.code);
+            alert('Omlouváme se, nastala chyba. Zavolejte nám prosím přímo.');
+          } else {
+            console.log('[Formulář] Poptávka uložena do databáze');
+            alert('Děkujeme! Ozveme se vám.');
+            form.reset();
           }
+        });
       });
-
-      const localLeads = JSON.parse(localStorage.getItem('nanofusion_leads') || '[]');
-      localLeads.unshift(lead);
-      localStorage.setItem('nanofusion_leads', JSON.stringify(localLeads));
-
-      alert('Děkujeme za vaši poptávku! Ozveme se vám do 24 hodin.');
-      form.reset();
     });
   }
 };
 
 const runInjection = () => {
-  const calcDone = injectCalculator();
+  injectCalculator();
   setupLeadCapture();
-  
-  if (!calcDone) {
-    setTimeout(runInjection, 500);
-  }
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', runInjection);
-} else {
-  runInjection();
-}
+// MutationObserver — čeká dokud main.js nevytvoří #kontakt v DOM
+const initCalculator = () => {
+  // Pokud #kontakt již existuje, spusť rovnou
+  if (document.getElementById('kontakt')) {
+    runInjection();
+    return;
+  }
+
+  // Jinak sleduj DOM a čekej
+  const observer = new MutationObserver(() => {
+    if (document.getElementById('kontakt')) {
+      observer.disconnect();
+      runInjection();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // Fallback po 8s — spusť i bez #kontakt (vloží na konec body)
+  setTimeout(() => {
+    observer.disconnect();
+    if (!document.getElementById('kalkulacka')) {
+      // Pokud #kontakt stále neexistuje, vlož před footer
+      const footer = document.querySelector('footer');
+      if (footer) footer.parentNode.insertBefore(document.createElement('div'), footer);
+      runInjection();
+    }
+  }, 8000);
+};
+
+initCalculator();
+

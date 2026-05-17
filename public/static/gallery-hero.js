@@ -11,6 +11,19 @@ import { supabase } from './supabase-config.js';
 // ============================================================
 export const loadHeroMedia = async () => {
   try {
+    // Hero sekce = první <section> na stránce
+    const heroSection = document.querySelector('section:first-of-type')
+      || document.querySelector('.hero, #hero, [data-hero]');
+    if (!heroSection) {
+      return;
+    }
+
+    // Zabráníme vícenásobnému spuštění na stejné sekci
+    if (heroSection.dataset.mediaLoaded === 'true') {
+      return;
+    }
+    heroSection.dataset.mediaLoaded = 'true';
+
     const { data, error } = await supabase
       .from('hero_media')
       .select('*')
@@ -24,16 +37,26 @@ export const loadHeroMedia = async () => {
       return;
     }
 
-    // Hero sekce = první <section> na stránce (dle DOM auditu)
-    const heroSection = document.querySelector('section:first-of-type')
-      || document.querySelector('.hero, #hero, [data-hero]');
-    if (!heroSection) {
-      console.warn('NANOfusion: Hero sekce nenalezena');
-      return;
-    }
-
     const isYoutube = data.url.includes('youtube.com') || data.url.includes('youtu.be');
+    const isVideo = data.type === 'video' || data.url.match(/\.(mp4|webm|ogg|mov)(?:\?.*)?$/i) || data.url.includes('/heroes/');
     
+    const fadeOutExisting = () => {
+      // Získáme obrázky dynamicky (po načtení React SPA)
+      const imgs = heroSection.querySelectorAll('img');
+      imgs.forEach(img => {
+        // Ignorujeme naše vlastní přidané prvky
+        if (img.closest('.video-wrap') || img.dataset.patched) return;
+        
+        img.style.transition = 'opacity 1s cubic-bezier(0.4, 0, 0.2, 1)';
+        img.style.opacity = '0';
+        // Po dokončení transition skryjeme z layoutu
+        setTimeout(() => { img.style.display = 'none'; }, 1000);
+      });
+      // Plynule odstraníme případné pozadí sekce
+      heroSection.style.transition = 'background-image 1s ease';
+      setTimeout(() => { heroSection.style.backgroundImage = 'none'; }, 1000);
+    };
+
     if (isYoutube) {
       let videoId = '';
       if (data.url.includes('youtu.be/')) videoId = data.url.split('youtu.be/')[1].split('?')[0];
@@ -42,44 +65,43 @@ export const loadHeroMedia = async () => {
       const existingMedia = heroSection.querySelector('video, iframe');
       if (existingMedia) existingMedia.parentElement.remove();
       
-      heroSection.style.backgroundImage = 'none';
-      const existingImgs = heroSection.querySelectorAll('img');
-      existingImgs.forEach(img => {
-          if (img.className.includes('absolute') || img.className.includes('object-cover') || img.style.position === 'absolute') {
-              img.style.display = 'none';
-          }
-      });
-      
       const videoWrap = document.createElement('div');
-      videoWrap.style.cssText = 'position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;';
+      videoWrap.style.cssText = 'position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity 1s cubic-bezier(0.4, 0, 0.2, 1);';
+      
       const iframe = document.createElement('iframe');
       iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&playlist=${videoId}&modestbranding=1`;
       iframe.style.cssText = 'width:100vw;height:56.25vw;min-height:100vh;min-width:177.77vh;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);';
       iframe.frameBorder = '0';
       iframe.allow = 'autoplay; fullscreen; encrypted-media';
+      
       videoWrap.appendChild(iframe);
       heroSection.style.position = 'relative';
       heroSection.prepend(videoWrap);
-      console.log('NANOfusion: Hero YouTube video načteno z DB:', videoId);
+
+      // YouTube Iframe se prolné až když se kompletně načte do DOMu
+      iframe.onload = () => {
+        videoWrap.style.opacity = '0.55'; // Příjemná ambientní průhlednost pro text
+        fadeOutExisting();
+        console.log('NANOfusion: Hero YouTube video plynule zobrazeno:', videoId);
+      };
       
-    } else if (data.type === 'video') {
+    } else if (isVideo) {
       const existingVideo = heroSection.querySelector('video');
       if (existingVideo) {
-        existingVideo.src = data.url;
-        existingVideo.load();
-        existingVideo.play().catch(() => {});
-        console.log('NANOfusion: Hero video nahrazeno z DB:', data.url);
+        // Pokud video element už existuje, plynule změníme src a přehrajeme
+        existingVideo.style.transition = 'opacity 0.5s ease';
+        existingVideo.style.opacity = '0';
+        setTimeout(() => {
+          existingVideo.src = data.url;
+          existingVideo.load();
+          existingVideo.play().catch(() => {});
+          existingVideo.style.opacity = '1';
+        }, 50);
+        console.log('NANOfusion: Hero video plynule nahrazeno z DB:', data.url);
       } else {
-        heroSection.style.backgroundImage = 'none';
-        const existingImgs = heroSection.querySelectorAll('img');
-        existingImgs.forEach(img => {
-            if (img.className.includes('absolute') || img.className.includes('object-cover') || img.style.position === 'absolute') {
-                img.style.display = 'none';
-            }
-        });
-
         const videoWrap = document.createElement('div');
-        videoWrap.style.cssText = 'position:absolute;inset:0;z-index:0;overflow:hidden;';
+        videoWrap.style.cssText = 'position:absolute;inset:0;z-index:0;overflow:hidden;opacity:0;transition:opacity 1s cubic-bezier(0.4, 0, 0.2, 1);';
+        
         const video = document.createElement('video');
         video.src = data.url;
         video.autoplay = true;
@@ -87,10 +109,25 @@ export const loadHeroMedia = async () => {
         video.loop = true;
         video.playsInline = true;
         video.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        
         videoWrap.appendChild(video);
         heroSection.style.position = 'relative';
         heroSection.prepend(videoWrap);
-        console.log('NANOfusion: Hero video vytvořeno z DB:', data.url);
+
+        // HTML5 video se zobrazí až ve chvíli, kdy má dostatek stažených dat
+        video.oncanplaythrough = () => {
+          videoWrap.style.opacity = '1';
+          fadeOutExisting();
+          console.log('NANOfusion: Hero HTML5 video plynule zobrazeno:', data.url);
+        };
+
+        // Fallback: Pokud by canplaythrough trval příliš dlouho
+        setTimeout(() => {
+          if (videoWrap.style.opacity === '0') {
+            videoWrap.style.opacity = '1';
+            fadeOutExisting();
+          }
+        }, 2000); // Rychlejší fallback
       }
     } else if (data.type === 'image') {
       const existingMedia = heroSection.querySelector('video, iframe');
@@ -100,8 +137,9 @@ export const loadHeroMedia = async () => {
         const img = document.createElement('img');
         img.src = data.url;
         img.alt = 'NANOfusion hero';
-        img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity 1s ease;';
         wrap?.appendChild(img);
+        setTimeout(() => { img.style.opacity = '1'; }, 50);
       } else {
         heroSection.style.backgroundImage = `url('${data.url}')`;
         heroSection.style.backgroundSize = 'cover';
@@ -306,11 +344,14 @@ const _createLightboxInstance = (items, instanceId) => {
   };
 };
 
-// Inicializace — zavolá se z main.js po injektování galerie do DOM
+// Exponujeme funkce pro globální okamžité volání z main.js MutationObserveru
+window.nnf_loadHeroMedia = loadHeroMedia;
+window.nnf_loadGalleryFromDB = loadGalleryFromDB;
+
+// Inicializace — spouští se okamžitě pro maximální rychlost
 document.addEventListener('DOMContentLoaded', () => {
   loadHeroMedia();
-  // Galerie se injektuje dynamicky — počkej chvíli
-  setTimeout(() => loadGalleryFromDB(), 800);
+  loadGalleryFromDB();
 });
 
 // Při změně viditelnosti stránky (tab focus) se data aktualizují
