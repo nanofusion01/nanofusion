@@ -70,15 +70,19 @@ export async function uploadBotDocument(formData: FormData) {
     .from('bot-documents')
     .getPublicUrl(filePath)
 
-  // 2. Parse PDF using PDFParse class from Mehmet Kozan's pdf-parse package
-  const { PDFParse } = require('pdf-parse')
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
-  const parser = new PDFParse({ data: buffer })
-  await parser.load()
-  const pdfData = await parser.getText()
-  const extractedText = pdfData.text
-  await parser.destroy()
+  // 2. Parse PDF using pdf2json (Edge/Vercel safe)
+  const PDFParser = require('pdf2json');
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  
+  const extractedText = await new Promise<string>((resolve, reject) => {
+    const pdfParser = new (PDFParser as any)(null, 1);
+    pdfParser.on("pdfParser_dataError", (errData: any) => reject(new Error(errData.parserError)));
+    pdfParser.on("pdfParser_dataReady", () => {
+      resolve(pdfParser.getRawTextContent());
+    });
+    pdfParser.parseBuffer(buffer);
+  });
 
   // 3. Save to bot_knowledge as a special entry
   const { error: kbError } = await (supabase.from('bot_knowledge') as any).insert([{
