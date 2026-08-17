@@ -365,11 +365,16 @@ export function ServiceDetailClient({
               )}
             </div>
 
-            {/* Krátké video náhledu (volitelné místo fotky) */}
+            {/* Video ke službě (zobrazí se pod sekcí Z realizací) */}
             <div className="space-y-2 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Náhledové video (Volitelné: Nahrazuje fotografii v kartě služby)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Video ke službě (YouTube, Google Disk, MP4...)
+                </label>
+                <span className="text-[11px] text-amber-600 font-medium">
+                  Zobrazí se pod sekcí Z realizací
+                </span>
+              </div>
               <div className="flex gap-3">
                 <input
                   type="text"
@@ -377,7 +382,7 @@ export function ServiceDetailClient({
                   onChange={(e) => setService({ ...service, video_url: e.target.value })}
                   className="flex-1 px-4 py-3 rounded-xl border outline-none font-mono text-sm"
                   style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
-                  placeholder="URL videa (.mp4 / webm) nebo nahrajte soubor →"
+                  placeholder="Vložte YouTube odkaz, Google Disk, odkaz na video nebo nahrajte soubor →"
                 />
                 <input
                   ref={videoFileRef}
@@ -396,24 +401,32 @@ export function ServiceDetailClient({
                 </button>
               </div>
               {service.video_url && (() => {
-                const ytMatch = service.video_url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+                const trimmed = (service.video_url || '').trim();
+                const ytMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
                 const ytId = ytMatch ? ytMatch[1] : null;
+                const driveMatch = trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+                const driveId = driveMatch ? driveMatch[1] : null;
+
                 return (
-                  <div className="mt-3 rounded-xl overflow-hidden border relative" style={{ borderColor: 'var(--border)' }}>
+                  <div className="mt-3 rounded-xl overflow-hidden border relative aspect-video max-w-md bg-black" style={{ borderColor: 'var(--border)' }}>
                     {ytId ? (
-                      <div className="aspect-video w-full">
-                        <iframe
-                          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}`}
-                          className="w-full h-48 border-0"
-                          allow="autoplay; encrypted-media"
-                        />
-                      </div>
+                      <iframe
+                        src={`https://www.youtube.com/embed/${ytId}`}
+                        className="w-full h-full border-0"
+                        allow="autoplay; encrypted-media"
+                      />
+                    ) : driveId ? (
+                      <iframe
+                        src={`https://drive.google.com/file/d/${driveId}/preview`}
+                        className="w-full h-full border-0"
+                        allow="autoplay"
+                      />
                     ) : (
-                      <video src={service.video_url} autoPlay loop muted playsInline className="w-full h-48 object-cover" />
+                      <video src={service.video_url} controls playsInline className="w-full h-full object-cover" />
                     )}
                     <button
                       onClick={() => setService({ ...service, video_url: '' })}
-                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white hover:bg-black/80 transition-colors z-10"
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 text-white hover:bg-black transition-colors z-10"
                       title="Odstranit video"
                     >
                       <X size={16} />

@@ -185,7 +185,9 @@ const MenuBar = ({ editor }: { editor: any }) => {
 export function TiptapEditor({ content, onChange }: EditorProps) {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        orderedList: false,
+      }),
       TextStyle,
       Color,
       FontFamily,

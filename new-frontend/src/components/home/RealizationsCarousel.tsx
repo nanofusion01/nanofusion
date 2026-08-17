@@ -155,7 +155,7 @@ function RealizationModalContent({ item, onClose }: { item: any; onClose: () => 
               }}
               className="block w-full bg-white text-amber-600 hover:bg-slate-50 hover:scale-105 active:scale-95 font-bold py-3.5 px-6 rounded-2xl text-center transition-all shadow-sm cursor-pointer"
             >
-              MÁM ZÁJEM 💬
+              Spočítat cenu
             </button>
           </div>
         </div>

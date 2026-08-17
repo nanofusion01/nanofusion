@@ -3,12 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isServicePage = pathname?.startsWith("/sluzby/") && pathname !== "/sluzby/";
+  const kalkulackaHref = isServicePage ? "#kalkulacka" : "/#kalkulacka";
 
   const navLinks = [
     { label: "Služby", href: "/#sluzby" },
@@ -65,7 +70,7 @@ export function Navbar() {
         {/* Right: Button & Mobile Toggle */}
         <div className="flex lg:flex-1 justify-end items-center gap-4">
           <Button
-            href="/#kalkulacka"
+            href={kalkulackaHref}
             className="hidden lg:inline-flex rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
             Spočítat cenu
@@ -115,7 +120,7 @@ export function Navbar() {
               )
             ))}
             <Button
-              href="/#kalkulacka"
+              href={kalkulackaHref}
               onClick={() => setIsOpen(false)}
               className="w-full mt-2"
             >

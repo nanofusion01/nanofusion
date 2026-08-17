@@ -59,7 +59,7 @@ function ServiceCard({ service }: { service: any }) {
         />
 
         <div className="mt-auto pt-4 flex items-center text-amber-500 font-bold text-sm group-hover:text-amber-600 transition-colors">
-          Spočítat cenu
+          Více informací
           <svg className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>

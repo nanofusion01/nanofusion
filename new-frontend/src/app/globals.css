@@ -44,3 +44,34 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Prevent duplicate automatic list numbers in rich text */
+.prose ol {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.prose ol > li {
+  padding-left: 0;
+}
+
+.prose ol > li::marker {
+  display: none;
+  content: "";
+}
+
+/* Maintain paragraph spacing and preserve empty paragraphs in rich text */
+.prose p {
+  margin-bottom: 1.25rem;
+}
+
+.prose p:empty,
+.prose p:has(br:only-child) {
+  min-height: 1.5rem;
+}
+
+.prose p:empty::before,
+.prose p:has(br:only-child)::before {
+  content: "\00a0";
+  display: inline-block;
+}

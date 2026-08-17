@@ -137,6 +137,13 @@ body {
 .ProseMirror p {
   margin-top: 0;
   margin-bottom: 1.25rem;
+  min-height: 1.5rem;
+}
+
+.ProseMirror p:empty::before,
+.ProseMirror p:has(br:only-child)::before {
+  content: "\00a0";
+  display: inline-block;
 }
 
 .ProseMirror p:last-child {
@@ -151,9 +158,22 @@ body {
   pointer-events: none;
 }
 
-.ProseMirror ul,
-.ProseMirror ol {
+.ProseMirror ul {
   padding: 0 1rem;
+}
+
+.ProseMirror ol {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.ProseMirror ol > li {
+  padding-left: 0;
+}
+
+.ProseMirror ol > li::marker {
+  display: none;
+  content: "";
 }
 
 .ProseMirror h1,

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ChatWidget } from "@/components/layout/ChatWidget";
+import { ScrollHandler } from "@/components/layout/ScrollHandler";
 
 const inter = Outfit({
   variable: "--font-outfit",
@@ -177,6 +178,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col pt-[108px]">
+        <ScrollHandler />
         <Header />
         {children}
         <Footer />
