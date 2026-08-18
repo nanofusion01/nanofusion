@@ -12,7 +12,7 @@ function ServiceCard({ service }: { service: any }) {
 
   return (
     <Link 
-      href={`/sluzby/${service.slug}#kalkulacka`}
+      href={`/sluzby/${service.slug}`}
       className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300"
     >
       {/* Image Container */}
