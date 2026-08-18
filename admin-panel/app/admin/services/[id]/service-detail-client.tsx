@@ -47,6 +47,27 @@ interface Props {
   initialProcessSteps?: Array<{ step: string; title: string; desc: string }>
 }
 
+const DEFAULT_BENEFITS: Record<string, Array<{ title: string; desc: string }>> = {
+  'cisteni-fasad': [
+    { title: 'Odstranění řas a plísní', desc: 'Vyčistíme fasádu od smogu, plísní, řas, prachu a organických nánosů.' },
+    { title: 'Nano-ochrana až 10 let', desc: 'Špičková impregnace odpuzuje vodu a chrání povrch před špínou.' },
+    { title: 'Nízkotlaké mytí', desc: 'Čistíme šetrně s regulovaným tlakem bez poškození fasádních omítek.' },
+    { title: 'Záruka a garance', desc: 'Dlouhodobá záruka na opětovný výskyt organických nečistot.' }
+  ],
+  'roof': [
+    { title: 'Všechny typy krytin', desc: 'Čistíme tašky pálené, betonové, plechové, šindel i eternit.' },
+    { title: 'Prevence zatékání', desc: 'Odstraněním mechu zamezíme zadržování vody a degradaci krytiny.' },
+    { title: 'Hydrofobní ochrana', desc: 'Nano impregnace odpuzuje vodu a poskytuje samočistící efekt.' },
+    { title: 'Čištění okapů', desc: 'Součástí každé realizace je vyčištění a kontrola okapových žlabů.' }
+  ],
+  'pavement': [
+    { title: 'Odstranění mechu a plevele', desc: 'Vyčistíme zarostlé spáry i hluboko usazené nečistoty.' },
+    { title: 'Obnova původního vzhledu', desc: 'Dlažba získá zpět svou barvu a čistý reprezentativní vzhled.' },
+    { title: 'Ochrana proti oleji a mastnotě', desc: 'Impregnace zabraňuje vsakování kapalin a usnadňuje údržbu.' },
+    { title: 'Doplnění křemičitého písku', desc: 'Po vyčištění a vyschnutí vyplníme spáry novým křemičitým pískem.' }
+  ]
+}
+
 export function ServiceDetailClient({ 
   service: initialService, 
   beforeAfterItems: initialBeforeAfter, 
@@ -59,7 +80,16 @@ export function ServiceDetailClient({
   const [faqs, setFaqs] = useState<ServiceFAQ[]>(initialFaqs)
   const [beforeAfterItems, setBeforeAfterItems] = useState<BeforeAfter[]>(initialBeforeAfter)
   const [serviceReviews, setServiceReviews] = useState<ServiceReview[]>(initialReviews)
-  const [service, setService] = useState(initialService)
+  const [service, setService] = useState(() => {
+    if (!initialService.features || initialService.features.length === 0) {
+      const defaults = DEFAULT_BENEFITS[initialService.slug] || []
+      return {
+        ...initialService,
+        features: defaults.map(d => JSON.stringify(d))
+      }
+    }
+    return initialService
+  })
   
   const defaultSteps = [
     { step: '01', title: 'Posouzení', desc: 'Zhodnotíme stav povrchu a navrhneme vhodný čisticí postup.' },
@@ -229,7 +259,7 @@ export function ServiceDetailClient({
       <div className="flex gap-2 p-1.5 rounded-2xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
         {[
           { id: 'general', label: 'Základní info', icon: <Layout size={16} /> },
-          { id: 'process', label: `Jak to funguje (${processSteps.length})`, icon: <ListOrdered size={16} /> },
+          { id: 'process', label: `Co to obnáší (${processSteps.length})`, icon: <ListOrdered size={16} /> },
           { id: 'photos', label: `Před & Po fotky (${beforeAfterItems.length})`, icon: <Camera size={16} /> },
           { id: 'faqs', label: `Q&A (${faqs.length})`, icon: <MessageSquareQuote size={16} /> },
           { id: 'reviews', label: `Vybrané recenze (${serviceReviews.length})`, icon: <MessageSquareQuote size={16} /> },
@@ -295,37 +325,98 @@ export function ServiceDetailClient({
             </div>
 
             <div className="space-y-4">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Vlastnosti / Fajfky</label>
-              <div className="space-y-2">
-                {(service.features || []).map((feature, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={feature}
-                      onChange={(e) => {
-                        const newFeatures = [...(service.features || [])]
-                        newFeatures[idx] = e.target.value
-                        setService({ ...service, features: newFeatures })
-                      }}
-                      className="flex-1 px-4 py-2 rounded-lg border text-sm outline-none"
-                      style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
-                    />
-                    <button
-                      onClick={() => {
-                        const newFeatures = (service.features || []).filter((_, i) => i !== idx)
-                        setService({ ...service, features: newFeatures })
-                      }}
-                      className="p-2 text-red-400 hover:text-red-600"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Co je součástí (Vlastnosti s fajfkou)</label>
+                  <p className="text-xs text-slate-500 mt-0.5">Jednotlivé body zobrazené v boxu „Co je součástí:“ pod popisem služby.</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {(service.features || []).map((feature: any, idx: number) => {
+                  let title = ''
+                  let desc = ''
+                  if (typeof feature === 'object' && feature !== null) {
+                    title = feature.title || ''
+                    desc = feature.desc || feature.description || ''
+                  } else {
+                    try {
+                      const parsed = JSON.parse(feature)
+                      if (typeof parsed === 'object' && parsed !== null) {
+                        title = parsed.title || ''
+                        desc = parsed.desc || parsed.description || ''
+                      } else {
+                        title = String(feature)
+                      }
+                    } catch {
+                      const str = String(feature || '')
+                      if (str.includes(' - ')) {
+                        const parts = str.split(' - ')
+                        title = parts[0].trim()
+                        desc = parts.slice(1).join(' - ').trim()
+                      } else if (str.includes(': ')) {
+                        const parts = str.split(': ')
+                        title = parts[0].trim()
+                        desc = parts.slice(1).join(': ').trim()
+                      } else {
+                        title = str
+                      }
+                    }
+                  }
+
+                  return (
+                    <div key={idx} className="p-4 rounded-xl border flex flex-col md:flex-row gap-3 items-start md:items-center" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
+                        <div className="md:col-span-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Název položky</label>
+                          <input
+                            type="text"
+                            value={title}
+                            placeholder="Např. Nano-ochrana až 10 let"
+                            onChange={(e) => {
+                              const newFeatures = [...(service.features || [])]
+                              newFeatures[idx] = JSON.stringify({ title: e.target.value, desc })
+                              setService({ ...service, features: newFeatures })
+                            }}
+                            className="w-full px-3 py-2 rounded-lg border text-sm font-bold outline-none"
+                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Podrobný popis</label>
+                          <input
+                            type="text"
+                            value={desc}
+                            placeholder="Např. Špičková impregnace odpuzuje vodu a chrání povrch..."
+                            onChange={(e) => {
+                              const newFeatures = [...(service.features || [])]
+                              newFeatures[idx] = JSON.stringify({ title, desc: e.target.value })
+                              setService({ ...service, features: newFeatures })
+                            }}
+                            className="w-full px-3 py-2 rounded-lg border text-sm outline-none"
+                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newFeatures = (service.features || []).filter((_, i) => i !== idx)
+                          setService({ ...service, features: newFeatures })
+                        }}
+                        className="p-2 text-red-400 hover:text-red-600 hover:bg-red-500/10 rounded-lg transition-colors mt-2 md:mt-5 self-end md:self-center"
+                        title="Smazat položku"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  )
+                })}
                 <button
-                  onClick={() => setService({ ...service, features: [...(service.features || []), ''] })}
-                  className="flex items-center gap-2 text-sm font-bold text-amber-600 hover:text-amber-700 mt-2"
+                  type="button"
+                  onClick={() => setService({ ...service, features: [...(service.features || []), JSON.stringify({ title: '', desc: '' })] })}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-amber-500/50 text-sm font-bold text-amber-500 hover:bg-amber-500/10 transition-colors mt-2"
                 >
-                  <Plus size={16} /> Přidat vlastnost
+                  <Plus size={16} /> Přidat další položku do „Co je součástí“
                 </button>
               </div>
             </div>
@@ -438,12 +529,12 @@ export function ServiceDetailClient({
           </div>
         )}
 
-        {/* --- PROCESS TAB (Jak to funguje / Krok za krokem) --- */}
+        {/* --- PROCESS TAB (Co to obnáší / Krok za krokem) --- */}
         {activeTab === 'process' && (
           <div className="max-w-4xl space-y-6">
             <div className="flex justify-between items-center pb-4 border-b" style={{ borderColor: 'var(--border)' }}>
               <div>
-                <h3 className="text-lg font-bold">Jak to funguje (Krok za krokem)</h3>
+                <h3 className="text-lg font-bold">Co to obnáší (Krok za krokem)</h3>
                 <p className="text-sm text-slate-400">Upravte specifický postup a jednotlivé kroky realizace pro tuto službu.</p>
               </div>
               <div className="flex gap-3">

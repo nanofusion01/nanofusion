@@ -155,9 +155,30 @@ export default async function ServicePage({ params }: PageProps) {
     if (ytMatch) ytId = ytMatch[1];
   }
 
-  // Načtení bohatého obsahu (když není v databázi plný text, použijeme lokální)
   const processDescription = service.process_description || localData.what_included || "";
-  const benefits = localData.benefits || (service.features || []).map((f: string) => ({ title: f, desc: "" }));
+  const benefits = (service.features && service.features.length > 0)
+    ? service.features.map((f: any) => {
+        if (typeof f === "object" && f !== null) {
+          return { title: f.title || "", desc: f.desc || f.description || "" };
+        }
+        try {
+          const parsed = JSON.parse(f);
+          if (typeof parsed === "object" && parsed !== null) {
+            return { title: parsed.title || "", desc: parsed.desc || parsed.description || "" };
+          }
+        } catch {}
+        const str = String(f || "");
+        if (str.includes(" - ")) {
+          const parts = str.split(" - ");
+          return { title: parts[0].trim(), desc: parts.slice(1).join(" - ").trim() };
+        }
+        if (str.includes(": ")) {
+          const parts = str.split(": ");
+          return { title: parts[0].trim(), desc: parts.slice(1).join(": ").trim() };
+        }
+        return { title: str, desc: "" };
+      })
+    : (localData.benefits || []);
   const gallery = localData.gallery || [];
   const quote = localData.quote;
   const processNote = localData.process_note;
