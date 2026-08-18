@@ -259,7 +259,7 @@ export function ServiceDetailClient({
       <div className="flex gap-2 p-1.5 rounded-2xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
         {[
           { id: 'general', label: 'Základní info', icon: <Layout size={16} /> },
-          { id: 'process', label: `Co to obnáší (${processSteps.length})`, icon: <ListOrdered size={16} /> },
+          { id: 'process', label: `Jak to funguje (${processSteps.length})`, icon: <ListOrdered size={16} /> },
           { id: 'photos', label: `Před & Po fotky (${beforeAfterItems.length})`, icon: <Camera size={16} /> },
           { id: 'faqs', label: `Q&A (${faqs.length})`, icon: <MessageSquareQuote size={16} /> },
           { id: 'reviews', label: `Vybrané recenze (${serviceReviews.length})`, icon: <MessageSquareQuote size={16} /> },
@@ -529,12 +529,12 @@ export function ServiceDetailClient({
           </div>
         )}
 
-        {/* --- PROCESS TAB (Co to obnáší / Krok za krokem) --- */}
+        {/* --- PROCESS TAB (Jak to funguje / Krok za krokem) --- */}
         {activeTab === 'process' && (
           <div className="max-w-4xl space-y-6">
             <div className="flex justify-between items-center pb-4 border-b" style={{ borderColor: 'var(--border)' }}>
               <div>
-                <h3 className="text-lg font-bold">Co to obnáší (Krok za krokem)</h3>
+                <h3 className="text-lg font-bold">Jak to funguje (Krok za krokem)</h3>
                 <p className="text-sm text-slate-400">Upravte specifický postup a jednotlivé kroky realizace pro tuto službu.</p>
               </div>
               <div className="flex gap-3">
