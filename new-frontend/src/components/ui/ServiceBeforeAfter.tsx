@@ -3,18 +3,43 @@
 import { useState, useRef, useEffect } from "react";
 import { optimizeImg } from "@/lib/supabase";
 
-interface ServiceBeforeAfterProps {
-  beforeImg: string;
-  afterImg: string;
+interface Pair {
+  before_url: string;
+  after_url: string;
 }
 
-export function ServiceBeforeAfter({ beforeImg, afterImg }: ServiceBeforeAfterProps) {
+interface ServiceBeforeAfterProps {
+  pairs: Pair[];
+  /** Jak dlouho (ms) zůstane dvojice zobrazená, než se přepne na další. */
+  rotateIntervalMs?: number;
+}
+
+export function ServiceBeforeAfter({ pairs, rotateIntervalMs = 6000 }: ServiceBeforeAfterProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
   const [sliderPosition, setSliderPosition] = useState(50);
   const [hasInteracted, setHasInteracted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const isDraggingRef = useRef(false);
 
+  const active = pairs[activeIndex];
+
+  // Průběžné střídání dvojic, jen když je jich víc než jedna a uživatel zrovna
+  // netahá za posuvník (nechceme mu obrázek vyměnit uprostřed porovnávání).
+  useEffect(() => {
+    if (pairs.length <= 1) return;
+    const id = setInterval(() => {
+      if (isDraggingRef.current) return;
+      setActiveIndex((i) => (i + 1) % pairs.length);
+      setHasInteracted(false);
+      setSliderPosition(50);
+    }, rotateIntervalMs);
+    return () => clearInterval(id);
+  }, [pairs.length, rotateIntervalMs]);
+
+  // Demo oscilace posuvníku, dokud uživatel sám nezasáhne - upozorní na to,
+  // že jde s obrázkem hýbat, a po přepnutí dvojice se spustí znovu.
   useEffect(() => {
     if (hasInteracted) {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
@@ -24,20 +49,18 @@ export function ServiceBeforeAfter({ beforeImg, afterImg }: ServiceBeforeAfterPr
     const animate = (time: number) => {
       if (startTimeRef.current === null) startTimeRef.current = time;
       const elapsed = time - startTimeRef.current!;
-      
-      // Oscillate faster (speed up by lowering the divisor, e.g., 400 instead of 700)
-      const oscillation = Math.sin(elapsed / 400) * 18; 
+      const oscillation = Math.sin(elapsed / 400) * 18;
       setSliderPosition(50 + oscillation);
-
       requestRef.current = requestAnimationFrame(animate);
     };
 
+    startTimeRef.current = null;
     requestRef.current = requestAnimationFrame(animate);
 
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [hasInteracted]);
+  }, [hasInteracted, activeIndex]);
 
   const handleMove = (clientX: number) => {
     if (!hasInteracted) setHasInteracted(true);
@@ -49,13 +72,18 @@ export function ServiceBeforeAfter({ beforeImg, afterImg }: ServiceBeforeAfterPr
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
-    if (e.buttons !== 1) return; // Only if mouse is pressed
+    if (e.buttons !== 1) return;
     handleMove(e.clientX);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
     handleMove(e.touches[0].clientX);
   };
+
+  const startDrag = () => { isDraggingRef.current = true; };
+  const endDrag = () => { isDraggingRef.current = false; };
+
+  if (!active) return null;
 
   return (
     <section className="py-20 bg-slate-50">
@@ -70,16 +98,20 @@ export function ServiceBeforeAfter({ beforeImg, afterImg }: ServiceBeforeAfterPr
         <div
           ref={containerRef}
           className="relative rounded-2xl overflow-hidden aspect-[16/10] select-none shadow-xl border-2 border-amber-500 cursor-ew-resize touch-none"
+          onMouseDown={(e) => { startDrag(); handleMove(e.clientX); }}
+          onMouseUp={endDrag}
+          onMouseLeave={endDrag}
           onMouseMove={onMouseMove}
+          onTouchStart={(e) => { startDrag(); handleMove(e.touches[0].clientX); }}
+          onTouchEnd={endDrag}
           onTouchMove={onTouchMove}
-          onMouseDown={(e) => handleMove(e.clientX)}
-          onTouchStart={(e) => handleMove(e.touches[0].clientX)}
         >
           {/* After Image (Background) */}
           <img
-            src={optimizeImg(afterImg, 1000)}
+            key={`after-${activeIndex}`}
+            src={optimizeImg(active.after_url, 1000)}
             alt="Po"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
             draggable={false}
           />
 
@@ -89,9 +121,10 @@ export function ServiceBeforeAfter({ beforeImg, afterImg }: ServiceBeforeAfterPr
             style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
           >
             <img
-              src={optimizeImg(beforeImg, 1000)}
+              key={`before-${activeIndex}`}
+              src={optimizeImg(active.before_url, 1000)}
               alt="Před"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
               draggable={false}
             />
           </div>
@@ -133,6 +166,22 @@ export function ServiceBeforeAfter({ beforeImg, afterImg }: ServiceBeforeAfterPr
             aria-label="Porovnání před a po"
           />
         </div>
+
+        {/* Tečky ukazující, kolikátá dvojice ze všech se právě zobrazuje */}
+        {pairs.length > 1 && (
+          <div className="flex justify-center gap-2 mt-5">
+            {pairs.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { setActiveIndex(i); setHasInteracted(false); setSliderPosition(50); }}
+                aria-label={`Zobrazit dvojici ${i + 1}`}
+                className={`h-2 rounded-full transition-all ${
+                  i === activeIndex ? "w-6 bg-amber-500" : "w-2 bg-slate-300 hover:bg-slate-400"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

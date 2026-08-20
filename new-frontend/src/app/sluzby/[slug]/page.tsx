@@ -151,9 +151,12 @@ export default async function ServicePage({ params }: PageProps) {
     }
   }
 
-  const beforeImg = beforeAfterPhotos.length > 0 ? beforeAfterPhotos[0].before_url : null;
-  const afterImg = beforeAfterPhotos.length > 0 ? beforeAfterPhotos[0].after_url : null;
-  const hasBeforeAfter = beforeImg && afterImg && beforeImg !== afterImg;
+  // Admin umožňuje nahrát víc dvojic Před/Po - dřív se použila jen ta první,
+  // teď jede celá sada a komponenta mezi nimi sama průběžně přepíná.
+  const beforeAfterPairs = beforeAfterPhotos
+    .filter((p: any) => p.before_url && p.after_url && p.before_url !== p.after_url)
+    .map((p: any) => ({ before_url: p.before_url, after_url: p.after_url }));
+  const hasBeforeAfter = beforeAfterPairs.length > 0;
 
   let ytId = null;
   if (service.video_url) {
@@ -235,7 +238,7 @@ export default async function ServicePage({ params }: PageProps) {
       <ServiceProcess serviceName={service.name} steps={customProcessSteps} processNote={processNote} />
 
       {hasBeforeAfter && (
-        <ServiceBeforeAfter beforeImg={beforeImg!} afterImg={afterImg!} />
+        <ServiceBeforeAfter pairs={beforeAfterPairs} />
       )}
 
       {gallery.length > 0 && (
