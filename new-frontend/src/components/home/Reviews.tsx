@@ -26,8 +26,8 @@ function ReviewCard({ review }: { review: any }) {
   );
 }
 
-export function Reviews({ initialReviews }: { initialReviews?: any[] }) {
-  const { scrollRef, scrollByAmount, canScrollLeft, canScrollRight } = useCarousel(0.5, 350);
+export function Reviews({ initialReviews, autoScroll = true }: { initialReviews?: any[]; autoScroll?: boolean }) {
+  const { scrollRef, scrollByAmount, canScrollLeft, canScrollRight } = useCarousel(autoScroll ? 0.5 : 0, 350);
 
   // Statická data z původního webu jako záloha
   const defaultReviews = [

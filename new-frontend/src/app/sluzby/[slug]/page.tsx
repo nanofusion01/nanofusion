@@ -245,7 +245,7 @@ export default async function ServicePage({ params }: PageProps) {
       <ServiceVideo videoUrl={service.video_url || localData.video_url} serviceName={service.name} />
 
       {mappedReviews.length > 0 && (
-        <Reviews initialReviews={mappedReviews} />
+        <Reviews initialReviews={mappedReviews} autoScroll={false} />
       )}
 
       {faqs.length > 0 && (
