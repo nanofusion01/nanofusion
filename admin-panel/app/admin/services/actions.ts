@@ -151,14 +151,54 @@ export async function uploadServiceVideo(serviceId: string, formData: FormData) 
   return publicUrl
 }
 
-// --- Service Reviews management ---
-export async function addServiceReview(serviceId: string, author: string, rating: number, content: string) {
+// --- Gallery ("Z realizací") management ---
+export async function addGalleryPhoto(serviceId: string, url: string, caption?: string) {
   const supabase = await createAdminClient()
-  const { data, error } = await (supabase.from('service_reviews') as any)
-    .insert({ service_id: serviceId, author, rating, content, is_visible: true })
+  const { count } = await (supabase.from('service_gallery') as any)
+    .select('*', { count: 'exact', head: true })
+    .eq('service_id', serviceId)
+  const { data, error } = await (supabase.from('service_gallery') as any)
+    .insert({ service_id: serviceId, url, caption: caption || '', order_index: count ?? 0 })
     .select()
     .single()
-  
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/services/${serviceId}`)
+  return data
+}
+
+export async function uploadGalleryPhoto(serviceId: string, formData: FormData) {
+  const supabase = await createAdminClient()
+  const file = formData.get('file') as File
+  const caption = formData.get('caption') as string | null
+  if (!file) throw new Error('Chybí soubor')
+  const url = await uploadFile(supabase, file, 'services', `${serviceId}/gallery`)
+  return addGalleryPhoto(serviceId, url, caption || '')
+}
+
+export async function deleteGalleryPhoto(id: string, serviceId: string) {
+  const supabase = await createAdminClient()
+  const { error } = await (supabase.from('service_gallery') as any).delete().eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/services/${serviceId}`)
+}
+
+export async function reorderGalleryPhotos(serviceId: string, items: { id: string; order_index: number }[]) {
+  const supabase = await createAdminClient()
+  const updates = items.map(({ id, order_index }) =>
+    (supabase.from('service_gallery') as any).update({ order_index }).eq('id', id)
+  )
+  await Promise.all(updates)
+  revalidatePath(`/admin/services/${serviceId}`)
+}
+
+// --- Service Reviews management ---
+export async function addServiceReview(serviceId: string, author: string, rating: number, content: string, source: string = 'manual') {
+  const supabase = await createAdminClient()
+  const { data, error } = await (supabase.from('service_reviews') as any)
+    .insert({ service_id: serviceId, author, rating, content, source, is_visible: true })
+    .select()
+    .single()
+
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
   return data

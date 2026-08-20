@@ -128,6 +128,32 @@ export type Database = {
           order_index?: number
         }
       }
+      service_gallery: {
+        Row: {
+          id: string
+          service_id: string
+          url: string
+          caption: string | null
+          order_index: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          service_id: string
+          url: string
+          caption?: string | null
+          order_index?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          service_id?: string
+          url?: string
+          caption?: string | null
+          order_index?: number
+          created_at?: string
+        }
+      }
       service_reviews: {
         Row: {
           id: string

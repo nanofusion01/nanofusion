@@ -11,11 +11,13 @@ export default async function ServiceDetailPage(props: { params: Promise<{ id: s
   const [
     { data: service },
     { data: beforeAfter },
+    { data: galleryPhotos },
     { data: serviceReviews },
     { data: externalReviews }
   ] = await Promise.all([
     (supabase.from('services') as any).select('*').eq('id', params.id).single(),
     (supabase.from('service_before_after') as any).select('*').eq('service_id', params.id).order('order_index'),
+    (supabase.from('service_gallery') as any).select('*').eq('service_id', params.id).order('order_index'),
     (supabase.from('service_reviews') as any).select('*').eq('service_id', params.id).order('created_at', { ascending: false }),
     (supabase.from('external_reviews') as any).select('*').eq('approved', true).order('published_at', { ascending: false })
   ])
@@ -50,9 +52,10 @@ export default async function ServiceDetailPage(props: { params: Promise<{ id: s
   }
 
   return (
-    <ServiceDetailClient 
-      service={service as any} 
+    <ServiceDetailClient
+      service={service as any}
       beforeAfterItems={(beforeAfter as any[]) ?? []}
+      galleryPhotos={(galleryPhotos as any[]) ?? []}
       serviceFaqs={allFaqs as any[]}
       serviceReviews={(serviceReviews as any[]) ?? []}
       externalReviews={(externalReviews as any[]) ?? []}

@@ -26,6 +26,8 @@ import {
   uploadServiceHeroImage,
   uploadBeforeAfterPhoto,
   deleteBeforeAfter,
+  uploadGalleryPhoto,
+  deleteGalleryPhoto,
   addServiceReview,
   deleteServiceReview,
   saveServiceProcessSteps
@@ -34,6 +36,7 @@ import { TiptapEditor } from '@/components/admin/editor'
 
 type Service = Tables<'services'>
 type BeforeAfter = Tables<'service_before_after'>
+type GalleryPhoto = Tables<'service_gallery'>
 type ServiceFAQ = Tables<'service_faqs'>
 type ServiceReview = Tables<'service_reviews'>
 type ExternalReview = Tables<'external_reviews'>
@@ -41,6 +44,7 @@ type ExternalReview = Tables<'external_reviews'>
 interface Props {
   service: Service
   beforeAfterItems: BeforeAfter[]
+  galleryPhotos: GalleryPhoto[]
   serviceFaqs: ServiceFAQ[]
   serviceReviews: ServiceReview[]
   externalReviews: ExternalReview[]
@@ -68,9 +72,10 @@ const DEFAULT_BENEFITS: Record<string, Array<{ title: string; desc: string }>> =
   ]
 }
 
-export function ServiceDetailClient({ 
-  service: initialService, 
-  beforeAfterItems: initialBeforeAfter, 
+export function ServiceDetailClient({
+  service: initialService,
+  beforeAfterItems: initialBeforeAfter,
+  galleryPhotos: initialGalleryPhotos,
   serviceFaqs: initialFaqs,
   serviceReviews: initialReviews,
   externalReviews,
@@ -79,6 +84,7 @@ export function ServiceDetailClient({
   const [activeTab, setActiveTab] = useState<'general' | 'process' | 'photos' | 'faqs' | 'reviews'>('general')
   const [faqs, setFaqs] = useState<ServiceFAQ[]>(initialFaqs)
   const [beforeAfterItems, setBeforeAfterItems] = useState<BeforeAfter[]>(initialBeforeAfter)
+  const [galleryPhotos, setGalleryPhotos] = useState<GalleryPhoto[]>(initialGalleryPhotos)
   const [serviceReviews, setServiceReviews] = useState<ServiceReview[]>(initialReviews)
   const [service, setService] = useState(() => {
     if (!initialService.features || initialService.features.length === 0) {
@@ -106,10 +112,12 @@ export function ServiceDetailClient({
   const [uploadingVideo, setUploadingVideo] = useState(false)
   const [showAddBeforeAfter, setShowAddBeforeAfter] = useState(false)
   const [addingBeforeAfter, setAddingBeforeAfter] = useState(false)
+  const [uploadingGallery, setUploadingGallery] = useState(false)
   const heroFileRef = useRef<HTMLInputElement>(null)
   const videoFileRef = useRef<HTMLInputElement>(null)
   const beforeFileRef = useRef<HTMLInputElement>(null)
   const afterFileRef = useRef<HTMLInputElement>(null)
+  const galleryFileRef = useRef<HTMLInputElement>(null)
   const [baCaption, setBaCaption] = useState('')
 
   const handleVideoUpload = async (file: File) => {
@@ -133,6 +141,7 @@ export function ServiceDetailClient({
   const [revAuthor, setRevAuthor] = useState('')
   const [revRating, setRevRating] = useState(5)
   const [revContent, setRevContent] = useState('')
+  const [revSource, setRevSource] = useState('manual')
 
   // --- General save ---
   const handleSaveGeneral = async () => {
@@ -228,6 +237,37 @@ export function ServiceDetailClient({
     }
   }
 
+  // --- Gallery ("Z realizací") upload ---
+  const handleAddGalleryPhotos = async (files: FileList) => {
+    setUploadingGallery(true)
+    try {
+      for (const file of Array.from(files)) {
+        const compressed = await compressImage(file)
+        const fd = new FormData()
+        fd.append('file', compressed)
+        const newItem = await uploadGalleryPhoto(service.id, fd)
+        setGalleryPhotos(prev => [...prev, newItem])
+      }
+      toast.success('Fotky do galerie nahrány')
+    } catch (err: any) {
+      toast.error('Chyba uploadu: ' + err.message)
+    } finally {
+      setUploadingGallery(false)
+      if (galleryFileRef.current) galleryFileRef.current.value = ''
+    }
+  }
+
+  const handleDeleteGalleryPhoto = async (id: string) => {
+    if (!confirm('Smazat tuto fotku z galerie?')) return
+    try {
+      await deleteGalleryPhoto(id, service.id)
+      setGalleryPhotos(prev => prev.filter(i => i.id !== id))
+      toast.success('Fotka smazána')
+    } catch (err: any) {
+      toast.error('Chyba: ' + err.message)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -260,7 +300,7 @@ export function ServiceDetailClient({
         {[
           { id: 'general', label: 'Základní info', icon: <Layout size={16} /> },
           { id: 'process', label: `Jak to funguje (${processSteps.length})`, icon: <ListOrdered size={16} /> },
-          { id: 'photos', label: `Před & Po fotky (${beforeAfterItems.length})`, icon: <Camera size={16} /> },
+          { id: 'photos', label: `Fotky (${beforeAfterItems.length + galleryPhotos.length})`, icon: <Camera size={16} /> },
           { id: 'faqs', label: `Q&A (${faqs.length})`, icon: <MessageSquareQuote size={16} /> },
           { id: 'reviews', label: `Vybrané recenze (${serviceReviews.length})`, icon: <MessageSquareQuote size={16} /> },
         ].map((tab) => (
@@ -327,8 +367,8 @@ export function ServiceDetailClient({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Co je součástí (Vlastnosti s fajfkou)</label>
-                  <p className="text-xs text-slate-500 mt-0.5">Jednotlivé body zobrazené v boxu „Co je součástí:“ pod popisem služby.</p>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Co nabízíme (Vlastnosti s fajfkou)</label>
+                  <p className="text-xs text-slate-500 mt-0.5">Jednotlivé body zobrazené v boxu „Co nabízíme:“ pod popisem služby.</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -416,7 +456,7 @@ export function ServiceDetailClient({
                   onClick={() => setService({ ...service, features: [...(service.features || []), JSON.stringify({ title: '', desc: '' })] })}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-amber-500/50 text-sm font-bold text-amber-500 hover:bg-amber-500/10 transition-colors mt-2"
                 >
-                  <Plus size={16} /> Přidat další položku do „Co je součástí“
+                  <Plus size={16} /> Přidat další položku do „Co nabízíme“
                 </button>
               </div>
             </div>
@@ -749,6 +789,53 @@ export function ServiceDetailClient({
                 </div>
               )}
             </div>
+
+            {/* --- Galerie "Z realizací" --- */}
+            <div className="pt-8 border-t space-y-6" style={{ borderColor: 'var(--border)' }}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-lg">Galerie „Z realizací“</h3>
+                  <p className="text-sm text-slate-400">Fotky zobrazené v sekci „Z realizací“ na detailu této služby na webu.</p>
+                </div>
+                <input
+                  ref={galleryFileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files; if (f && f.length > 0) handleAddGalleryPhotos(f) }}
+                />
+                <button
+                  onClick={() => galleryFileRef.current?.click()}
+                  disabled={uploadingGallery}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white disabled:opacity-50"
+                  style={{ background: 'var(--brand-primary)' }}
+                >
+                  {uploadingGallery ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                  {uploadingGallery ? 'Nahrávám...' : 'Nahrát fotky'}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {galleryPhotos.map((photo) => (
+                  <div key={photo.id} className="relative group rounded-xl overflow-hidden aspect-[4/3] border" style={{ borderColor: 'var(--border)' }}>
+                    <img src={photo.url} alt={photo.caption || 'Realizace'} className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => handleDeleteGalleryPhoto(photo.id)}
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all"
+                      title="Smazat fotku"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {galleryPhotos.length === 0 && (
+                <div className="text-center py-12 opacity-40 text-sm border-2 border-dashed rounded-2xl">
+                  Zatím žádné fotky v galerii. Klikněte na "Nahrát fotky".
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -921,6 +1008,7 @@ export function ServiceDetailClient({
                           setRevAuthor(selected.author || '')
                           setRevRating(selected.rating || 5)
                           setRevContent(selected.content || '')
+                          setRevSource(selected.source || 'manual')
                         }
                       }}
                       defaultValue=""
@@ -937,7 +1025,7 @@ export function ServiceDetailClient({
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Autor / Jméno</label>
                     <input
@@ -961,6 +1049,19 @@ export function ServiceDetailClient({
                       style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Odkud recenze je</label>
+                    <select
+                      value={revSource}
+                      onChange={(e) => setRevSource(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl border outline-none text-sm"
+                      style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
+                    >
+                      <option value="google">Google</option>
+                      <option value="firmy.cz">Firmy.cz</option>
+                      <option value="manual">Přidáno ručně (bez zdroje)</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -981,6 +1082,7 @@ export function ServiceDetailClient({
                       setShowAddReview(false)
                       setRevAuthor('')
                       setRevContent('')
+                      setRevSource('manual')
                     }}
                     className="px-4 py-2 rounded-xl text-sm border hover:bg-slate-50 transition-colors"
                   >
@@ -994,11 +1096,12 @@ export function ServiceDetailClient({
                       }
                       setAddingReview(true)
                       try {
-                        const newRev = await addServiceReview(service.id, revAuthor, revRating, revContent)
+                        const newRev = await addServiceReview(service.id, revAuthor, revRating, revContent, revSource)
                         setServiceReviews(prev => [newRev, ...prev])
                         setShowAddReview(false)
                         setRevAuthor('')
                         setRevContent('')
+                        setRevSource('manual')
                         toast.success('Recenze přidána')
                       } catch (err: any) {
                         toast.error('Chyba: ' + err.message)
@@ -1024,7 +1127,12 @@ export function ServiceDetailClient({
                       <div className="flex gap-1 text-amber-500 font-bold">
                         {'★'.repeat(rev.rating || 5)}{'☆'.repeat(5 - (rev.rating || 5))}
                       </div>
-                      <h4 className="font-bold">{rev.author}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold">{rev.author}</h4>
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                          {(rev as any).source === 'google' ? 'Google' : (rev as any).source === 'firmy.cz' ? 'Firmy.cz' : 'Ručně přidáno'}
+                        </span>
+                      </div>
                       <p className="text-sm text-slate-500">{new Date(rev.created_at).toLocaleDateString('cs')}</p>
                       <p className="pt-2 text-slate-700 max-w-2xl text-sm leading-relaxed">"{rev.content}"</p>
                     </div>
