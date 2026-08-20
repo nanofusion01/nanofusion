@@ -395,7 +395,7 @@ function ServiceProcess({ serviceName, steps, processNote }: { serviceName: stri
     <section className="py-20 bg-slate-50">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900">
+          <h2 className="text-3xl md:text-4xl font-black text-amber-500">
             Jak čištění probíhá
           </h2>
         </div>
