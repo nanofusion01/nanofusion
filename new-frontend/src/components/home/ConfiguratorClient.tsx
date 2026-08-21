@@ -33,7 +33,8 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
     { id: 'roof-paint', name: 'Nátěry střech', desc: 'Kvalitními barvami', price: 180 },
     { id: 'impregnation', name: 'Nano impregnace', desc: 'Ochrana různých povrchů', price: 70 },
     { id: 'antislip', name: 'Protiskluz', desc: 'Pro bezpečnou podlahu', price: 120 },
-    { id: 'ceramfloor', name: 'IG CeramFloor', desc: 'Revoluční ochrana podlah', price: 250 }
+    { id: 'ceramfloor', name: 'IG CeramFloor', desc: 'Revoluční ochrana podlah', price: 250 },
+    { id: 'antibac', name: 'Antibakteriální ochrana', desc: 'Dezinfekce a antivirová ochrana povrchů', price: 150 }
   ];
 
   const services = defaultServices.map(s => {

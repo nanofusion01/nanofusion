@@ -342,6 +342,7 @@ export const localCatalog: Record<string, any> = {
     },
     'antibac': {
         title: 'Antibakteriální ochrana',
+        price_key: 'antibac',
         badge: 'HYGIENA',
         subtitle: 'Dlouhodobá dezinfekce a ochrana všech typů povrchů se samočistícím a antivirovým efektem.',
         what_included: 'Aplikujeme certifikovaný polymerní antibakteriální a antivirový přípravek IMPAGUARD GCA s účinností až 120 dní. Aktivně ničí viry, bakterie a plísně. Ideální pro zdravotnická zařízení, kanceláře, školy, školky a rodinné domy.',
