@@ -3,25 +3,8 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { revalidateFrontend } from '@/lib/revalidate-frontend'
-
-// Recenze se na webu i v adminu vždy zobrazují jako čistý text (nikdy
-// dangerouslySetInnerHTML) - proto se sem nesmí dostat žádné HTML. Stávalo
-// se, že se do textového pole rukou nakopírovala recenze i s formátováním
-// (Tiptap editor si HTML z clipboardu ponechal), což pak na webu vykreslilo
-// doslovné "<p><span style=...>" místo textu. Tohle to vždy ořízne na
-// čistý text, ať zdroj obsahuje HTML nebo ne.
-function stripHtml(input: string): string {
-  return input
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#0?39;/gi, "'")
-    .replace(/\s+/g, ' ')
-    .trim()
-}
+import { stripHtml } from '@/lib/strip-html'
+import { parseFirmyReviews } from '@/lib/firmy-scraper'
 
 export async function approveReview(id: string) {
   const supabase = await createAdminClient()
@@ -123,61 +106,13 @@ export async function syncFirmyReviews() {
   if (!response.ok) throw new Error(`Firmy.cz odpověděl: ${response.status}`)
   const html = await response.text()
 
-  // 2. JSON-LD Schema.org parsing
-  const reviews: Array<{ external_id: string; author: string; rating: number; content: string; published_at: string | null }> = []
-  const jsonLdBlocks = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)]
-
-  for (const match of jsonLdBlocks) {
-    try {
-      const data = JSON.parse(match[1].trim())
-      const entities = Array.isArray(data) ? data : [data]
-      for (const entity of entities) {
-        const rawReviews = entity?.review
-          ? (Array.isArray(entity.review) ? entity.review : [entity.review])
-          : []
-        for (const rev of rawReviews) {
-          const author = rev?.author?.name || rev?.author || 'Anonymní'
-          const rating = Math.min(5, Math.max(1, parseInt(rev?.reviewRating?.ratingValue ?? '5')))
-          const content = stripHtml(rev?.reviewBody || '')
-          if (content.length < 5) continue
-          const extId = `firmy_${Buffer.from(author + content.substring(0, 30)).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
-          reviews.push({ external_id: extId, author, rating, content, published_at: rev?.datePublished || null })
-        }
-      }
-    } catch (_) {}
-  }
-
-  // 2b. Fallback: HTML scraping (ReviewItem classes) - captures more than JSON-LD
-  if (reviews.length === 0) {
-    const authorPattern = /class="reviewItem__authorName[^"]*"[^>]*>([^<]+)</gi
-    const textPattern = /class="reviewItem__text[^"]*"[^>]*>([\s\S]*?)<\/p>/gi
-    const datePattern = /class="reviewItem__date[^"]*"[^>]*>([^<]+)</gi
-
-    const authors: string[] = []
-    const texts: string[] = []
-    const dates: string[] = []
-
-    let m: RegExpExecArray | null
-    while ((m = authorPattern.exec(html)) !== null) authors.push(m[1].trim())
-    while ((m = textPattern.exec(html)) !== null) texts.push(stripHtml(m[1]))
-    while ((m = datePattern.exec(html)) !== null) dates.push(m[1].trim())
-
-    for (let i = 0; i < Math.min(authors.length, texts.length); i++) {
-      if (texts[i].length < 5) continue
-      const extId = `firmy_html_${Buffer.from(authors[i] + texts[i].substring(0, 20)).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
-      
-      // Prevent duplicates in same run
-      if (!reviews.find(r => r.external_id === extId)) {
-        reviews.push({
-          external_id: extId,
-          author: authors[i] || 'Anonymní',
-          rating: 5,
-          content: texts[i],
-          published_at: dates[i] || null
-        })
-      }
-    }
-  }
+  // 2. HTML scraping - Firmy.cz už recenze do JSON-LD nedává (jen
+  // LocalBusiness/WebSite schema bez "review" pole), takže se parsuje
+  // přímo vykreslené HTML. Firmy.cz teď stránku renderuje přes Mapy.com
+  // widget: každá recenze je <div class="detailReview">...</div> blok.
+  // Server v prvotním HTML pošle jen pár nejnovějších (zbytek dotahuje JS
+  // při scrollu), ale i tak je to výrazně víc než nic.
+  const reviews = parseFirmyReviews(html)
 
   // 3. Upsert do external_reviews
   let imported = 0
