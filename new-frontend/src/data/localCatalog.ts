@@ -362,9 +362,18 @@ export const localCatalog: Record<string, any> = {
     }
 };
 
-// "Nátěry fasád" je v DB uložená pod svým českým slugem "natery-fasad"
-// (na rozdíl od zbylých služeb čekajících na přejmenování), ale katalog má
-// obsah jen pod starým klíčem "facade-paint" - bez tohoto aliasu tak tiše
-// přichází o fallback texty/galerii, stejně jako to dřív chybělo u
-// cisteni-fasad.
+// Všech 12 služeb má teď v DB český slug (services.slug), ale tenhle
+// katalog byl psaný pod původními anglickými klíči - bez aliasů by každá
+// služba tiše přišla o fallback texty/galerii/benefity, stejně jako to
+// dřív chybělo jen u cisteni-fasad a natery-fasad.
 localCatalog['natery-fasad'] = localCatalog['facade-paint'];
+localCatalog['cisteni-strech'] = localCatalog['roof'];
+localCatalog['cisteni-dlazby'] = localCatalog['pavement'];
+localCatalog['cisteni-fotovoltaiky'] = localCatalog['pv'];
+localCatalog['odstraneni-graffiti'] = localCatalog['graffiti'];
+localCatalog['prumyslove-cisteni'] = localCatalog['industrial'];
+localCatalog['natery-strech'] = localCatalog['roof-paint'];
+localCatalog['nano-impregnace'] = localCatalog['impregnation'];
+localCatalog['protiskluzove-natery'] = localCatalog['antislip'];
+localCatalog['ochrana-podlah-ceramfloor'] = localCatalog['ceramfloor'];
+localCatalog['antibakterialni-ochrana'] = localCatalog['antibac'];

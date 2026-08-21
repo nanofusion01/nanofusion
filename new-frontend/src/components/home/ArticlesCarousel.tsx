@@ -6,61 +6,60 @@ import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { Modal } from "@/components/ui/modal";
 
-// Slug hodnoty musí sedět na to, co je SKUTEČNĚ v services.slug v DB - ne na
-// "aspirační" počeštěné tvary z případné budoucí migrace. Dnes má počeštěný
-// slug reálně jen cisteni-fasad a natery-fasad, zbytek zůstal na anglických
-// slugech (roof, pavement, pv, graffiti, industrial, roof-paint,
-// impregnation, antislip, ceramfloor, antibac) - proto se dřív u většiny
-// článků na klik "Spočítat cenu" chodilo na neexistující URL a spadlo to na 404.
+// Slug hodnoty musí sedět na to, co je SKUTEČNĚ v services.slug v DB.
+// Všech 12 služeb má teď český slug (viz migrace provedená přímo v DB) -
+// klíče tu zůstávají i anglické/staré, protože takhle mohou být zapsané
+// v `target_service` komentářích starších článků, ale VÝSLEDNÝ slug musí
+// být vždy ten aktuální český, jinak "Spočítat cenu" zase skončí na 404.
 const SERVICE_MAP: Record<string, { slug: string; name: string }> = {
   'kalkulacka': { slug: '', name: 'Kalkulačka' },
   'facade': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
   'sluzby/facade': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
   'cisteni-fasad': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
 
-  'roof': { slug: 'roof', name: 'Čištění střech' },
-  'sluzby/roof': { slug: 'roof', name: 'Čištění střech' },
-  'cisteni-strech': { slug: 'roof', name: 'Čištění střech' },
+  'roof': { slug: 'cisteni-strech', name: 'Čištění střech' },
+  'sluzby/roof': { slug: 'cisteni-strech', name: 'Čištění střech' },
+  'cisteni-strech': { slug: 'cisteni-strech', name: 'Čištění střech' },
 
-  'pavement': { slug: 'pavement', name: 'Čištění dlažeb' },
-  'sluzby/pavement': { slug: 'pavement', name: 'Čištění dlažeb' },
-  'cisteni-dlazby': { slug: 'pavement', name: 'Čištění dlažeb' },
+  'pavement': { slug: 'cisteni-dlazby', name: 'Čištění dlažeb' },
+  'sluzby/pavement': { slug: 'cisteni-dlazby', name: 'Čištění dlažeb' },
+  'cisteni-dlazby': { slug: 'cisteni-dlazby', name: 'Čištění dlažeb' },
 
-  'pv': { slug: 'pv', name: 'Čištění fotovoltaiky' },
-  'sluzby/pv': { slug: 'pv', name: 'Čištění fotovoltaiky' },
-  'cisteni-fotovoltaiky': { slug: 'pv', name: 'Čištění fotovoltaiky' },
+  'pv': { slug: 'cisteni-fotovoltaiky', name: 'Čištění fotovoltaiky' },
+  'sluzby/pv': { slug: 'cisteni-fotovoltaiky', name: 'Čištění fotovoltaiky' },
+  'cisteni-fotovoltaiky': { slug: 'cisteni-fotovoltaiky', name: 'Čištění fotovoltaiky' },
 
-  'graffiti': { slug: 'graffiti', name: 'Odstranění graffiti' },
-  'sluzby/graffiti': { slug: 'graffiti', name: 'Odstranění graffiti' },
-  'odstraneni-graffiti': { slug: 'graffiti', name: 'Odstranění graffiti' },
+  'graffiti': { slug: 'odstraneni-graffiti', name: 'Odstranění graffiti' },
+  'sluzby/graffiti': { slug: 'odstraneni-graffiti', name: 'Odstranění graffiti' },
+  'odstraneni-graffiti': { slug: 'odstraneni-graffiti', name: 'Odstranění graffiti' },
 
-  'industrial': { slug: 'industrial', name: 'Průmyslové čištění' },
-  'sluzby/industrial': { slug: 'industrial', name: 'Průmyslové čištění' },
-  'prumyslove-cisteni': { slug: 'industrial', name: 'Průmyslové čištění' },
+  'industrial': { slug: 'prumyslove-cisteni', name: 'Průmyslové čištění' },
+  'sluzby/industrial': { slug: 'prumyslove-cisteni', name: 'Průmyslové čištění' },
+  'prumyslove-cisteni': { slug: 'prumyslove-cisteni', name: 'Průmyslové čištění' },
 
   'facade-paint': { slug: 'natery-fasad', name: 'Nátěry fasád' },
   'sluzby/facade-paint': { slug: 'natery-fasad', name: 'Nátěry fasád' },
   'natery-fasad': { slug: 'natery-fasad', name: 'Nátěry fasád' },
 
-  'roof-paint': { slug: 'roof-paint', name: 'Nátěry střech' },
-  'sluzby/roof-paint': { slug: 'roof-paint', name: 'Nátěry střech' },
-  'natery-strech': { slug: 'roof-paint', name: 'Nátěry střech' },
+  'roof-paint': { slug: 'natery-strech', name: 'Nátěry střech' },
+  'sluzby/roof-paint': { slug: 'natery-strech', name: 'Nátěry střech' },
+  'natery-strech': { slug: 'natery-strech', name: 'Nátěry střech' },
 
-  'impregnation': { slug: 'impregnation', name: 'Nano impregnace' },
-  'sluzby/impregnation': { slug: 'impregnation', name: 'Nano impregnace' },
-  'nano-impregnace': { slug: 'impregnation', name: 'Nano impregnace' },
+  'impregnation': { slug: 'nano-impregnace', name: 'Nano impregnace' },
+  'sluzby/impregnation': { slug: 'nano-impregnace', name: 'Nano impregnace' },
+  'nano-impregnace': { slug: 'nano-impregnace', name: 'Nano impregnace' },
 
-  'antislip': { slug: 'antislip', name: 'Protiskluzové nátěry' },
-  'sluzby/antislip': { slug: 'antislip', name: 'Protiskluzové nátěry' },
-  'protiskluzove-natery': { slug: 'antislip', name: 'Protiskluzové nátěry' },
+  'antislip': { slug: 'protiskluzove-natery', name: 'Protiskluzové nátěry' },
+  'sluzby/antislip': { slug: 'protiskluzove-natery', name: 'Protiskluzové nátěry' },
+  'protiskluzove-natery': { slug: 'protiskluzove-natery', name: 'Protiskluzové nátěry' },
 
-  'ceramfloor': { slug: 'ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
-  'sluzby/ceramfloor': { slug: 'ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
-  'ochrana-podlah-ceramfloor': { slug: 'ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
+  'ceramfloor': { slug: 'ochrana-podlah-ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
+  'sluzby/ceramfloor': { slug: 'ochrana-podlah-ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
+  'ochrana-podlah-ceramfloor': { slug: 'ochrana-podlah-ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
 
-  'antibac': { slug: 'antibac', name: 'Antibakteriální ochrana' },
-  'sluzby/antibac': { slug: 'antibac', name: 'Antibakteriální ochrana' },
-  'antibakterialni-ochrana': { slug: 'antibac', name: 'Antibakteriální ochrana' },
+  'antibac': { slug: 'antibakterialni-ochrana', name: 'Antibakteriální ochrana' },
+  'sluzby/antibac': { slug: 'antibakterialni-ochrana', name: 'Antibakteriální ochrana' },
+  'antibakterialni-ochrana': { slug: 'antibakterialni-ochrana', name: 'Antibakteriální ochrana' },
 };
 
 function getTargetService(article: any) {
