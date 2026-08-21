@@ -165,16 +165,6 @@ export function ChatWidget() {
     }
   }, [isOpen, chatState, greetingButtons]);
 
-  const getStateQuestion = (state: ChatState) => {
-    switch (state) {
-      case "ASK_SERVICE": return "Jakou službu bychom pro vás měli zajistit?";
-      case "ASK_ADDRESS": return "V jaké lokalitě se váš objekt nachází?";
-      case "ASK_AREA": return "O jak velkou plochu (m²) se přibližně jedná?";
-      case "ASK_CONTACT": return "Na jaké číslo vám můžeme zavolat s nabídkou?";
-      default: return "Zajímají vás další detaily?";
-    }
-  };
-
   const handleLeadFlow = (original: string, state: ChatState) => {
     switch (state) {
       case "ASK_SERVICE":
@@ -267,25 +257,28 @@ export function ChatWidget() {
   const processInput = async (input: string) => {
     const lowerInput = input.toLowerCase();
 
-    // 1. Znalostní báze
+    // 1. Znalostní báze - rychlá odpověď na časté dotazy bez volání AI
     for (const key in botKnowledge) {
       const entry = botKnowledge[key];
       if (entry.keywords.some((k: string) => lowerInput.includes(k))) {
         botSay(entry.answer);
         if (chatState !== "FINISHED") {
           setTimeout(() => {
-            botSay(`Vraťme se ale k vaší poptávce. **${getStateQuestion(chatState)}**`);
+            botSay("Vraťme se ale k vaší poptávce - klidně mi řekněte víc o tom, co potřebujete, ať vám můžu pomoct dál. 🙂");
           }, 2500);
         }
         return;
       }
     }
 
-    // 2. Formulář (Lead flow)
-    if (["ASK_ADDRESS", "ASK_AREA", "ASK_CONTACT"].includes(chatState)) {
-      handleLeadFlow(input, chatState);
-      return;
-    }
+    // 2. Vše ostatní jde vždy na AI (viz nano-assistant edge function) - ta
+    // sama umí vést celý rozhovor včetně sbírání kontaktu (viz [LEAD: ...]
+    // v odpovědi). Dřív tu byla natvrdo napsaná větev, která KAŽDOU zprávu
+    // po první "chybě" AI odpovědi navždy přesměrovala na rigidní formulář
+    // (handleLeadFlow, jen regex validace, žádné porozumění dotazu) a už se
+    // to nikdy nevrátilo zpátky k AI - odtud dojem "hloupého" bota. Teď se AI
+    // zkouší pokaždé; handleLeadFlow zůstává jen jako jednorázová záloha pro
+    // tento jeden tah, když AI volání zrovna selže (viz catch níže).
 
     // 3. OpenAI Edge Function
     botSay("Půjdu se na to zeptat mého nano-mozku... 🧠", [], 400);
