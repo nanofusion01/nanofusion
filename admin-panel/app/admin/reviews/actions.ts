@@ -2,6 +2,26 @@
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { revalidateFrontend } from '@/lib/revalidate-frontend'
+
+// Recenze se na webu i v adminu vždy zobrazují jako čistý text (nikdy
+// dangerouslySetInnerHTML) - proto se sem nesmí dostat žádné HTML. Stávalo
+// se, že se do textového pole rukou nakopírovala recenze i s formátováním
+// (Tiptap editor si HTML z clipboardu ponechal), což pak na webu vykreslilo
+// doslovné "<p><span style=...>" místo textu. Tohle to vždy ořízne na
+// čistý text, ať zdroj obsahuje HTML nebo ne.
+function stripHtml(input: string): string {
+  return input
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 export async function approveReview(id: string) {
   const supabase = await createAdminClient()
@@ -11,6 +31,7 @@ export async function approveReview(id: string) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
+  await revalidateFrontend()
 }
 
 export async function rejectReview(id: string) {
@@ -21,6 +42,7 @@ export async function rejectReview(id: string) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
+  await revalidateFrontend()
 }
 
 export async function deleteReview(id: string) {
@@ -31,6 +53,7 @@ export async function deleteReview(id: string) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
+  await revalidateFrontend()
 }
 
 export async function addManualReview(data: {
@@ -44,12 +67,13 @@ export async function addManualReview(data: {
     source: 'manual',
     author: data.author,
     rating: data.rating,
-    content: data.content,
+    content: stripHtml(data.content),
     approved: true,
     published_at: new Date().toISOString(),
   })
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
+  await revalidateFrontend()
 }
 
 // TASK 9: Schválení recenze z Firmy.cz — kopíruje záznam do external_reviews
@@ -70,13 +94,14 @@ export async function approveFirmyReview(firmyReviewId: string) {
       external_id: review.external_id || firmyReviewId,
       author: review.author_name,
       rating: review.rating,
-      content: review.content,
+      content: stripHtml(review.content),
       published_at: review.review_date,
       approved: true,
     }, { onConflict: 'external_id' })
 
   if (error) throw new Error(error.message)
   revalidatePath('/admin/reviews')
+  await revalidateFrontend()
 }
 
 export async function syncFirmyReviews() {
@@ -113,7 +138,7 @@ export async function syncFirmyReviews() {
         for (const rev of rawReviews) {
           const author = rev?.author?.name || rev?.author || 'Anonymní'
           const rating = Math.min(5, Math.max(1, parseInt(rev?.reviewRating?.ratingValue ?? '5')))
-          const content = (rev?.reviewBody || '').trim()
+          const content = stripHtml(rev?.reviewBody || '')
           if (content.length < 5) continue
           const extId = `firmy_${Buffer.from(author + content.substring(0, 30)).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
           reviews.push({ external_id: extId, author, rating, content, published_at: rev?.datePublished || null })
@@ -134,7 +159,7 @@ export async function syncFirmyReviews() {
 
     let m: RegExpExecArray | null
     while ((m = authorPattern.exec(html)) !== null) authors.push(m[1].trim())
-    while ((m = textPattern.exec(html)) !== null) texts.push(m[1].replace(/<[^>]+>/g, '').trim())
+    while ((m = textPattern.exec(html)) !== null) texts.push(stripHtml(m[1]))
     while ((m = datePattern.exec(html)) !== null) dates.push(m[1].trim())
 
     for (let i = 0; i < Math.min(authors.length, texts.length); i++) {
@@ -213,7 +238,7 @@ export async function syncGoogleReviews() {
       external_id: extId,
       author: rev.author_name,
       rating: rev.rating,
-      content: rev.text,
+      content: stripHtml(rev.text),
       published_at: new Date(rev.time * 1000).toISOString(),
       approved: true,
       fetched_at: new Date().toISOString(),
@@ -222,6 +247,7 @@ export async function syncGoogleReviews() {
   }
 
   revalidatePath('/admin/reviews')
+  await revalidateFrontend()
   return { imported, total: googleReviews.length, rating: data.result?.rating }
 }
 
@@ -244,7 +270,7 @@ export async function bulkAddReviews(rawText: string) {
     const ratingMatch = block.match(/([1-5])\s*(?:hvězd|hv|stars|★)/i) || block.match(/^([1-5])$/m)
     if (ratingMatch) rating = parseInt(ratingMatch[1])
 
-    content = blockLines.slice(1).filter(l => !l.match(/^[1-5]$/) && !l.match(/hvězd/i)).join(' ')
+    content = stripHtml(blockLines.slice(1).filter(l => !l.match(/^[1-5]$/) && !l.match(/hvězd/i)).join(' '))
 
     if (content.length > 5) {
       const { error } = await (supabase.from('external_reviews') as any).insert({

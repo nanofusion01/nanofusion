@@ -1,5 +1,21 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { revalidateFrontend } from '@/lib/revalidate-frontend'
+
+// Recenze se na webu vždy vykreslují jako čistý text - nikdy jako HTML -
+// proto sem nesmí projít žádné značky.
+function stripHtml(input: string): string {
+  return input
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -65,7 +81,7 @@ export async function GET(request: Request) {
         external_id: extId,
         author: rev.author_name,
         rating: rev.rating,
-        content: rev.text,
+        content: stripHtml(rev.text),
         published_at: new Date(rev.time * 1000).toISOString(),
         approved: true, // Google recenze = automaticky schváleny
         fetched_at: new Date().toISOString(),
@@ -73,6 +89,8 @@ export async function GET(request: Request) {
 
       if (!error) imported++
     }
+
+    if (imported > 0) await revalidateFrontend()
 
     return NextResponse.json({
       ok: true,

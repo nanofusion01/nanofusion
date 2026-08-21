@@ -1,6 +1,22 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+// Recenze se na webu vždy vykreslují jako čistý text - nikdy jako HTML -
+// proto sem nesmí projít žádné značky (Firmy.cz do JSON-LD reviewBody
+// občas propašuje i formátování zkopírované administrátorem odjinud).
+function stripHtml(input: string): string {
+  return input
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const key = searchParams.get('key')
@@ -76,7 +92,7 @@ export async function GET(request: Request) {
           for (const rev of rawReviews) {
             const author = rev?.author?.name || rev?.author || 'Anonymní'
             const rating = parseInt(rev?.reviewRating?.ratingValue ?? rev?.rating ?? '5')
-            const content = rev?.reviewBody || rev?.description || ''
+            const content = stripHtml(rev?.reviewBody || rev?.description || '')
             const datePublished = rev?.datePublished || null
 
             if (!content || content.length < 5) continue
@@ -111,7 +127,7 @@ export async function GET(request: Request) {
 
       let m: RegExpExecArray | null
       while ((m = authorPattern.exec(html)) !== null) authors.push(m[1].trim())
-      while ((m = textPattern.exec(html)) !== null) texts.push(m[1].replace(/<[^>]+>/g, '').trim())
+      while ((m = textPattern.exec(html)) !== null) texts.push(stripHtml(m[1]))
       while ((m = datePattern.exec(html)) !== null) dates.push(m[1].trim())
 
       for (let i = 0; i < Math.min(authors.length, texts.length); i++) {
