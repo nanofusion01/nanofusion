@@ -23,6 +23,7 @@ import {
   updateInquiryStatus,
   updateInquiryNotes,
   deleteInquiry,
+  deleteAllInquiries,
 } from './actions'
 
 type Inquiry = Tables<'inquiries'> & { original_photo_url?: string }
@@ -53,6 +54,8 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState(false)
+  const [deletingAll, setDeletingAll] = useState(false)
 
   const filtered = useMemo(() => {
     return inquiries.filter((inq) => {
@@ -68,6 +71,19 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
       return matchSearch && matchStatus
     })
   }, [inquiries, search, statusFilter])
+
+  const handleDeleteAll = async () => {
+    setDeletingAll(true)
+    try {
+      await deleteAllInquiries()
+      toast.success('Všechny poptávky smazány')
+      window.location.reload()
+    } catch {
+      toast.error('Nepodařilo se smazat poptávky')
+      setDeletingAll(false)
+      setDeleteAllConfirm(false)
+    }
+  }
 
   const handleExportCSV = () => {
     const headers = ['Datum', 'Jméno', 'E-mail', 'Telefon', 'Služba', 'Stav', 'Zdroj', 'Zpráva']
@@ -156,20 +172,44 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
             {inquiries.length} poptávek celkem
           </p>
         </div>
-        <button
-          onClick={handleExportCSV}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
-          style={{
-            border: '1px solid var(--border)',
-            background: 'var(--bg-surface)',
-            color: 'var(--text-primary)',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--brand-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
-        >
-          <Download size={16} />
-          Exportovat CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
+            style={{
+              border: '1px solid var(--border)',
+              background: 'var(--bg-surface)',
+              color: 'var(--text-primary)',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--brand-primary)')}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+          >
+            <Download size={16} />
+            Exportovat CSV
+          </button>
+
+          {inquiries.length > 0 && (
+            !deleteAllConfirm ? (
+              <button
+                onClick={() => setDeleteAllConfirm(true)}
+                className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold"
+                style={{ color: '#ef4444', background: '#fef2f2' }}
+              >
+                <Trash2 size={14} /> Vymazat vše
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 text-xs px-3 py-2.5 rounded-xl" style={{ background: '#fef2f2' }}>
+                <span style={{ color: '#991b1b' }}>Nevratně smazat všech {inquiries.length} poptávek?</span>
+                <button onClick={handleDeleteAll} disabled={deletingAll} className="font-bold disabled:opacity-60" style={{ color: '#ef4444' }}>
+                  {deletingAll ? 'Mažu...' : 'Ano, smazat'}
+                </button>
+                <button onClick={() => setDeleteAllConfirm(false)} disabled={deletingAll} style={{ color: 'var(--text-muted)' }}>
+                  Zrušit
+                </button>
+              </div>
+            )
+          )}
+        </div>
       </div>
 
       {/* Filters */}

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { MessageSquare, Search } from 'lucide-react'
+import { ChatsHeaderActions } from './chats-header-actions'
 
 export default async function ChatsPage() {
   const supabase = await createClient()
@@ -22,6 +23,7 @@ export default async function ChatsPage() {
             {sessions?.length ?? 0} relací · <span style={{ color: '#2563eb' }}>{openCount} otevřených</span>
           </p>
         </div>
+        <ChatsHeaderActions count={sessions.length} />
       </div>
 
       <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>

@@ -40,14 +40,31 @@ export async function updateInquiryNotes(id: string, notes: string, source?: str
 export async function deleteInquiry(id: string, source?: string) {
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
-  
+
   const targetTable = source === 'ai_analyzer' ? 'leads' : 'inquiries'
   const { error } = await (supabase.from(targetTable) as any)
     .delete()
     .eq('id', id)
-    
+
   if (error) throw new Error(error.message)
-  
+
   revalidatePath('/admin/inquiries')
   revalidatePath('/admin/analyzer')
+}
+
+// Smaže VŠECHNY poptávky (jen tabulka inquiries - ne "leads" z AI Analyzeru,
+// to je samostatná funkce). Určeno pro vyčištění testovacích dat před
+// ostrým spuštěním - nevratné, proto vyžaduje potvrzení v UI.
+export async function deleteAllInquiries() {
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client unavailable')
+
+  const { error } = await (supabase.from('inquiries') as any)
+    .delete()
+    .not('id', 'is', null)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/admin/inquiries')
+  revalidatePath('/admin')
 }

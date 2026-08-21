@@ -23,3 +23,16 @@ export async function deleteChatSession(id: string) {
   if (error) throw new Error(error.message)
   revalidatePath('/admin/chats')
 }
+
+// Smaže VŠECHNY chat relace. Určeno pro vyčištění testovacích dat před
+// ostrým spuštěním - nevratné, proto vyžaduje potvrzení v UI.
+export async function deleteAllChatSessions() {
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client unavailable')
+  const { error } = await (supabase.from('chat_sessions') as any)
+    .delete()
+    .not('id', 'is', null)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin/chats')
+  revalidatePath('/admin')
+}
