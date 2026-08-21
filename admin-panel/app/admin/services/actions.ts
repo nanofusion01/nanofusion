@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { revalidateFrontend } from '@/lib/revalidate-frontend'
 import { uploadFile } from '@/lib/storage'
 
 export async function createService(data: { name: string; slug: string }) {
@@ -13,6 +14,7 @@ export async function createService(data: { name: string; slug: string }) {
   
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
+  revalidateFrontend()
   return (service as any).id
 }
 
@@ -25,6 +27,7 @@ export async function updateService(id: string, data: any) {
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
   revalidatePath(`/admin/services/${id}`)
+  revalidateFrontend()
 }
 
 export async function deleteService(id: string) {
@@ -32,6 +35,7 @@ export async function deleteService(id: string) {
   const { error } = await (supabase.from('services') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
+  revalidateFrontend()
 }
 
 export async function toggleServiceStatus(id: string, is_active: boolean) {
@@ -42,6 +46,7 @@ export async function toggleServiceStatus(id: string, is_active: boolean) {
   
   if (error) throw new Error(error.message)
   revalidatePath('/admin/services')
+  revalidateFrontend()
 }
 
 export async function reorderServices(items: { id: string; order_index: number }[]) {
@@ -51,6 +56,7 @@ export async function reorderServices(items: { id: string; order_index: number }
   )
   await Promise.all(updates)
   revalidatePath('/admin/services')
+  revalidateFrontend()
 }
 
 export async function addServiceFaq(serviceId: string, question: string, answer: string) {
@@ -62,6 +68,7 @@ export async function addServiceFaq(serviceId: string, question: string, answer:
   
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
   return data
 }
 
@@ -92,6 +99,7 @@ export async function addBeforeAfter(serviceId: string, beforeUrl: string, after
     .single()
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
   return data
 }
 
@@ -100,6 +108,7 @@ export async function deleteBeforeAfter(id: string, serviceId: string) {
   const { error } = await (supabase.from('service_before_after') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
 }
 
 export async function uploadServiceFile(serviceId: string, formData: FormData) {
@@ -132,6 +141,7 @@ export async function uploadServiceHeroImage(serviceId: string, formData: FormDa
     .eq('id', serviceId)
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
   return publicUrl
 }
 
@@ -148,6 +158,7 @@ export async function uploadServiceVideo(serviceId: string, formData: FormData) 
     console.warn('Could not update video_url column directly:', e)
   }
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
   return publicUrl
 }
 
@@ -163,6 +174,7 @@ export async function addGalleryPhoto(serviceId: string, url: string, caption?: 
     .single()
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
   return data
 }
 
@@ -180,6 +192,7 @@ export async function deleteGalleryPhoto(id: string, serviceId: string) {
   const { error } = await (supabase.from('service_gallery') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
 }
 
 export async function reorderGalleryPhotos(serviceId: string, items: { id: string; order_index: number }[]) {
@@ -189,6 +202,7 @@ export async function reorderGalleryPhotos(serviceId: string, items: { id: strin
   )
   await Promise.all(updates)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
 }
 
 // --- Service Reviews management ---
@@ -201,6 +215,7 @@ export async function addServiceReview(serviceId: string, author: string, rating
 
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
   return data
 }
 
@@ -212,6 +227,7 @@ export async function deleteServiceReview(id: string, serviceId: string) {
   
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
 }
 
 // --- Service Process Steps management ---
@@ -244,4 +260,5 @@ export async function saveServiceProcessSteps(serviceId: string, steps: Array<{ 
   
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/services/${serviceId}`)
+  revalidateFrontend()
 }
