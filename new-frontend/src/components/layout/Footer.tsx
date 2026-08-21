@@ -21,8 +21,9 @@ export function Footer() {
     { label: "Solární panely", href: "/sluzby/pv" },
     { label: "Odstranění graffiti", href: "/sluzby/graffiti" },
     { label: "Průmyslové čištění", href: "/sluzby/industrial" },
-    { label: "Nátěry fasád", href: "/sluzby/facade-paint" },
+    { label: "Nátěry fasád", href: "/sluzby/natery-fasad" },
     { label: "Nátěry střech", href: "/sluzby/roof-paint" },
+    { label: "Nano impregnace", href: "/sluzby/impregnation" },
     { label: "Protiskluzová úprava", href: "/sluzby/antislip" },
     { label: "IG CeramFloor", href: "/sluzby/ceramfloor" },
     { label: "Antibakteriální ochrana", href: "/sluzby/antibac" }

@@ -361,3 +361,10 @@ export const localCatalog: Record<string, any> = {
         ]
     }
 };
+
+// "Nátěry fasád" je v DB uložená pod svým českým slugem "natery-fasad"
+// (na rozdíl od zbylých služeb čekajících na přejmenování), ale katalog má
+// obsah jen pod starým klíčem "facade-paint" - bez tohoto aliasu tak tiše
+// přichází o fallback texty/galerii, stejně jako to dřív chybělo u
+// cisteni-fasad.
+localCatalog['natery-fasad'] = localCatalog['facade-paint'];
