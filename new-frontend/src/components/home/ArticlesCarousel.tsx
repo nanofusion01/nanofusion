@@ -6,12 +6,17 @@ import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { Modal } from "@/components/ui/modal";
 
+// Slug hodnoty musí sedět na to, co je SKUTEČNĚ v services.slug v DB.
+// Všech 12 služeb má teď český slug (viz migrace provedená přímo v DB) -
+// klíče tu zůstávají i anglické/staré, protože takhle mohou být zapsané
+// v `target_service` komentářích starších článků, ale VÝSLEDNÝ slug musí
+// být vždy ten aktuální český, jinak "Spočítat cenu" zase skončí na 404.
 const SERVICE_MAP: Record<string, { slug: string; name: string }> = {
   'kalkulacka': { slug: '', name: 'Kalkulačka' },
   'facade': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
   'sluzby/facade': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
   'cisteni-fasad': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
-  
+
   'roof': { slug: 'cisteni-strech', name: 'Čištění střech' },
   'sluzby/roof': { slug: 'cisteni-strech', name: 'Čištění střech' },
   'cisteni-strech': { slug: 'cisteni-strech', name: 'Čištění střech' },

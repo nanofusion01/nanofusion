@@ -16,16 +16,17 @@ const SocialIcon = ({ href, children }: { href: string; children: React.ReactNod
 export function Footer() {
   const services = [
     { label: "Čištění fasád", href: "/sluzby/cisteni-fasad" },
-    { label: "Čištění střech", href: "/sluzby/roof" },
-    { label: "Čištění dlažeb", href: "/sluzby/pavement" },
-    { label: "Solární panely", href: "/sluzby/pv" },
-    { label: "Odstranění graffiti", href: "/sluzby/graffiti" },
-    { label: "Průmyslové čištění", href: "/sluzby/industrial" },
-    { label: "Nátěry fasád", href: "/sluzby/facade-paint" },
-    { label: "Nátěry střech", href: "/sluzby/roof-paint" },
-    { label: "Protiskluzová úprava", href: "/sluzby/antislip" },
-    { label: "IG CeramFloor", href: "/sluzby/ceramfloor" },
-    { label: "Antibakteriální ochrana", href: "/sluzby/antibac" }
+    { label: "Čištění střech", href: "/sluzby/cisteni-strech" },
+    { label: "Čištění dlažeb", href: "/sluzby/cisteni-dlazby" },
+    { label: "Solární panely", href: "/sluzby/cisteni-fotovoltaiky" },
+    { label: "Odstranění graffiti", href: "/sluzby/odstraneni-graffiti" },
+    { label: "Průmyslové čištění", href: "/sluzby/prumyslove-cisteni" },
+    { label: "Nátěry fasád", href: "/sluzby/natery-fasad" },
+    { label: "Nátěry střech", href: "/sluzby/natery-strech" },
+    { label: "Nano impregnace", href: "/sluzby/nano-impregnace" },
+    { label: "Protiskluzová úprava", href: "/sluzby/protiskluzove-natery" },
+    { label: "IG CeramFloor", href: "/sluzby/ochrana-podlah-ceramfloor" },
+    { label: "Antibakteriální ochrana", href: "/sluzby/antibakterialni-ochrana" }
   ];
 
   return (

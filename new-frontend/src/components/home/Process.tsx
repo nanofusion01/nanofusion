@@ -58,7 +58,7 @@ function ProcessStep({ step }: { step: any }) {
 
 export async function Process({ initialSteps }: { initialSteps?: any[] }) {
   let steps = initialSteps;
-  
+
   if (!steps) {
     const { data } = await supabase
       .from("how_it_works_steps")
@@ -69,13 +69,19 @@ export async function Process({ initialSteps }: { initialSteps?: any[] }) {
 
   if (!steps?.length) return null;
 
+  const { data: section } = await supabase
+    .from("site_sections")
+    .select("title, subtitle")
+    .eq("section_key", "how_it_works")
+    .maybeSingle();
+
   return (
     <section className="py-12 bg-gray-50 font-sans relative overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         <SectionHeader
-          preTitle="Jak to funguje"
-          title="3 jednoduché kroky ke změně"
+          preTitle={section?.title || "Jak to funguje"}
+          title={section?.subtitle || "3 jednoduché kroky ke změně"}
           variant="dark"
           swapColors={true}
           className="mb-12"

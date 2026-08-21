@@ -361,3 +361,19 @@ export const localCatalog: Record<string, any> = {
         ]
     }
 };
+
+// Všech 12 služeb má teď v DB český slug (services.slug), ale tenhle
+// katalog byl psaný pod původními anglickými klíči - bez aliasů by každá
+// služba tiše přišla o fallback texty/galerii/benefity, stejně jako to
+// dřív chybělo jen u cisteni-fasad a natery-fasad.
+localCatalog['natery-fasad'] = localCatalog['facade-paint'];
+localCatalog['cisteni-strech'] = localCatalog['roof'];
+localCatalog['cisteni-dlazby'] = localCatalog['pavement'];
+localCatalog['cisteni-fotovoltaiky'] = localCatalog['pv'];
+localCatalog['odstraneni-graffiti'] = localCatalog['graffiti'];
+localCatalog['prumyslove-cisteni'] = localCatalog['industrial'];
+localCatalog['natery-strech'] = localCatalog['roof-paint'];
+localCatalog['nano-impregnace'] = localCatalog['impregnation'];
+localCatalog['protiskluzove-natery'] = localCatalog['antislip'];
+localCatalog['ochrana-podlah-ceramfloor'] = localCatalog['ceramfloor'];
+localCatalog['antibakterialni-ochrana'] = localCatalog['antibac'];

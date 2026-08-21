@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
+
+/** Jméno vlastní události, kterou volá např. detail realizace, aby si
+ *  konfigurátor rovnou zaklikl odpovídající službu, ne jen odscrolloval. */
+export const PRESELECT_SERVICE_EVENT = "nnf:preselect-service";
 
 interface PriceItem {
   item_key: string;
@@ -63,6 +67,21 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
 
   const selectedService = services.find(s => s.id === selectedServiceId)!;
   const selectedObj = objectTypes.find(o => o.id === selectedObjId)!;
+
+  // Poslechne si "vyber mi rovnou tuhle službu" - posílá to např. detail
+  // realizace při kliknutí na "Spočítat cenu", ať se zákazníkovi rovnou
+  // zaklikne, o co má zájem, místo aby si to musel vybírat znovu.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (id && services.some(s => s.id === id)) {
+        setSelectedServiceId(id);
+      }
+    };
+    window.addEventListener(PRESELECT_SERVICE_EVENT, handler);
+    return () => window.removeEventListener(PRESELECT_SERVICE_EVENT, handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleNext = () => {
     if (selectedServiceId && selectedObjId) {

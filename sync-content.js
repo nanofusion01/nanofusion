@@ -436,7 +436,8 @@ async function syncContent() {
             faqsRes,
             serviceFaqsRes,
             serviceBeforeAfterRes,
-            serviceReviewsRes
+            serviceReviewsRes,
+            serviceGalleryRes
         ] = await Promise.all([
             supabase.from('site_config').select('*'),
             supabase.from('services').select('*').eq('is_active', true).order('order_index', { ascending: true }),
@@ -445,13 +446,17 @@ async function syncContent() {
             supabase.from('faqs').select('*').eq('is_active', true).order('order_index', { ascending: true }),
             supabase.from('service_faqs').select('*').eq('is_active', true).order('order_index', { ascending: true }),
             supabase.from('service_before_after').select('*').order('order_index', { ascending: true }),
-            supabase.from('service_reviews').select('*').eq('is_visible', true).order('created_at', { ascending: false })
+            supabase.from('service_reviews').select('*').eq('is_visible', true).order('created_at', { ascending: false }),
+            supabase.from('service_gallery').select('*').order('order_index', { ascending: true })
         ]);
 
         const dbServices = servicesRes.data || [];
         const dbServiceFaqs = serviceFaqsRes.data || [];
         const dbBeforeAfter = serviceBeforeAfterRes.data || [];
         const dbServiceReviews = serviceReviewsRes.data || [];
+        // service_gallery je nová tabulka (migrace 009) -- pokud ještě neexistuje
+        // v produkční DB, dotaz vrátí chybu; fallback na prázdné pole ať build nespadne.
+        const dbServiceGallery = serviceGalleryRes.error ? [] : (serviceGalleryRes.data || []);
 
         // 2. Generate Sections HTML
 
@@ -937,8 +942,13 @@ async function syncContent() {
             }
 
             // Realization Photo Gallery HTML compilation
+            // Fotky spravované v adminu (tabulka service_gallery) mají přednost
+            // před statickými placeholder fotkami z localCatalog.
             let galleryHtml = '';
-            const galleryPhotos = catalog.gallery || [];
+            const dbGalleryForService = dbServiceGallery.filter(item => item.service_id === s.id);
+            const galleryPhotos = dbGalleryForService.length > 0
+                ? dbGalleryForService.map(item => item.url)
+                : (catalog.gallery || []);
             if (galleryPhotos.length > 0) {
                 galleryHtml = `
                 <!-- GALLERY (Compact Web Style) -->
@@ -963,8 +973,10 @@ async function syncContent() {
             let quoteAuthor = 'recenze na Google';
 
             if (serviceSpecificReviews.length > 0) {
-                quote = serviceSpecificReviews[0].content;
-                quoteAuthor = `${serviceSpecificReviews[0].author || 'Ověřený zákazník'} · zákaznická recenze`;
+                const r0 = serviceSpecificReviews[0];
+                const sourceLabel = r0.source === 'google' ? 'recenze z Google' : r0.source === 'firmy.cz' ? 'recenze z Firmy.cz' : 'zákaznická recenze';
+                quote = r0.content;
+                quoteAuthor = `${r0.author || 'Ověřený zákazník'} · ${sourceLabel}`;
             } else {
                 // Fallback to keyword match from external_reviews (reviewsRes)
                 const serviceKeywords = {

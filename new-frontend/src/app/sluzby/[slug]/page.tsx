@@ -92,7 +92,7 @@ export default async function ServicePage({ params }: PageProps) {
 
   const serviceId = service.id;
 
-  const [faqsRes, beforeAfterRes, reviewsRes, configRes] = await Promise.all([
+  const [faqsRes, beforeAfterRes, galleryRes, reviewsRes, configRes] = await Promise.all([
     supabase
       .from("service_faqs")
       .select("*")
@@ -101,6 +101,11 @@ export default async function ServicePage({ params }: PageProps) {
       .order("order_index", { ascending: true }),
     supabase
       .from("service_before_after")
+      .select("*")
+      .eq("service_id", serviceId)
+      .order("order_index", { ascending: true }),
+    supabase
+      .from("service_gallery")
       .select("*")
       .eq("service_id", serviceId)
       .order("order_index", { ascending: true }),
@@ -118,6 +123,7 @@ export default async function ServicePage({ params }: PageProps) {
 
   const faqs = faqsRes.data || [];
   const beforeAfterPhotos = beforeAfterRes.data || [];
+  const dbGalleryPhotos = galleryRes.data || [];
   const specificReviews = reviewsRes.data || [];
 
   // Použijeme localCatalog pro bohatý obsah, který není v Supabase tabulce (jako na starém webu)
@@ -145,9 +151,12 @@ export default async function ServicePage({ params }: PageProps) {
     }
   }
 
-  const beforeImg = beforeAfterPhotos.length > 0 ? beforeAfterPhotos[0].before_url : null;
-  const afterImg = beforeAfterPhotos.length > 0 ? beforeAfterPhotos[0].after_url : null;
-  const hasBeforeAfter = beforeImg && afterImg && beforeImg !== afterImg;
+  // Admin umožňuje nahrát víc dvojic Před/Po - dřív se použila jen ta první,
+  // teď jede celá sada a komponenta mezi nimi sama průběžně přepíná.
+  const beforeAfterPairs = beforeAfterPhotos
+    .filter((p: any) => p.before_url && p.after_url && p.before_url !== p.after_url)
+    .map((p: any) => ({ before_url: p.before_url, after_url: p.after_url }));
+  const hasBeforeAfter = beforeAfterPairs.length > 0;
 
   let ytId = null;
   if (service.video_url) {
@@ -179,17 +188,24 @@ export default async function ServicePage({ params }: PageProps) {
         return { title: str, desc: "" };
       })
     : (localData.benefits || []);
-  const gallery = localData.gallery || [];
+  // Fotky spravované v adminu (tabulka service_gallery) mají přednost
+  // před statickými placeholder fotkami z localCatalog.
+  const gallery = dbGalleryPhotos.length > 0
+    ? dbGalleryPhotos.map((p: any) => p.url)
+    : (localData.gallery || []);
   const quote = localData.quote;
   const processNote = localData.process_note;
+
+  const sourceLabel = (source?: string) =>
+    source === "google" ? "Google" : source === "firmy.cz" ? "Firmy.cz" : "Ověřená recenze";
 
   const mappedReviews = specificReviews.length > 0
     ? specificReviews.map((r: any) => ({
         id: r.id,
-        name: r.author_name || r.name || "Zákazník",
-        text: r.review_text || r.text || r.content,
+        name: r.author || "Zákazník",
+        text: r.content,
         rating: r.rating || 5,
-        source: r.location || r.source || "Ověřená recenze",
+        source: sourceLabel(r.source),
       }))
     : (quote ? [{ id: "quote", name: "Zákazník", text: quote, rating: 5, source: "Ověřená recenze" }] : []);
 
@@ -222,7 +238,7 @@ export default async function ServicePage({ params }: PageProps) {
       <ServiceProcess serviceName={service.name} steps={customProcessSteps} processNote={processNote} />
 
       {hasBeforeAfter && (
-        <ServiceBeforeAfter beforeImg={beforeImg!} afterImg={afterImg!} />
+        <ServiceBeforeAfter pairs={beforeAfterPairs} />
       )}
 
       {gallery.length > 0 && (
@@ -232,7 +248,7 @@ export default async function ServicePage({ params }: PageProps) {
       <ServiceVideo videoUrl={service.video_url || localData.video_url} serviceName={service.name} />
 
       {mappedReviews.length > 0 && (
-        <Reviews initialReviews={mappedReviews} />
+        <Reviews initialReviews={mappedReviews} autoScroll={false} />
       )}
 
       {faqs.length > 0 && (
@@ -330,10 +346,6 @@ function ServiceBenefits({ service, processDescription, benefits }: { service: a
     <section id="vyhody" className="py-20 bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white/50 backdrop-blur-sm rounded-2xl border-2 border-amber-500 p-8 md:p-12 shadow-xl shadow-amber-500/5">
-          <h2 className="text-xl md:text-2xl font-black text-amber-500 mb-6 uppercase">
-            Co to obsahuje?
-          </h2>
-
           {processDescription && (
             <div
               className="text-slate-700 text-lg leading-relaxed mb-10 prose prose-amber max-w-none prose-p:mb-6"
@@ -343,7 +355,7 @@ function ServiceBenefits({ service, processDescription, benefits }: { service: a
 
           {benefits.length > 0 && (
             <>
-              <h3 className="text-xl font-bold text-slate-900 mb-6">Co je součástí:</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Co nabízíme:</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
                 {benefits.map((benefit, idx) => (
                   <div key={idx} className="flex items-start gap-4">
@@ -383,7 +395,7 @@ function ServiceProcess({ serviceName, steps, processNote }: { serviceName: stri
     <section className="py-20 bg-slate-50">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900">
+          <h2 className="text-3xl md:text-4xl font-black text-amber-500">
             Jak čištění probíhá
           </h2>
         </div>

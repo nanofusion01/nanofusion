@@ -5,6 +5,22 @@ import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { optimizeImg } from "@/lib/supabase";
 import { Modal } from "@/components/ui/modal";
+import { PRESELECT_SERVICE_EVENT } from "./ConfiguratorClient";
+
+// Admin u realizace vybírá "Typ práce" z pevného seznamu (viz WORK_TYPES v
+// admin-panel/.../realizations/[id]/realization-detail-client.tsx), který
+// má ale jiná znění než služby v konfigurátoru (ConfiguratorClient.tsx) -
+// bez téhle tabulky by se nedalo spolehlivě přepnout na odpovídající
+// položku. "Komplexní projekt" a "Jiné" nemají v konfigurátoru smysluplný
+// protějšek, tam se předvýběr záměrně přeskočí.
+const WORK_TYPE_TO_CONFIGURATOR_ID: Record<string, string> = {
+  "Čištění střech": "roof",
+  "Čištění fasád": "facade",
+  "Čištění dlažeb": "pavement",
+  "Solární panely": "pv",
+  "Graffiti": "graffiti",
+  "Nano-ochrana": "impregnation",
+};
 
 function RealizationCard({ item, onClick }: { item: any; onClick: () => void }) {
   const rawUrl = item.realization_photos?.[0]?.url || item.image_url;
@@ -143,10 +159,14 @@ function RealizationModalContent({ item, onClose }: { item: any; onClose: () => 
             <p className="text-amber-50 text-sm mb-6 leading-relaxed">
               Rádi pro vás připravíme nezávaznou kalkulaci zdarma.
             </p>
-            <button 
+            <button
               onClick={() => {
+                const configuratorId = WORK_TYPE_TO_CONFIGURATOR_ID[item.work_type];
                 onClose();
                 setTimeout(() => {
+                  if (configuratorId) {
+                    window.dispatchEvent(new CustomEvent(PRESELECT_SERVICE_EVENT, { detail: configuratorId }));
+                  }
                   const el = document.getElementById("kalkulacka");
                   if (el) {
                     el.scrollIntoView({ behavior: "smooth" });
