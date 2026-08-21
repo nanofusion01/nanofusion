@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
+import { inquirySourceLabel } from '@/lib/inquiry-source-label'
 import {
   updateInquiryStatus,
   updateInquiryNotes,
@@ -304,10 +305,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-xs font-medium px-2 py-1 rounded-md bg-slate-100 text-slate-600">
-                             {inq.source === 'kalkulacka' ? 'Kalkulačka' : 
-                              inq.source === 'chat' ? 'Nanobot' : 
-                              inq.source === 'ai_analyzer' ? 'AI Analýzátor' :
-                              inq.source || 'Web'}
+                             {inquirySourceLabel(inq.source)}
                           </span>
                           {inq.original_photo_url && (
                             <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 flex items-center gap-1">
@@ -430,7 +428,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                   {selectedInquiry.name || 'Poptávka'}
                 </h2>
                 <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                  {new Date(selectedInquiry.created_at).toLocaleString('cs-CZ')} • {selectedInquiry.source || 'form'}
+                  {new Date(selectedInquiry.created_at).toLocaleString('cs-CZ')} • {inquirySourceLabel(selectedInquiry.source)}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -508,7 +506,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                   <div>
                     <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Zdroj</p>
                     <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                      {selectedInquiry.source || 'form'}
+                      {inquirySourceLabel(selectedInquiry.source)}
                     </p>
                   </div>
                 </div>
