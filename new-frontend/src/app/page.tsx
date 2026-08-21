@@ -46,8 +46,25 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  // Zkusíme načíst recenze z DB (tabulka 'reviews' nebo 'service_reviews', zde používám 'reviews')
-  const { data: reviews } = await supabase.from('reviews').select('*');
+  // Skutečné recenze (importované z Google/Firmy.cz i ručně přidané admiem
+  // v Admin -> Recenze) žijí v `external_reviews`, ne v tabulce `reviews` -
+  // ta je prázdná, takže se sem donedávna nikdy nic reálného nedostalo a
+  // homepage vždycky padala na natvrdo napsaný fallback v Reviews.tsx.
+  const { data: externalReviews } = await supabase
+    .from('external_reviews')
+    .select('*')
+    .eq('approved', true)
+    .order('published_at', { ascending: false });
+
+  const reviews = (externalReviews || []).map((r: any) => ({
+    id: r.id,
+    name: r.author,
+    text: r.content,
+    rating: r.rating,
+    source: r.source?.toLowerCase().includes('google')
+      ? 'Ověřeno na Google'
+      : 'Ověřeno na Firmy.cz',
+  }));
 
   return (
     <div className="flex flex-col min-h-screen">
