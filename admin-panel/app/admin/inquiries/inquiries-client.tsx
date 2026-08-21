@@ -18,10 +18,13 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
+import { inquirySourceLabel } from '@/lib/inquiry-source-label'
 import {
   updateInquiryStatus,
   updateInquiryNotes,
   deleteInquiry,
+  deleteInquiries,
+  deleteAllInquiries,
 } from './actions'
 
 type Inquiry = Tables<'inquiries'> & { original_photo_url?: string }
@@ -52,6 +55,11 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState(false)
+  const [deletingAll, setDeletingAll] = useState(false)
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
 
   const filtered = useMemo(() => {
     return inquiries.filter((inq) => {
@@ -67,6 +75,56 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
       return matchSearch && matchStatus
     })
   }, [inquiries, search, statusFilter])
+
+  const toggleChecked = (id: string) => {
+    setCheckedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const allFilteredChecked = filtered.length > 0 && filtered.every((inq) => checkedIds.has(inq.id))
+
+  const toggleCheckAllFiltered = () => {
+    setCheckedIds((prev) => {
+      if (allFilteredChecked) {
+        const next = new Set(prev)
+        filtered.forEach((inq) => next.delete(inq.id))
+        return next
+      }
+      const next = new Set(prev)
+      filtered.forEach((inq) => next.add(inq.id))
+      return next
+    })
+  }
+
+  const handleDeleteSelected = async () => {
+    setBulkDeleting(true)
+    try {
+      await deleteInquiries(Array.from(checkedIds))
+      toast.success(`Smazáno ${checkedIds.size} poptávek`)
+      window.location.reload()
+    } catch {
+      toast.error('Nepodařilo se smazat vybrané poptávky')
+      setBulkDeleting(false)
+      setBulkDeleteConfirm(false)
+    }
+  }
+
+  const handleDeleteAll = async () => {
+    setDeletingAll(true)
+    try {
+      await deleteAllInquiries()
+      toast.success('Všechny poptávky smazány')
+      window.location.reload()
+    } catch {
+      toast.error('Nepodařilo se smazat poptávky')
+      setDeletingAll(false)
+      setDeleteAllConfirm(false)
+    }
+  }
 
   const handleExportCSV = () => {
     const headers = ['Datum', 'Jméno', 'E-mail', 'Telefon', 'Služba', 'Stav', 'Zdroj', 'Zpráva']
@@ -155,20 +213,44 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
             {inquiries.length} poptávek celkem
           </p>
         </div>
-        <button
-          onClick={handleExportCSV}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
-          style={{
-            border: '1px solid var(--border)',
-            background: 'var(--bg-surface)',
-            color: 'var(--text-primary)',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--brand-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
-        >
-          <Download size={16} />
-          Exportovat CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
+            style={{
+              border: '1px solid var(--border)',
+              background: 'var(--bg-surface)',
+              color: 'var(--text-primary)',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--brand-primary)')}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+          >
+            <Download size={16} />
+            Exportovat CSV
+          </button>
+
+          {inquiries.length > 0 && (
+            !deleteAllConfirm ? (
+              <button
+                onClick={() => setDeleteAllConfirm(true)}
+                className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold"
+                style={{ color: '#ef4444', background: '#fef2f2' }}
+              >
+                <Trash2 size={14} /> Vymazat vše
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 text-xs px-3 py-2.5 rounded-xl" style={{ background: '#fef2f2' }}>
+                <span style={{ color: '#991b1b' }}>Nevratně smazat všech {inquiries.length} poptávek?</span>
+                <button onClick={handleDeleteAll} disabled={deletingAll} className="font-bold disabled:opacity-60" style={{ color: '#ef4444' }}>
+                  {deletingAll ? 'Mažu...' : 'Ano, smazat'}
+                </button>
+                <button onClick={() => setDeleteAllConfirm(false)} disabled={deletingAll} style={{ color: 'var(--text-muted)' }}>
+                  Zrušit
+                </button>
+              </div>
+            )
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -220,6 +302,58 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
         </div>
       </div>
 
+      {/* Selection toolbar - jen když je něco zaškrtnuté */}
+      {checkedIds.size > 0 && (
+        <div
+          className="rounded-xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap"
+          style={{ background: '#fef2f2', border: '1px solid #fecaca' }}
+        >
+          <span className="text-sm font-semibold" style={{ color: '#991b1b' }}>
+            Vybráno {checkedIds.size} {checkedIds.size === 1 ? 'poptávka' : checkedIds.size < 5 ? 'poptávky' : 'poptávek'}
+          </span>
+          <div className="flex items-center gap-2">
+            {!bulkDeleteConfirm ? (
+              <>
+                <button
+                  onClick={() => setCheckedIds(new Set())}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Zrušit výběr
+                </button>
+                <button
+                  onClick={() => setBulkDeleteConfirm(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+                  style={{ background: '#ef4444' }}
+                >
+                  <Trash2 size={14} /> Smazat vybrané
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="text-xs" style={{ color: '#991b1b' }}>Opravdu smazat?</span>
+                <button
+                  onClick={handleDeleteSelected}
+                  disabled={bulkDeleting}
+                  className="font-bold text-xs disabled:opacity-60"
+                  style={{ color: '#ef4444' }}
+                >
+                  {bulkDeleting ? 'Mažu...' : 'Ano, smazat'}
+                </button>
+                <button
+                  onClick={() => setBulkDeleteConfirm(false)}
+                  disabled={bulkDeleting}
+                  className="text-xs"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  Zrušit
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div
         className="rounded-xl overflow-hidden"
@@ -248,6 +382,14 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-base)' }}>
+                  <th className="px-5 py-3" style={{ width: 20 }}>
+                    <input
+                      type="checkbox"
+                      checked={allFilteredChecked}
+                      onChange={toggleCheckAllFiltered}
+                      className="cursor-pointer"
+                    />
+                  </th>
                   {['Datum', 'Klient', 'Služba', 'Plocha', 'Zdroj', 'Stav', 'Akce'].map((col) => (
                     <th
                       key={col}
@@ -282,6 +424,14 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                         e.currentTarget.style.background = ''
                       }}
                     >
+                      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={checkedIds.has(inq.id)}
+                          onChange={() => toggleChecked(inq.id)}
+                          className="cursor-pointer"
+                        />
+                      </td>
                       <td className="px-5 py-4">
                         <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
                           {new Date(inq.created_at).toLocaleDateString('cs-CZ')}
@@ -304,10 +454,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-xs font-medium px-2 py-1 rounded-md bg-slate-100 text-slate-600">
-                             {inq.source === 'kalkulacka' ? 'Kalkulačka' : 
-                              inq.source === 'chat' ? 'Nanobot' : 
-                              inq.source === 'ai_analyzer' ? 'AI Analýzátor' :
-                              inq.source || 'Web'}
+                             {inquirySourceLabel(inq.source)}
                           </span>
                           {inq.original_photo_url && (
                             <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 flex items-center gap-1">
@@ -374,9 +521,18 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                   style={{ borderLeft: `4px solid ${colors.text}` }}
                 >
                   <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-bold uppercase text-slate-400">
-                      {new Date(inq.created_at).toLocaleDateString('cs-CZ')}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={checkedIds.has(inq.id)}
+                        onChange={() => toggleChecked(inq.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="cursor-pointer"
+                      />
+                      <span className="text-[10px] font-bold uppercase text-slate-400">
+                        {new Date(inq.created_at).toLocaleDateString('cs-CZ')}
+                      </span>
+                    </div>
                     <span
                       className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider"
                       style={{ background: colors.bg, color: colors.text }}
@@ -430,7 +586,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                   {selectedInquiry.name || 'Poptávka'}
                 </h2>
                 <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                  {new Date(selectedInquiry.created_at).toLocaleString('cs-CZ')} • {selectedInquiry.source || 'form'}
+                  {new Date(selectedInquiry.created_at).toLocaleString('cs-CZ')} • {inquirySourceLabel(selectedInquiry.source)}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -508,7 +664,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                   <div>
                     <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Zdroj</p>
                     <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                      {selectedInquiry.source || 'form'}
+                      {inquirySourceLabel(selectedInquiry.source)}
                     </p>
                   </div>
                 </div>

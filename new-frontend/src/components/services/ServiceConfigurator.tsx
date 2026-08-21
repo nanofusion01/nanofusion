@@ -38,8 +38,8 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
     setIsSubmitting(true);
     const area = formData.area || 0;
     const calcBase = basePrice * area;
-    const min = Math.round((calcBase * 1.05) / 10) * 10;
-    const max = Math.round((calcBase * 1.15) / 10) * 10;
+    const min = Math.round(calcBase / 10) * 10;
+    const max = Math.round((calcBase * 1.1) / 10) * 10;
 
     let photoUrl = "";
     if (photo) {

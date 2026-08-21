@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import { inquirySourceLabel } from '@/lib/inquiry-source-label'
 import {
   ClipboardList,
   Star,
@@ -69,6 +70,7 @@ export default async function AdminDashboard() {
     pendingReviewsResult,
     totalRealizationsResult,
     recentInquiriesResult,
+    openChatsResult,
   ] = await Promise.all([
     (supabase.from('inquiries') as any).select('*', { count: 'exact', head: true }),
     (supabase.from('inquiries') as any)
@@ -82,13 +84,16 @@ export default async function AdminDashboard() {
       .select('id, name, email, service, status, created_at, source')
       .order('created_at', { ascending: false })
       .limit(5),
+    (supabase.from('chat_sessions') as any)
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'open'),
   ])
 
   const totalInquiries = inquiriesResult.count ?? 0
   const newInquiries = newInquiriesResult.count ?? 0
   const pendingReviews = pendingReviewsResult.count ?? 0
   const totalRealizations = totalRealizationsResult.count ?? 0
-  const openChats = 0 // Placeholder until chats are implemented
+  const openChats = openChatsResult.count ?? 0
   const recentInquiries = recentInquiriesResult.data ?? []
 
   const statusLabel: Record<string, string> = {
@@ -96,6 +101,7 @@ export default async function AdminDashboard() {
     in_progress: 'V řešení',
     resolved: 'Vyřešeno',
   }
+
 
   const statusColor: Record<string, { bg: string; text: string }> = {
     new: { bg: '#eff6ff', text: '#2563eb' },
@@ -236,7 +242,7 @@ export default async function AdminDashboard() {
                           className="text-xs font-medium px-2 py-1 rounded-full"
                           style={{ background: '#f1f5f9', color: 'var(--text-secondary)' }}
                         >
-                          {inq.source || 'form'}
+                          {inquirySourceLabel(inq.source)}
                         </span>
                       </td>
                       <td className="px-6 py-4">

@@ -32,8 +32,7 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
     { id: 'facade-paint', name: 'Nátěry fasád', desc: 'Čištění, penetrace a 2 vrstvy barvy', price: 200 },
     { id: 'roof-paint', name: 'Nátěry střech', desc: 'Kvalitními barvami', price: 180 },
     { id: 'impregnation', name: 'Nano impregnace', desc: 'Ochrana různých povrchů', price: 70 },
-    { id: 'antislip', name: 'Protiskluz', desc: 'Pro bezpečnou podlahu', price: 120 },
-    { id: 'ceramfloor', name: 'IG CeramFloor', desc: 'Revoluční ochrana podlah', price: 250 }
+    { id: 'antislip', name: 'Protiskluz', desc: 'Pro bezpečnou podlahu', price: 120 }
   ];
 
   const services = defaultServices.map(s => {
@@ -119,8 +118,8 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
     // Výpočet
     const areaValue = areaUnknown ? 0 : (parseInt(area) || 0);
     const baseTotal = selectedService.price * areaValue;
-    const minTotal = Math.round(baseTotal * 1.05 / 10) * 10;
-    const maxTotal = Math.round(baseTotal * 1.15 / 10) * 10;
+    const minTotal = Math.round(baseTotal / 10) * 10;
+    const maxTotal = Math.round(baseTotal * 1.1 / 10) * 10;
 
     const totalDisplay = areaUnknown
       ? 'ZDARMA (Individuální nabídka*)'

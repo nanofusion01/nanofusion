@@ -1,6 +1,7 @@
 export const localCatalog: Record<string, any> = {
     'cisteni-fasad': {
         title: 'Čištění fasád',
+        price_key: 'facade',
         badge: 'PRÉMIOVÁ OCHRANA',
         subtitle: 'Hloubkové odstranění řas, plísní a atmosférických nečistot. Ochrana se zárukou až 10 let.',
         what_included: 'Řasy, plísně, smog a vlhkost fasády nejen oškliví, ale postupně ji poškozují. Včasné čištění a ochrana vás ušetří od drahých oprav. Naneseme speciální přípravek na organické nečistoty, naneseme aktivní pěnu a fasádu šetrně opláchneme nízkotlakým paprskem s regulovaným tlakem (max 60 barů). Tento tlak je dost silný na to, aby fasádu vyčistil, a zároveň ji nepoškodil. Na závěr fasádu ošetříme a naneseme prémiovou nano impregnaci.',
@@ -31,6 +32,7 @@ export const localCatalog: Record<string, any> = {
     },
     'roof': {
         title: 'Čištění střech',
+        price_key: 'roof',
         badge: 'PRODLOUŽENÍ ŽIVOTNOSTI',
         subtitle: 'Šetrné čištění střešní krytiny od mechů a lišejníků. Nano impregnace s garancí až 7 let.',
         what_included: 'Odstraňujeme mechy, řasy a lišejníky ze všech druhů střešních krytin. Používáme šetrné metody a regulovaný tlak vody, který krytinu nepoškodí. Po vyčištění aplikujeme dezinfekční postřik proti mechům a následně špičkovou nano impregnaci, která zamezí usazování nečistot a pronikání vody.',
@@ -61,6 +63,7 @@ export const localCatalog: Record<string, any> = {
     },
     'pavement': {
         title: 'Čištění dlažeb',
+        price_key: 'pavement',
         badge: 'VZHLED NOVÉHO POVRCHU',
         subtitle: 'Odstranění mechů, plevele, olejových skvrn a zašlé špíny ze zámkové dlažby a betonu.',
         what_included: 'Čistíme zámkovou dlažbu, betonové plochy, terasy a přírodní kámen pomocí horké vody a speciálních rotačních čističů. Spáry zbavíme plevele a mechu. Po vyschnutí doplníme křemičitý písek do spár a dlažbu ošetříme impregnací nebo oživovacím nátěrem.',
@@ -91,6 +94,7 @@ export const localCatalog: Record<string, any> = {
     },
     'pv': {
         title: 'Solární panely',
+        price_key: 'pv',
         badge: 'VYŠŠÍ ÚČINNOST',
         subtitle: 'Profesionální čištění solárních panelů pomocí šetrných kartáčů a demineralizované vody.',
         what_included: 'Odstraňujeme prach, pyl, ptačí trus a smog z fotovoltaických panelů. Používáme výhradně demineralizovanou vodu a speciální rotační kartáče, které povrch nepoškrábou. Na čisté panely nanášíme keramickou nano ochranu se samočistícím efektem.',
@@ -121,6 +125,7 @@ export const localCatalog: Record<string, any> = {
     },
     'graffiti': {
         title: 'Odstranění graffiti',
+        price_key: 'graffiti',
         badge: 'RYCHLÁ POMOC',
         subtitle: 'Šetrné a rychlé odstranění graffiti ze všech typů povrchů a aplikace antigraffiti nátěru.',
         what_included: 'Odstraňujeme graffiti a tagy z fasád, betonu, cihel, kamene i plastu. Používáme speciální čisticí gely šetrné k podkladu. Po vyčištění doporučujeme aplikovat antigraffiti nátěr, ze kterého lze příští graffiti smýt pouhou teplou vodou.',
@@ -151,6 +156,7 @@ export const localCatalog: Record<string, any> = {
     },
     'industrial': {
         title: 'Průmyslové čištění',
+        price_key: 'industrial',
         badge: 'B2B ŘEŠENÍ',
         subtitle: 'Komplexní čištění průmyslových hal, výrobních provozů a skladů za plného chodu.',
         what_included: 'Nabízíme průmyslové mytí podlah, ocelových konstrukcí, opláštění hal, rozvodů a technologií. Používáme těžkou techniku a certifikovanou průmyslovou chemii. Práce provádíme i o víkendech nebo za provozu.',
@@ -181,6 +187,7 @@ export const localCatalog: Record<string, any> = {
     },
     'facade-paint': {
         title: 'Nátěry fasád',
+        price_key: 'facade-paint',
         badge: 'NOVÝ VZHLED',
         subtitle: 'Prémiové nátěry fasád barvami Caparol se zárukou stálosti pigmentu až 14 let.',
         what_included: 'Ve spolupráci s německým výrobcem barev Caparol nabízíme kompletní renovaci a nátěry fasád rodinných a bytových domů. Před samotným nátěrem fasádu hloubkově vyčistíme, sanujeme trhliny a naneseme penetrační nátěr.',
@@ -211,6 +218,7 @@ export const localCatalog: Record<string, any> = {
     },
     'roof-paint': {
         title: 'Nátěry střech',
+        price_key: 'roof-paint',
         badge: 'DLOUHODOBÁ OCHRANA',
         subtitle: 'Nátěry střešních krytin dvousložkovými barvami se samočistícím efektem a životností 20 let.',
         what_included: 'Provádíme nátěry betonových, taškových a plechových střech. Používáme dvousložkové polyuretanové a akrylátové barvy odolné vůči UV záření a krupobití. Střechu před nátěrem dokonale vyčistíme a odmastíme.',
@@ -241,6 +249,7 @@ export const localCatalog: Record<string, any> = {
     },
     'impregnation': {
         title: 'Nano impregnace',
+        price_key: 'impregnation',
         badge: 'NANO OCHRANA',
         subtitle: 'Dlouhodobá hydrofobní a oleofobní impregnace fasád, střech, kamene a dlažeb.',
         what_included: 'Aplikujeme nejmodernější hydrofobní nano impregnace na porézní stavební materiály. Nano částice proniknou hluboko do struktury materiálu, kde vytvoří neviditelnou ochrannou vrstvu, která odpuzuje vodu a nečistoty.',
@@ -271,6 +280,7 @@ export const localCatalog: Record<string, any> = {
     },
     'antislip': {
         title: 'Protiskluzová úprava',
+        price_key: 'antislip',
         badge: 'BEZPEČNOST',
         subtitle: 'Chemická protiskluzová úprava mokrých povrchů bez změny vzhledu materiálu.',
         what_included: 'Aplikujeme protiskluzovou úpravu na dlažbu, mramor, žulu, PVC a linoleum. Vhodné pro okolí bazénů, koupelny, wellness centra, chodby, schodiště a komerční prostory. Zvyšuje bezpečnost za mokra.',
@@ -301,6 +311,7 @@ export const localCatalog: Record<string, any> = {
     },
     'ceramfloor': {
         title: 'IG CeramFloor',
+        price_key: 'ceramfloor',
         badge: 'PRŮMYSLOVÁ OCHRANA',
         subtitle: 'Vysoce odolná polymerní ochrana průmyslových podlah IG CeramFloor s protiskluzem.',
         what_included: 'Aplikujeme polymerní nátěrový systém IG CeramFloor na betonové a epoxidové podlahy v halách, skladech, potravinářských provozech a zemědělství. Nabízí extrémní chemickou a mechanickou odolnost.',
@@ -331,6 +342,7 @@ export const localCatalog: Record<string, any> = {
     },
     'antibac': {
         title: 'Antibakteriální ochrana',
+        price_key: 'antibac',
         badge: 'HYGIENA',
         subtitle: 'Dlouhodobá dezinfekce a ochrana všech typů povrchů se samočistícím a antivirovým efektem.',
         what_included: 'Aplikujeme certifikovaný polymerní antibakteriální a antivirový přípravek IMPAGUARD GCA s účinností až 120 dní. Aktivně ničí viry, bakterie a plísně. Ideální pro zdravotnická zařízení, kanceláře, školy, školky a rodinné domy.',

@@ -6,6 +6,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Obsah znalostí/FAQ/služeb/článků se v adminu píše přes Tiptap (rich-text
+// editor), takže v DB je uložený jako HTML ("<p><span style=...">). Když se
+// to takhle syrové nacpe do system promptu, AI to zbytečně žere tokeny a
+// občas to i doslovně propíše do odpovědi zákazníkovi. Než cokoliv jde do
+// promptu, ořízneme to na čistý text.
+function stripHtml(input: string | null | undefined): string {
+  if (!input) return ''
+  return input
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -41,19 +60,19 @@ serve(async (req) => {
       'Ceny jsou k dispozici na vyžádání.';
     
     // Format knowledge base
-    const knowledgeContext = knowledge?.map(k => `### ${k.title} (${k.category})\n${k.content}`).join('\n\n') || 
+    const knowledgeContext = knowledge?.map(k => `### ${k.title} (${k.category})\n${stripHtml(k.content)}`).join('\n\n') ||
       'Zatím nemáme doplňující informace.';
 
     // Format FAQs
-    const faqContext = faqs?.map(f => `Otázka: ${f.question}\nOdpověď: ${f.answer}`).join('\n\n') || 
+    const faqContext = faqs?.map(f => `Otázka: ${f.question}\nOdpověď: ${stripHtml(f.answer)}`).join('\n\n') ||
       'Žádné FAQ.';
 
     // Format services
-    const servicesContext = services?.map(s => `---\n${s.name} (slug: ${s.slug})\n${s.description}`).join('\n\n') || 
+    const servicesContext = services?.map(s => `---\n${s.name} (slug: ${s.slug})\n${stripHtml(s.description)}`).join('\n\n') ||
       'Žádné služby.';
 
     // Format articles
-    const articlesContext = articles?.map(a => `---\n${a.title}\n${a.content}`).join('\n\n') || 
+    const articlesContext = articles?.map(a => `---\n${a.title}\n${stripHtml(a.content)}`).join('\n\n') ||
       'Žádné články.';
 
     const systemPrompt = `

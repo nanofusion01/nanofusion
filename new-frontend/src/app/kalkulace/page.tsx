@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
 
 export default function KalkulacePage() {
@@ -53,9 +51,8 @@ export default function KalkulacePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
-      <Header />
-      <main className="pt-32 pb-24">
+    <div className="min-h-screen bg-slate-50">
+      <main className="pt-8 pb-24">
         <div className="container mx-auto px-6">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-12">
@@ -178,7 +175,6 @@ export default function KalkulacePage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

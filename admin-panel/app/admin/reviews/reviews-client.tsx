@@ -5,7 +5,6 @@ import { toast } from 'sonner'
 import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { approveReview, rejectReview, deleteReview, addManualReview } from './actions'
-import { TiptapEditor } from '@/components/admin/editor'
 
 type Review = Tables<'external_reviews'>
 
@@ -360,9 +359,13 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
                 <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
                   Text recenze
                 </label>
-                <TiptapEditor 
-                  content={newReview.content} 
-                  onChange={(html) => setNewReview({ ...newReview, content: html })} 
+                <textarea
+                  value={newReview.content}
+                  onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
+                  placeholder="Vložte čistý text recenze (bez formátování)"
+                  rows={6}
+                  className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-y"
+                  style={{ border: '1px solid var(--border)', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }}
                 />
               </div>
               <div className="flex gap-3 pt-2">
