@@ -119,8 +119,8 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
     // Výpočet
     const areaValue = areaUnknown ? 0 : (parseInt(area) || 0);
     const baseTotal = selectedService.price * areaValue;
-    const minTotal = Math.round(baseTotal * 1.05 / 10) * 10;
-    const maxTotal = Math.round(baseTotal * 1.15 / 10) * 10;
+    const minTotal = Math.round(baseTotal / 10) * 10;
+    const maxTotal = Math.round(baseTotal * 1.1 / 10) * 10;
 
     const totalDisplay = areaUnknown
       ? 'ZDARMA (Individuální nabídka*)'

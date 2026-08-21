@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { revalidateFrontend } from '@/lib/revalidate-frontend'
 
 export async function updatePrice(id: string, price: number) {
   const supabase = await createAdminClient()
@@ -10,6 +11,7 @@ export async function updatePrice(id: string, price: number) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/configurator')
+  await revalidateFrontend()
 }
 
 export async function updatePriceLabel(id: string, label: string) {
@@ -19,6 +21,7 @@ export async function updatePriceLabel(id: string, label: string) {
     .eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/configurator')
+  await revalidateFrontend()
 }
 
 export async function savePrices(prices: { id: string; price: number }[]) {
@@ -30,4 +33,5 @@ export async function savePrices(prices: { id: string; price: number }[]) {
   )
   await Promise.all(updates)
   revalidatePath('/admin/configurator')
+  await revalidateFrontend()
 }
