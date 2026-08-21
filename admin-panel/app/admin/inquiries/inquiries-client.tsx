@@ -23,6 +23,7 @@ import {
   updateInquiryStatus,
   updateInquiryNotes,
   deleteInquiry,
+  deleteInquiries,
   deleteAllInquiries,
 } from './actions'
 
@@ -56,6 +57,9 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
   const [deleting, setDeleting] = useState(false)
   const [deleteAllConfirm, setDeleteAllConfirm] = useState(false)
   const [deletingAll, setDeletingAll] = useState(false)
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
 
   const filtered = useMemo(() => {
     return inquiries.filter((inq) => {
@@ -71,6 +75,43 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
       return matchSearch && matchStatus
     })
   }, [inquiries, search, statusFilter])
+
+  const toggleChecked = (id: string) => {
+    setCheckedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const allFilteredChecked = filtered.length > 0 && filtered.every((inq) => checkedIds.has(inq.id))
+
+  const toggleCheckAllFiltered = () => {
+    setCheckedIds((prev) => {
+      if (allFilteredChecked) {
+        const next = new Set(prev)
+        filtered.forEach((inq) => next.delete(inq.id))
+        return next
+      }
+      const next = new Set(prev)
+      filtered.forEach((inq) => next.add(inq.id))
+      return next
+    })
+  }
+
+  const handleDeleteSelected = async () => {
+    setBulkDeleting(true)
+    try {
+      await deleteInquiries(Array.from(checkedIds))
+      toast.success(`Smazáno ${checkedIds.size} poptávek`)
+      window.location.reload()
+    } catch {
+      toast.error('Nepodařilo se smazat vybrané poptávky')
+      setBulkDeleting(false)
+      setBulkDeleteConfirm(false)
+    }
+  }
 
   const handleDeleteAll = async () => {
     setDeletingAll(true)
@@ -261,6 +302,58 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
         </div>
       </div>
 
+      {/* Selection toolbar - jen když je něco zaškrtnuté */}
+      {checkedIds.size > 0 && (
+        <div
+          className="rounded-xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap"
+          style={{ background: '#fef2f2', border: '1px solid #fecaca' }}
+        >
+          <span className="text-sm font-semibold" style={{ color: '#991b1b' }}>
+            Vybráno {checkedIds.size} {checkedIds.size === 1 ? 'poptávka' : checkedIds.size < 5 ? 'poptávky' : 'poptávek'}
+          </span>
+          <div className="flex items-center gap-2">
+            {!bulkDeleteConfirm ? (
+              <>
+                <button
+                  onClick={() => setCheckedIds(new Set())}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Zrušit výběr
+                </button>
+                <button
+                  onClick={() => setBulkDeleteConfirm(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+                  style={{ background: '#ef4444' }}
+                >
+                  <Trash2 size={14} /> Smazat vybrané
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="text-xs" style={{ color: '#991b1b' }}>Opravdu smazat?</span>
+                <button
+                  onClick={handleDeleteSelected}
+                  disabled={bulkDeleting}
+                  className="font-bold text-xs disabled:opacity-60"
+                  style={{ color: '#ef4444' }}
+                >
+                  {bulkDeleting ? 'Mažu...' : 'Ano, smazat'}
+                </button>
+                <button
+                  onClick={() => setBulkDeleteConfirm(false)}
+                  disabled={bulkDeleting}
+                  className="text-xs"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  Zrušit
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div
         className="rounded-xl overflow-hidden"
@@ -289,6 +382,14 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-base)' }}>
+                  <th className="px-5 py-3" style={{ width: 20 }}>
+                    <input
+                      type="checkbox"
+                      checked={allFilteredChecked}
+                      onChange={toggleCheckAllFiltered}
+                      className="cursor-pointer"
+                    />
+                  </th>
                   {['Datum', 'Klient', 'Služba', 'Plocha', 'Zdroj', 'Stav', 'Akce'].map((col) => (
                     <th
                       key={col}
@@ -323,6 +424,14 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                         e.currentTarget.style.background = ''
                       }}
                     >
+                      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={checkedIds.has(inq.id)}
+                          onChange={() => toggleChecked(inq.id)}
+                          className="cursor-pointer"
+                        />
+                      </td>
                       <td className="px-5 py-4">
                         <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
                           {new Date(inq.created_at).toLocaleDateString('cs-CZ')}
@@ -412,9 +521,18 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                   style={{ borderLeft: `4px solid ${colors.text}` }}
                 >
                   <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-bold uppercase text-slate-400">
-                      {new Date(inq.created_at).toLocaleDateString('cs-CZ')}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={checkedIds.has(inq.id)}
+                        onChange={() => toggleChecked(inq.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="cursor-pointer"
+                      />
+                      <span className="text-[10px] font-bold uppercase text-slate-400">
+                        {new Date(inq.created_at).toLocaleDateString('cs-CZ')}
+                      </span>
+                    </div>
                     <span
                       className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider"
                       style={{ background: colors.bg, color: colors.text }}

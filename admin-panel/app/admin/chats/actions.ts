@@ -24,6 +24,19 @@ export async function deleteChatSession(id: string) {
   revalidatePath('/admin/chats')
 }
 
+// Smaže vybranou podmnožinu chat relací (checkboxy v UI).
+export async function deleteChatSessions(ids: string[]) {
+  if (ids.length === 0) return
+  const supabase = await createAdminClient()
+  if (!supabase) throw new Error('Admin client unavailable')
+  const { error } = await (supabase.from('chat_sessions') as any)
+    .delete()
+    .in('id', ids)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin/chats')
+  revalidatePath('/admin')
+}
+
 // Smaže VŠECHNY chat relace. Určeno pro vyčištění testovacích dat před
 // ostrým spuštěním - nevratné, proto vyžaduje potvrzení v UI.
 export async function deleteAllChatSessions() {
