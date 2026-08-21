@@ -45,28 +45,40 @@ export default async function ChatsPage() {
               {sessions.map((session, i) => {
                 const msgCount = Array.isArray(session.messages) ? session.messages.length : 0
                 return (
-                  <tr key={session.id} style={{ borderBottom: i < sessions.length - 1 ? '1px solid var(--border)' : undefined }}>
-                    <td className="px-5 py-4">
-                      <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  <tr
+                    key={session.id}
+                    className="hover:bg-black/[0.02] transition-colors cursor-pointer"
+                    style={{ borderBottom: i < sessions.length - 1 ? '1px solid var(--border)' : undefined }}
+                  >
+                    <td className="px-0 py-0">
+                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                         {session.user_identifier || 'Anonymní'}
-                      </p>
+                      </Link>
                     </td>
-                    <td className="px-5 py-4 text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(session.started_at).toLocaleString('cs-CZ')}
+                    <td className="px-0 py-0">
+                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4 text-sm" style={{ color: 'var(--text-muted)' }}>
+                        {new Date(session.started_at).toLocaleString('cs-CZ')}
+                      </Link>
                     </td>
-                    <td className="px-5 py-4 text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(session.last_activity).toLocaleString('cs-CZ')}
+                    <td className="px-0 py-0">
+                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4 text-sm" style={{ color: 'var(--text-muted)' }}>
+                        {new Date(session.last_activity).toLocaleString('cs-CZ')}
+                      </Link>
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{msgCount}</span>
+                    <td className="px-0 py-0">
+                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                        {msgCount}
+                      </Link>
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{
-                        background: session.status === 'open' ? '#eff6ff' : '#f1f5f9',
-                        color: session.status === 'open' ? '#2563eb' : '#94a3b8',
-                      }}>
-                        {session.status === 'open' ? 'Otevřený' : 'Uzavřený'}
-                      </span>
+                    <td className="px-0 py-0">
+                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4">
+                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{
+                          background: session.status === 'open' ? '#eff6ff' : '#f1f5f9',
+                          color: session.status === 'open' ? '#2563eb' : '#94a3b8',
+                        }}>
+                          {session.status === 'open' ? 'Otevřený' : 'Uzavřený'}
+                        </span>
+                      </Link>
                     </td>
                   </tr>
                 )
