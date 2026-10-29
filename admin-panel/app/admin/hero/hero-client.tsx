@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { updateHeroTitle, toggleHeroMedia, addHeroMedia, deleteHeroMedia, uploadHeroFile } from './actions'
+import * as actionsRaw from './actions'
 import { normalizeMediaUrl } from '@/lib/utils'
 import { toast } from 'sonner'
 import { Plus, Trash2, Globe, Image as ImageIcon, Video, Save, ExternalLink, Upload, Loader2 } from 'lucide-react'
+import { unwrapActions } from '@/lib/action-result'
+
+const { updateHeroTitle, toggleHeroMedia, addHeroMedia, deleteHeroMedia, uploadHeroFile } = unwrapActions(actionsRaw)
 
 interface HeroMedia {
   id: string

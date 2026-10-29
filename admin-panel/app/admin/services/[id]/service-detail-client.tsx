@@ -18,21 +18,11 @@ import {
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { compressImage } from '@/lib/utils'
-import {
-  updateService,
-  addServiceFaq,
-  updateServiceFaq,
-  deleteServiceFaq,
-  uploadServiceHeroImage,
-  uploadBeforeAfterPhoto,
-  deleteBeforeAfter,
-  uploadGalleryPhoto,
-  deleteGalleryPhoto,
-  addServiceReview,
-  deleteServiceReview,
-  saveServiceProcessSteps
-} from '../actions'
+import * as actionsRaw from '../actions'
 import { TiptapEditor } from '@/components/admin/editor'
+import { unwrapActions } from '@/lib/action-result'
+
+const { updateService, addServiceFaq, updateServiceFaq, deleteServiceFaq, uploadServiceHeroImage, uploadBeforeAfterPhoto, deleteBeforeAfter, uploadGalleryPhoto, deleteGalleryPhoto, addServiceReview, deleteServiceReview, saveServiceProcessSteps } = unwrapActions(actionsRaw)
 
 type Service = Tables<'services'>
 type BeforeAfter = Tables<'service_before_after'>
@@ -125,7 +115,7 @@ export function ServiceDetailClient({
     try {
       const fd = new FormData()
       fd.append('file', file)
-      const url = await import('../actions').then(m => m.uploadServiceVideo(service.id, fd))
+      const url = await import('../actions').then(m => unwrapActions(m).uploadServiceVideo(service.id, fd))
       setService({ ...service, video_url: url })
       toast.success('Krátké video pro náhled služby nahráno')
     } catch (err: any) {
@@ -202,16 +192,16 @@ export function ServiceDetailClient({
       const compressedBefore = await compressImage(beforeFile)
       const fdBefore = new FormData()
       fdBefore.append('file', compressedBefore)
-      const beforeUrl = await import('../actions').then(m => m.uploadServiceFile(service.id, fdBefore))
+      const beforeUrl = await import('../actions').then(m => unwrapActions(m).uploadServiceFile(service.id, fdBefore))
 
       toast.info('Komprimuji a nahrávám fotku PO...')
       const compressedAfter = await compressImage(afterFile)
       const fdAfter = new FormData()
       fdAfter.append('file', compressedAfter)
-      const afterUrl = await import('../actions').then(m => m.uploadServiceFile(service.id, fdAfter))
+      const afterUrl = await import('../actions').then(m => unwrapActions(m).uploadServiceFile(service.id, fdAfter))
 
       toast.info('Ukládám záznam...')
-      const newItem = await import('../actions').then(m => m.addBeforeAfter(service.id, beforeUrl, afterUrl, baCaption))
+      const newItem = await import('../actions').then(m => unwrapActions(m).addBeforeAfter(service.id, beforeUrl, afterUrl, baCaption))
 
       setBeforeAfterItems(prev => [...prev, newItem])
       setShowAddBeforeAfter(false)

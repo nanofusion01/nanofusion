@@ -1,30 +1,35 @@
 'use server'
 
+import { safeAction } from '@/lib/action-result'
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
 import { requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function uploadCertificateImage(formData: FormData) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  const file = formData.get('file') as File
-  if (!file) throw new Error('Chybí soubor')
-  
-  const publicUrl = await uploadFile(supabase, file, 'media', 'certificates')
-  return publicUrl
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    const file = formData.get('file') as File
+    if (!file) throw new Error('Chybí soubor')
+    
+    const publicUrl = await uploadFile(supabase, file, 'media', 'certificates')
+    return publicUrl
+  })
 }
 
 export async function updateCertificatesConfig(certificates: any[]) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  const value = JSON.stringify(certificates)
-  
-  const { error } = await (supabase.from('site_config') as any)
-    .upsert({ key: 'about_certificates', value }, { onConflict: 'key' })
-  
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/certificates')
-  revalidatePath('/')
-  return { success: true }
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    const value = JSON.stringify(certificates)
+    
+    const { error } = await supabase.from('site_config')
+      .upsert({ key: 'about_certificates', value }, { onConflict: 'key' })
+    
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/certificates')
+    revalidatePath('/')
+    return { success: true }
+  })
 }

@@ -3,7 +3,7 @@ import { FaqsClient } from './faqs-client'
 
 export default async function FaqsPage() {
   const supabase = await createClient()
-  const { data: faqs } = await (supabase.from('faqs') as any)
+  const { data: faqs } = await supabase.from('faqs')
     .select('*')
     .order('order_index', { ascending: true })
 

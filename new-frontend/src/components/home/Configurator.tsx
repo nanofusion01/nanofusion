@@ -14,7 +14,7 @@ export async function Configurator() {
     <section className="py-12 md:py-16 bg-slate-50 relative">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <ConfiguratorClient 
-          prices={prices || []} 
+          prices={(prices ?? []).map((p) => ({ item_key: p.item_key, label: p.label ?? p.item_key, price: p.price ?? 0 }))}
         />
       </div>
     </section>

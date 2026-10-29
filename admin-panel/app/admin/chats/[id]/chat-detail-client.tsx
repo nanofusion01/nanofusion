@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { CheckCircle, RotateCcw, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { setChatSessionStatus, deleteChatSession } from '../actions'
+import * as actionsRaw from '../actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { setChatSessionStatus, deleteChatSession } = unwrapActions(actionsRaw)
 export function ChatDetailActions({ id, status }: { id: string; status: 'open' | 'closed' }) {
   const [loading, setLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)

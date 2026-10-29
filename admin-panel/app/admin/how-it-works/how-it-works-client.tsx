@@ -51,7 +51,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
   const handleSaveSection = async () => {
     setSavingSection(true)
     try {
-      const { error } = await (supabase.from('site_sections') as any).upsert({
+      const { error } = await supabase.from('site_sections').upsert({
         section_key: 'how_it_works',
         title: section.title,
         subtitle: section.subtitle,
@@ -90,7 +90,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
     if (!confirm('Opravdu chcete tento krok smazat?')) return
 
     try {
-      const { error } = await (supabase.from('how_it_works_steps') as any).delete().eq('id', id)
+      const { error } = await supabase.from('how_it_works_steps').delete().eq('id', id)
       if (error) throw error
       setSteps(steps.filter(s => s.id !== id))
       toast.success('Krok smazán')
@@ -112,10 +112,10 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
 
       for (const step of stepsToSave) {
         if (!step.id) {
-          const { error } = await (supabase.from('how_it_works_steps') as any).insert(step)
+          const { error } = await supabase.from('how_it_works_steps').insert(step)
           if (error) throw error
         } else {
-          const { error } = await (supabase.from('how_it_works_steps') as any).update(step).eq('id', step.id)
+          const { error } = await supabase.from('how_it_works_steps').update(step).eq('id', step.id)
           if (error) throw error
         }
       }

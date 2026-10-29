@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
+import { FormError } from "@/components/ui/form-error";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 
@@ -63,31 +64,25 @@ export function Contact() {
   const [message, setMessage] = useState("");
   const [botField, setBotField] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (botField) return; // Silent discard for bot spam
-
-    if (!name.trim() || !phone.trim() || !email.trim()) {
-      alert("Prosím vyplňte povinná pole (Jméno, Telefon, E-mail).");
-      return;
-    }
+    setFormError(null);
 
     setSubmitting(true);
 
     try {
-      const { error } = await supabase.from('inquiries').insert({
-        name: name.trim(),
-        phone: phone.trim(),
-        email: email.trim(),
-        service: service || 'Obecná poptávka',
-        message: message.trim() || 'Bez zprávy',
-        source: 'Kontaktní formulář',
-        status: 'new'
+      await submitInquiry({
+        name,
+        phone,
+        email,
+        service: service || "Obecná poptávka",
+        message: message || "Bez zprávy",
+        source: "Kontaktní formulář",
+        botField,
       });
-
-      if (error) throw error;
 
       setSuccess(true);
       setName("");
@@ -95,9 +90,9 @@ export function Contact() {
       setEmail("");
       setService("");
       setMessage("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting form:", error);
-      alert("Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }
@@ -255,6 +250,10 @@ export function Contact() {
                     placeholder="Popište nám prosím vaše potřeby..."
                     className="mb-6"
                   />
+
+                  <div className="mb-4">
+                    <FormError message={formError} />
+                  </div>
 
                   <Button
                     type="submit"

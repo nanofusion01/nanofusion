@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
+import { SITE_URL } from "@/lib/site";
 
-const BASE_URL = "https://nanofusion.cz";
+const BASE_URL = SITE_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: services } = await supabase

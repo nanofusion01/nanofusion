@@ -4,7 +4,7 @@ import { AboutClient } from './about-client'
 export default async function AboutUsPage() {
   const supabase = await createClient()
   
-  const { data: config } = await (supabase.from('site_config') as any)
+  const { data: config } = await supabase.from('site_config')
     .select('*')
     .in('key', [
       'about_title',

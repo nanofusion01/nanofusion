@@ -3,7 +3,7 @@ import { RealizationsClient } from './realizations-client'
 
 export default async function RealizationsPage() {
   const supabase = await createClient()
-  const { data: realizations } = await (supabase.from('realizations') as any)
+  const { data: realizations } = await supabase.from('realizations')
     .select('*, realization_photos(*)')
     .order('created_at', { ascending: false })
 

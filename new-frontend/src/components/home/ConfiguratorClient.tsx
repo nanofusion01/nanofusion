@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
+import { FormError } from '@/components/ui/form-error';
 import { Button } from "@/components/ui/button";
 
 /** Jméno vlastní události, kterou volá např. detail realizace, aby si
@@ -61,6 +63,7 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
   const [photos, setPhotos] = useState<File[]>([]);
 
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [priceResult, setPriceResult] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -107,11 +110,12 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
   };
 
   const handleSubmit = async () => {
-    if (!name || name.length < 2) return alert("Prosím zadejte Vaše jméno.");
-    if (!address || address.length < 2) return alert("Prosím zadejte přesnou adresu realizace.");
-    if (!phone || phone.length < 9) return alert("Prosím zadejte platné telefonní číslo.");
-    if (!email || !email.includes('@')) return alert("Prosím zadejte platný e-mail.");
-    if (!gdpr) return alert("Prosím potvrďte souhlas se zpracováním osobních údajů.");
+    setFormError(null);
+    if (!name || name.length < 2) return setFormError("Prosím zadejte Vaše jméno.");
+    if (!address || address.length < 2) return setFormError("Prosím zadejte přesnou adresu realizace.");
+    if (!phone || phone.length < 9) return setFormError("Prosím zadejte platné telefonní číslo.");
+    if (!email || !email.includes('@')) return setFormError("Prosím zadejte platný e-mail.");
+    if (!gdpr) return setFormError("Prosím potvrďte souhlas se zpracováním osobních údajů.");
 
     setSubmitting(true);
 
@@ -125,27 +129,32 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
       ? 'ZDARMA (Individuální nabídka*)'
       : `${minTotal.toLocaleString('cs-CZ')} – ${maxTotal.toLocaleString('cs-CZ')} Kč`;
 
-    setPriceResult(totalDisplay);
-    setStep(3);
-
-    // Save to DB in background
-    const message = `Lokace: ${address}, Kalkulačka: ${selectedObj.name}, Plocha: ${areaUnknown ? 'Neznámo' : areaValue + ' m²'}, Odhad ceny: ${totalDisplay}\nFotografie: ${photos.length > 0 ? photos.length + ' souborů (v budoucnu nahrát do storage)' : 'žádné'}`;
+    // Cenu ukážeme až po úspěšném uložení poptávky - jinak by si zákazník
+    // myslel, že ji odeslal, i když se neuložila.
+    const message = `Lokace: ${address}, Kalkulačka: ${selectedObj.name}, Plocha: ${areaUnknown ? 'Neznámo' : areaValue + ' m²'}, Odhad ceny: ${totalDisplay}`;
 
     try {
-      await supabase.from('inquiries').insert({
+      await submitInquiry({
         name,
         email,
         phone,
         service: selectedService.name,
         message,
         source: 'Konfigurátor',
-        status: 'new'
+        photo: photos.length > 0 ? photos[0] : null,
       });
+      setPriceResult(totalDisplay);
+      setStep(3);
     } catch (e) {
-      console.warn("Chyba uložení", e);
+      console.error("Chyba uložení poptávky:", e);
+      setFormError(
+        e instanceof Error && e.message
+          ? e.message
+          : "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte."
+      );
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 
   const handleRestart = () => {
@@ -258,6 +267,10 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
                 <span>Souhlasím se zpracováním osobních údajů v souladu s <a href="/gdpr" className="text-amber-500 font-bold hover:underline">GDPR</a> pro účely vytvoření cenové nabídky. *</span>
               </label>
             </div>
+          </div>
+
+          <div className="mb-4">
+            <FormError message={formError} />
           </div>
 
           <div className="flex gap-4">

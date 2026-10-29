@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
+import { calculateRangeEstimate } from "@/lib/calculator";
+import { FormError } from "@/components/ui/form-error";
 
 interface ServiceConfiguratorProps {
   basePrice: number;
@@ -22,87 +24,41 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
     area: 100,
   });
 
+  const [formError, setFormError] = useState<string | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
 
   const handleNext = () => {
-    if (!formData.firstName || formData.firstName.length < 2) return alert("Prosím zadejte Vaše jméno a příjmení.");
-    if (!formData.location || formData.location.length < 2) return alert("Prosím zadejte přesnou lokaci.");
-    if (!formData.phone || formData.phone.length < 9) return alert("Prosím zadejte telefonní číslo.");
-    if (!formData.email || !formData.email.includes("@")) return alert("Prosím zadejte platnou e-mailovou adresu.");
-    if (!formData.gdpr) return alert("Prosím potvrďte souhlas se zpracováním osobních údajů (GDPR).");
-    
+    setFormError(null);
+    if (!formData.firstName || formData.firstName.length < 2) return setFormError("Prosím zadejte Vaše jméno a příjmení.");
+    if (!formData.location || formData.location.length < 2) return setFormError("Prosím zadejte přesnou lokaci.");
+    if (!formData.phone || formData.phone.length < 9) return setFormError("Prosím zadejte telefonní číslo.");
+    if (!formData.email || !formData.email.includes("@")) return setFormError("Prosím zadejte platnou e-mailovou adresu.");
+    if (!formData.gdpr) return setFormError("Prosím potvrďte souhlas se zpracováním osobních údajů (GDPR).");
+
     setStep(2);
   };
 
   const handleCalculate = async () => {
+    setFormError(null);
     setIsSubmitting(true);
     const area = formData.area || 0;
-    const calcBase = basePrice * area;
-    const min = Math.round(calcBase / 10) * 10;
-    const max = Math.round((calcBase * 1.1) / 10) * 10;
-
-    let photoUrl = "";
-    let photoName = "";
-    if (photo) {
-      if (photo.size > 10 * 1024 * 1024) {
-        alert("Fotografie je příliš velká. Maximální povolená velikost je 10 MB.");
-        setIsSubmitting(false);
-        return;
-      }
-      if (!photo.type.startsWith("image/")) {
-        alert("Lze nahrávat pouze obrázky (JPEG, PNG, WebP).");
-        setIsSubmitting(false);
-        return;
-      }
-
-      try {
-        const ext = photo.name.split(".").pop()?.toLowerCase() || "jpg";
-        const fileName = `inquiry_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-        photoName = fileName;
-        
-        const uploadResult = await supabase.storage
-          .from("inquiries")
-          .upload(fileName, photo, { upsert: false, cacheControl: "3600" });
-
-        if (!uploadResult.error && uploadResult.data) {
-          const { data: pubData } = supabase.storage.from("inquiries").getPublicUrl(fileName);
-          if (pubData && pubData.publicUrl) photoUrl = pubData.publicUrl;
-        }
-      } catch (e) {
-        console.warn("Storage upload failed:", e);
-      }
-    }
-
-    const payload: Record<string, any> = {
-      name: formData.firstName || "Zákazník",
-      phone: formData.phone,
-      email: formData.email,
-      service: serviceName,
-      message: `Lokace: ${formData.location}, E-mail: ${formData.email}, Plocha: ${area} m², Odhad ceny: ${min} - ${max} Kč${photoName ? `\nFotografie: přiložena k poptávce (${photoName})` : ""}`,
-      source: "Subpage 2-Step Calculator",
-      status: "new",
-    };
-
-    if (photoUrl) {
-      payload.original_photo_url = photoUrl;
-    }
+    const { min, max } = calculateRangeEstimate(area, basePrice);
 
     try {
-      let { error } = await supabase.from("inquiries").insert(payload);
-
-      // Fallback: Pokud v DB ještě nebyla provedena migrace přidávající sloupec original_photo_url
-      if (error && photoUrl && (error.message?.includes("original_photo_url") || error.code === "42703")) {
-        delete payload.original_photo_url;
-        const retry = await supabase.from("inquiries").insert(payload);
-        error = retry.error;
-      }
-
-      if (error) throw new Error(error.message);
+      await submitInquiry({
+        name: formData.firstName || "Zákazník",
+        phone: formData.phone,
+        email: formData.email,
+        service: serviceName,
+        message: `Lokace: ${formData.location}, E-mail: ${formData.email}, Plocha: ${area} m², Odhad ceny: ${min} - ${max} Kč`,
+        source: "Subpage 2-Step Calculator",
+        photo,
+      });
 
       setResult({ min, max });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Omlouváme se, odeslání selhalo.");
+      setFormError(e.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setIsSubmitting(false);
     }
@@ -191,6 +147,9 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
               <span>Souhlasím se zpracováním osobních údajů v souladu s <a href="/gdpr" className="text-amber-500 font-bold underline hover:text-amber-600 transition-colors">GDPR</a> pro účely vytvoření cenové nabídky. *</span>
             </label>
           </div>
+          <div className="mb-3">
+            <FormError message={formError} />
+          </div>
           <button 
             onClick={handleNext}
             className="block text-center w-full bg-gradient-to-br from-amber-500 to-amber-600 text-white p-[0.8rem] rounded-[0.6rem] font-black cursor-pointer uppercase text-[0.9rem] shadow-[0_4px_15px_rgba(245,158,11,0.35)] transition-all hover:scale-[1.02]"
@@ -234,6 +193,9 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
             />
           </div>
 
+          <div className="mb-3">
+            <FormError message={formError} />
+          </div>
           <div className="flex gap-[0.65rem]">
             <button 
               onClick={() => setStep(1)}

@@ -1,9 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "./database.types";
+export type { Database };
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 export function optimizeImg(url: string | null | undefined, width: number = 800) {
   if (!url || typeof url !== "string") return url || "";
@@ -15,9 +17,15 @@ export function optimizeImg(url: string | null | undefined, width: number = 800)
     normalized = "https:" + url;
   }
 
-  if (normalized.toLowerCase().endsWith(".svg") || !normalized.includes("supabase.co")) {
+  // Zmenšení přes Supabase Image Transformation (/render/image) - jen u obrázků
+  // z našeho Supabase Storage; SVG a cizí domény necháme beze změny.
+  // (Dřív přes externí bezplatnou proxy wsrv.nl, na které byl web závislý.)
+  const marker = "/storage/v1/object/public/";
+  if (normalized.toLowerCase().split("?")[0].endsWith(".svg") || !normalized.startsWith(supabaseUrl) || !normalized.includes(marker)) {
     return normalized;
   }
 
-  return `https://wsrv.nl/?url=${encodeURIComponent(normalized)}&w=${width}&q=80&output=webp`;
+  const rendered = normalized.replace(marker, "/storage/v1/render/image/public/");
+  const sep = rendered.includes("?") ? "&" : "?";
+  return `${rendered}${sep}width=${Math.min(Math.round(width), 2500)}&quality=80`;
 }

@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Veřejné hodnoty (jsou součástí JS bundlu webu, nejde o tajemství).
+  # Lze je přepsat v Settings → Secrets and variables → Actions → Variables.
+  NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'https://mgmtkdwvhgrzefmyucvr.supabase.co' }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nbXRrZHd2aGdyemVmbXl1Y3ZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjc1NTUsImV4cCI6MjA5MTkwMzU1NX0.yWlwZvuTXmx8Op6BXR6t3z-xwXa1xWqwvklNLP1mOuk' }}
+
+jobs:
+  frontend:
+    name: Veřejný web (new-frontend)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: new-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: new-frontend/package-lock.json
+      - run: npm ci
+      - name: TypeScript
+        # typy rout (LayoutProps, PageProps) generuje Next.js - bez nich tsc na čisté kopii selže
+        run: npx next typegen && npx tsc --noEmit
+      - name: ESLint
+        run: npm run lint
+      - name: Unit testy (Vitest)
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Instalace prohlížeče pro Playwright
+        run: npx playwright install --with-deps chromium
+      - name: E2E testy (Playwright)
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-frontend
+          path: new-frontend/playwright-report
+          retention-days: 7
+
+  admin:
+    name: Administrace (admin-panel)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: admin-panel
+    env:
+      PUBLIC_SITE_URL: https://nanofusion.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: admin-panel/package-lock.json
+      - run: npm ci
+      - name: TypeScript
+        # typy rout (LayoutProps, PageProps) generuje Next.js - bez nich tsc na čisté kopii selže
+        run: npx next typegen && npx tsc --noEmit
+      - name: ESLint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Instalace prohlížeče pro Playwright
+        run: npx playwright install --with-deps chromium
+      - name: E2E testy (Playwright)
+        run: npm run test:e2e
+        env:
+          # volitelný testovací účet pro test přihlášení (Settings → Secrets)
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-admin
+          path: admin-panel/playwright-report
+          retention-days: 7

@@ -5,7 +5,7 @@ export default async function AIAnalyzerPage() {
   const supabase = await createClient()
 
   // Fetch all AI analyses ordered by creation date (newest first)
-  const { data: analyses } = await (supabase.from('ai_analyses') as any)
+  const { data: analyses } = await supabase.from('ai_analyses')
     .select('*')
     .order('created_at', { ascending: false })
 

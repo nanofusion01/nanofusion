@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
+import { calculateSimplePrice } from "@/lib/calculator";
+import { FormError } from "@/components/ui/form-error";
+import { CALCULATOR_PRICE_KEY } from "@/data/servicePriceKeys";
 
 export default function KalkulacePage() {
   const [area, setArea] = useState(100);
@@ -14,6 +18,7 @@ export default function KalkulacePage() {
   const [showPrice, setShowPrice] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Načtení reálné ceny z DB configurator_prices (výchozí základ pro dlažby/čištění)
   useEffect(() => {
@@ -22,7 +27,7 @@ export default function KalkulacePage() {
         const { data } = await supabase
           .from("configurator_prices")
           .select("price")
-          .eq("item_key", "cleaning_pavement")
+          .eq("item_key", CALCULATOR_PRICE_KEY)
           .maybeSingle();
 
         if (data && typeof data.price === "number" && data.price > 0) {
@@ -37,89 +42,33 @@ export default function KalkulacePage() {
 
   const handleCalculateAndSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Honeypot: pokud robot vyplnil skryté pole, tiše ignorujeme
-    if (botField) return;
-
-    if (!name.trim() || !phone.trim()) {
-      alert("Prosím vyplňte povinná pole (Jméno, Telefon).");
-      return;
-    }
+    setFormError(null);
 
     if (!area || area <= 0) {
-      alert("Zadejte prosím platnou plochu v m².");
+      setFormError("Zadejte prosím platnou plochu v m².");
       return;
-    }
-
-    if (photo) {
-      if (photo.size > 10 * 1024 * 1024) {
-        alert("Fotografie je příliš velká. Maximální povolená velikost je 10 MB.");
-        return;
-      }
-      if (!photo.type.startsWith("image/")) {
-        alert("Lze nahrávat pouze obrázky (JPEG, PNG, WebP).");
-        return;
-      }
     }
 
     setSubmitting(true);
 
     try {
-      const total = area * pricePerSqm;
+      const total = calculateSimplePrice(area, pricePerSqm);
       setEstimatedPrice(total);
 
-      let photoUrl = "";
-      let photoName = "";
-      if (photo) {
-        try {
-          const ext = photo.name.split(".").pop()?.toLowerCase() || "jpg";
-          const fileName = `kalkulace_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-          photoName = fileName;
-          
-          const uploadResult = await supabase.storage
-            .from("inquiries")
-            .upload(fileName, photo, { upsert: false, cacheControl: "3600" });
-
-          if (!uploadResult.error && uploadResult.data) {
-            const { data: pubData } = supabase.storage.from("inquiries").getPublicUrl(fileName);
-            if (pubData && pubData.publicUrl) photoUrl = pubData.publicUrl;
-          }
-        } catch (uploadError) {
-          console.warn("Upload fotografie selhal:", uploadError);
-        }
-      }
-
-      const inquiryPayload: Record<string, any> = {
-        name: name.trim(),
-        phone: phone.trim(),
-        email: "",
+      await submitInquiry({
+        name,
+        phone,
         service: "Kalkulačka",
-        message: `Plocha: ${area} m², Lokace: ${location.trim() || "Neuvedeno"}, Odhad ceny: ${total.toLocaleString()} Kč${photoName ? `\nFotografie: přiložena k poptávce (${photoName})` : ""}`,
+        message: `Plocha: ${area} m², Lokace: ${location.trim() || "Neuvedeno"}, Odhad ceny: ${total.toLocaleString()} Kč`,
         source: "Kalkulačka",
-        status: "new",
-      };
-
-      if (photoUrl) {
-        inquiryPayload.original_photo_url = photoUrl;
-      }
-
-      let { error } = await supabase.from("inquiries").insert(inquiryPayload);
-
-      // Fallback: Pokud v DB ještě nebyla provedena migrace přidávající sloupec original_photo_url
-      if (error && photoUrl && (error.message?.includes("original_photo_url") || error.code === "42703")) {
-        delete inquiryPayload.original_photo_url;
-        const retryResult = await supabase.from("inquiries").insert(inquiryPayload);
-        error = retryResult.error;
-      }
-
-      if (error) {
-        throw new Error(error.message);
-      }
+        botField,
+        photo,
+      });
 
       setShowPrice(true);
     } catch (error: any) {
       console.error("Chyba při odesílání poptávky:", error);
-      alert("Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }
@@ -238,6 +187,10 @@ export default function KalkulacePage() {
                   onChange={(e) => setPhoto(e.target.files?.[0] || null)}
                   className="w-full px-4 py-3 border-2 border-dashed border-slate-300 rounded-xl text-sm bg-slate-50 cursor-pointer"
                 />
+              </div>
+
+              <div className="mb-4">
+                <FormError message={formError} />
               </div>
 
               {!showPrice ? (

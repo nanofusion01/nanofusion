@@ -15,11 +15,14 @@ import {
   Loader2
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { saveArticle, deleteArticle } from './actions'
+import * as actionsRaw from './actions'
 import { TiptapEditor } from '@/components/admin/editor'
 import { createClient } from '@/lib/supabase/client'
 import { uploadFile } from '@/lib/storage'
 import { useRef } from 'react'
+import { unwrapActions } from '@/lib/action-result'
+
+const { saveArticle, deleteArticle } = unwrapActions(actionsRaw)
 
 type Article = Tables<'articles'>
 

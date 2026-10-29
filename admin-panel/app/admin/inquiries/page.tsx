@@ -7,10 +7,10 @@ export default async function InquiriesPage() {
     return <InquiriesClient initialInquiries={[]} />
   }
 
-  // Parallel fetch for both inquiries and AI analyzer leads
+  // Poptávky z webu + AI analýzy (tabulka ai_analyses)
   const [inquiriesResult, leadsResult] = await Promise.all([
-    (supabase.from('inquiries') as any).select('*'),
-    (supabase.from('leads') as any).select('*')
+    supabase.from('inquiries').select('*'),
+    supabase.from('ai_analyses').select('*')
   ])
 
   const rawInquiries = inquiriesResult.data || []
@@ -39,8 +39,8 @@ export default async function InquiriesPage() {
     if (fn) filePathsToSign.add(fn)
   })
 
-  leads.forEach((lead: any) => {
-    const fn = extractInquiryFileName(lead.original_photo_url || lead.image_url)
+  leads.forEach((lead) => {
+    const fn = extractInquiryFileName(lead.original_photo_url)
     if (fn) filePathsToSign.add(fn)
   })
 
@@ -86,29 +86,21 @@ export default async function InquiriesPage() {
   })
 
   // Map leads to match the inquiries structure
-  const mappedLeads = leads.map((lead: any) => {
-    let message = lead.analysis_result || ''
-    if (lead.additional_notes) {
-      message += `\n\nDodatečné informace poptávky:\n${lead.additional_notes}`
-    }
-
-    const photoUrl = lead.original_photo_url || lead.image_url || ''
-
-    return {
-      id: lead.id,
-      name: lead.name,
-      email: lead.email,
-      phone: lead.phone,
-      service: `AI Analýza - ${lead.surface || lead.analysis_type || 'Fasáda'}`,
-      message: message,
-      status: lead.status || 'new',
-      source: 'ai_analyzer',
-      created_at: lead.created_at,
-      updated_at: lead.updated_at,
-      notes: lead.description || '', // We use 'description' for admin notes on leads
-      original_photo_url: resolvePhoto(photoUrl) || '',
-    }
-  })
+  const mappedLeads = leads.map((lead) => ({
+    id: lead.id,
+    name: lead.name,
+    email: lead.email,
+    phone: lead.phone,
+    service: `AI Analýza - ${lead.object_type || lead.analysis_type || 'Fasáda'}`,
+    message: lead.analysis_result || '',
+    status: lead.status || 'new',
+    source: 'ai_analyzer',
+    created_at: lead.created_at,
+    updated_at: lead.updated_at,
+    // poznámky administrátora - stejný sloupec jako v sekci AI Analyzér
+    notes: lead.additional_notes || '',
+    original_photo_url: resolvePhoto(lead.original_photo_url) || '',
+  }))
 
   // Combine and sort by created_at DESC
   const allInquiries = [...inquiries, ...mappedLeads].sort(

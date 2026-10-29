@@ -4,7 +4,7 @@ import { Plus, Eye, EyeOff } from 'lucide-react'
 
 export default async function MagazinePage() {
   const supabase = await createAdminClient()
-  const { data: articles } = await (supabase.from('articles') as any)
+  const { data: articles } = await supabase.from('articles')
     .select('id, title, slug, is_published, published_at, created_at')
     .order('created_at', { ascending: false })
 

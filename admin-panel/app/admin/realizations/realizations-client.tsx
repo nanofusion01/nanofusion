@@ -17,13 +17,10 @@ import {
   Wrench,
   ExternalLink,
 } from 'lucide-react'
-import {
-  createRealization,
-  updateRealization,
-  deleteRealization,
-  togglePublished,
-} from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { createRealization, updateRealization, deleteRealization, togglePublished } = unwrapActions(actionsRaw)
 export type Realization = {
   id: string
   title: string
@@ -384,7 +381,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                         <button 
                           onClick={async () => {
                             if (confirm('Smazat tuto fotku?')) {
-                              const { deleteRealizationPhoto } = await import('./actions');
+                              const { deleteRealizationPhoto } = unwrapActions(await import('./actions'));
                               await deleteRealizationPhoto(photo.id);
                               toast.success('Fotka smazána');
                               setRealizations(prev => prev.map(r => r.id === editingId ? {
@@ -419,7 +416,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                           
                           setUploading(true);
                           try {
-                            const { uploadRealizationPhoto } = await import('./actions');
+                            const { uploadRealizationPhoto } = unwrapActions(await import('./actions'));
                             const formData = new FormData();
                             formData.append('file', file);
                             const url = await uploadRealizationPhoto(editingId, formData);

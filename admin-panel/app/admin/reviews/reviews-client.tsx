@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { approveReview, rejectReview, deleteReview, addManualReview } from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { approveReview, rejectReview, deleteReview, addManualReview } = unwrapActions(actionsRaw)
 type Review = Tables<'external_reviews'>
 
 function StarRating({ rating }: { rating: number | null }) {
@@ -40,7 +42,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
     if (!bulkText) return
     setLoading('bulk')
     try {
-      const res = await (await import('./actions')).bulkAddReviews(bulkText)
+      const res = await unwrapActions(await import('./actions')).bulkAddReviews(bulkText)
       toast.success(`Importováno ${res.imported} recenzí`)
       setShowBulkModal(false)
       setBulkText('')
@@ -126,7 +128,7 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             onClick={async () => {
               setLoading('sync')
               try {
-                const res = await (await import('./actions')).syncFirmyReviews()
+                const res = await unwrapActions(await import('./actions')).syncFirmyReviews()
                 toast.success(`Synchronizace dokončena: ${res.imported} nových recenzí`)
               } catch (e: any) {
                 toast.error(e.message)

@@ -8,7 +8,9 @@ import { Phone, Mail, Clock } from "lucide-react";
 import { ServiceConfigurator } from "@/components/services/ServiceConfigurator";
 import { Button } from "@/components/ui/button";
 import { localCatalog } from "@/data/localCatalog";
+import { SERVICE_PRICE_KEYS } from "@/data/servicePriceKeys";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
 interface PageProps {
   params: Promise<{
@@ -42,8 +44,8 @@ export async function generateMetadata({ params }: PageProps) {
   const metaDesc = plainText.substring(0, 160).trim() + "...";
 
   const title = `${service.name} | NANOfusion`;
-  const url = `https://nanofusion.cz/sluzby/${slug}`;
-  const defaultImage = "https://nanofusion.cz/static/logo.jpg";
+  const url = `${SITE_URL}/sluzby/${slug}`;
+  const defaultImage = OG_IMAGE;
   // Pokusíme se vzít obrázek z hero nebo z fotek, jinak použijeme logo
   const ogImage = service.hero_image_url || defaultImage;
 
@@ -130,12 +132,12 @@ export default async function ServicePage({ params }: PageProps) {
   // Použijeme localCatalog pro bohatý obsah, který není v Supabase tabulce (jako na starém webu)
   const localData = localCatalog[slug] || {};
 
-  const priceKey = localData.price_key || slug;
+  const priceKey = SERVICE_PRICE_KEYS[slug] || localData.price_key || slug;
   const { data: priceData } = await supabase
     .from("configurator_prices")
     .select("price")
     .eq("item_key", priceKey)
-    .single();
+    .maybeSingle();
   const basePrice = priceData?.price || 150;
 
   let customProcessSteps = localData.process || [];
@@ -217,13 +219,13 @@ export default async function ServicePage({ params }: PageProps) {
     "provider": {
       "@type": "LocalBusiness",
       "name": "NANOfusion",
-      "url": "https://nanofusion.cz",
+      "url": SITE_URL,
       "telephone": "+420774509409",
       "email": "info@nanofusion.cz",
     },
     "description": service.description ? service.description.replace(/<[^>]*>?/gm, '').substring(0, 160) : "",
     "areaServed": "CZ",
-    "url": `https://nanofusion.cz/sluzby/${slug}`,
+    "url": `${SITE_URL}/sluzby/${slug}`,
   };
 
   return (

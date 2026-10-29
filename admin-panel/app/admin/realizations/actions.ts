@@ -1,5 +1,6 @@
 'use server'
 
+import { safeAction } from '@/lib/action-result'
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
@@ -16,15 +17,17 @@ export async function createRealization(data: {
   category?: string
   youtube_id?: string
 }) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  const { data: realization, error } = await (supabase.from('realizations') as any)
-    .insert(data)
-    .select('*')
-    .single()
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/realizations')
-  return realization as Realization
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    const { data: realization, error } = await supabase.from('realizations')
+      .insert(data)
+      .select('*')
+      .single()
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/realizations')
+    return realization as Realization
+  })
 }
 
 export async function updateRealization(id: string, data: Partial<{
@@ -38,114 +41,127 @@ export async function updateRealization(id: string, data: Partial<{
   youtube_id: string
   is_published: boolean
 }>) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  const { error } = await (supabase.from('realizations') as any)
-    .update({ ...data, updated_at: new Date().toISOString() })
-    .eq('id', id)
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/realizations')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    const { error } = await supabase.from('realizations')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/realizations')
+  })
 }
 
 export async function deleteRealization(id: string) {
-  await requireAdmin()
-  const supabase = await createAdminClient()
-  const { error } = await (supabase.from('realizations') as any).delete().eq('id', id)
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/realizations')
+  return safeAction(async () => {
+    await requireAdmin()
+    const supabase = await createAdminClient()
+    const { error } = await supabase.from('realizations').delete().eq('id', id)
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/realizations')
+  })
 }
 
 export async function togglePublished(id: string, is_published: boolean) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  const { error } = await (supabase.from('realizations') as any)
-    .update({ is_published, updated_at: new Date().toISOString() })
-    .eq('id', id)
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/realizations')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    const { error } = await supabase.from('realizations')
+      .update({ is_published, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/realizations')
+  })
 }
 
 export async function uploadMultipleRealizationPhotos(
   realizationId: string,
   formData: FormData
 ) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  const files = formData.getAll('files') as File[]
-  if (!files || files.length === 0) throw new Error('No files provided')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    const files = formData.getAll('files') as File[]
+    if (!files || files.length === 0) throw new Error('No files provided')
 
-  const results = []
-  for (const file of files) {
-    try {
-      const publicUrl = await uploadFile(supabase, file, 'realizations', realizationId)
-      const res: any = await (supabase.from('realization_photos') as any).insert({
-        realization_id: realizationId,
-        url: publicUrl,
-        order_index: Math.floor(Date.now() / 1000) + results.length,
-      }).select().single()
+    const results = []
+    for (const file of files) {
+      try {
+        const publicUrl = await uploadFile(supabase, file, 'realizations', realizationId)
+        const res: any = await supabase.from('realization_photos').insert({
+          realization_id: realizationId,
+          url: publicUrl,
+          order_index: Math.floor(Date.now() / 1000) + results.length,
+        }).select().single()
 
-      if (res.error) throw res.error
-      results.push(res.data)
-    } catch (err) {
-      console.error(`Batch upload failed for one file:`, err)
+        if (res.error) throw res.error
+        results.push(res.data)
+      } catch (err) {
+        console.error(`Batch upload failed for one file:`, err)
+      }
     }
-  }
 
-  revalidatePath('/admin/realizations')
-  return results
+    revalidatePath('/admin/realizations')
+    return results
+  })
 }
 
 export async function uploadRealizationPhoto(
   realizationId: string,
   file: FormData
 ) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  const fileData = file.get('file') as File
-  if (!fileData) throw new Error('No file provided')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    const fileData = file.get('file') as File
+    if (!fileData) throw new Error('No file provided')
 
-  const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
+    const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
 
-  const res: any = await (supabase.from('realization_photos') as any).insert({
-    realization_id: realizationId,
-    url: publicUrl,
-    order_index: Math.floor(Date.now() / 1000), 
-  }).select().single()
+    const res: any = await supabase.from('realization_photos').insert({
+      realization_id: realizationId,
+      url: publicUrl,
+      order_index: Math.floor(Date.now() / 1000), 
+    }).select().single()
 
-  if (res.error) {
-    console.error(`[Admin] Database write failed for photo ${publicUrl}:`, res.error)
-    throw new Error(`Database write failed: ${res.error.message}`)
-  }
+    if (res.error) {
+      console.error(`[Admin] Database write failed for photo ${publicUrl}:`, res.error)
+      throw new Error(`Database write failed: ${res.error.message}`)
+    }
 
-  revalidatePath('/admin/realizations')
-  return res.data?.url || publicUrl
+    revalidatePath('/admin/realizations')
+    return res.data?.url || publicUrl
+  })
 }
 
 export async function deleteRealizationPhoto(photoId: string) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  const { error } = await (supabase.from('realization_photos') as any)
-    .delete()
-    .eq('id', photoId)
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/realizations')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    const { error } = await supabase.from('realization_photos')
+      .delete()
+      .eq('id', photoId)
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/realizations')
+  })
 }
 
 export async function updateRealizationPhotos(photos: { id: string, caption?: string, order_index: number }[]) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  
-  for (const photo of photos) {
-    const { error } = await (supabase.from('realization_photos') as any)
-      .update({ 
-        caption: photo.caption, 
-        order_index: photo.order_index,
-        updated_at: new Date().toISOString() 
-      })
-      .eq('id', photo.id)
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
     
-    if (error) console.error(`Error updating photo ${photo.id}:`, error.message)
-  }
-  
-  revalidatePath('/admin/realizations')
+    for (const photo of photos) {
+      const { error } = await supabase.from('realization_photos')
+        .update({ 
+          caption: photo.caption, 
+          order_index: photo.order_index,
+        })
+        .eq('id', photo.id)
+      
+      if (error) console.error(`Error updating photo ${photo.id}:`, error.message)
+    }
+    
+    revalidatePath('/admin/realizations')
+  })
 }

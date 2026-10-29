@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { updateAnalysisStatus, updateAnalysisNotes, deleteAnalysis } from './actions'
+import * as actionsRaw from './actions'
 import { toast } from 'sonner'
 import { 
   Brain, 
@@ -23,6 +23,9 @@ import {
   Save,
   Loader2
 } from 'lucide-react'
+import { unwrapActions } from '@/lib/action-result'
+
+const { updateAnalysisStatus, updateAnalysisNotes, deleteAnalysis } = unwrapActions(actionsRaw)
 
 interface AIAnalysis {
   id: string

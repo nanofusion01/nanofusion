@@ -6,11 +6,10 @@ import {
   Trash2, Eye, EyeOff, Image as ImageIcon, AlertTriangle, Link, X, Upload, ChevronUp, ChevronDown, Save, FolderPlus, FolderOpen
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import {
-  addYoutubeItem, deleteGalleryItem, toggleGalleryItemActive, uploadGalleryImage, updateGalleryOrder, updateGalleryCaption,
-  createGalleryAlbum, uploadAlbumPhoto, deleteGalleryAlbum, toggleAlbumActive, deleteAlbumPhoto, updateAlbumOrder
-} from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { addYoutubeItem, deleteGalleryItem, toggleGalleryItemActive, uploadGalleryImage, updateGalleryOrder, updateGalleryCaption, createGalleryAlbum, uploadAlbumPhoto, deleteGalleryAlbum, toggleAlbumActive, deleteAlbumPhoto, updateAlbumOrder } = unwrapActions(actionsRaw)
 type GalleryItem = Tables<'gallery_items'>
 type GalleryAlbum = Tables<'gallery_albums'> & { gallery_items?: GalleryItem[] }
 
@@ -372,7 +371,7 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
                           )}
                           {album.gallery_items?.map((photo, pIdx) => (
                             <div key={photo.id} className="relative group shrink-0" style={{ width: 100, height: 100 }}>
-                              <img src={photo.url} alt="" className="w-full h-full object-cover rounded-lg border" style={{ borderColor: 'var(--border)' }} />
+                              <img src={photo.url ?? undefined} alt="" className="w-full h-full object-cover rounded-lg border" style={{ borderColor: 'var(--border)' }} />
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col justify-between p-1">
                                 <div className="flex justify-between">
                                   <button onClick={() => moveOrder('photo', pIdx, 'up', album.id)} disabled={pIdx === 0} className="text-white hover:text-amber-400 disabled:opacity-0"><ChevronUp size={16} /></button>
