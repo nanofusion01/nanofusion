@@ -8,6 +8,7 @@ import { Phone, Mail, Clock } from "lucide-react";
 import { ServiceConfigurator } from "@/components/services/ServiceConfigurator";
 import { Button } from "@/components/ui/button";
 import { localCatalog } from "@/data/localCatalog";
+import { SERVICE_PRICE_KEYS } from "@/data/servicePriceKeys";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
@@ -131,12 +132,12 @@ export default async function ServicePage({ params }: PageProps) {
   // Použijeme localCatalog pro bohatý obsah, který není v Supabase tabulce (jako na starém webu)
   const localData = localCatalog[slug] || {};
 
-  const priceKey = localData.price_key || slug;
+  const priceKey = SERVICE_PRICE_KEYS[slug] || localData.price_key || slug;
   const { data: priceData } = await supabase
     .from("configurator_prices")
     .select("price")
     .eq("item_key", priceKey)
-    .single();
+    .maybeSingle();
   const basePrice = priceData?.price || 150;
 
   let customProcessSteps = localData.process || [];

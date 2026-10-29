@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { submitInquiry } from "@/lib/inquiry";
 import { calculateSimplePrice } from "@/lib/calculator";
 import { FormError } from "@/components/ui/form-error";
+import { CALCULATOR_PRICE_KEY } from "@/data/servicePriceKeys";
 
 export default function KalkulacePage() {
   const [area, setArea] = useState(100);
@@ -26,7 +27,7 @@ export default function KalkulacePage() {
         const { data } = await supabase
           .from("configurator_prices")
           .select("price")
-          .eq("item_key", "cleaning_pavement")
+          .eq("item_key", CALCULATOR_PRICE_KEY)
           .maybeSingle();
 
         if (data && typeof data.price === "number" && data.price > 0) {
