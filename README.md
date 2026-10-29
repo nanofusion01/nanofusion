@@ -170,5 +170,4 @@ TypeScript typy databáze (`database.types.ts` v obou aplikacích) se generují 
 1. **Turborepo monorepo**: Přechod na strukturu `apps/web`, `apps/admin` a `packages/database`, `packages/ui` pro plně sdílené TypeScript balíčky a centralizovaný build cache.
 2. **Odstranění zbývajících `any`**: Supabase klienti jsou typovaní a v administraci zbývá 48 přetypování `as any` (ze 194) – hlavně u formulářových dat a JSON polí.
 3. **Cloudflare Turnstile** na veřejných formulářích jako další vrstva ochrany proti botům (vyžaduje účet Cloudflare a klíče).
-4. **Sjednocení tabulek `leads` a `ai_analyses`**: Přehled poptávek čte AI analýzy z prázdné starší tabulky `leads`, zatímco analyzátor ukládá do `ai_analyses`.
 
