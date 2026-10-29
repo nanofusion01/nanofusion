@@ -8,14 +8,14 @@ import { useCarousel } from "@/hooks/useCarousel";
 function ReviewCard({ review }: { review: any }) {
   return (
     <div
-      className="flex-none w-[320px] md:w-[350px] bg-slate-800 rounded-2xl p-8 flex flex-col snap-center md:snap-start"
+      className="flex-none w-[280px] md:w-[300px] bg-slate-800 rounded-2xl p-6 flex flex-col snap-center md:snap-start self-start"
     >
-      <div className="text-amber-500 mb-4 flex gap-1">
+      <div className="text-amber-500 mb-3 flex gap-1">
         {Array.from({ length: review.rating }).map((_, i) => (
           <span key={i}>★</span>
         ))}
       </div>
-      <p className="text-slate-300 italic mb-6 leading-relaxed flex-1">
+      <p className="text-slate-300 italic mb-4 leading-relaxed line-clamp-4">
         "{review.text}"
       </p>
       <div>
@@ -78,7 +78,7 @@ export function Reviews({ initialReviews, autoScroll = true }: { initialReviews?
   const reviews = initialReviews && initialReviews.length > 0 ? initialReviews : defaultReviews;
 
   return (
-    <section id="reference" className="py-12 md:py-16 bg-[#111111] font-sans relative overflow-hidden">
+    <section id="reference" className="py-10 md:py-12 bg-[#111111] font-sans relative overflow-hidden">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative">
 
         <SectionHeader
