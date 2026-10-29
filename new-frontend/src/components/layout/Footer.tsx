@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FooterModals } from "./FooterModals";
+import { ADMIN_URL } from "@/lib/site";
 
 const SocialIcon = ({ href, children }: { href: string; children: React.ReactNode }) => (
   <a 
@@ -121,7 +122,7 @@ export function Footer() {
             <span className="hidden sm:inline">|</span>
             <a href="https://eshop-nanofusion.cz" target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:text-amber-600 font-bold transition-all underline underline-offset-4 decoration-amber-500/30 hover:decoration-amber-500">E-shop</a>
             <span className="hidden sm:inline">|</span>
-            <a href="https://nanofusion-j3bs.vercel.app/admin/login" target="_blank" rel="noopener noreferrer" className="transition-colors opacity-60 hover:opacity-100">Zaměstnanci</a>
+            <a href={`${ADMIN_URL}/admin/login`} target="_blank" rel="noopener noreferrer" className="transition-colors opacity-60 hover:opacity-100">Zaměstnanci</a>
             <span className="hidden sm:inline opacity-60">|</span>
             <a href="http://www.aerisq.tech/" target="_blank" rel="noopener noreferrer" className="transition-colors opacity-60 hover:opacity-100">Created by 💚</a>
           </div>

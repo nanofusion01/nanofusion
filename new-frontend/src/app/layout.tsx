@@ -6,15 +6,17 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ChatWidget } from "@/components/layout/ChatWidget";
 import { ScrollHandler } from "@/components/layout/ScrollHandler";
+import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
 const inter = Outfit({
   variable: "--font-outfit",
   subsets: ["latin", "latin-ext"],
 });
 
-const baseUrl = "https://nanofusion.cz";
+const baseUrl = SITE_URL;
 
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: {
     default: "NANOfusion | Čištění a nano-ochrana střech, fasád a dlažeb",
     template: "%s | NANOfusion",
@@ -60,7 +62,7 @@ export const metadata: Metadata = {
     siteName: "NANOfusion",
     images: [
       {
-        url: `${baseUrl}/static/logo.jpg`,
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
         alt: "NANOfusion - Čištění a nano-ochrana",
@@ -72,7 +74,7 @@ export const metadata: Metadata = {
     title: "NANOfusion | Čištění a nano-ochrana střech, fasád a dlažeb",
     description:
       "Specialisté na profesionální čištění a dlouhodobou nano-ochranu střech, fasád, dlažeb a fotovoltaiky.",
-    images: [`${baseUrl}/static/logo.jpg`],
+    images: [OG_IMAGE],
   },
   verification: {
     google: "google-site-verification-token",
@@ -90,7 +92,7 @@ export default function RootLayout({
         "@type": "LocalBusiness",
         "name": "NANOfusion s.r.o.",
         "legalName": "NANOfusion s.r.o.",
-        "image": `${baseUrl}/static/logo.jpg`,
+        "image": OG_IMAGE,
         "@id": `${baseUrl}/#organization`,
         "url": baseUrl,
         "telephone": "+420774509409",

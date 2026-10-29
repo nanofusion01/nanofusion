@@ -9,6 +9,7 @@ import { ServiceConfigurator } from "@/components/services/ServiceConfigurator";
 import { Button } from "@/components/ui/button";
 import { localCatalog } from "@/data/localCatalog";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
 interface PageProps {
   params: Promise<{
@@ -42,8 +43,8 @@ export async function generateMetadata({ params }: PageProps) {
   const metaDesc = plainText.substring(0, 160).trim() + "...";
 
   const title = `${service.name} | NANOfusion`;
-  const url = `https://nanofusion.cz/sluzby/${slug}`;
-  const defaultImage = "https://nanofusion.cz/static/logo.jpg";
+  const url = `${SITE_URL}/sluzby/${slug}`;
+  const defaultImage = OG_IMAGE;
   // Pokusíme se vzít obrázek z hero nebo z fotek, jinak použijeme logo
   const ogImage = service.hero_image_url || defaultImage;
 
@@ -217,13 +218,13 @@ export default async function ServicePage({ params }: PageProps) {
     "provider": {
       "@type": "LocalBusiness",
       "name": "NANOfusion",
-      "url": "https://nanofusion.cz",
+      "url": SITE_URL,
       "telephone": "+420774509409",
       "email": "info@nanofusion.cz",
     },
     "description": service.description ? service.description.replace(/<[^>]*>?/gm, '').substring(0, 160) : "",
     "areaServed": "CZ",
-    "url": `https://nanofusion.cz/sluzby/${slug}`,
+    "url": `${SITE_URL}/sluzby/${slug}`,
   };
 
   return (

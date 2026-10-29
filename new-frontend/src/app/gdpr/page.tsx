@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Zásady ochrany osobních údajů (GDPR) | NANOfusion",
@@ -14,11 +15,11 @@ export const metadata: Metadata = {
     description:
       "Zásady ochrany osobních údajů společnosti Nano Fusion s.r.o. v souladu s nařízením GDPR.",
     type: "website",
-    url: "https://nanofusion.cz/gdpr",
+    url: `${SITE_URL}/gdpr`,
     siteName: "NANOFusion",
     images: [
       {
-        url: "https://nanofusion.cz/static/logo.jpg",
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
         alt: "GDPR - NANOFusion",
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Zásady ochrany osobních údajů (GDPR) | NANOFusion",
     description: "Zásady ochrany osobních údajů NANOFusion.",
-    images: ["https://nanofusion.cz/static/logo.jpg"],
+    images: [OG_IMAGE],
   },
 };
 

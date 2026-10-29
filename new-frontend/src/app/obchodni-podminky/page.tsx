@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Obchodní podmínky | NANOfusion",
@@ -15,11 +16,11 @@ export const metadata: Metadata = {
     description:
       "Všeobecné obchodní podmínky společnosti NANO FUSION s.r.o.",
     type: "website",
-    url: "https://nanofusion.cz/obchodni-podminky",
+    url: `${SITE_URL}/obchodni-podminky`,
     siteName: "NANOfusion",
     images: [
       {
-        url: "https://nanofusion.cz/static/logo.jpg",
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
         alt: "Obchodní podmínky - NANOfusion",
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Obchodní podmínky | NANOfusion",
     description: "Všeobecné obchodní podmínky NANOfusion.",
-    images: ["https://nanofusion.cz/static/logo.jpg"],
+    images: [OG_IMAGE],
   },
 };
 

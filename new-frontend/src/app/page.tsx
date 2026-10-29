@@ -10,6 +10,7 @@ import { FAQ } from "@/components/home/FAQ";
 import { Configurator } from "@/components/home/Configurator";
 import { Contact } from "@/components/home/Contact";
 import { supabase } from "@/lib/supabase";
+import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title:
@@ -24,11 +25,11 @@ export const metadata: Metadata = {
     description:
       "Specialisté na profesionální čištění a dlouhodobou nano-ochranu střech, fasád, dlažeb a fotovoltaiky. Více než 950 realizovaných projektů s garancí až 10 let.",
     type: "website",
-    url: "https://nanofusion.cz",
+    url: SITE_URL,
     siteName: "NANOfusion",
     images: [
       {
-        url: "https://nanofusion.cz/static/logo.jpg",
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
         alt: "NANOfusion",
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
     title: "NANOfusion | Čištění a nano-ochrana střech, fasád a dlažeb",
     description:
       "Specialisté na profesionální čištění a dlouhodobou nano-ochranu střech, fasád, dlažeb a fotovoltaiky.",
-    images: ["https://nanofusion.cz/static/logo.jpg"],
+    images: [OG_IMAGE],
   },
 };
 
