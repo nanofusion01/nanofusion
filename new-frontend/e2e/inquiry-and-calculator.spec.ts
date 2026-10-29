@@ -19,15 +19,15 @@ test.describe("E2E Test: Kalkulačka a odeslání poptávky (/kalkulace)", () =>
   });
 
   test("úspěšně odešle poptávku z kalkulačky a zobrazí spočtenou cenu (se zachycením API)", async ({ page }) => {
-    // Zachycení API volání do Supabase, aby nevznikala falešná data v produkční databázi
+    // Zachycení volání /api/inquiry, aby nevznikala falešná data v produkční databázi
     let interceptedPayload: any = null;
-    await page.route("**/rest/v1/inquiries*", async (route) => {
+    await page.route("**/api/inquiry", async (route) => {
       if (route.request().method() === "POST") {
         interceptedPayload = route.request().postDataJSON();
         await route.fulfill({
-          status: 201,
+          status: 200,
           contentType: "application/json",
-          body: JSON.stringify([{ id: "test-inquiry-id", status: "new" }]),
+          body: JSON.stringify({ success: true }),
         });
       } else {
         await route.continue();
@@ -68,13 +68,13 @@ test.describe("E2E Test: Kalkulačka a odeslání poptávky (/kalkulace)", () =>
 test.describe("E2E Test: Kontaktní formulář na domovské stránce (/)", () => {
   test("úspěšně odešle poptávku z kontaktního formuláře (se zachycením API)", async ({ page }) => {
     let interceptedContactPayload: any = null;
-    await page.route("**/rest/v1/inquiries*", async (route) => {
+    await page.route("**/api/inquiry", async (route) => {
       if (route.request().method() === "POST") {
         interceptedContactPayload = route.request().postDataJSON();
         await route.fulfill({
-          status: 201,
+          status: 200,
           contentType: "application/json",
-          body: JSON.stringify([{ id: "test-contact-id", status: "new" }]),
+          body: JSON.stringify({ success: true }),
         });
       } else {
         await route.continue();

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { inquirySchema } from "../lib/inquiry";
+import { inquirySchema, buildInquiryPayload, INQUIRY_PHOTO_NAME } from "../lib/inquiry";
 
 describe("Inquiry Zod Schema & Validation", () => {
   it("passes for valid inquiry input from calculator", () => {
@@ -143,5 +143,38 @@ describe("Inquiry Zod Schema & Validation", () => {
     if (!result.success) {
       expect(result.error.issues[0].message).toContain("Neplatný formát e-mailu");
     }
+  });
+});
+
+describe("buildInquiryPayload (zápis poptávky na serveru)", () => {
+  const base = { name: "  Jan Novák ", service: "Kalkulačka", source: "Kalkulačka", message: "Plocha: 100 m²" };
+
+  it("ořízne mezery a uloží prázdný telefon i e-mail jako null", () => {
+    const p = buildInquiryPayload({ ...base, phone: "", email: "" });
+    expect(p.name).toBe("Jan Novák");
+    expect(p.phone).toBeNull();
+    expect(p.email).toBeNull();
+    expect(p.status).toBe("new");
+  });
+
+  it("přesune e-mail zadaný do pole telefonu do pole email", () => {
+    const p = buildInquiryPayload({ ...base, phone: "jan@firma.cz", email: "" });
+    expect(p.phone).toBeNull();
+    expect(p.email).toBe("jan@firma.cz");
+  });
+
+  it("připojí fotku ke zprávě a uloží její URL", () => {
+    const p = buildInquiryPayload(base, { name: "inquiry_1_abc.jpg", url: "https://x/inquiry_1_abc.jpg" });
+    expect(p.message).toContain("Fotografie: přiložena k poptávce (inquiry_1_abc.jpg)");
+    expect(p.original_photo_url).toBe("https://x/inquiry_1_abc.jpg");
+  });
+});
+
+describe("INQUIRY_PHOTO_NAME (ochrana proti podvržené cestě k fotce)", () => {
+  it("povolí jen názvy generované formulářem", () => {
+    expect(INQUIRY_PHOTO_NAME.test("inquiry_1793309656103_vmbqso27dm.png")).toBe(true);
+    expect(INQUIRY_PHOTO_NAME.test("../../evil.png")).toBe(false);
+    expect(INQUIRY_PHOTO_NAME.test("inquiry_1_abc.exe")).toBe(false);
+    expect(INQUIRY_PHOTO_NAME.test("https://evil.cz/inquiry_1_abc.png")).toBe(false);
   });
 });

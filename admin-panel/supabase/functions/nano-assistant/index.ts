@@ -72,6 +72,24 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey)
 
+    // Rate limit: každá zpráva stojí peníze za OpenAI, takže jedna IP adresa
+    // smí poslat nejvýš CHAT_LIMIT_PER_HOUR zpráv za hodinu (migrace 015).
+    // Pokud funkce v DB ještě není, limit se přeskočí, ať chat nepřestane fungovat.
+    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown'
+    const limitPerHour = Number(Deno.env.get('CHAT_LIMIT_PER_HOUR') ?? 30)
+    const { data: withinLimit, error: limitError } = await supabase.rpc('check_rate_limit', {
+      p_key: `chat:${ip}`,
+      p_limit: limitPerHour,
+      p_window_seconds: 3600,
+    })
+    if (limitError) {
+      console.warn('Rate limit check failed (chybí migrace 015?):', limitError.message)
+    } else if (withinLimit === false) {
+      return new Response(JSON.stringify({ reply: 'Děkujeme za zájem! Poslali jste nám dnes už hodně zpráv, zkuste to prosím za chvíli znovu, nebo nám rovnou zavolejte na +420 774 509 409.' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // 2. FETCH ALL DATA IN PARALLEL
     const [pricesRes, knowledgeRes, faqsRes, servicesRes, articlesRes] = await Promise.all([
       supabase.from('configurator_prices').select('item_key, label, price, unit'),

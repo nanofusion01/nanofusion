@@ -74,10 +74,9 @@ export interface InquiryResult {
 }
 
 /**
- * Centrální produkční funkce pro zpracování a odeslání zákaznické poptávky.
- * Zajišťuje Zod validaci, kontrolu antispam honeypotu, bezpečný upload fotografií
- * do privátního bucketu 'inquiries' (10 MB limit) a zápis do tabulky inquiries bez .select()
- * (kompatibilní s anonymními RLS politikami pouze pro INSERT).
+ * Odeslání zákaznické poptávky z prohlížeče: honeypot, Zod validace,
+ * nahrání fotky do privátního bucketu 'inquiries' (10 MB limit) a předání
+ * dat API routě /api/inquiry, která poptávku uloží.
  */
 export async function submitInquiry(input: InquiryInput): Promise<InquiryResult> {
   // 1. Antispam honeypot: pokud robot vyplní skryté pole, tiše ignorujeme
@@ -94,7 +93,6 @@ export async function submitInquiry(input: InquiryInput): Promise<InquiryResult>
 
   const data = validation.data;
   let photoName = "";
-  let photoUrl = "";
 
   // 3. Zpracování a upload fotografie do privátního bucketu inquiries
   if (data.photo && typeof File !== "undefined" && data.photo instanceof File) {
@@ -113,23 +111,53 @@ export async function submitInquiry(input: InquiryInput): Promise<InquiryResult>
         .from("inquiries")
         .upload(photoName, data.photo, { upsert: false, cacheControl: "3600" });
 
-      if (!uploadErr && uploadData) {
-        const { data: pubData } = supabase.storage.from("inquiries").getPublicUrl(photoName);
-        if (pubData?.publicUrl) {
-          photoUrl = pubData.publicUrl;
-        }
-      }
+      if (uploadErr || !uploadData) photoName = "";
     } catch (e) {
+      photoName = "";
       console.warn("Storage upload failed, continuing with inquiry submission:", e);
     }
   }
 
-  // 4. Sestavení finální zprávy a payloadu
+  // 4. Odeslání na vlastní API routu - zápis do DB, rate limit a finální
+  // validace probíhají na serveru (viz src/app/api/inquiry/route.ts)
+  const res = await fetch("/api/inquiry", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      service: data.service,
+      message: data.message,
+      source: data.source,
+      botField: input.botField,
+      photoName: photoName || undefined,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error || "Poptávku se nepodařilo odeslat. Zkuste to prosím znovu nebo nám zavolejte.");
+  }
+
+  return { success: true };
+}
+
+/** Povolené názvy souborů fotek - klient nesmí podstrčit libovolnou URL. */
+export const INQUIRY_PHOTO_NAME = /^inquiry_\d+_[a-z0-9]+\.(jpe?g|png|webp|heic|heif|avif)$/;
+
+/**
+ * Sestaví řádek do tabulky inquiries z validovaných dat (běží na serveru).
+ */
+export function buildInquiryPayload(
+  data: InquiryInput,
+  photo?: { name: string; url: string }
+): Inserts<"inquiries"> {
   let finalMessage = (data.message || "").trim();
-  if (photoName) {
+  if (photo) {
     finalMessage = finalMessage
-      ? `${finalMessage}\nFotografie: přiložena k poptávce (${photoName})`
-      : `Fotografie: přiložena k poptávce (${photoName})`;
+      ? `${finalMessage}\nFotografie: přiložena k poptávce (${photo.name})`
+      : `Fotografie: přiložena k poptávce (${photo.name})`;
   }
 
   let rawPhone = (data.phone || "").trim();
@@ -141,36 +169,15 @@ export async function submitInquiry(input: InquiryInput): Promise<InquiryResult>
     rawPhone = "";
   }
 
-  const safePhone = rawPhone === "000000000" || rawPhone === "" ? null : rawPhone;
-  const safeEmail = rawEmail || null;
-
   const payload: Inserts<"inquiries"> = {
     name: data.name.trim(),
-    phone: safePhone,
-    email: safeEmail,
+    phone: rawPhone === "000000000" || rawPhone === "" ? null : rawPhone,
+    email: rawEmail || null,
     service: data.service,
     message: finalMessage,
     source: data.source,
     status: "new",
   };
-
-  if (photoUrl) {
-    payload.original_photo_url = photoUrl;
-  }
-
-  // 5. Zápis do databáze s odolným retry fallbackem
-  // DŮLEŽITÉ: Nepoužíváme .select().single(), protože anonymní uživatel má v Supabase RLS pouze právo INSERT
-  let { error } = await supabase.from("inquiries").insert(payload);
-
-  if (error && photoUrl && (error.message?.includes("original_photo_url") || error.code === "42703")) {
-    delete payload.original_photo_url;
-    const retry = await supabase.from("inquiries").insert(payload);
-    error = retry.error;
-  }
-
-  if (error) {
-    throw new Error(error.message || "Chyba při ukládání poptávky.");
-  }
-
-  return { success: true };
+  if (photo) payload.original_photo_url = photo.url;
+  return payload;
 }
