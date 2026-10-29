@@ -46,10 +46,10 @@ export default async function AnalyzerPage() {
     return <AnalyzerClient initialTips={DEFAULT_NANO_TIPS} initialLeads={[]} />
   }
   
-  // Parallel fetch for existing tips config and leads
+  // Tipy analyzátoru + AI analýzy (tabulka ai_analyses)
   const [configResult, leadsResult] = await Promise.all([
     supabase.from('site_config').select('*').eq('key', 'nano_tips').maybeSingle(),
-    supabase.from('leads').select('*').order('created_at', { ascending: false })
+    supabase.from('ai_analyses').select('*').order('created_at', { ascending: false })
   ])
 
   let config = configResult.data
@@ -89,7 +89,22 @@ export default async function AnalyzerPage() {
   return (
     <AnalyzerClient
       initialTips={tips}
-      initialLeads={leads.map((l) => ({ ...l, name: l.name ?? '', email: l.email ?? '', phone: l.phone ?? '', status: l.status ?? 'new' }))}
+      initialLeads={leads.map((l) => ({
+        id: l.id,
+        name: l.name,
+        email: l.email,
+        phone: l.phone ?? '',
+        analysis_type: l.analysis_type ?? undefined,
+        property_type: l.object_type ?? undefined,
+        urgency: l.urgency ?? undefined,
+        original_photo_url: l.original_photo_url,
+        analysis_result: l.analysis_result ?? undefined,
+        status: l.status,
+        created_at: l.created_at,
+        updated_at: l.updated_at,
+        // poznámky administrátora (stejný sloupec jako v sekci AI Analyzér)
+        description: l.additional_notes ?? undefined,
+      }))}
     />
   )
 }

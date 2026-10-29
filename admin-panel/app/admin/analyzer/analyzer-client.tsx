@@ -45,7 +45,7 @@ interface Lead {
   status: string
   created_at: string
   updated_at?: string
-  description?: string // internal notes are stored in 'description' column on leads table
+  description?: string // poznámky administrátora (ai_analyses.additional_notes)
 }
 
 interface AnalyzerClientProps {
