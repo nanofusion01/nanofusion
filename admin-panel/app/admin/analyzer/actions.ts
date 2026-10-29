@@ -15,7 +15,7 @@ export async function updateAnalyzerTips(tips: NanoTip[]) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('site_config') as any)
+    const { error } = await supabase.from('site_config')
       .upsert({ 
         key: 'nano_tips', 
         value: JSON.stringify(tips), 

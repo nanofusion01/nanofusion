@@ -48,8 +48,8 @@ export default async function AnalyzerPage() {
   
   // Parallel fetch for existing tips config and leads
   const [configResult, leadsResult] = await Promise.all([
-    (supabase.from('site_config') as any).select('*').eq('key', 'nano_tips').maybeSingle(),
-    (supabase.from('leads') as any).select('*').order('created_at', { ascending: false })
+    supabase.from('site_config').select('*').eq('key', 'nano_tips').maybeSingle(),
+    supabase.from('leads').select('*').order('created_at', { ascending: false })
   ])
 
   let config = configResult.data
@@ -60,7 +60,7 @@ export default async function AnalyzerPage() {
     // If not found in site_config, seed the default values using the Admin client (bypassing RLS write restrictions)
     const adminSupabase = await createAdminClient()
     if (adminSupabase) {
-      const { data: inserted, error } = await (adminSupabase.from('site_config') as any)
+      const { data: inserted, error } = await adminSupabase.from('site_config')
         .insert({
           key: 'nano_tips',
           value: JSON.stringify(DEFAULT_NANO_TIPS),
@@ -87,6 +87,9 @@ export default async function AnalyzerPage() {
   }
 
   return (
-    <AnalyzerClient initialTips={tips} initialLeads={leads} />
+    <AnalyzerClient
+      initialTips={tips}
+      initialLeads={leads.map((l) => ({ ...l, name: l.name ?? '', email: l.email ?? '', phone: l.phone ?? '', status: l.status ?? 'new' }))}
+    />
   )
 }

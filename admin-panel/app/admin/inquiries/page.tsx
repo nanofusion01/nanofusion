@@ -9,8 +9,8 @@ export default async function InquiriesPage() {
 
   // Parallel fetch for both inquiries and AI analyzer leads
   const [inquiriesResult, leadsResult] = await Promise.all([
-    (supabase.from('inquiries') as any).select('*'),
-    (supabase.from('leads') as any).select('*')
+    supabase.from('inquiries').select('*'),
+    supabase.from('leads').select('*')
   ])
 
   const rawInquiries = inquiriesResult.data || []

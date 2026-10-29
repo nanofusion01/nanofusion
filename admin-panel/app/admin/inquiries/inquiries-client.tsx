@@ -27,6 +27,10 @@ type Inquiry = Tables<'inquiries'> & {
   original_photo_url?: string | null
   photo_url?: string | null
   image_url?: string | null
+  // pole ze zrušeného formuláře /poptavka - u starších záznamů je může mít jen zpráva
+  address?: string | null
+  distance_km?: number | null
+  travel_cost_czk?: number | null
 }
 
 const STATUS_LABELS: Record<string, string> = {

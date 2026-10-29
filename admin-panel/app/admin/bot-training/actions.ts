@@ -11,7 +11,7 @@ export async function getKnowledgeBase() {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { data, error } = await (supabase.from('bot_knowledge') as any)
+    const { data, error } = await supabase.from('bot_knowledge')
       .select('*')
       .order('created_at', { ascending: false })
     
@@ -92,7 +92,7 @@ export async function uploadBotDocument(formData: FormData) {
     });
 
     // 3. Save to bot_knowledge as a special entry
-    const { error: kbError } = await (supabase.from('bot_knowledge') as any).insert([{
+    const { error: kbError } = await supabase.from('bot_knowledge').insert([{
       title: `Dokument: ${file.name}`,
       content: extractedText,
       category: 'dokumenty',
@@ -102,7 +102,7 @@ export async function uploadBotDocument(formData: FormData) {
     if (kbError) throw new Error('Chyba při ukládání textu: ' + kbError.message)
 
     // 4. Log to bot_documents
-    await (supabase.from('bot_documents') as any).insert([{
+    await supabase.from('bot_documents').insert([{
       name: file.name,
       file_url: publicUrl,
       file_path: filePath,
@@ -125,12 +125,12 @@ export async function saveKnowledge(data: {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
     if (data.id) {
-      const { error } = await (supabase.from('bot_knowledge') as any)
+      const { error } = await supabase.from('bot_knowledge')
         .update({ ...data, updated_at: new Date().toISOString() })
         .eq('id', data.id)
       if (error) throw new Error(error.message)
     } else {
-      const { error } = await (supabase.from('bot_knowledge') as any).insert([data])
+      const { error } = await supabase.from('bot_knowledge').insert([data])
       if (error) throw new Error(error.message)
     }
     revalidatePath('/admin/bot-training')
@@ -141,7 +141,7 @@ export async function deleteKnowledge(id: string) {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('bot_knowledge') as any).delete().eq('id', id)
+    const { error } = await supabase.from('bot_knowledge').delete().eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/bot-training')
   })
@@ -151,7 +151,7 @@ export async function toggleKnowledgeActive(id: string, is_active: boolean) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('bot_knowledge') as any)
+    const { error } = await supabase.from('bot_knowledge')
       .update({ is_active, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw new Error(error.message)
@@ -163,7 +163,7 @@ export async function getBotEnabledStatus() {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { data } = await (supabase.from('site_config') as any)
+    const { data } = await supabase.from('site_config')
       .select('value')
       .eq('key', 'nanobot_enabled')
       .maybeSingle()
@@ -175,7 +175,7 @@ export async function setBotEnabledStatus(enabled: boolean) {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('site_config') as any)
+    const { error } = await supabase.from('site_config')
       .upsert({
         key: 'nanobot_enabled',
         value: enabled ? 'true' : 'false',

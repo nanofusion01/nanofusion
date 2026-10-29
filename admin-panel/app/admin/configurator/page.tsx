@@ -9,12 +9,12 @@ export default async function ConfiguratorPage() {
     { data: chatSessions },
     { data: inquiries },
   ] = await Promise.all([
-    (supabase.from('configurator_prices') as any).select('*').order('label'),
-    (supabase.from('chat_sessions') as any)
+    supabase.from('configurator_prices').select('*').order('label'),
+    supabase.from('chat_sessions')
       .select('id, user_identifier, status, started_at, last_activity, messages')
       .order('last_activity', { ascending: false })
       .limit(50),
-    (supabase.from('inquiries') as any)
+    supabase.from('inquiries')
       .select('*')
       .order('created_at', { ascending: false }),
   ])

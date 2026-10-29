@@ -25,14 +25,14 @@ export async function deleteUser(id: string) {
     // profiles.id odkazuje na auth.users bez ON DELETE CASCADE, takže Auth
     // odmítne smazat uživatele, dokud existuje jeho profil. Nejdřív proto
     // smažeme profil (a zapamatujeme si ho), potom uživatele z Auth.
-    const { data: profile, error: readError } = await (supabase.from('profiles') as any)
+    const { data: profile, error: readError } = await supabase.from('profiles')
       .select('*')
       .eq('id', id)
       .maybeSingle()
     if (readError) throw new Error(readError.message)
 
     if (profile?.role === 'admin') {
-      const { count } = await (supabase.from('profiles') as any)
+      const { count } = await supabase.from('profiles')
         .select('id', { count: 'exact', head: true })
         .eq('role', 'admin')
       if ((count ?? 0) <= 1) {
@@ -41,7 +41,7 @@ export async function deleteUser(id: string) {
     }
 
     if (profile) {
-      const { error: profileError } = await (supabase.from('profiles') as any)
+      const { error: profileError } = await supabase.from('profiles')
         .delete()
         .eq('id', id)
       if (profileError) throw new Error(profileError.message)
@@ -51,7 +51,7 @@ export async function deleteUser(id: string) {
     if (authError && authError.status !== 404) {
       // Smazání z Auth selhalo - vrátíme profil, ať účet nezůstane napůl smazaný
       if (profile) {
-        await (supabase.from('profiles') as any).insert(profile)
+        await supabase.from('profiles').insert(profile)
       }
       throw new Error(`Uživatele se nepodařilo smazat: ${authError.message}`)
     }
@@ -82,7 +82,7 @@ export async function addUser(email: string) {
 
     // Profil založí trigger handle_new_user (vždy s rolí editor) - pozvaní
     // uživatelé jsou ale administrátoři, takže roli nastavíme explicitně.
-    const { error: roleError } = await (supabase.from('profiles') as any)
+    const { error: roleError } = await supabase.from('profiles')
       .upsert({ id: data.user.id, email, role: 'admin' })
     if (roleError) throw new Error(`Účet vytvořen, ale nepodařilo se nastavit roli: ${roleError.message}`)
 
@@ -95,7 +95,7 @@ export async function updateUserRole(id: string, role: 'admin' | 'editor') {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('profiles') as any)
+    const { error } = await supabase.from('profiles')
       .update({ role })
       .eq('id', id)
 

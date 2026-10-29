@@ -44,14 +44,14 @@ export default async function AdminLayout({
   }
 
   // 3. Fetch / Create profile
-  let { data: profile } = await (adminSupabase.from('profiles') as any)
+  let { data: profile } = await adminSupabase.from('profiles')
     .select('role, full_name, email')
     .eq('id', user.id)
     .single()
 
   // Self-healing: user existuje v Auth ale ne v Profiles (trigger selhal)
   if (!profile) {
-    const { data: newProfile } = await (adminSupabase.from('profiles') as any)
+    const { data: newProfile } = await adminSupabase.from('profiles')
       .insert({
         id: user.id,
         email: user.email,
@@ -64,14 +64,14 @@ export default async function AdminLayout({
   }
 
   // 4. Badge na recenzích čekající na schválení
-  const { count: pendingReviews } = await (adminSupabase.from('external_reviews') as any)
+  const { count: pendingReviews } = await adminSupabase.from('external_reviews')
     .select('*', { count: 'exact', head: true })
     .eq('approved', false)
 
   // 5. Badge na nových AI analýzách
   let newAnalyses = 0
   try {
-    const { count } = await (adminSupabase.from('ai_analyses') as any)
+    const { count } = await adminSupabase.from('ai_analyses')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'new')
     newAnalyses = count ?? 0

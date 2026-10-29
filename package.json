@@ -13,6 +13,7 @@
     "build:all": "npm run build:frontend && npm run build:admin",
     "test": "npm run test:frontend",
     "test:frontend": "cd new-frontend && npm test",
-    "test:e2e": "cd new-frontend && npm run test:e2e"
+    "test:e2e": "cd new-frontend && npm run test:e2e",
+    "gen:types": "node scripts/gen-db-types.mjs"
   }
 }

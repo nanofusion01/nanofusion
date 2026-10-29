@@ -9,7 +9,7 @@ export default async function MagazineEditorPage(props: { params: Promise<{ id: 
 
   if (!isNew) {
     const supabase = await createClient()
-    const { data } = await (supabase.from('articles') as any).select('*').eq('id', params.id).single()
+    const { data } = await supabase.from('articles').select('*').eq('id', params.id).single()
     if (!data) notFound()
     article = data
   }

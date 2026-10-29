@@ -72,19 +72,19 @@ export default async function AdminDashboard() {
     recentInquiriesResult,
     openChatsResult,
   ] = await Promise.all([
-    (supabase.from('inquiries') as any).select('*', { count: 'exact', head: true }),
-    (supabase.from('inquiries') as any)
+    supabase.from('inquiries').select('*', { count: 'exact', head: true }),
+    supabase.from('inquiries')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'new'),
-    (supabase.from('external_reviews') as any)
+    supabase.from('external_reviews')
       .select('*', { count: 'exact', head: true })
       .eq('approved', false),
-    (supabase.from('realizations') as any).select('*', { count: 'exact', head: true }),
-    (supabase.from('inquiries') as any)
+    supabase.from('realizations').select('*', { count: 'exact', head: true }),
+    supabase.from('inquiries')
       .select('id, name, email, service, status, created_at, source')
       .order('created_at', { ascending: false })
       .limit(5),
-    (supabase.from('chat_sessions') as any)
+    supabase.from('chat_sessions')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'open'),
   ])

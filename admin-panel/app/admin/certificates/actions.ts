@@ -24,7 +24,7 @@ export async function updateCertificatesConfig(certificates: any[]) {
     const supabase = await createAdminClient()
     const value = JSON.stringify(certificates)
     
-    const { error } = await (supabase.from('site_config') as any)
+    const { error } = await supabase.from('site_config')
       .upsert({ key: 'about_certificates', value }, { onConflict: 'key' })
     
     if (error) throw new Error(error.message)

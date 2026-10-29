@@ -12,13 +12,13 @@ export async function saveArticle(id: string | null, data: any) {
     
     if (id) {
       // Update — uses 'articles' table (unified with public web)
-      const { error } = await (supabase.from('articles') as any)
+      const { error } = await supabase.from('articles')
         .update({ ...data, updated_at: new Date().toISOString() })
         .eq('id', id)
       if (error) throw new Error(error.message)
     } else {
       // Create — uses 'articles' table (unified with public web)
-      const { error } = await (supabase.from('articles') as any)
+      const { error } = await supabase.from('articles')
         .insert({ ...data, is_published: false })
       if (error) throw new Error(error.message)
     }
@@ -31,7 +31,7 @@ export async function deleteArticle(id: string) {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('articles') as any).delete().eq('id', id)
+    const { error } = await supabase.from('articles').delete().eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/magazine')
   })

@@ -13,7 +13,7 @@ export async function approveReview(id: string) {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
     if (!supabase) throw new Error('Admin client unavailable')
-    const { error } = await (supabase.from('external_reviews') as any)
+    const { error } = await supabase.from('external_reviews')
       .update({ approved: true })
       .eq('id', id)
     if (error) throw new Error(error.message)
@@ -27,7 +27,7 @@ export async function rejectReview(id: string) {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
     if (!supabase) throw new Error('Admin client unavailable')
-    const { error } = await (supabase.from('external_reviews') as any)
+    const { error } = await supabase.from('external_reviews')
       .update({ approved: false })
       .eq('id', id)
     if (error) throw new Error(error.message)
@@ -41,7 +41,7 @@ export async function deleteReview(id: string) {
     await requireAdmin()
     const supabase = await createAdminClient()
     if (!supabase) throw new Error('Admin client unavailable')
-    const { error } = await (supabase.from('external_reviews') as any)
+    const { error } = await supabase.from('external_reviews')
       .delete()
       .eq('id', id)
     if (error) throw new Error(error.message)
@@ -59,7 +59,7 @@ export async function addManualReview(data: {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
     if (!supabase) throw new Error('Admin client unavailable')
-    const { error } = await (supabase.from('external_reviews') as any).insert({
+    const { error } = await supabase.from('external_reviews').insert({
       source: 'manual',
       author: data.author,
       rating: data.rating,
@@ -80,20 +80,20 @@ export async function approveFirmyReview(firmyReviewId: string) {
     const supabase = await createAdminClient()
     if (!supabase) throw new Error('Admin client unavailable')
 
-    const { data: review, error: fetchError } = await (supabase.from('firmy_reviews') as any)
+    const { data: review, error: fetchError } = await supabase.from('firmy_reviews')
       .select('*')
       .eq('id', firmyReviewId)
       .single()
 
     if (fetchError || !review) throw new Error('Recenze nenalezena')
 
-    const { error } = await (supabase.from('external_reviews') as any)
+    const { error } = await supabase.from('external_reviews')
       .upsert({
         source: 'firmy.cz',
         external_id: review.external_id || firmyReviewId,
         author: review.author_name,
         rating: review.rating,
-        content: stripHtml(review.content),
+        content: stripHtml(review.content ?? ''),
         published_at: review.review_date,
         approved: true,
       }, { onConflict: 'external_id' })
@@ -137,14 +137,14 @@ export async function syncFirmyReviews() {
     let imported = 0
     for (const rev of reviews) {
       // Zkontroluj duplicity ručně (external_id nemá UNIQUE constraint v DB)
-      const { data: existing } = await (supabase.from('external_reviews') as any)
+      const { data: existing } = await supabase.from('external_reviews')
         .select('id')
         .eq('external_id', rev.external_id)
         .maybeSingle()
 
       if (existing) continue // Přeskoč duplicitu
 
-      const { error } = await (supabase.from('external_reviews') as any).insert({
+      const { error } = await supabase.from('external_reviews').insert({
         source: 'firmy.cz',
         external_id: rev.external_id,
         author: rev.author,
@@ -186,11 +186,11 @@ export async function syncGoogleReviews() {
       if (!rev.text || rev.text.length < 5) continue
       const extId = `google_${rev.time}_${rev.author_name.replace(/\s/g, '').substring(0, 16)}`
 
-      const { data: existing } = await (supabase.from('external_reviews') as any)
+      const { data: existing } = await supabase.from('external_reviews')
         .select('id').eq('external_id', extId).maybeSingle()
       if (existing) continue
 
-      const { error } = await (supabase.from('external_reviews') as any).insert({
+      const { error } = await supabase.from('external_reviews').insert({
         source: 'google',
         external_id: extId,
         author: rev.author_name,
@@ -233,7 +233,7 @@ export async function bulkAddReviews(rawText: string) {
       content = stripHtml(blockLines.slice(1).filter(l => !l.match(/^[1-5]$/) && !l.match(/hvězd/i)).join(' '))
 
       if (content.length > 5) {
-        const { error } = await (supabase.from('external_reviews') as any).insert({
+        const { error } = await supabase.from('external_reviews').insert({
           source: 'manual_bulk',
           author,
           rating,

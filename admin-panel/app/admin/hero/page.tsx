@@ -5,12 +5,12 @@ export default async function HeroPage() {
   const supabase = await createClient()
   
   // Fetch media
-  const { data: heroItems } = await (supabase.from('hero_media') as any)
+  const { data: heroItems } = await supabase.from('hero_media')
     .select('*')
     .order('updated_at', { ascending: false })
 
   // Fetch site config (hero title)
-  const { data: config } = await (supabase.from('site_config') as any)
+  const { data: config } = await supabase.from('site_config')
     .select('*')
     .eq('key', 'hero_title')
     .single()

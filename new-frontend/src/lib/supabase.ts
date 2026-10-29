@@ -1,10 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-export type { Database } from "./database.types";
+import type { Database } from "./database.types";
+export type { Database };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 export function optimizeImg(url: string | null | undefined, width: number = 800) {
   if (!url || typeof url !== "string") return url || "";

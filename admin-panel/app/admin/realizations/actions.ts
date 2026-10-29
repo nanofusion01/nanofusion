@@ -20,7 +20,7 @@ export async function createRealization(data: {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { data: realization, error } = await (supabase.from('realizations') as any)
+    const { data: realization, error } = await supabase.from('realizations')
       .insert(data)
       .select('*')
       .single()
@@ -44,7 +44,7 @@ export async function updateRealization(id: string, data: Partial<{
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('realizations') as any)
+    const { error } = await supabase.from('realizations')
       .update({ ...data, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw new Error(error.message)
@@ -56,7 +56,7 @@ export async function deleteRealization(id: string) {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('realizations') as any).delete().eq('id', id)
+    const { error } = await supabase.from('realizations').delete().eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/realizations')
   })
@@ -66,7 +66,7 @@ export async function togglePublished(id: string, is_published: boolean) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('realizations') as any)
+    const { error } = await supabase.from('realizations')
       .update({ is_published, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw new Error(error.message)
@@ -88,7 +88,7 @@ export async function uploadMultipleRealizationPhotos(
     for (const file of files) {
       try {
         const publicUrl = await uploadFile(supabase, file, 'realizations', realizationId)
-        const res: any = await (supabase.from('realization_photos') as any).insert({
+        const res: any = await supabase.from('realization_photos').insert({
           realization_id: realizationId,
           url: publicUrl,
           order_index: Math.floor(Date.now() / 1000) + results.length,
@@ -118,7 +118,7 @@ export async function uploadRealizationPhoto(
 
     const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
 
-    const res: any = await (supabase.from('realization_photos') as any).insert({
+    const res: any = await supabase.from('realization_photos').insert({
       realization_id: realizationId,
       url: publicUrl,
       order_index: Math.floor(Date.now() / 1000), 
@@ -138,7 +138,7 @@ export async function deleteRealizationPhoto(photoId: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await (supabase.from('realization_photos') as any)
+    const { error } = await supabase.from('realization_photos')
       .delete()
       .eq('id', photoId)
     if (error) throw new Error(error.message)
@@ -152,11 +152,10 @@ export async function updateRealizationPhotos(photos: { id: string, caption?: st
     const supabase = await createAdminClient()
     
     for (const photo of photos) {
-      const { error } = await (supabase.from('realization_photos') as any)
+      const { error } = await supabase.from('realization_photos')
         .update({ 
           caption: photo.caption, 
           order_index: photo.order_index,
-          updated_at: new Date().toISOString() 
         })
         .eq('id', photo.id)
       

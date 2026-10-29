@@ -72,7 +72,7 @@ export async function deleteInquiries(ids: string[]) {
     const supabase = await createAdminClient()
     if (!supabase) throw new Error('Admin client unavailable')
 
-    const { error } = await (supabase.from('inquiries') as any)
+    const { error } = await supabase.from('inquiries')
       .delete()
       .in('id', ids)
 
@@ -92,7 +92,7 @@ export async function deleteAllInquiries() {
     const supabase = await createAdminClient()
     if (!supabase) throw new Error('Admin client unavailable')
 
-    const { error } = await (supabase.from('inquiries') as any)
+    const { error } = await supabase.from('inquiries')
       .delete()
       .not('id', 'is', null)
 

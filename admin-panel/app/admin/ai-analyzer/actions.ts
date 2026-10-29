@@ -10,7 +10,7 @@ export async function updateAnalysisStatus(id: string, status: 'new' | 'in_progr
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
     
-    const { error } = await (supabase.from('ai_analyses') as any)
+    const { error } = await supabase.from('ai_analyses')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', id)
     
@@ -25,7 +25,7 @@ export async function updateAnalysisNotes(id: string, additional_notes: string) 
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
     
-    const { error } = await (supabase.from('ai_analyses') as any)
+    const { error } = await supabase.from('ai_analyses')
       .update({ additional_notes, updated_at: new Date().toISOString() })
       .eq('id', id)
     
@@ -39,7 +39,7 @@ export async function deleteAnalysis(id: string) {
     await requireAdmin()
     const supabase = await createAdminClient()
     
-    const { error } = await (supabase.from('ai_analyses') as any)
+    const { error } = await supabase.from('ai_analyses')
       .delete()
       .eq('id', id)
     

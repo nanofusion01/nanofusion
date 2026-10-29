@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js"
 
 function createDummySupabaseClient() {
   const handler: ProxyHandler<any> = {
@@ -18,7 +18,7 @@ function createDummySupabaseClient() {
   return new Proxy({}, handler)
 }
 
-export async function createClient(): Promise<any> {
+export async function createClient(): Promise<SupabaseClient<Database>> {
   const cookieStore = await cookies()
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -26,7 +26,7 @@ export async function createClient(): Promise<any> {
 
   if (!url || !key) {
     console.warn('Supabase keys missing - returning dummy client')
-    return createDummySupabaseClient()
+    return createDummySupabaseClient() as unknown as SupabaseClient<Database>
   }
 
   return createServerClient<Database>(url, key, {
@@ -49,13 +49,13 @@ export async function createClient(): Promise<any> {
 }
 // Admin client with service role key — server-side only
 // Using standard createClient to ensure RLS bypass without cookie interference
-export async function createAdminClient(): Promise<any> {
+export async function createAdminClient(): Promise<SupabaseClient<Database>> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!url || !serviceKey) {
     console.warn('Supabase Admin keys missing - returning dummy client')
-    return createDummySupabaseClient()
+    return createDummySupabaseClient() as unknown as SupabaseClient<Database>
   }
 
   return createSupabaseClient<Database>(url, serviceKey, {
