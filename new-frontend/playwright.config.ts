@@ -24,9 +24,10 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npx next dev --webpack --port 3123",
+    // v CI proti produkčnímu buildu (npm run build musí proběhnout předem)
+    command: process.env.CI ? "npx next start --port 3123" : "npx next dev --webpack --port 3123",
     url: "http://localhost:3123",
     reuseExistingServer: !process.env.CI,
-    timeout: 60 * 1000,
+    timeout: 120 * 1000,
   },
 });
