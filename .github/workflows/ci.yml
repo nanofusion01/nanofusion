@@ -35,7 +35,8 @@ jobs:
           cache-dependency-path: new-frontend/package-lock.json
       - run: npm ci
       - name: TypeScript
-        run: npx tsc --noEmit
+        # typy rout (LayoutProps, PageProps) generuje Next.js - bez nich tsc na čisté kopii selže
+        run: npx next typegen && npx tsc --noEmit
       - name: ESLint
         run: npm run lint
       - name: Unit testy (Vitest)
@@ -71,7 +72,8 @@ jobs:
           cache-dependency-path: admin-panel/package-lock.json
       - run: npm ci
       - name: TypeScript
-        run: npx tsc --noEmit
+        # typy rout (LayoutProps, PageProps) generuje Next.js - bez nich tsc na čisté kopii selže
+        run: npx next typegen && npx tsc --noEmit
       - name: ESLint
         run: npm run lint
       - name: Build
