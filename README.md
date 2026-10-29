@@ -18,8 +18,7 @@ Projekt se skládá ze dvou hlavních moderních aplikací v Next.js a databázo
    * **Funkce:** Správa a export poptávek (CSV), schvalování recenzí z Google a Firmy.cz (automatizovaný scraping chráněný cron secretem), konfigurátor ceníku služeb, správa galerií a trénování znalostní báze AI asistenta včetně vytěžování PDF dokumentů.
    * **Zabezpečení:** Všech 16 modulů Server Actions je zabezpečeno autorizačním guardem (`requireAdmin` / `requireAdminOrEditor`), relace jsou chráněny přes Next.js `proxy.ts`, a RLS politiky brání eskalaci práv.
 
-3. **`public/` & Kořenové soubory**
-   * Původní statické podklady a assety zachované pro zpětnou kompatibilitu a archivaci.
+Kořen repozitáře obsahuje jen tyto dvě aplikace a pomocné skripty v `package.json`. Původní statický web byl odstraněn – v případě potřeby je dostupný v historii gitu.
 
 ---
 
@@ -35,7 +34,9 @@ Projekt se skládá ze dvou hlavních moderních aplikací v Next.js a databázo
 * `npm run build` &rarr; Sestaví produkční balíček webu
 * `npm run build:all` &rarr; Sestaví web i administraci
 * `npm test` &rarr; Spustí sadu automatických unit testů (Vitest)
-* `npm run dev:legacy` &rarr; Spustí původní archivní statickou verzi
+* `npm run test:e2e` &rarr; Spustí E2E testy v prohlížeči (Playwright)
+
+Před prvním spuštěním je potřeba nainstalovat závislosti v obou aplikacích (viz níže). Pokud běží web i administrace současně, Next.js přidělí druhé aplikaci volný port (např. `3001`).
 
 ### 3. Veřejný web (`new-frontend`)
 ```bash
@@ -67,7 +68,7 @@ Vzorové konfigurace naleznete v:
 ### Klíčové bezpečnostní zásady:
 * **Service Role Key:** Je používán výhradně na serveru v `admin-panel` a Edge funkcích. Klient má přístup pouze přes striktní RLS politiky.
 * **Server Actions:** Každá modifikační akce v administraci vyžaduje platnou relaci s rolí `admin` nebo `editor` přes společný autorizační guard `requireAdmin` / `requireAdminOrEditor`.
-* **Ochrana před eskalací práv:** Databázový trigger `tr_protect_profile_role` a procedura `handle_new_user` blokují anonymní veřejné registrace a zaručují, že běžní uživatelé nemohou povýšit svá oprávnění na `admin`.
+* **Ochrana před eskalací práv:** Veřejná registrace je v Supabase vypnutá – účty zakládá jen administrátor v `/admin/users`. Procedura `handle_new_user` navíc každému novému účtu přidělí roli `editor` (nikdy roli z metadat) a trigger `tr_protect_profile_role` zabraňuje, aby si ne-administrátor změnil roli.
 * **GDPR a ochrana fotografií:** Snímky nemovitostí z poptávek se ukládají do privátního bucketu `inquiries` (max 10 MB, pouze obrázky). Zákaznická data jsou chráněna před veřejným internetem a v administraci se generují časově omezené podepsané odkazy (`createSignedUrls`).
 * **XSS Ochrana:** Veškerý dynamický HTML obsah vkládaný přes `dangerouslySetInnerHTML` je důsledně sanitizován pomocí knihovny `isomorphic-dompurify`.
 * **Antispam a validace:** Veřejné formuláře (poptávky, kalkulátor) jsou chráněny honeypotem, validací vstupů a bezpečným nahráváním souborů do dedikovaného bucketu.
@@ -91,6 +92,19 @@ Před odevzdáním a nasazením do produkce je nutné provést následující dv
 
 ---
 
+## ☁️ Nasazení (Vercel)
+
+Repozitář nasazují dva samostatné Vercel projekty, každý ze své složky:
+
+| Vercel projekt | Root Directory | Adresa |
+|---|---|---|
+| `nanofusion` | `new-frontend` | veřejný web |
+| `nanofusion-j3bs` | `admin-panel` | administrace (`/admin`) |
+
+Proměnné prostředí obou projektů odpovídají souborům `.env.example`. U administrace musí `PUBLIC_SITE_URL` a `NEW_FRONTEND_URL` ukazovat na aktuální adresu veřejného webu. Push do `main` nasazuje oba projekty do produkce, proto změny jdou přes pull request a Vercel preview.
+
+---
+
 ## 🧪 Automatizované testování (Vitest & Playwright)
 
 Projekt obsahuje komplexní sadu jednotkových testů i připravenou konfiguraci pro End-to-End (E2E) testování:
@@ -110,7 +124,7 @@ cd new-frontend && npm test
 3. **`sanitize.test.ts`**: Bezpečnostní testy XSS sanitizace přes `isomorphic-dompurify` (eliminace `<script>`, SVG `onload`, `javascript:` URI a vnořených tagů).
 
 ### 2. End-to-End testy (Playwright)
-V adresáři `new-frontend/e2e/` je připraven testovací scénář (`inquiry-and-calculator.spec.ts`) pro simulaci chování uživatele v reálném prohlížeči (interakce s kalkulačkou m², ověření skrytého honeypotu, zobrazení výsledků, odeslání poptávky s mockem Supabase API a navigace).
+V adresáři `new-frontend/e2e/` je testovací scénář (`inquiry-and-calculator.spec.ts`, 6 testů) pro simulaci chování uživatele v reálném prohlížeči (interakce s kalkulačkou m², ověření skrytého honeypotu, odeslání poptávky z kalkulačky i kontaktního formuláře a navigace). Volání Supabase API se v testech zachytává, takže do databáze nevznikají žádná testovací data.
 
 ```bash
 cd new-frontend
