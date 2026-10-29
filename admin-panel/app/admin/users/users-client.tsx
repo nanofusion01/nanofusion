@@ -24,8 +24,9 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
     if (!inviteEmail) return
     setLoading(true)
     try {
-      const tempPass = await addUser(inviteEmail)
-      setCreatedUser({ email: inviteEmail, password: tempPass })
+      const res = await addUser(inviteEmail)
+      if (!res.ok) throw new Error(res.error)
+      setCreatedUser({ email: inviteEmail, password: res.data! })
       toast.success('Uživatel ' + inviteEmail + ' byl vytvořen')
       setInviteEmail('')
       // Delay reload or wait until user dismisses popup
@@ -40,7 +41,8 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
     if (!confirm(`Opravdu chcete smazat uživatele ${email || id}? Tato akce je nevratná.`)) return
     setLoading(true)
     try {
-      await deleteUser(id)
+      const res = await deleteUser(id)
+      if (!res.ok) throw new Error(res.error)
       setProfiles(prev => prev.filter(p => p.id !== id))
       toast.success('Uživatel smazán')
     } catch (err: any) {
@@ -53,7 +55,8 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
   const handleRoleToggle = async (id: string, currentRole: 'admin' | 'editor') => {
     const newRole = currentRole === 'admin' ? 'editor' : 'admin'
     try {
-      await updateUserRole(id, newRole)
+      const res = await updateUserRole(id, newRole)
+      if (!res.ok) throw new Error(res.error)
       setProfiles(prev => prev.map(p => p.id === id ? { ...p, role: newRole } : p))
       toast.success('Role aktualizována')
     } catch (err: any) {
