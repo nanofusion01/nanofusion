@@ -19,14 +19,10 @@ import {
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { inquirySourceLabel } from '@/lib/inquiry-source-label'
-import {
-  updateInquiryStatus,
-  updateInquiryNotes,
-  deleteInquiry,
-  deleteInquiries,
-  deleteAllInquiries,
-} from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { updateInquiryStatus, updateInquiryNotes, deleteInquiry, deleteInquiries, deleteAllInquiries } = unwrapActions(actionsRaw)
 type Inquiry = Tables<'inquiries'> & {
   original_photo_url?: string | null
   photo_url?: string | null

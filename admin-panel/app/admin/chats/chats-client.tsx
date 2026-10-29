@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { MessageSquare, Trash2 } from 'lucide-react'
-import { deleteChatSessions, deleteAllChatSessions } from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { deleteChatSessions, deleteAllChatSessions } = unwrapActions(actionsRaw)
 type ChatSession = {
   id: string
   user_identifier: string | null

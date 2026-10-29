@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { updateAboutConfig } from './actions'
-import { uploadCertificateImage } from '../certificates/actions'
+import * as actionsRaw from './actions'
+import * as certificatesActionsRaw from '../certificates/actions'
 import { toast } from 'sonner'
 import { 
   Save, 
@@ -18,6 +18,10 @@ import {
 } from 'lucide-react'
 import NextImage from 'next/image'
 import { TiptapEditor } from '@/components/admin/editor'
+import { unwrapActions } from '@/lib/action-result'
+
+const { updateAboutConfig } = unwrapActions(actionsRaw)
+const { uploadCertificateImage } = unwrapActions(certificatesActionsRaw)
 
 interface Certificate {
   id: string

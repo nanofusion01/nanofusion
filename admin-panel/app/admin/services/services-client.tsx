@@ -16,8 +16,10 @@ import {
   MessageSquareQuote
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { toggleServiceStatus, deleteService, createService } from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { toggleServiceStatus, deleteService, createService } = unwrapActions(actionsRaw)
 type Service = Tables<'services'> & {
   service_before_after: { count: number }[]
   service_reviews: { count: number }[]

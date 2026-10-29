@@ -3,23 +3,13 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/supabase/auth-guard'
+import { safeAction } from '@/lib/action-result'
 
-// Akce vrací chybu jako hodnotu místo throw: v produkčním buildu Next.js
-// zprávu vyhozené chyby skryje ("An error occurred in the Server Components
-// render...") a administrátor by se nedozvěděl, co se stalo.
-export type ActionResult<T = undefined> =
-  | { ok: true; data?: T }
-  | { ok: false; error: string }
-
-function errorMessage(e: unknown): string {
-  return e instanceof Error ? e.message : 'Neznámá chyba'
-}
-
-export async function deleteUser(id: string): Promise<ActionResult> {
-  try {
+export async function deleteUser(id: string) {
+  return safeAction(async () => {
     const me = await requireAdmin()
     if (me.id === id) {
-      return { ok: false, error: 'Nemůžete smazat svůj vlastní účet.' }
+      throw new Error('Nemůžete smazat svůj vlastní účet.')
     }
 
     const supabase = await createAdminClient()
@@ -31,14 +21,14 @@ export async function deleteUser(id: string): Promise<ActionResult> {
       .select('*')
       .eq('id', id)
       .maybeSingle()
-    if (readError) return { ok: false, error: readError.message }
+    if (readError) throw new Error(readError.message)
 
     if (profile?.role === 'admin') {
       const { count } = await (supabase.from('profiles') as any)
         .select('id', { count: 'exact', head: true })
         .eq('role', 'admin')
       if ((count ?? 0) <= 1) {
-        return { ok: false, error: 'Nelze smazat posledního administrátora.' }
+        throw new Error('Nelze smazat posledního administrátora.')
       }
     }
 
@@ -46,7 +36,7 @@ export async function deleteUser(id: string): Promise<ActionResult> {
       const { error: profileError } = await (supabase.from('profiles') as any)
         .delete()
         .eq('id', id)
-      if (profileError) return { ok: false, error: profileError.message }
+      if (profileError) throw new Error(profileError.message)
     }
 
     const { error: authError } = await supabase.auth.admin.deleteUser(id)
@@ -55,18 +45,15 @@ export async function deleteUser(id: string): Promise<ActionResult> {
       if (profile) {
         await (supabase.from('profiles') as any).insert(profile)
       }
-      return { ok: false, error: `Uživatele se nepodařilo smazat: ${authError.message}` }
+      throw new Error(`Uživatele se nepodařilo smazat: ${authError.message}`)
     }
 
     revalidatePath('/admin/users')
-    return { ok: true }
-  } catch (e) {
-    return { ok: false, error: errorMessage(e) }
-  }
+  })
 }
 
-export async function addUser(email: string): Promise<ActionResult<string>> {
-  try {
+export async function addUser(email: string) {
+  return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
 
@@ -80,7 +67,7 @@ export async function addUser(email: string): Promise<ActionResult<string>> {
       user_metadata: { role: 'admin', full_name: email.split('@')[0] }
     })
 
-    if (error) return { ok: false, error: error.message }
+    if (error) throw new Error(error.message)
 
     await (supabase.from('profiles') as any).upsert({
       id: data.user.id,
@@ -89,24 +76,19 @@ export async function addUser(email: string): Promise<ActionResult<string>> {
     })
 
     revalidatePath('/admin/users')
-    return { ok: true, data: tempPassword }
-  } catch (e) {
-    return { ok: false, error: errorMessage(e) }
-  }
+    return tempPassword
+  })
 }
 
-export async function updateUserRole(id: string, role: 'admin' | 'editor'): Promise<ActionResult> {
-  try {
+export async function updateUserRole(id: string, role: 'admin' | 'editor') {
+  return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
     const { error } = await (supabase.from('profiles') as any)
       .update({ role })
       .eq('id', id)
 
-    if (error) return { ok: false, error: error.message }
+    if (error) throw new Error(error.message)
     revalidatePath('/admin/users')
-    return { ok: true }
-  } catch (e) {
-    return { ok: false, error: errorMessage(e) }
-  }
+  })
 }

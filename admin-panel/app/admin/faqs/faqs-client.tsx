@@ -4,8 +4,11 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp, AlertTriangle, Save, X } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { createFaq, updateFaq, deleteFaq } from './actions'
+import * as actionsRaw from './actions'
 import { TiptapEditor } from '@/components/admin/editor'
+import { unwrapActions } from '@/lib/action-result'
+
+const { createFaq, updateFaq, deleteFaq } = unwrapActions(actionsRaw)
 
 type Faq = Tables<'faqs'>
 

@@ -1,13 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { updateAnalyzerTips } from './actions'
+import * as actionsRaw from './actions'
 import type { NanoTip } from './actions'
-import { 
-  updateInquiryStatus, 
-  updateInquiryNotes, 
-  deleteInquiry 
-} from '../inquiries/actions'
+import * as inquiriesActionsRaw from '../inquiries/actions'
 import { toast } from 'sonner'
 import { 
   Save, 
@@ -25,6 +21,10 @@ import {
   ChevronDown,
   AlertTriangle
 } from 'lucide-react'
+import { unwrapActions } from '@/lib/action-result'
+
+const { updateAnalyzerTips } = unwrapActions(actionsRaw)
+const { updateInquiryStatus, updateInquiryNotes, deleteInquiry } = unwrapActions(inquiriesActionsRaw)
 
 interface Lead {
   id: string

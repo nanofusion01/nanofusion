@@ -3,8 +3,11 @@
 import { useState } from 'react'
 import { Plus, Trash2, Edit2, Brain, Save, X, Lightbulb, FileUp, Loader2, Power, Bot } from 'lucide-react'
 import { toast } from 'sonner'
-import { saveKnowledge, deleteKnowledge, toggleKnowledgeActive, uploadBotDocument, setBotEnabledStatus } from './actions'
+import * as actionsRaw from './actions'
 import { TiptapEditor } from '@/components/admin/editor'
+import { unwrapActions } from '@/lib/action-result'
+
+const { saveKnowledge, deleteKnowledge, toggleKnowledgeActive, uploadBotDocument, setBotEnabledStatus } = unwrapActions(actionsRaw)
 
 interface Knowledge {
   id: string

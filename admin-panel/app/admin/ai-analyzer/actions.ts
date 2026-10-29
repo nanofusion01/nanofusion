@@ -1,43 +1,50 @@
 'use server'
 
+import { safeAction } from '@/lib/action-result'
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function updateAnalysisStatus(id: string, status: 'new' | 'in_progress' | 'contacted' | 'resolved') {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  
-  const { error } = await (supabase.from('ai_analyses') as any)
-    .update({ status, updated_at: new Date().toISOString() })
-    .eq('id', id)
-  
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/ai-analyzer')
-  revalidatePath('/admin')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    
+    const { error } = await (supabase.from('ai_analyses') as any)
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/ai-analyzer')
+    revalidatePath('/admin')
+  })
 }
 
 export async function updateAnalysisNotes(id: string, additional_notes: string) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  
-  const { error } = await (supabase.from('ai_analyses') as any)
-    .update({ additional_notes, updated_at: new Date().toISOString() })
-    .eq('id', id)
-  
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/ai-analyzer')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    
+    const { error } = await (supabase.from('ai_analyses') as any)
+      .update({ additional_notes, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/ai-analyzer')
+  })
 }
 
 export async function deleteAnalysis(id: string) {
-  await requireAdmin()
-  const supabase = await createAdminClient()
-  
-  const { error } = await (supabase.from('ai_analyses') as any)
-    .delete()
-    .eq('id', id)
-  
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/ai-analyzer')
-  revalidatePath('/admin')
+  return safeAction(async () => {
+    await requireAdmin()
+    const supabase = await createAdminClient()
+    
+    const { error } = await (supabase.from('ai_analyses') as any)
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/ai-analyzer')
+    revalidatePath('/admin')
+  })
 }

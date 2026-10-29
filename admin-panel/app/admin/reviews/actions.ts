@@ -1,5 +1,6 @@
 'use server'
 
+import { safeAction } from '@/lib/action-result'
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { revalidateFrontend } from '@/lib/revalidate-frontend'
@@ -8,39 +9,45 @@ import { parseFirmyReviews } from '@/lib/firmy-scraper'
 import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function approveReview(id: string) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  if (!supabase) throw new Error('Admin client unavailable')
-  const { error } = await (supabase.from('external_reviews') as any)
-    .update({ approved: true })
-    .eq('id', id)
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/reviews')
-  await revalidateFrontend()
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    if (!supabase) throw new Error('Admin client unavailable')
+    const { error } = await (supabase.from('external_reviews') as any)
+      .update({ approved: true })
+      .eq('id', id)
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/reviews')
+    await revalidateFrontend()
+  })
 }
 
 export async function rejectReview(id: string) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  if (!supabase) throw new Error('Admin client unavailable')
-  const { error } = await (supabase.from('external_reviews') as any)
-    .update({ approved: false })
-    .eq('id', id)
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/reviews')
-  await revalidateFrontend()
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    if (!supabase) throw new Error('Admin client unavailable')
+    const { error } = await (supabase.from('external_reviews') as any)
+      .update({ approved: false })
+      .eq('id', id)
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/reviews')
+    await revalidateFrontend()
+  })
 }
 
 export async function deleteReview(id: string) {
-  await requireAdmin()
-  const supabase = await createAdminClient()
-  if (!supabase) throw new Error('Admin client unavailable')
-  const { error } = await (supabase.from('external_reviews') as any)
-    .delete()
-    .eq('id', id)
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/reviews')
-  await revalidateFrontend()
+  return safeAction(async () => {
+    await requireAdmin()
+    const supabase = await createAdminClient()
+    if (!supabase) throw new Error('Admin client unavailable')
+    const { error } = await (supabase.from('external_reviews') as any)
+      .delete()
+      .eq('id', id)
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/reviews')
+    await revalidateFrontend()
+  })
 }
 
 export async function addManualReview(data: {
@@ -48,187 +55,197 @@ export async function addManualReview(data: {
   rating: number
   content: string
 }) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  if (!supabase) throw new Error('Admin client unavailable')
-  const { error } = await (supabase.from('external_reviews') as any).insert({
-    source: 'manual',
-    author: data.author,
-    rating: data.rating,
-    content: stripHtml(data.content),
-    approved: true,
-    published_at: new Date().toISOString(),
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    if (!supabase) throw new Error('Admin client unavailable')
+    const { error } = await (supabase.from('external_reviews') as any).insert({
+      source: 'manual',
+      author: data.author,
+      rating: data.rating,
+      content: stripHtml(data.content),
+      approved: true,
+      published_at: new Date().toISOString(),
+    })
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/reviews')
+    await revalidateFrontend()
   })
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/reviews')
-  await revalidateFrontend()
 }
 
 // TASK 9: Schválení recenze z Firmy.cz — kopíruje záznam do external_reviews
 export async function approveFirmyReview(firmyReviewId: string) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  if (!supabase) throw new Error('Admin client unavailable')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    if (!supabase) throw new Error('Admin client unavailable')
 
-  const { data: review, error: fetchError } = await (supabase.from('firmy_reviews') as any)
-    .select('*')
-    .eq('id', firmyReviewId)
-    .single()
+    const { data: review, error: fetchError } = await (supabase.from('firmy_reviews') as any)
+      .select('*')
+      .eq('id', firmyReviewId)
+      .single()
 
-  if (fetchError || !review) throw new Error('Recenze nenalezena')
+    if (fetchError || !review) throw new Error('Recenze nenalezena')
 
-  const { error } = await (supabase.from('external_reviews') as any)
-    .upsert({
-      source: 'firmy.cz',
-      external_id: review.external_id || firmyReviewId,
-      author: review.author_name,
-      rating: review.rating,
-      content: stripHtml(review.content),
-      published_at: review.review_date,
-      approved: true,
-    }, { onConflict: 'external_id' })
+    const { error } = await (supabase.from('external_reviews') as any)
+      .upsert({
+        source: 'firmy.cz',
+        external_id: review.external_id || firmyReviewId,
+        author: review.author_name,
+        rating: review.rating,
+        content: stripHtml(review.content),
+        published_at: review.review_date,
+        approved: true,
+      }, { onConflict: 'external_id' })
 
-  if (error) throw new Error(error.message)
-  revalidatePath('/admin/reviews')
-  await revalidateFrontend()
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/reviews')
+    await revalidateFrontend()
+  })
 }
 
 export async function syncFirmyReviews() {
-  await requireAdminOrEditor()
-  const profileUrl = process.env.FIRMY_CZ_PROFILE_URL
-  if (!profileUrl) throw new Error('Chybí FIRMY_CZ_PROFILE_URL v prostředí Vercelu')
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const profileUrl = process.env.FIRMY_CZ_PROFILE_URL
+    if (!profileUrl) throw new Error('Chybí FIRMY_CZ_PROFILE_URL v prostředí Vercelu')
 
-  const supabase = await createAdminClient()
-  if (!supabase) throw new Error('Admin client nedostupný')
+    const supabase = await createAdminClient()
+    if (!supabase) throw new Error('Admin client nedostupný')
 
-  // 1. Stáhni HTML profilu
-  const response = await fetch(profileUrl, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      'Accept-Language': 'cs-CZ,cs;q=0.9',
-    },
-    cache: 'no-store',
-  })
-
-  if (!response.ok) throw new Error(`Firmy.cz odpověděl: ${response.status}`)
-  const html = await response.text()
-
-  // 2. HTML scraping - Firmy.cz už recenze do JSON-LD nedává (jen
-  // LocalBusiness/WebSite schema bez "review" pole), takže se parsuje
-  // přímo vykreslené HTML. Firmy.cz teď stránku renderuje přes Mapy.com
-  // widget: každá recenze je <div class="detailReview">...</div> blok.
-  // Server v prvotním HTML pošle jen pár nejnovějších (zbytek dotahuje JS
-  // při scrollu), ale i tak je to výrazně víc než nic.
-  const reviews = parseFirmyReviews(html)
-
-  // 3. Upsert do external_reviews
-  let imported = 0
-  for (const rev of reviews) {
-    // Zkontroluj duplicity ručně (external_id nemá UNIQUE constraint v DB)
-    const { data: existing } = await (supabase.from('external_reviews') as any)
-      .select('id')
-      .eq('external_id', rev.external_id)
-      .maybeSingle()
-
-    if (existing) continue // Přeskoč duplicitu
-
-    const { error } = await (supabase.from('external_reviews') as any).insert({
-      source: 'firmy.cz',
-      external_id: rev.external_id,
-      author: rev.author,
-      rating: rev.rating,
-      content: rev.content,
-      published_at: rev.published_at,
-      approved: false, // Ruční schvalování na přání klienta
-      fetched_at: new Date().toISOString(),
+    // 1. Stáhni HTML profilu
+    const response = await fetch(profileUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept-Language': 'cs-CZ,cs;q=0.9',
+      },
+      cache: 'no-store',
     })
-    if (!error) imported++
-  }
 
-  revalidatePath('/admin/reviews')
-  return { imported, total: reviews.length }
-}
+    if (!response.ok) throw new Error(`Firmy.cz odpověděl: ${response.status}`)
+    const html = await response.text()
 
-export async function syncGoogleReviews() {
-  await requireAdminOrEditor()
-  const placeId = process.env.GOOGLE_PLACE_ID || 'ChIJQSiiUsXPHEkcRBUavNy8LwxM'
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY
+    // 2. HTML scraping - Firmy.cz už recenze do JSON-LD nedává (jen
+    // LocalBusiness/WebSite schema bez "review" pole), takže se parsuje
+    // přímo vykreslené HTML. Firmy.cz teď stránku renderuje přes Mapy.com
+    // widget: každá recenze je <div class="detailReview">...</div> blok.
+    // Server v prvotním HTML pošle jen pár nejnovějších (zbytek dotahuje JS
+    // při scrollu), ale i tak je to výrazně víc než nic.
+    const reviews = parseFirmyReviews(html)
 
-  if (!apiKey) throw new Error('Chybí GOOGLE_MAPS_API_KEY — nastavte ve Vercel env vars')
+    // 3. Upsert do external_reviews
+    let imported = 0
+    for (const rev of reviews) {
+      // Zkontroluj duplicity ručně (external_id nemá UNIQUE constraint v DB)
+      const { data: existing } = await (supabase.from('external_reviews') as any)
+        .select('id')
+        .eq('external_id', rev.external_id)
+        .maybeSingle()
 
-  const supabase = await createAdminClient()
-  if (!supabase) throw new Error('Admin client nedostupný')
+      if (existing) continue // Přeskoč duplicitu
 
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&language=cs&reviews_sort=newest&key=${apiKey}`
-  const res = await fetch(url, { cache: 'no-store' })
-  const data = await res.json()
-
-  if (data.status !== 'OK') throw new Error(`Google API: ${data.error_message || data.status}`)
-
-  const googleReviews: any[] = data.result?.reviews || []
-  let imported = 0
-
-  for (const rev of googleReviews) {
-    if (!rev.text || rev.text.length < 5) continue
-    const extId = `google_${rev.time}_${rev.author_name.replace(/\s/g, '').substring(0, 16)}`
-
-    const { data: existing } = await (supabase.from('external_reviews') as any)
-      .select('id').eq('external_id', extId).maybeSingle()
-    if (existing) continue
-
-    const { error } = await (supabase.from('external_reviews') as any).insert({
-      source: 'google',
-      external_id: extId,
-      author: rev.author_name,
-      rating: rev.rating,
-      content: stripHtml(rev.text),
-      published_at: new Date(rev.time * 1000).toISOString(),
-      approved: true,
-      fetched_at: new Date().toISOString(),
-    })
-    if (!error) imported++
-  }
-
-  revalidatePath('/admin/reviews')
-  await revalidateFrontend()
-  return { imported, total: googleReviews.length, rating: data.result?.rating }
-}
-
-export async function bulkAddReviews(rawText: string) {
-  await requireAdminOrEditor()
-  const supabase = await createAdminClient()
-  if (!supabase) throw new Error('Admin client nedostupný')
-
-  // Pokročilý parser pro copy-pasted text
-  const reviewBlocks = rawText.split(/\n\s*\n/)
-  let imported = 0
-  
-  for (const block of reviewBlocks) {
-    const blockLines = block.split('\n').map(l => l.trim()).filter(Boolean)
-    if (blockLines.length < 2) continue
-
-    const author = blockLines[0]
-    let rating = 5
-    let content = ''
-
-    const ratingMatch = block.match(/([1-5])\s*(?:hvězd|hv|stars|★)/i) || block.match(/^([1-5])$/m)
-    if (ratingMatch) rating = parseInt(ratingMatch[1])
-
-    content = stripHtml(blockLines.slice(1).filter(l => !l.match(/^[1-5]$/) && !l.match(/hvězd/i)).join(' '))
-
-    if (content.length > 5) {
       const { error } = await (supabase.from('external_reviews') as any).insert({
-        source: 'manual_bulk',
-        author,
-        rating,
-        content,
-        approved: false,
-        published_at: new Date().toISOString(),
+        source: 'firmy.cz',
+        external_id: rev.external_id,
+        author: rev.author,
+        rating: rev.rating,
+        content: rev.content,
+        published_at: rev.published_at,
+        approved: false, // Ruční schvalování na přání klienta
+        fetched_at: new Date().toISOString(),
       })
       if (!error) imported++
     }
-  }
 
-  revalidatePath('/admin/reviews')
-  return { imported }
+    revalidatePath('/admin/reviews')
+    return { imported, total: reviews.length }
+  })
+}
+
+export async function syncGoogleReviews() {
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const placeId = process.env.GOOGLE_PLACE_ID || 'ChIJQSiiUsXPHEkcRBUavNy8LwxM'
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY
+
+    if (!apiKey) throw new Error('Chybí GOOGLE_MAPS_API_KEY — nastavte ve Vercel env vars')
+
+    const supabase = await createAdminClient()
+    if (!supabase) throw new Error('Admin client nedostupný')
+
+    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&language=cs&reviews_sort=newest&key=${apiKey}`
+    const res = await fetch(url, { cache: 'no-store' })
+    const data = await res.json()
+
+    if (data.status !== 'OK') throw new Error(`Google API: ${data.error_message || data.status}`)
+
+    const googleReviews: any[] = data.result?.reviews || []
+    let imported = 0
+
+    for (const rev of googleReviews) {
+      if (!rev.text || rev.text.length < 5) continue
+      const extId = `google_${rev.time}_${rev.author_name.replace(/\s/g, '').substring(0, 16)}`
+
+      const { data: existing } = await (supabase.from('external_reviews') as any)
+        .select('id').eq('external_id', extId).maybeSingle()
+      if (existing) continue
+
+      const { error } = await (supabase.from('external_reviews') as any).insert({
+        source: 'google',
+        external_id: extId,
+        author: rev.author_name,
+        rating: rev.rating,
+        content: stripHtml(rev.text),
+        published_at: new Date(rev.time * 1000).toISOString(),
+        approved: true,
+        fetched_at: new Date().toISOString(),
+      })
+      if (!error) imported++
+    }
+
+    revalidatePath('/admin/reviews')
+    await revalidateFrontend()
+    return { imported, total: googleReviews.length, rating: data.result?.rating }
+  })
+}
+
+export async function bulkAddReviews(rawText: string) {
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const supabase = await createAdminClient()
+    if (!supabase) throw new Error('Admin client nedostupný')
+
+    // Pokročilý parser pro copy-pasted text
+    const reviewBlocks = rawText.split(/\n\s*\n/)
+    let imported = 0
+    
+    for (const block of reviewBlocks) {
+      const blockLines = block.split('\n').map(l => l.trim()).filter(Boolean)
+      if (blockLines.length < 2) continue
+
+      const author = blockLines[0]
+      let rating = 5
+      let content = ''
+
+      const ratingMatch = block.match(/([1-5])\s*(?:hvězd|hv|stars|★)/i) || block.match(/^([1-5])$/m)
+      if (ratingMatch) rating = parseInt(ratingMatch[1])
+
+      content = stripHtml(blockLines.slice(1).filter(l => !l.match(/^[1-5]$/) && !l.match(/hvězd/i)).join(' '))
+
+      if (content.length > 5) {
+        const { error } = await (supabase.from('external_reviews') as any).insert({
+          source: 'manual_bulk',
+          author,
+          rating,
+          content,
+          approved: false,
+          published_at: new Date().toISOString(),
+        })
+        if (!error) imported++
+      }
+    }
+
+    revalidatePath('/admin/reviews')
+    return { imported }
+  })
 }

@@ -7,15 +7,11 @@ import {
   ArrowLeft, Save, Upload, Trash2, Eye, EyeOff,
   MapPin, Clock, Wrench, Loader2, ImageIcon, Plus
 } from 'lucide-react'
-import { 
-  updateRealization, 
-  togglePublished, 
-  uploadRealizationPhoto, 
-  deleteRealizationPhoto, 
-  updateRealizationPhotos,
-  uploadMultipleRealizationPhotos 
-} from '../actions'
+import * as actionsRaw from '../actions'
 import { TiptapEditor } from '@/components/admin/editor'
+import { unwrapActions } from '@/lib/action-result'
+
+const { updateRealization, togglePublished, uploadRealizationPhoto, deleteRealizationPhoto, updateRealizationPhotos, uploadMultipleRealizationPhotos } = unwrapActions(actionsRaw)
 
 type Realization = {
   id: string

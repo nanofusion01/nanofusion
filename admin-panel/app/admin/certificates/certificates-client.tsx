@@ -1,10 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { uploadCertificateImage, updateCertificatesConfig } from './actions'
+import * as actionsRaw from './actions'
 import { toast } from 'sonner'
 import { Save, Plus, Trash2, Image as ImageIcon, ExternalLink, Award } from 'lucide-react'
 import NextImage from 'next/image'
+import { unwrapActions } from '@/lib/action-result'
+
+const { uploadCertificateImage, updateCertificatesConfig } = unwrapActions(actionsRaw)
 
 interface Certificate {
   id: string

@@ -11,8 +11,10 @@ import {
   X,
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { savePrices } from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { savePrices } = unwrapActions(actionsRaw)
 type Price = Tables<'configurator_prices'>
 type ChatSession = Tables<'chat_sessions'>
 type Inquiry = Tables<'inquiries'>

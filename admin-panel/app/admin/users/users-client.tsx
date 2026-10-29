@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Plus, UserX, Shield, Mail, RefreshCw, Trash2 } from 'lucide-react'
-import { addUser, deleteUser, updateUserRole } from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
+
+const { addUser, deleteUser, updateUserRole } = unwrapActions(actionsRaw)
 
 interface Profile {
   id: string
@@ -24,9 +27,8 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
     if (!inviteEmail) return
     setLoading(true)
     try {
-      const res = await addUser(inviteEmail)
-      if (!res.ok) throw new Error(res.error)
-      setCreatedUser({ email: inviteEmail, password: res.data! })
+      const tempPass = await addUser(inviteEmail)
+      setCreatedUser({ email: inviteEmail, password: tempPass })
       toast.success('Uživatel ' + inviteEmail + ' byl vytvořen')
       setInviteEmail('')
       // Delay reload or wait until user dismisses popup
@@ -41,8 +43,7 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
     if (!confirm(`Opravdu chcete smazat uživatele ${email || id}? Tato akce je nevratná.`)) return
     setLoading(true)
     try {
-      const res = await deleteUser(id)
-      if (!res.ok) throw new Error(res.error)
+      await deleteUser(id)
       setProfiles(prev => prev.filter(p => p.id !== id))
       toast.success('Uživatel smazán')
     } catch (err: any) {
@@ -55,8 +56,7 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
   const handleRoleToggle = async (id: string, currentRole: 'admin' | 'editor') => {
     const newRole = currentRole === 'admin' ? 'editor' : 'admin'
     try {
-      const res = await updateUserRole(id, newRole)
-      if (!res.ok) throw new Error(res.error)
+      await updateUserRole(id, newRole)
       setProfiles(prev => prev.map(p => p.id === id ? { ...p, role: newRole } : p))
       toast.success('Role aktualizována')
     } catch (err: any) {

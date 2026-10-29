@@ -6,11 +6,10 @@ import {
   Trash2, Eye, EyeOff, Image as ImageIcon, AlertTriangle, Link, X, Upload, ChevronUp, ChevronDown, Save, FolderPlus, FolderOpen
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import {
-  addYoutubeItem, deleteGalleryItem, toggleGalleryItemActive, uploadGalleryImage, updateGalleryOrder, updateGalleryCaption,
-  createGalleryAlbum, uploadAlbumPhoto, deleteGalleryAlbum, toggleAlbumActive, deleteAlbumPhoto, updateAlbumOrder
-} from './actions'
+import * as actionsRaw from './actions'
+import { unwrapActions } from '@/lib/action-result'
 
+const { addYoutubeItem, deleteGalleryItem, toggleGalleryItemActive, uploadGalleryImage, updateGalleryOrder, updateGalleryCaption, createGalleryAlbum, uploadAlbumPhoto, deleteGalleryAlbum, toggleAlbumActive, deleteAlbumPhoto, updateAlbumOrder } = unwrapActions(actionsRaw)
 type GalleryItem = Tables<'gallery_items'>
 type GalleryAlbum = Tables<'gallery_albums'> & { gallery_items?: GalleryItem[] }
 
