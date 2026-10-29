@@ -1,5 +1,3 @@
-'use server'
-
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { ServiceDetailClient } from './service-detail-client'

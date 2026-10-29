@@ -1,5 +1,3 @@
-'use server'
-
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { AnalyzerClient } from './analyzer-client'
 import type { NanoTip } from './actions'

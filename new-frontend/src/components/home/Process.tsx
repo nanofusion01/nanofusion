@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { SectionHeader } from "@/components/ui/section-header";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 function ProcessStep({ step }: { step: any }) {
   const renderIcon = (iconName: string) => {
@@ -50,7 +51,7 @@ function ProcessStep({ step }: { step: any }) {
       </h3>
       <div 
         className="text-gray-500 leading-relaxed text-sm max-w-xs mx-auto"
-        dangerouslySetInnerHTML={{ __html: step.description }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(step.description) }}
       />
     </div>
   );

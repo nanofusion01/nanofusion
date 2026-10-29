@@ -2,10 +2,12 @@
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 // No static import for pdf-parse to avoid build errors
 
 export async function getKnowledgeBase() {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { data, error } = await (supabase.from('bot_knowledge') as any)
     .select('*')
@@ -19,6 +21,7 @@ export async function getKnowledgeBase() {
 }
 
 export async function uploadBotDocument(formData: FormData) {
+  await requireAdmin()
   const file = formData.get('file') as File
   if (!file) throw new Error('Nebyl vybrán žádný soubor')
 
@@ -113,6 +116,7 @@ export async function saveKnowledge(data: {
   category?: string
   is_active?: boolean
 }) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (data.id) {
     const { error } = await (supabase.from('bot_knowledge') as any)
@@ -127,6 +131,7 @@ export async function saveKnowledge(data: {
 }
 
 export async function deleteKnowledge(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('bot_knowledge') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
@@ -134,6 +139,7 @@ export async function deleteKnowledge(id: string) {
 }
 
 export async function toggleKnowledgeActive(id: string, is_active: boolean) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('bot_knowledge') as any)
     .update({ is_active, updated_at: new Date().toISOString() })
@@ -143,6 +149,7 @@ export async function toggleKnowledgeActive(id: string, is_active: boolean) {
 }
 
 export async function getBotEnabledStatus(): Promise<boolean> {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { data } = await (supabase.from('site_config') as any)
     .select('value')
@@ -152,6 +159,7 @@ export async function getBotEnabledStatus(): Promise<boolean> {
 }
 
 export async function setBotEnabledStatus(enabled: boolean) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('site_config') as any)
     .upsert({

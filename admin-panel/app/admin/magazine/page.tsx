@@ -1,5 +1,3 @@
-'use server'
-
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Plus, Eye, EyeOff } from 'lucide-react'

@@ -1,9 +1,11 @@
-﻿'use server'
+'use server'
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function saveArticle(id: string | null, data: any) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   
   if (id) {
@@ -23,6 +25,7 @@ export async function saveArticle(id: string | null, data: any) {
 }
 
 export async function deleteArticle(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('articles') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)

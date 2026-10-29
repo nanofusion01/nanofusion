@@ -2,6 +2,7 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { supabase, optimizeImg } from "@/lib/supabase";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 async function getConfig() {
   const { data } = await supabase.from("site_config").select("key, value");
@@ -112,7 +113,7 @@ export const Hero = async () => {
           <div className="max-w-3xl mt-4">
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6 font-heading"
-              dangerouslySetInnerHTML={{ __html: heroTitle }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(heroTitle) }}
             />
             <p className="text-lg md:text-xl text-gray-300 max-w-2xl font-light leading-relaxed">
               {heroSubtitle}

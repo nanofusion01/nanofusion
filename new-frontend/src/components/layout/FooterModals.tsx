@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const gdprHtml = `<div class="prose prose-slate max-w-none space-y-8 text-slate-700 text-base leading-relaxed">
           
@@ -292,7 +293,7 @@ export function FooterModals() {
       >
         <div 
           className="prose prose-slate max-w-none text-slate-700"
-          dangerouslySetInnerHTML={{ __html: opHtml }} 
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(opHtml) }} 
         />
       </Modal>
 
@@ -303,7 +304,7 @@ export function FooterModals() {
       >
         <div 
           className="prose prose-slate max-w-none text-slate-700"
-          dangerouslySetInnerHTML={{ __html: gdprHtml }} 
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(gdprHtml) }} 
         />
       </Modal>
     </>

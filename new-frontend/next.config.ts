@@ -1,3 +1,4 @@
+import path from "path";
 import type { NextConfig } from "next";
 
 // Staré anglické slugy služeb -> nové české (viz app/sluzby/[slug]).
@@ -18,6 +19,7 @@ const OLD_TO_NEW_SERVICE_SLUG: Record<string, string> = {
 };
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: path.join(__dirname, "../"),
   async redirects() {
     return Object.entries(OLD_TO_NEW_SERVICE_SLUG).map(([oldSlug, newSlug]) => ({
       source: `/sluzby/${oldSlug}`,

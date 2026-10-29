@@ -1,5 +1,3 @@
-'use server'
-
 import { createAdminClient } from '@/lib/supabase/server'
 import { GalleryClient } from './gallery-client'
 

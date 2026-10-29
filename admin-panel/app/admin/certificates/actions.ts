@@ -3,8 +3,10 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
+import { requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function uploadCertificateImage(formData: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const file = formData.get('file') as File
   if (!file) throw new Error('Chybí soubor')
@@ -14,6 +16,7 @@ export async function uploadCertificateImage(formData: FormData) {
 }
 
 export async function updateCertificatesConfig(certificates: any[]) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const value = JSON.stringify(certificates)
   

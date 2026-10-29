@@ -42,16 +42,30 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
     const max = Math.round((calcBase * 1.1) / 10) * 10;
 
     let photoUrl = "";
+    let photoName = "";
     if (photo) {
+      if (photo.size > 10 * 1024 * 1024) {
+        alert("Fotografie je příliš velká. Maximální povolená velikost je 10 MB.");
+        setIsSubmitting(false);
+        return;
+      }
+      if (!photo.type.startsWith("image/")) {
+        alert("Lze nahrávat pouze obrázky (JPEG, PNG, WebP).");
+        setIsSubmitting(false);
+        return;
+      }
+
       try {
         const ext = photo.name.split(".").pop()?.toLowerCase() || "jpg";
         const fileName = `inquiry_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-        const { data: uploadData, error: uploadErr } = await supabase.storage
-          .from("gallery")
-          .upload(fileName, photo, { upsert: true, cacheControl: "3600" });
+        photoName = fileName;
+        
+        const uploadResult = await supabase.storage
+          .from("inquiries")
+          .upload(fileName, photo, { upsert: false, cacheControl: "3600" });
 
-        if (!uploadErr && uploadData) {
-          const { data: pubData } = supabase.storage.from("gallery").getPublicUrl(fileName);
+        if (!uploadResult.error && uploadResult.data) {
+          const { data: pubData } = supabase.storage.from("inquiries").getPublicUrl(fileName);
           if (pubData && pubData.publicUrl) photoUrl = pubData.publicUrl;
         }
       } catch (e) {
@@ -59,19 +73,32 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
       }
     }
 
-    const payload = {
+    const payload: Record<string, any> = {
       name: formData.firstName || "Zákazník",
       phone: formData.phone,
       email: formData.email,
       service: serviceName,
-      message: `Lokace: ${formData.location}, E-mail: ${formData.email}, Plocha: ${area} m², Odhad ceny: ${min} - ${max} Kč${photoUrl ? "\nFotografie: " + photoUrl : ""}`,
+      message: `Lokace: ${formData.location}, E-mail: ${formData.email}, Plocha: ${area} m², Odhad ceny: ${min} - ${max} Kč${photoName ? `\nFotografie: přiložena k poptávce (${photoName})` : ""}`,
       source: "Subpage 2-Step Calculator",
       status: "new",
-      ...(photoUrl ? { original_photo_url: photoUrl } : {}),
     };
 
+    if (photoUrl) {
+      payload.original_photo_url = photoUrl;
+    }
+
     try {
-      await supabase.from("inquiries").insert(payload);
+      let { error } = await supabase.from("inquiries").insert(payload);
+
+      // Fallback: Pokud v DB ještě nebyla provedena migrace přidávající sloupec original_photo_url
+      if (error && photoUrl && (error.message?.includes("original_photo_url") || error.code === "42703")) {
+        delete payload.original_photo_url;
+        const retry = await supabase.from("inquiries").insert(payload);
+        error = retry.error;
+      }
+
+      if (error) throw new Error(error.message);
+
       setResult({ min, max });
     } catch (e) {
       console.error(e);

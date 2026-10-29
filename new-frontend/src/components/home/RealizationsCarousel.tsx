@@ -6,6 +6,7 @@ import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { optimizeImg } from "@/lib/supabase";
 import { Modal } from "@/components/ui/modal";
 import { PRESELECT_SERVICE_EVENT } from "./ConfiguratorClient";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 // Admin u realizace vybírá "Typ práce" z pevného seznamu (viz WORK_TYPES v
 // admin-panel/.../realizations/[id]/realization-detail-client.tsx), který
@@ -189,7 +190,7 @@ function RealizationModalContent({ item, onClose }: { item: any; onClose: () => 
           </h4>
           <div 
             className="prose prose-slate max-w-none text-gray-600 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: item.content || item.description }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.content || item.description) }}
           />
         </div>
       )}

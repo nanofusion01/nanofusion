@@ -61,12 +61,15 @@ export function Contact() {
   const [email, setEmail] = useState("");
   const [service, setService] = useState("");
   const [message, setMessage] = useState("");
+  const [botField, setBotField] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone || !email) {
+    if (botField) return; // Silent discard for bot spam
+
+    if (!name.trim() || !phone.trim() || !email.trim()) {
       alert("Prosím vyplňte povinná pole (Jméno, Telefon, E-mail).");
       return;
     }
@@ -75,11 +78,11 @@ export function Contact() {
 
     try {
       const { error } = await supabase.from('inquiries').insert({
-        name,
-        phone,
-        email,
-        service,
-        message,
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email.trim(),
+        service: service || 'Obecná poptávka',
+        message: message.trim() || 'Bez zprávy',
         source: 'Kontaktní formulář',
         status: 'new'
       });
@@ -168,6 +171,18 @@ export function Contact() {
               onSubmit={handleSubmit}
               className="bg-white border-2 border-amber-500 rounded-3xl p-6 sm:p-8 shadow-sm"
             >
+              {/* Anti-spam honeypot */}
+              <div className="hidden" aria-hidden="true">
+                <input
+                  type="text"
+                  name="user_homepage_check"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={botField}
+                  onChange={(e) => setBotField(e.target.value)}
+                />
+              </div>
+
               {success ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">

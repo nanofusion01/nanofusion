@@ -4,8 +4,10 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { revalidateFrontend } from '@/lib/revalidate-frontend'
 import { uploadFile } from '@/lib/storage'
+import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function createService(data: { name: string; slug: string }) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { data: service, error } = await (supabase.from('services') as any)
     .insert({ ...data, is_active: true })
@@ -19,6 +21,7 @@ export async function createService(data: { name: string; slug: string }) {
 }
 
 export async function updateService(id: string, data: any) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('services') as any)
     .update({ ...data, updated_at: new Date().toISOString() })
@@ -31,6 +34,7 @@ export async function updateService(id: string, data: any) {
 }
 
 export async function deleteService(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('services') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
@@ -39,6 +43,7 @@ export async function deleteService(id: string) {
 }
 
 export async function toggleServiceStatus(id: string, is_active: boolean) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('services') as any)
     .update({ is_active, updated_at: new Date().toISOString() })
@@ -50,6 +55,7 @@ export async function toggleServiceStatus(id: string, is_active: boolean) {
 }
 
 export async function reorderServices(items: { id: string; order_index: number }[]) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const updates = items.map(({ id, order_index }) =>
     (supabase.from('services') as any).update({ order_index }).eq('id', id)
@@ -60,6 +66,7 @@ export async function reorderServices(items: { id: string; order_index: number }
 }
 
 export async function addServiceFaq(serviceId: string, question: string, answer: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { data, error } = await (supabase.from('service_faqs') as any)
     .insert({ service_id: serviceId, question, answer })
@@ -73,6 +80,7 @@ export async function addServiceFaq(serviceId: string, question: string, answer:
 }
 
 export async function updateServiceFaq(id: string, data: any) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('service_faqs') as any)
     .update(data)
@@ -82,6 +90,7 @@ export async function updateServiceFaq(id: string, data: any) {
 }
 
 export async function deleteServiceFaq(id: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('service_faqs') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
@@ -89,6 +98,7 @@ export async function deleteServiceFaq(id: string) {
 
 // --- Before/After management ---
 export async function addBeforeAfter(serviceId: string, beforeUrl: string, afterUrl: string, caption?: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { count } = await (supabase.from('service_before_after') as any)
     .select('*', { count: 'exact', head: true })
@@ -104,6 +114,7 @@ export async function addBeforeAfter(serviceId: string, beforeUrl: string, after
 }
 
 export async function deleteBeforeAfter(id: string, serviceId: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('service_before_after') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
@@ -112,6 +123,7 @@ export async function deleteBeforeAfter(id: string, serviceId: string) {
 }
 
 export async function uploadServiceFile(serviceId: string, formData: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const file = formData.get('file') as File
   if (!file) throw new Error('Chybí soubor')
@@ -119,6 +131,7 @@ export async function uploadServiceFile(serviceId: string, formData: FormData) {
 }
 
 export async function uploadBeforeAfterPhoto(serviceId: string, formData: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const beforeFile = formData.get('before') as File
   const afterFile = formData.get('after') as File
@@ -132,6 +145,7 @@ export async function uploadBeforeAfterPhoto(serviceId: string, formData: FormDa
 }
 
 export async function uploadServiceHeroImage(serviceId: string, formData: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const file = formData.get('file') as File
   if (!file) throw new Error('Chybí soubor')
@@ -146,6 +160,7 @@ export async function uploadServiceHeroImage(serviceId: string, formData: FormDa
 }
 
 export async function uploadServiceVideo(serviceId: string, formData: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const file = formData.get('file') as File
   if (!file) throw new Error('Chybí soubor videa')
@@ -164,6 +179,7 @@ export async function uploadServiceVideo(serviceId: string, formData: FormData) 
 
 // --- Gallery ("Z realizací") management ---
 export async function addGalleryPhoto(serviceId: string, url: string, caption?: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { count } = await (supabase.from('service_gallery') as any)
     .select('*', { count: 'exact', head: true })
@@ -179,6 +195,7 @@ export async function addGalleryPhoto(serviceId: string, url: string, caption?: 
 }
 
 export async function uploadGalleryPhoto(serviceId: string, formData: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const file = formData.get('file') as File
   const caption = formData.get('caption') as string | null
@@ -188,6 +205,7 @@ export async function uploadGalleryPhoto(serviceId: string, formData: FormData) 
 }
 
 export async function deleteGalleryPhoto(id: string, serviceId: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('service_gallery') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
@@ -196,6 +214,7 @@ export async function deleteGalleryPhoto(id: string, serviceId: string) {
 }
 
 export async function reorderGalleryPhotos(serviceId: string, items: { id: string; order_index: number }[]) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const updates = items.map(({ id, order_index }) =>
     (supabase.from('service_gallery') as any).update({ order_index }).eq('id', id)
@@ -207,6 +226,7 @@ export async function reorderGalleryPhotos(serviceId: string, items: { id: strin
 
 // --- Service Reviews management ---
 export async function addServiceReview(serviceId: string, author: string, rating: number, content: string, source: string = 'manual') {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { data, error } = await (supabase.from('service_reviews') as any)
     .insert({ service_id: serviceId, author, rating, content, source, is_visible: true })
@@ -220,6 +240,7 @@ export async function addServiceReview(serviceId: string, author: string, rating
 }
 
 export async function deleteServiceReview(id: string, serviceId: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('service_reviews') as any)
     .delete()
@@ -232,6 +253,7 @@ export async function deleteServiceReview(id: string, serviceId: string) {
 
 // --- Service Process Steps management ---
 export async function getServiceProcessSteps(serviceId: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { data } = await (supabase.from('site_config') as any)
     .select('value')
@@ -249,6 +271,7 @@ export async function getServiceProcessSteps(serviceId: string) {
 }
 
 export async function saveServiceProcessSteps(serviceId: string, steps: Array<{ step: string; title: string; desc: string }>) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const key = `service_process_${serviceId}`
   const { error } = await (supabase.from('site_config') as any)

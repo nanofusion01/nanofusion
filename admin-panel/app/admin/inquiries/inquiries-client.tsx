@@ -27,7 +27,11 @@ import {
   deleteAllInquiries,
 } from './actions'
 
-type Inquiry = Tables<'inquiries'> & { original_photo_url?: string }
+type Inquiry = Tables<'inquiries'> & {
+  original_photo_url?: string | null
+  photo_url?: string | null
+  image_url?: string | null
+}
 
 const STATUS_LABELS: Record<string, string> = {
   new: 'Nová',

@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
 import { Realization } from './realizations-client'
+import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function createRealization(data: {
   title: string
@@ -15,6 +16,7 @@ export async function createRealization(data: {
   category?: string
   youtube_id?: string
 }) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { data: realization, error } = await (supabase.from('realizations') as any)
     .insert(data)
@@ -36,6 +38,7 @@ export async function updateRealization(id: string, data: Partial<{
   youtube_id: string
   is_published: boolean
 }>) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('realizations') as any)
     .update({ ...data, updated_at: new Date().toISOString() })
@@ -45,6 +48,7 @@ export async function updateRealization(id: string, data: Partial<{
 }
 
 export async function deleteRealization(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('realizations') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
@@ -52,6 +56,7 @@ export async function deleteRealization(id: string) {
 }
 
 export async function togglePublished(id: string, is_published: boolean) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('realizations') as any)
     .update({ is_published, updated_at: new Date().toISOString() })
@@ -64,6 +69,7 @@ export async function uploadMultipleRealizationPhotos(
   realizationId: string,
   formData: FormData
 ) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const files = formData.getAll('files') as File[]
   if (!files || files.length === 0) throw new Error('No files provided')
@@ -93,6 +99,7 @@ export async function uploadRealizationPhoto(
   realizationId: string,
   file: FormData
 ) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const fileData = file.get('file') as File
   if (!fileData) throw new Error('No file provided')
@@ -115,6 +122,7 @@ export async function uploadRealizationPhoto(
 }
 
 export async function deleteRealizationPhoto(photoId: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('realization_photos') as any)
     .delete()
@@ -124,6 +132,7 @@ export async function deleteRealizationPhoto(photoId: string) {
 }
 
 export async function updateRealizationPhotos(photos: { id: string, caption?: string, order_index: number }[]) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   
   for (const photo of photos) {

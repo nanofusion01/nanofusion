@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export interface NanoTip {
   id: string
@@ -10,6 +11,7 @@ export interface NanoTip {
 }
 
 export async function updateAnalyzerTips(tips: NanoTip[]) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('site_config') as any)
     .upsert({ 

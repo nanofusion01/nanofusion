@@ -8,6 +8,7 @@ import { Phone, Mail, Clock } from "lucide-react";
 import { ServiceConfigurator } from "@/components/services/ServiceConfigurator";
 import { Button } from "@/components/ui/button";
 import { localCatalog } from "@/data/localCatalog";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface PageProps {
   params: Promise<{
@@ -299,7 +300,7 @@ function ServiceHero({ service, ytId, basePrice }: { service: any; ytId: string 
             </h1>
             <div
               className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed font-light drop-shadow-md"
-              dangerouslySetInnerHTML={{ __html: service.description || "" }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(service.description || "") }}
             />
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-10 text-amber-500 font-bold text-sm md:text-base">
@@ -349,7 +350,7 @@ function ServiceBenefits({ service, processDescription, benefits }: { service: a
           {processDescription && (
             <div
               className="text-slate-700 text-lg leading-relaxed mb-10 prose prose-amber max-w-none prose-p:mb-6"
-              dangerouslySetInnerHTML={{ __html: processDescription }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(processDescription) }}
             />
           )}
 
@@ -431,7 +432,7 @@ function ServiceProcess({ serviceName, steps, processNote }: { serviceName: stri
             <Clock className="w-6 h-6 text-amber-500 shrink-0" />
             <span className="text-lg font-medium text-slate-800">
               {processNote ? (
-                <span dangerouslySetInnerHTML={{ __html: processNote.replace(/\d+\s*(?:až|do|a)?\s*\d*\s*(?:dny|dní|hodiny|hodin|den)/g, (match) => `<strong class="text-amber-500">${match}</strong>`) }} />
+                <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(processNote.replace(/\d+\s*(?:až|do|a)?\s*\d*\s*(?:dny|dní|hodiny|hodin|den)/g, (match) => `<strong class="text-amber-500">${match}</strong>`)) }} />
               ) : (
                 <>Čištění a ochranu {serviceName.toLowerCase().includes("střech") ? "střechy" : "povrchu"} stihneme za <strong className="text-amber-500">1 až 2 pracovní dny</strong></>
               )}

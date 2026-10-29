@@ -1,10 +1,12 @@
-﻿'use server'
+'use server'
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { revalidateFrontend } from '@/lib/revalidate-frontend'
+import { requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function updatePrice(id: string, price: number) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('configurator_prices') as any)
     .update({ price, updated_at: new Date().toISOString() })
@@ -15,6 +17,7 @@ export async function updatePrice(id: string, price: number) {
 }
 
 export async function updatePriceLabel(id: string, label: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('configurator_prices') as any)
     .update({ label })
@@ -25,6 +28,7 @@ export async function updatePriceLabel(id: string, label: string) {
 }
 
 export async function savePrices(prices: { id: string; price: number }[]) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const updates = prices.map(({ id, price }) =>
     (supabase.from('configurator_prices') as any)
