@@ -3,8 +3,10 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
+import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function addYoutubeItem(url: string, caption?: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const match = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
@@ -31,6 +33,7 @@ export async function addYoutubeItem(url: string, caption?: string) {
 }
 
 export async function addImageItem(url: string, caption?: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
 
   const { count } = await (supabase.from('gallery_items') as any)
@@ -51,6 +54,7 @@ export async function addImageItem(url: string, caption?: string) {
 }
 
 export async function uploadGalleryImage(file: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const fileData = file.get('file') as File
   if (!fileData) throw new Error('No file provided')
@@ -61,6 +65,7 @@ export async function uploadGalleryImage(file: FormData) {
 }
 
 export async function deleteGalleryItem(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('gallery_items') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
@@ -68,6 +73,7 @@ export async function deleteGalleryItem(id: string) {
 }
 
 export async function updateGalleryCaption(id: string, caption: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('gallery_items') as any)
     .update({ caption })
@@ -77,6 +83,7 @@ export async function updateGalleryCaption(id: string, caption: string) {
 }
 
 export async function updateGalleryOrder(updates: { id: string; order_index: number }[]) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   for (const { id, order_index } of updates) {
     const { error } = await (supabase.from('gallery_items') as any)
@@ -88,6 +95,7 @@ export async function updateGalleryOrder(updates: { id: string; order_index: num
 }
 
 export async function toggleGalleryItemActive(id: string, is_active: boolean) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('gallery_items') as any)
     .update({ is_active })
@@ -101,6 +109,7 @@ export async function toggleGalleryItemActive(id: string, is_active: boolean) {
 // ============================================================
 
 export async function createGalleryAlbum(title: string, caption?: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { count } = await (supabase.from('gallery_albums') as any)
     .select('*', { count: 'exact', head: true })
@@ -116,6 +125,7 @@ export async function createGalleryAlbum(title: string, caption?: string) {
 }
 
 export async function uploadAlbumPhoto(albumId: string, file: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const fileData = file.get('file') as File
   if (!fileData) throw new Error('No file provided')
@@ -141,6 +151,7 @@ export async function uploadAlbumPhoto(albumId: string, file: FormData) {
 }
 
 export async function deleteGalleryAlbum(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   // gallery_items cascade-deleted automatically via FK ON DELETE CASCADE
   const { error } = await (supabase.from('gallery_albums') as any).delete().eq('id', id)
@@ -149,6 +160,7 @@ export async function deleteGalleryAlbum(id: string) {
 }
 
 export async function toggleAlbumActive(id: string, is_active: boolean) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('gallery_albums') as any)
     .update({ is_active })
@@ -158,6 +170,7 @@ export async function toggleAlbumActive(id: string, is_active: boolean) {
 }
 
 export async function deleteAlbumPhoto(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('gallery_items') as any).delete().eq('id', id)
   if (error) throw new Error(error.message)
@@ -165,6 +178,7 @@ export async function deleteAlbumPhoto(id: string) {
 }
 
 export async function updateAlbumOrder(updates: { id: string; order_index: number }[]) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   for (const { id, order_index } of updates) {
     await (supabase.from('gallery_albums') as any).update({ order_index }).eq('id', id)

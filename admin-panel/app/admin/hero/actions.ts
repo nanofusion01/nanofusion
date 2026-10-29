@@ -3,8 +3,10 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
+import { requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function uploadHeroFile(formData: FormData) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const file = formData.get('file') as File
   if (!file) throw new Error('Chybí soubor')
@@ -18,6 +20,7 @@ export async function uploadHeroFile(formData: FormData) {
 
 
 export async function updateHeroTitle(value: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('site_config') as any)
     .upsert({ key: 'hero_title', value }, { onConflict: 'key' })
@@ -28,6 +31,7 @@ export async function updateHeroTitle(value: string) {
 }
 
 export async function toggleHeroMedia(id: string, is_active: boolean) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   
   if (is_active) {
@@ -44,6 +48,7 @@ export async function toggleHeroMedia(id: string, is_active: boolean) {
 }
 
 export async function addHeroMedia(url: string, type: 'image' | 'video') {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('hero_media') as any)
     .insert({ url, type, is_active: false })
@@ -53,6 +58,7 @@ export async function addHeroMedia(url: string, type: 'image' | 'video') {
 }
 
 export async function deleteHeroMedia(id: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   const { error } = await (supabase.from('hero_media') as any)
     .delete()

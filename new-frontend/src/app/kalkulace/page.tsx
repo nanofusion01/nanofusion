@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function KalkulacePage() {
@@ -9,42 +9,117 @@ export default function KalkulacePage() {
   const [location, setLocation] = useState("");
   const [phone, setPhone] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
+  const [botField, setBotField] = useState(""); // Honeypot anti-spam
+  const [pricePerSqm, setPricePerSqm] = useState(120);
   const [showPrice, setShowPrice] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
-  const calculatePrice = () => {
-    const pricePerSqm = 120;
-    const total = area * pricePerSqm;
-    setEstimatedPrice(total);
-    setShowPrice(true);
-  };
+  // Načtení reálné ceny z DB configurator_prices (výchozí základ pro dlažby/čištění)
+  useEffect(() => {
+    async function loadPrice() {
+      try {
+        const { data } = await supabase
+          .from("configurator_prices")
+          .select("price")
+          .eq("item_key", "cleaning_pavement")
+          .maybeSingle();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+        if (data && typeof data.price === "number" && data.price > 0) {
+          setPricePerSqm(data.price);
+        }
+      } catch (e) {
+        console.warn("Failed to load configurator price:", e);
+      }
+    }
+    loadPrice();
+  }, []);
+
+  const handleCalculateAndSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone) {
+
+    // Honeypot: pokud robot vyplnil skryté pole, tiše ignorujeme
+    if (botField) return;
+
+    if (!name.trim() || !phone.trim()) {
       alert("Prosím vyplňte povinná pole (Jméno, Telefon).");
       return;
+    }
+
+    if (!area || area <= 0) {
+      alert("Zadejte prosím platnou plochu v m².");
+      return;
+    }
+
+    if (photo) {
+      if (photo.size > 10 * 1024 * 1024) {
+        alert("Fotografie je příliš velká. Maximální povolená velikost je 10 MB.");
+        return;
+      }
+      if (!photo.type.startsWith("image/")) {
+        alert("Lze nahrávat pouze obrázky (JPEG, PNG, WebP).");
+        return;
+      }
     }
 
     setSubmitting(true);
 
     try {
-      await supabase.from("inquiries").insert({
-        name,
-        phone,
+      const total = area * pricePerSqm;
+      setEstimatedPrice(total);
+
+      let photoUrl = "";
+      let photoName = "";
+      if (photo) {
+        try {
+          const ext = photo.name.split(".").pop()?.toLowerCase() || "jpg";
+          const fileName = `kalkulace_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+          photoName = fileName;
+          
+          const uploadResult = await supabase.storage
+            .from("inquiries")
+            .upload(fileName, photo, { upsert: false, cacheControl: "3600" });
+
+          if (!uploadResult.error && uploadResult.data) {
+            const { data: pubData } = supabase.storage.from("inquiries").getPublicUrl(fileName);
+            if (pubData && pubData.publicUrl) photoUrl = pubData.publicUrl;
+          }
+        } catch (uploadError) {
+          console.warn("Upload fotografie selhal:", uploadError);
+        }
+      }
+
+      const inquiryPayload: Record<string, any> = {
+        name: name.trim(),
+        phone: phone.trim(),
         email: "",
         service: "Kalkulačka",
-        message: `Plocha: ${area} m², Lokace: ${location}`,
+        message: `Plocha: ${area} m², Lokace: ${location.trim() || "Neuvedeno"}, Odhad ceny: ${total.toLocaleString()} Kč${photoName ? `\nFotografie: přiložena k poptávce (${photoName})` : ""}`,
         source: "Kalkulačka",
         status: "new",
-      });
+      };
 
-      setSubmitted(true);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu.");
+      if (photoUrl) {
+        inquiryPayload.original_photo_url = photoUrl;
+      }
+
+      let { error } = await supabase.from("inquiries").insert(inquiryPayload);
+
+      // Fallback: Pokud v DB ještě nebyla provedena migrace přidávající sloupec original_photo_url
+      if (error && photoUrl && (error.message?.includes("original_photo_url") || error.code === "42703")) {
+        delete inquiryPayload.original_photo_url;
+        const retryResult = await supabase.from("inquiries").insert(inquiryPayload);
+        error = retryResult.error;
+      }
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setShowPrice(true);
+    } catch (error: any) {
+      console.error("Chyba při odesílání poptávky:", error);
+      alert("Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }
@@ -69,12 +144,27 @@ export default function KalkulacePage() {
               </p>
             </div>
 
-            <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-amber-500">
+            <form
+              onSubmit={handleCalculateAndSubmit}
+              className="bg-white rounded-3xl p-8 shadow-xl border-2 border-amber-500"
+            >
               <div className="mb-8">
                 <div className="font-bold text-xl mb-1">Kalkulace zdarma do 24 h</div>
                 <div className="text-slate-500 text-sm">
                   Získejte okamžitý odhad ceny pro váš projekt.
                 </div>
+              </div>
+
+              {/* Honeypot field - skryté pro lidi, viditelné pro roboty */}
+              <div className="hidden" aria-hidden="true">
+                <input
+                  type="text"
+                  name="website_url_check"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={botField}
+                  onChange={(e) => setBotField(e.target.value)}
+                />
               </div>
 
               <div className="mb-6">
@@ -88,6 +178,7 @@ export default function KalkulacePage() {
                     onChange={(e) => setArea(Number(e.target.value))}
                     min={10}
                     max={10000}
+                    required
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl font-bold text-lg bg-slate-50 outline-none focus:border-amber-500"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">
@@ -98,13 +189,14 @@ export default function KalkulacePage() {
 
               <div className="mb-6">
                 <label className="block font-bold text-xs uppercase text-slate-500 mb-2">
-                  Vaše jméno
+                  Vaše jméno <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Vaše jméno"
+                  required
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-amber-500"
                 />
               </div>
@@ -124,13 +216,14 @@ export default function KalkulacePage() {
 
               <div className="mb-6">
                 <label className="block font-bold text-xs uppercase text-slate-500 mb-2">
-                  Telefonní číslo
+                  Telefonní číslo <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="Telefonní číslo"
+                  required
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-amber-500"
                 />
               </div>
@@ -149,10 +242,11 @@ export default function KalkulacePage() {
 
               {!showPrice ? (
                 <button
-                  onClick={calculatePrice}
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-xl text-lg uppercase transition-colors"
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold py-4 rounded-xl text-lg uppercase transition-colors"
                 >
-                  Zobrazit cenu
+                  {submitting ? "Odesílám kalkulaci..." : "Zobrazit cenu a odeslat"}
                 </button>
               ) : (
                 <div className="text-center">
@@ -171,7 +265,7 @@ export default function KalkulacePage() {
               <div className="text-center text-xs text-slate-500 mt-4">
                 Nezávazné a zdarma · odpověď do 24 h
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </main>

@@ -2,8 +2,10 @@
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function setChatSessionStatus(id: string, status: 'open' | 'closed') {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('chat_sessions') as any)
@@ -15,6 +17,7 @@ export async function setChatSessionStatus(id: string, status: 'open' | 'closed'
 }
 
 export async function deleteChatSession(id: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('chat_sessions') as any)
@@ -27,6 +30,7 @@ export async function deleteChatSession(id: string) {
 // Smaže vybranou podmnožinu chat relací (checkboxy v UI).
 export async function deleteChatSessions(ids: string[]) {
   if (ids.length === 0) return
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('chat_sessions') as any)
@@ -40,6 +44,7 @@ export async function deleteChatSessions(ids: string[]) {
 // Smaže VŠECHNY chat relace. Určeno pro vyčištění testovacích dat před
 // ostrým spuštěním - nevratné, proto vyžaduje potvrzení v UI.
 export async function deleteAllChatSessions() {
+  await requireAdmin()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('chat_sessions') as any)

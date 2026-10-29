@@ -5,8 +5,10 @@ import { revalidatePath } from 'next/cache'
 import { revalidateFrontend } from '@/lib/revalidate-frontend'
 import { stripHtml } from '@/lib/strip-html'
 import { parseFirmyReviews } from '@/lib/firmy-scraper'
+import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function approveReview(id: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('external_reviews') as any)
@@ -18,6 +20,7 @@ export async function approveReview(id: string) {
 }
 
 export async function rejectReview(id: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('external_reviews') as any)
@@ -29,6 +32,7 @@ export async function rejectReview(id: string) {
 }
 
 export async function deleteReview(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('external_reviews') as any)
@@ -44,6 +48,7 @@ export async function addManualReview(data: {
   rating: number
   content: string
 }) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
   const { error } = await (supabase.from('external_reviews') as any).insert({
@@ -61,6 +66,7 @@ export async function addManualReview(data: {
 
 // TASK 9: Schválení recenze z Firmy.cz — kopíruje záznam do external_reviews
 export async function approveFirmyReview(firmyReviewId: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client unavailable')
 
@@ -88,6 +94,7 @@ export async function approveFirmyReview(firmyReviewId: string) {
 }
 
 export async function syncFirmyReviews() {
+  await requireAdminOrEditor()
   const profileUrl = process.env.FIRMY_CZ_PROFILE_URL
   if (!profileUrl) throw new Error('Chybí FIRMY_CZ_PROFILE_URL v prostředí Vercelu')
 
@@ -143,6 +150,7 @@ export async function syncFirmyReviews() {
 }
 
 export async function syncGoogleReviews() {
+  await requireAdminOrEditor()
   const placeId = process.env.GOOGLE_PLACE_ID || 'ChIJQSiiUsXPHEkcRBUavNy8LwxM'
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
@@ -187,6 +195,7 @@ export async function syncGoogleReviews() {
 }
 
 export async function bulkAddReviews(rawText: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   if (!supabase) throw new Error('Admin client nedostupný')
 

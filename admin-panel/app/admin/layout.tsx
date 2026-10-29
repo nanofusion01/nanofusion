@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/admin/sidebar'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 
 export default async function AdminLayout({
   children,
@@ -14,9 +15,14 @@ export default async function AdminLayout({
     error: userError,
   } = await supabase.auth.getUser()
 
-  // Nepřihlášený → login stránka (bez sidebaru)
+  // Nepřihlášený: pokud je na login stránce, zobrazit children (login form). Jinak redirect na /admin/login
   if (!user || userError) {
-    return <>{children}</>
+    const headerList = await headers()
+    const currentPath = headerList.get('x-current-path') || ''
+    if (currentPath === '/admin/login' || currentPath === '/admin/auth/callback') {
+      return <>{children}</>
+    }
+    redirect('/admin/login')
   }
 
   // 2. DB dotazy přes admin client (bypasses RLS pro profiles/reviews)
@@ -49,7 +55,7 @@ export default async function AdminLayout({
       .insert({
         id: user.id,
         email: user.email,
-        role: 'admin',
+        role: 'editor',
         full_name: user.email?.split('@')[0],
       })
       .select()

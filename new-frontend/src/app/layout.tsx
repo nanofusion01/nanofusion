@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -183,6 +184,7 @@ export default function RootLayout({
         {children}
         <Footer />
         <ChatWidget />
+        <Analytics />
       </body>
     </html>
   );

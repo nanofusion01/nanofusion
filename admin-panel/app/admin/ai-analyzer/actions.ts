@@ -2,8 +2,10 @@
 
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
 export async function updateAnalysisStatus(id: string, status: 'new' | 'in_progress' | 'contacted' | 'resolved') {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   
   const { error } = await (supabase.from('ai_analyses') as any)
@@ -16,6 +18,7 @@ export async function updateAnalysisStatus(id: string, status: 'new' | 'in_progr
 }
 
 export async function updateAnalysisNotes(id: string, additional_notes: string) {
+  await requireAdminOrEditor()
   const supabase = await createAdminClient()
   
   const { error } = await (supabase.from('ai_analyses') as any)
@@ -27,6 +30,7 @@ export async function updateAnalysisNotes(id: string, additional_notes: string) 
 }
 
 export async function deleteAnalysis(id: string) {
+  await requireAdmin()
   const supabase = await createAdminClient()
   
   const { error } = await (supabase.from('ai_analyses') as any)

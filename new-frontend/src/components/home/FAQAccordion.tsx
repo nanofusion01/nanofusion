@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export function FAQAccordion({ items }: { items: any[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -38,7 +39,7 @@ export function FAQAccordion({ items }: { items: any[] }) {
           >
             <div 
               className="text-slate-600 prose prose-sm max-w-none text-[15px]" 
-              dangerouslySetInnerHTML={{ __html: item.answer }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.answer) }}
             />
           </div>
         </div>

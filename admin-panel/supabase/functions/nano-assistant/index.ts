@@ -31,12 +31,44 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json()
+    const body = await req.json()
+    const rawMessages = Array.isArray(body?.messages) ? body.messages : []
+
+    if (rawMessages.length === 0) {
+      return new Response(JSON.stringify({ error: 'Nebyly poskytnuty žádné zprávy' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Bezpečnostní sanitizace zpráv:
+    // 1. Povolit pouze role 'user' a 'assistant' (ochrana proti prompt injection s rolí 'system')
+    // 2. Omezit délku jednotlivé zprávy na 1000 znaků (ochrana před vyčerpáním tokenů)
+    // 3. Vzít maximálně posledních 8 zpráv
+    const sanitizedMessages = rawMessages
+      .filter((m: any) => m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant'))
+      .slice(-8)
+      .map((m: any) => ({
+        role: m.role as 'user' | 'assistant',
+        content: String(m.content).slice(0, 1000),
+      }))
+
+    if (sanitizedMessages.length === 0) {
+      return new Response(JSON.stringify({ reply: 'Dobrý den, jak vám mohu pomoci s čištěním nebo nano-ochranou povrchů?' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
     
     // 1. Setup Supabase Client
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ""
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ""
     const openAiKey = Deno.env.get('OPENAI_API_KEY')
+
+    if (!openAiKey) {
+      return new Response(JSON.stringify({ reply: 'Omlouváme se, AI asistent je momentálně dočasně nedostupný. Zanechte nám prosím zprávu přes formulář nebo volejte +420 774 509 409.' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
     
     const supabase = createClient(supabaseUrl, supabaseKey)
 
@@ -126,7 +158,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
-        messages: [{ role: 'system', content: systemPrompt }, ...messages],
+        messages: [{ role: 'system', content: systemPrompt }, ...sanitizedMessages],
         temperature: 0.2,
       }),
     })

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { SectionHeader } from "@/components/ui/section-header";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 // Local component (Helper / Colocated Component) for cleaner code
 function ServiceCard({ service }: { service: any }) {
@@ -55,7 +56,7 @@ function ServiceCard({ service }: { service: any }) {
         
         <div 
           className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3"
-          dangerouslySetInnerHTML={{ __html: service.description }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(service.description) }}
         />
 
         <div className="mt-auto pt-4 flex items-center text-amber-500 font-bold text-sm group-hover:text-amber-600 transition-colors">

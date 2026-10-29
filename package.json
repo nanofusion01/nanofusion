@@ -3,8 +3,15 @@
   "version": "1.0.0",
   "description": "Editable local clone of NANO Conversion Hub",
   "scripts": {
-    "dev": "vite --host --port 5173",
-    "build": "node sync-content.js && shx mkdir -p dist && shx cp -r public/assets public/static dist/ && shx cp -r index.html o-nas.html faq sluzby dist/ && cd admin-panel && npm install --legacy-peer-deps && npm run build",
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "cd new-frontend && npm run dev",
+    "dev:admin": "cd admin-panel && npm run dev",
+    "dev:legacy": "vite --host --port 5173",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd new-frontend && npm run build",
+    "build:admin": "cd admin-panel && npm run build",
+    "build:all": "npm run build:frontend && npm run build:admin",
+    "build:legacy": "node sync-content.js && shx mkdir -p dist && shx cp -r public/assets public/static dist/ && shx cp -r index.html o-nas.html faq sluzby dist/ && cd admin-panel && npm install --legacy-peer-deps && npm run build",
     "preview": "vite preview",
     "format": "prettier --write \"index.html\" \"assets/*.js\" \"assets/*.css\" \"manifest.json\""
   },

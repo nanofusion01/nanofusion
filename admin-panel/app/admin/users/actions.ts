@@ -2,8 +2,10 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/supabase/auth-guard'
 
 export async function deleteUser(id: string) {
+  await requireAdmin()
   const adminClient = await createAdminClient()
   
   // 1. Delete the user from Auth
@@ -23,6 +25,7 @@ export async function deleteUser(id: string) {
 }
 
 export async function addUser(email: string) {
+  await requireAdmin()
   const adminClient = await createAdminClient()
   
   // Generate a random temporary password
@@ -49,6 +52,7 @@ export async function addUser(email: string) {
 }
 
 export async function updateUserRole(id: string, role: 'admin' | 'editor') {
+  await requireAdmin()
   const supabase = await createAdminClient() as any
   const { error } = await supabase
     .from('profiles')

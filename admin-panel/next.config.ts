@@ -1,10 +1,10 @@
+import path from "path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // basePath removed to prevent /admin/admin/ double-pathing
-  // @ts-ignore - Next.js 16 workspace configuration
+  outputFileTracingRoot: path.resolve(__dirname, '..'),
   turbopack: {
-    root: "..",
+    root: path.resolve(__dirname, '..'),
   },
   images: {
     remotePatterns: [
@@ -22,12 +22,6 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '20mb',
     },
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
   },
 };
 

@@ -1,5 +1,3 @@
-'use server'
-
 import { createClient } from '@/lib/supabase/server'
 import { HowItWorksClient } from './how-it-works-client'
 

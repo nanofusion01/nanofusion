@@ -1,5 +1,3 @@
-'use server'
-
 import { createClient } from '@/lib/supabase/server'
 import { AIAnalyzerClient } from './ai-analyzer-client'
 

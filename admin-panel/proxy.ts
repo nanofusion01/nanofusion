@@ -9,14 +9,15 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // 2. Update session
+  // 2. Auth check for /admin routes
+  const isLoginPath = pathname === '/admin/login' || pathname === '/admin/auth/callback'
+  request.headers.set('x-current-path', pathname)
+
   try {
     const { supabaseResponse, user } = await updateSession(request)
 
     // 3. Simple auth logic
     if (pathname.startsWith('/admin')) {
-      const isLoginPath = pathname === '/admin/login' || pathname === '/admin/auth/callback'
-      
       if (!user && !isLoginPath) {
         return NextResponse.redirect(new URL('/admin/login', request.url))
       }
@@ -28,8 +29,16 @@ export default async function proxy(request: NextRequest) {
 
     return supabaseResponse
   } catch (e) {
-    // If supabase fails, just let it pass to the page handler
-    return NextResponse.next()
+    console.error('Proxy auth check error:', e)
+    // If supabase fails on protected admin route, redirect to login for safety
+    if (pathname.startsWith('/admin') && !isLoginPath) {
+      return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
   }
 }
 

@@ -1,5 +1,6 @@
 import { SectionHeader } from "@/components/ui/section-header";
 import { supabase } from "@/lib/supabase";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 async function getConfig() {
   const { data } = await supabase.from("site_config").select("key, value");
@@ -13,7 +14,7 @@ function AboutStory({ description }: { description: string }) {
   return (
     <div 
       className="prose prose-slate lg:prose-lg max-w-none text-slate-600 space-y-6"
-      dangerouslySetInnerHTML={{ __html: description }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
     />
   );
 }

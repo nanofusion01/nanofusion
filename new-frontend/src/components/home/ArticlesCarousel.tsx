@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { Modal } from "@/components/ui/modal";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 // Slug hodnoty musí sedět na to, co je SKUTEČNĚ v services.slug v DB.
 // Všech 12 služeb má teď český slug (viz migrace provedená přímo v DB) -
@@ -84,7 +85,7 @@ function getTargetService(article: any) {
 
 function ArticleCard({ article, onClick }: { article: any; onClick: () => void }) {
   const targetService = getTargetService(article);
-  let dateString = article.published_at || article.created_at;
+  const dateString = article.published_at || article.created_at;
   let formattedDate = "Neznámé datum";
   if (dateString) {
     const d = new Date(dateString);
@@ -149,7 +150,7 @@ function ArticleModalContent({ article, onClose }: { article: any; onClose: () =
   const router = useRouter();
   const targetService = getTargetService(article);
 
-  let dateString = article.published_at || article.created_at;
+  const dateString = article.published_at || article.created_at;
   let formattedDate = "Neznámé datum";
   if (dateString) {
     const d = new Date(dateString);
@@ -253,7 +254,7 @@ function ArticleModalContent({ article, onClose }: { article: any; onClose: () =
           </h4>
           <div 
             className="prose prose-slate max-w-none text-gray-600 leading-relaxed" 
-            dangerouslySetInnerHTML={{ __html: cleanedContent }} 
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(cleanedContent) }} 
           />
         </div>
       )}
