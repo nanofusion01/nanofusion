@@ -510,6 +510,8 @@ export type Database = {
           address: string | null
           distance_km: number | null
           travel_cost_czk: number | null
+          original_photo_url: string | null
+          photo_url: string | null
         }
         Insert: {
           id?: string
@@ -526,6 +528,8 @@ export type Database = {
           address?: string | null
           distance_km?: number | null
           travel_cost_czk?: number | null
+          original_photo_url?: string | null
+          photo_url?: string | null
         }
         Update: {
           id?: string
@@ -542,6 +546,8 @@ export type Database = {
           address?: string | null
           distance_km?: number | null
           travel_cost_czk?: number | null
+          original_photo_url?: string | null
+          photo_url?: string | null
         }
       }
     }

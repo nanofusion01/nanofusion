@@ -34,6 +34,7 @@ Projekt se skládá ze dvou hlavních moderních aplikací v Next.js a databázo
 * `npm run dev:admin` &rarr; Spustí administrační systém (`admin-panel` na `http://localhost:3000/admin`)
 * `npm run build` &rarr; Sestaví produkční balíček webu
 * `npm run build:all` &rarr; Sestaví web i administraci
+* `npm test` &rarr; Spustí sadu automatických unit testů (Vitest)
 * `npm run dev:legacy` &rarr; Spustí původní archivní statickou verzi
 
 ### 3. Veřejný web (`new-frontend`)
@@ -41,6 +42,7 @@ Projekt se skládá ze dvou hlavních moderních aplikací v Next.js a databázo
 cd new-frontend
 cp .env.example .env.local   # Vyplňte přístupy k Supabase
 npm install
+npm test                     # Spuštění testovací sady Vitest
 npm run dev
 ```
 Aplikace běží na `http://localhost:3000` (nebo `http://localhost:3100`).
@@ -79,11 +81,59 @@ Před odevzdáním a nasazením do produkce je nutné provést následující dv
 
 1. **Aplikace bezpečnostní migrace:**
    * Otevřete **SQL Editor** v Supabase Dashboard.
-   * Vložte a spusťte obsah souboru `admin-panel/supabase/migrations/010_security_role_protection.sql`.
+   * Vložte a spusťte obsah souboru `admin-panel/supabase/migrations/014_security_role_protection.sql`.
    * Tím se vytvoří privátní bucket `inquiries` s limity velikosti a MIME typů, přidají se sloupce pro fotografie a aktivují se triggery chránící role a registrace.
 
 2. **Vypnutí veřejné registrace:**
    * V Supabase Dashboard přejděte do **Authentication** &rarr; **Sign In / Providers** &rarr; **Email**.
    * Přepněte **Allow new users to sign up** na **OFF (vypnuto)**.
    * *Důvod:* Zabezpečení CMS vyžaduje, aby účty vytvářel výhradně stávající administrátor přes administrační rozhraní (`/admin/users`), nikoli anonymní návštěvníci z internetu.
+
+---
+
+## 🧪 Automatizované testování (Vitest & Playwright)
+
+Projekt obsahuje komplexní sadu jednotkových testů i připravenou konfiguraci pro End-to-End (E2E) testování:
+
+### 1. Jednotkové testy (Vitest)
+```bash
+# Spuštění testů z kořene repozitáře
+npm test
+
+# Nebo přímo v new-frontend
+cd new-frontend && npm test
+```
+
+#### Pokryté moduly (22 testů, 100% green):
+1. **`calculator.test.ts`**: Skutečné produkční funkce kalkulačky (`calculateSimplePrice`, `calculateRangeEstimate`), matematické zaokrouhlování na desítky, 10% rezerva a ošetření chybných vstupů (0 m², záporné hodnoty).
+2. **`inquiry.test.ts`**: Striktní Zod schéma validace poptávek (povinný e-mail pro Kontaktní formulář, telefon min. 9 číslic, podpora e-mailu i v chatu, ochrana před zadaným "000000000").
+3. **`sanitize.test.ts`**: Bezpečnostní testy XSS sanitizace přes `isomorphic-dompurify` (eliminace `<script>`, SVG `onload`, `javascript:` URI a vnořených tagů).
+
+### 2. End-to-End testy (Playwright)
+V adresáři `new-frontend/e2e/` je připraven testovací scénář (`inquiry-and-calculator.spec.ts`) pro simulaci chování uživatele v reálném prohlížeči (interakce s kalkulačkou m², ověření skrytého honeypotu, zobrazení výsledků, odeslání poptávky s mockem Supabase API a navigace).
+
+```bash
+cd new-frontend
+# Instalace prohlížečů pro Playwright (jednorázově)
+npx playwright install --with-deps
+
+# Spuštění E2E testů
+npm run test:e2e
+```
+
+---
+
+## 📂 Struktura migrací a skriptů Supabase
+
+Databázová schémata a migrace v `admin-panel/supabase/`:
+* **`migrations/`**: Sekvenčně číslované migrace `001_` až `014_` pro deterministickou reprodukci schématu od prázdné databáze až po produkční stav včetně RLS politik.
+* **`scripts/`**: Pomocné jednorázové údržbové a opravné skripty (`clean_bot_data.sql`, `fix_photos_rls.sql`, `repair_database.sql`), oddělené od oficiální migrační pipeline.
+
+---
+
+## 🗺️ Architektonický plán pro budoucí rozvoj (Doporučení pro produkci)
+
+1. **Turborepo monorepo**: Přechod na strukturu `apps/web`, `apps/admin` a `packages/database`, `packages/ui` pro plně sdílené TypeScript balíčky a centralizovaný build cache.
+2. **Transformace obrázků přes Supabase Storage**: Pro náhradu externí služby `wsrv.nl` využít nativní Image Transformation v rámci placeného plánu Supabase Pro.
+3. **Přísnější TypeScript režim (`strict: true`)**: Postupná eliminace typů `any` v administraci ve prospěch automaticky generovaných typů `database.types.ts`.
 

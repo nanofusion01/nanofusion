@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
 import { Button } from "@/components/ui/button";
 
 /** Jméno vlastní události, kterou volá např. detail realizace, aby si
@@ -132,14 +133,14 @@ export function ConfiguratorClient({ prices }: ConfiguratorClientProps) {
     const message = `Lokace: ${address}, Kalkulačka: ${selectedObj.name}, Plocha: ${areaUnknown ? 'Neznámo' : areaValue + ' m²'}, Odhad ceny: ${totalDisplay}\nFotografie: ${photos.length > 0 ? photos.length + ' souborů (v budoucnu nahrát do storage)' : 'žádné'}`;
 
     try {
-      await supabase.from('inquiries').insert({
+      await submitInquiry({
         name,
         email,
         phone,
         service: selectedService.name,
         message,
         source: 'Konfigurátor',
-        status: 'new'
+        photo: photos.length > 0 ? photos[0] : null,
       });
     } catch (e) {
       console.warn("Chyba uložení", e);

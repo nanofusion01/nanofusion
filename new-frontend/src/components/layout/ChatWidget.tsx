@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MessageSquare, X, Send, Bot } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
 import { Button } from "@/components/ui/button";
 
 type Message = {
@@ -196,14 +197,16 @@ export function ChatWidget() {
         break;
 
       case "ASK_CONTACT":
+        const isEmailInput = original.includes("@") && original.includes(".");
         const cleanPhone = original.replace(/[\s\-\(\)\+]/g, "");
-        if (
-          !/^\d{9,15}$/.test(cleanPhone) ||
-          /^(\d)\1+$/.test(cleanPhone) ||
-          cleanPhone === "123456789" ||
-          cleanPhone === "987654321"
-        ) {
-          botSay("Zadejte prosím platné a reálné telefonní číslo (např. 774 509 409 nebo +420774509409). 📱");
+        const isValidPhone =
+          /^\d{9,15}$/.test(cleanPhone) &&
+          !/^(\d)\1+$/.test(cleanPhone) &&
+          cleanPhone !== "123456789" &&
+          cleanPhone !== "987654321";
+
+        if (!isEmailInput && !isValidPhone) {
+          botSay("Zadejte prosím platné telefonní číslo (např. 774 509 409) nebo e-mail. 📱✉️");
           return;
         }
         setUserData((prev) => {
@@ -212,7 +215,7 @@ export function ChatWidget() {
           setChatState("FINISHED");
           botSay("Perfektní, vaše poptávka je v systému! ✨");
           botSay(
-            `**Rekapitulace:**\n• Služba: ${newData.service}\n• Adresa: ${newData.location}\n• Plocha: ${newData.area} m²\n\n*Kolegové se vám ozvou s finální cenou včetně dopravy do 24 hodin.*`
+            `**Rekapitulace:**\n• Služba: ${newData.service}\n• Adresa: ${newData.location}\n• Plocha: ${newData.area} m²\n• Kontakt: ${original}\n\n*Kolegové se vám ozvou s finální cenou včetně dopravy do 24 hodin.*`
           );
           botSay("Co by vás zajímalo dál?", [
             "🔗 Ukázat Recenze",
@@ -220,17 +223,16 @@ export function ChatWidget() {
             "🔗 Ostatní Služby",
           ]);
 
-          // Uložení leadu
-          supabase.from("inquiries").insert({
+          // Uložení leadu: rozlišení mezi e-mailem a telefonem
+          submitInquiry({
             name: "Zákazník z Chatu",
-            phone: newData.contact,
-            address: newData.location,
-            service: newData.service,
-            message: `Poptávka z AI Chatu. Plocha: ${newData.area} m2.`,
+            phone: isEmailInput ? "" : original,
+            email: isEmailInput ? original : "",
+            service: newData.service || "Konzultace z chatu",
+            message: `Poptávka z AI Chatu. Lokace: ${newData.location || "Neznámá"}, Plocha: ${newData.area || "Neznámá"} m².`,
             source: "chat",
-            status: "new",
-          }).then(({ error }) => {
-            if (error) console.error("Inquiry Save Error:", error);
+          }).catch((err) => {
+            console.error("Inquiry Save Error:", err);
           });
 
           return newData;
@@ -311,16 +313,19 @@ export function ChatWidget() {
         const leadMatch = finalReply.match(/\[LEAD:\s*(.*?)\]/i);
         if (leadMatch) {
           const leadData = leadMatch[1].split(",").map((s: string) => s.trim());
-          const [name, phone, address, area] = leadData;
+          const [name, contactInfo, address, area] = leadData;
+          const extractedContact = (contactInfo || userData.contact || "").trim();
+          const isLeadEmail = extractedContact.includes("@");
 
-          supabase.from("inquiries").insert({
+          submitInquiry({
             name: name || "Zákazník z AI Chatu",
-            phone: phone || userData.contact || "Neznámé",
-            address: address || userData.location || "Neznámé",
+            phone: isLeadEmail ? "" : extractedContact,
+            email: isLeadEmail ? extractedContact : "",
             service: userData.service || "Konzultace z chatu",
-            message: `Poptávka vygenerovaná plně přes AI Chat.\nPlocha: ${area || "Neznámé"}\nJméno: ${name || "Neznámé"}`,
+            message: `Poptávka vygenerovaná plně přes AI Chat.\nLokace: ${address || userData.location || "Neznámé"}\nPlocha: ${area || "Neznámé"} m²\nJméno: ${name || "Neznámé"}\nKontakt: ${extractedContact}`,
             source: "chat",
-            status: "new",
+          }).catch((err) => {
+            console.error("AI Lead Inquiry Save Error:", err);
           });
 
           finalReply = finalReply.replace(/\[LEAD:\s*(.*?)\]/i, "").trim();

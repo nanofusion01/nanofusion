@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 
@@ -67,27 +67,19 @@ export function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (botField) return; // Silent discard for bot spam
-
-    if (!name.trim() || !phone.trim() || !email.trim()) {
-      alert("Prosím vyplňte povinná pole (Jméno, Telefon, E-mail).");
-      return;
-    }
 
     setSubmitting(true);
 
     try {
-      const { error } = await supabase.from('inquiries').insert({
-        name: name.trim(),
-        phone: phone.trim(),
-        email: email.trim(),
-        service: service || 'Obecná poptávka',
-        message: message.trim() || 'Bez zprávy',
-        source: 'Kontaktní formulář',
-        status: 'new'
+      await submitInquiry({
+        name,
+        phone,
+        email,
+        service: service || "Obecná poptávka",
+        message: message || "Bez zprávy",
+        source: "Kontaktní formulář",
+        botField,
       });
-
-      if (error) throw error;
 
       setSuccess(true);
       setName("");
@@ -95,9 +87,9 @@ export function Contact() {
       setEmail("");
       setService("");
       setMessage("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting form:", error);
-      alert("Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      alert(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }

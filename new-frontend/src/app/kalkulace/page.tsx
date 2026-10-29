@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
+import { calculateSimplePrice } from "@/lib/calculator";
 
 export default function KalkulacePage() {
   const [area, setArea] = useState(100);
@@ -38,88 +40,31 @@ export default function KalkulacePage() {
   const handleCalculateAndSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Honeypot: pokud robot vyplnil skryté pole, tiše ignorujeme
-    if (botField) return;
-
-    if (!name.trim() || !phone.trim()) {
-      alert("Prosím vyplňte povinná pole (Jméno, Telefon).");
-      return;
-    }
-
     if (!area || area <= 0) {
       alert("Zadejte prosím platnou plochu v m².");
       return;
     }
 
-    if (photo) {
-      if (photo.size > 10 * 1024 * 1024) {
-        alert("Fotografie je příliš velká. Maximální povolená velikost je 10 MB.");
-        return;
-      }
-      if (!photo.type.startsWith("image/")) {
-        alert("Lze nahrávat pouze obrázky (JPEG, PNG, WebP).");
-        return;
-      }
-    }
-
     setSubmitting(true);
 
     try {
-      const total = area * pricePerSqm;
+      const total = calculateSimplePrice(area, pricePerSqm);
       setEstimatedPrice(total);
 
-      let photoUrl = "";
-      let photoName = "";
-      if (photo) {
-        try {
-          const ext = photo.name.split(".").pop()?.toLowerCase() || "jpg";
-          const fileName = `kalkulace_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-          photoName = fileName;
-          
-          const uploadResult = await supabase.storage
-            .from("inquiries")
-            .upload(fileName, photo, { upsert: false, cacheControl: "3600" });
-
-          if (!uploadResult.error && uploadResult.data) {
-            const { data: pubData } = supabase.storage.from("inquiries").getPublicUrl(fileName);
-            if (pubData && pubData.publicUrl) photoUrl = pubData.publicUrl;
-          }
-        } catch (uploadError) {
-          console.warn("Upload fotografie selhal:", uploadError);
-        }
-      }
-
-      const inquiryPayload: Record<string, any> = {
-        name: name.trim(),
-        phone: phone.trim(),
-        email: "",
+      await submitInquiry({
+        name,
+        phone,
         service: "Kalkulačka",
-        message: `Plocha: ${area} m², Lokace: ${location.trim() || "Neuvedeno"}, Odhad ceny: ${total.toLocaleString()} Kč${photoName ? `\nFotografie: přiložena k poptávce (${photoName})` : ""}`,
+        message: `Plocha: ${area} m², Lokace: ${location.trim() || "Neuvedeno"}, Odhad ceny: ${total.toLocaleString()} Kč`,
         source: "Kalkulačka",
-        status: "new",
-      };
-
-      if (photoUrl) {
-        inquiryPayload.original_photo_url = photoUrl;
-      }
-
-      let { error } = await supabase.from("inquiries").insert(inquiryPayload);
-
-      // Fallback: Pokud v DB ještě nebyla provedena migrace přidávající sloupec original_photo_url
-      if (error && photoUrl && (error.message?.includes("original_photo_url") || error.code === "42703")) {
-        delete inquiryPayload.original_photo_url;
-        const retryResult = await supabase.from("inquiries").insert(inquiryPayload);
-        error = retryResult.error;
-      }
-
-      if (error) {
-        throw new Error(error.message);
-      }
+        botField,
+        photo,
+      });
 
       setShowPrice(true);
     } catch (error: any) {
       console.error("Chyba při odesílání poptávky:", error);
-      alert("Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      alert(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }

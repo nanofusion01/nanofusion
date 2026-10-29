@@ -12,6 +12,9 @@
     "build:admin": "cd admin-panel && npm run build",
     "build:all": "npm run build:frontend && npm run build:admin",
     "build:legacy": "node sync-content.js && shx mkdir -p dist && shx cp -r public/assets public/static dist/ && shx cp -r index.html o-nas.html faq sluzby dist/ && cd admin-panel && npm install --legacy-peer-deps && npm run build",
+    "test": "npm run test:frontend",
+    "test:frontend": "cd new-frontend && npm test",
+    "test:e2e": "cd new-frontend && npm run test:e2e",
     "preview": "vite preview",
     "format": "prettier --write \"index.html\" \"assets/*.js\" \"assets/*.css\" \"manifest.json\""
   },

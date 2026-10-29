@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { submitInquiry } from "@/lib/inquiry";
+import { calculateRangeEstimate } from "@/lib/calculator";
 
 interface ServiceConfiguratorProps {
   basePrice: number;
@@ -37,72 +38,23 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
   const handleCalculate = async () => {
     setIsSubmitting(true);
     const area = formData.area || 0;
-    const calcBase = basePrice * area;
-    const min = Math.round(calcBase / 10) * 10;
-    const max = Math.round((calcBase * 1.1) / 10) * 10;
-
-    let photoUrl = "";
-    let photoName = "";
-    if (photo) {
-      if (photo.size > 10 * 1024 * 1024) {
-        alert("Fotografie je příliš velká. Maximální povolená velikost je 10 MB.");
-        setIsSubmitting(false);
-        return;
-      }
-      if (!photo.type.startsWith("image/")) {
-        alert("Lze nahrávat pouze obrázky (JPEG, PNG, WebP).");
-        setIsSubmitting(false);
-        return;
-      }
-
-      try {
-        const ext = photo.name.split(".").pop()?.toLowerCase() || "jpg";
-        const fileName = `inquiry_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-        photoName = fileName;
-        
-        const uploadResult = await supabase.storage
-          .from("inquiries")
-          .upload(fileName, photo, { upsert: false, cacheControl: "3600" });
-
-        if (!uploadResult.error && uploadResult.data) {
-          const { data: pubData } = supabase.storage.from("inquiries").getPublicUrl(fileName);
-          if (pubData && pubData.publicUrl) photoUrl = pubData.publicUrl;
-        }
-      } catch (e) {
-        console.warn("Storage upload failed:", e);
-      }
-    }
-
-    const payload: Record<string, any> = {
-      name: formData.firstName || "Zákazník",
-      phone: formData.phone,
-      email: formData.email,
-      service: serviceName,
-      message: `Lokace: ${formData.location}, E-mail: ${formData.email}, Plocha: ${area} m², Odhad ceny: ${min} - ${max} Kč${photoName ? `\nFotografie: přiložena k poptávce (${photoName})` : ""}`,
-      source: "Subpage 2-Step Calculator",
-      status: "new",
-    };
-
-    if (photoUrl) {
-      payload.original_photo_url = photoUrl;
-    }
+    const { min, max } = calculateRangeEstimate(area, basePrice);
 
     try {
-      let { error } = await supabase.from("inquiries").insert(payload);
-
-      // Fallback: Pokud v DB ještě nebyla provedena migrace přidávající sloupec original_photo_url
-      if (error && photoUrl && (error.message?.includes("original_photo_url") || error.code === "42703")) {
-        delete payload.original_photo_url;
-        const retry = await supabase.from("inquiries").insert(payload);
-        error = retry.error;
-      }
-
-      if (error) throw new Error(error.message);
+      await submitInquiry({
+        name: formData.firstName || "Zákazník",
+        phone: formData.phone,
+        email: formData.email,
+        service: serviceName,
+        message: `Lokace: ${formData.location}, E-mail: ${formData.email}, Plocha: ${area} m², Odhad ceny: ${min} - ${max} Kč`,
+        source: "Subpage 2-Step Calculator",
+        photo,
+      });
 
       setResult({ min, max });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Omlouváme se, odeslání selhalo.");
+      alert(e.message || "Omlouváme se, odeslání selhalo.");
     } finally {
       setIsSubmitting(false);
     }
