@@ -1,9 +1,17 @@
 'use server'
 
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/supabase/auth-guard'
 import { safeAction } from '@/lib/action-result'
+import { randomInt } from 'node:crypto'
+
+function generateTempPassword(length = 16): string {
+  // bez snadno zaměnitelných znaků (0/O, 1/l/I)
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'
+  const body = Array.from({ length }, () => chars[randomInt(chars.length)]).join('')
+  return body + '!' + randomInt(10)
+}
 
 export async function deleteUser(id: string) {
   return safeAction(async () => {
@@ -57,23 +65,26 @@ export async function addUser(email: string) {
     await requireAdmin()
     const supabase = await createAdminClient()
 
-    // Generate a random temporary password
-    const tempPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-8).toUpperCase() + '1!';
+    // Dočasné heslo z kryptograficky bezpečného generátoru (Math.random() není)
+    const tempPassword = generateTempPassword()
 
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password: tempPassword,
       email_confirm: true,
-      user_metadata: { role: 'admin', full_name: email.split('@')[0] }
+      user_metadata: { full_name: email.split('@')[0] },
+      // Po prvním přihlášení musí uživatel dočasné heslo změnit (hlídá proxy.ts).
+      // app_metadata si uživatel sám upravit nemůže.
+      app_metadata: { force_password_change: true },
     })
 
     if (error) throw new Error(error.message)
 
-    await (supabase.from('profiles') as any).upsert({
-      id: data.user.id,
-      role: 'admin',
-      force_password_change: true
-    })
+    // Profil založí trigger handle_new_user (vždy s rolí editor) - pozvaní
+    // uživatelé jsou ale administrátoři, takže roli nastavíme explicitně.
+    const { error: roleError } = await (supabase.from('profiles') as any)
+      .upsert({ id: data.user.id, email, role: 'admin' })
+    if (roleError) throw new Error(`Účet vytvořen, ale nepodařilo se nastavit roli: ${roleError.message}`)
 
     revalidatePath('/admin/users')
     return tempPassword
@@ -90,5 +101,19 @@ export async function updateUserRole(id: string, role: 'admin' | 'editor') {
 
     if (error) throw new Error(error.message)
     revalidatePath('/admin/users')
+  })
+}
+
+// Volá přihlášený uživatel po úspěšné změně hesla na /admin/account.
+export async function clearForcePasswordChange() {
+  return safeAction(async () => {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Nejste přihlášeni.')
+    const admin = await createAdminClient()
+    const { error } = await admin.auth.admin.updateUserById(user.id, {
+      app_metadata: { ...user.app_metadata, force_password_change: false },
+    })
+    if (error) throw new Error(error.message)
   })
 }

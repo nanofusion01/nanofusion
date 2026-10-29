@@ -25,6 +25,11 @@ export default async function proxy(request: NextRequest) {
       if (user && isLoginPath) {
         return NextResponse.redirect(new URL('/admin', request.url))
       }
+
+      // Nově pozvaný uživatel musí nejdřív změnit dočasné heslo
+      if (user?.app_metadata?.force_password_change && pathname !== '/admin/account') {
+        return NextResponse.redirect(new URL('/admin/account?zmena-hesla=1', request.url))
+      }
     }
 
     return supabaseResponse

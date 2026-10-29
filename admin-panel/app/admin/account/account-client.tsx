@@ -14,12 +14,50 @@ import {
   Check
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import * as usersActionsRaw from '../users/actions'
+import { unwrapActions } from '@/lib/action-result'
+
+const { clearForcePasswordChange } = unwrapActions(usersActionsRaw)
 
 export function AccountClient({ user, profile: initialProfile }: { user: any, profile: any }) {
   const [profile, setProfile] = useState(initialProfile)
   const [loading, setLoading] = useState(false)
   const [passkeys, setPasskeys] = useState<any[]>([]) // Mock for now
   const supabase = createClient()
+  const mustChangePassword = Boolean(user?.app_metadata?.force_password_change)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError('')
+    if (newPassword.length < 8) return setPasswordError('Heslo musí mít alespoň 8 znaků.')
+    if (!/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return setPasswordError('Heslo musí obsahovat velké písmeno a číslici.')
+    }
+    if (newPassword !== confirmPassword) return setPasswordError('Hesla se neshodují.')
+
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      if (mustChangePassword) {
+        await clearForcePasswordChange()
+        toast.success('Heslo bylo změněno, vítejte v administraci')
+        // celé načtení, ať proxy uvidí zrušený příznak
+        window.location.href = '/admin'
+        return
+      }
+      toast.success('Heslo bylo úspěšně změněno')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (err: any) {
+      setPasswordError(err.message || 'Heslo se nepodařilo změnit.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSaveProfile = async () => {
     setLoading(true)
@@ -52,6 +90,12 @@ export function AccountClient({ user, profile: initialProfile }: { user: any, pr
         <h1 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>Můj účet</h1>
         <p className="text-slate-500">Nastavení vašeho administrátorského přístupu</p>
       </div>
+
+      {mustChangePassword && (
+        <div className="p-4 rounded-2xl border border-amber-300 bg-amber-50 text-amber-800 text-sm font-semibold">
+          Přihlásili jste se dočasným heslem. Než budete pokračovat, nastavte si prosím vlastní heslo.
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-8">
         <div className="col-span-2 space-y-6">
@@ -133,24 +177,32 @@ export function AccountClient({ user, profile: initialProfile }: { user: any, pr
               <p className="text-xs text-amber-700 leading-relaxed mb-6">
                 Heslo by mělo obsahovat minimálně 8 znaků, velká písmena a číslice.
               </p>
-              <button 
-                onClick={async () => {
-                  const newPassword = prompt('Zadejte nové heslo:');
-                  if (newPassword && newPassword.length >= 8) {
-                    setLoading(true);
-                    const { error } = await supabase.auth.updateUser({ password: newPassword });
-                    if (error) toast.error(error.message);
-                    else toast.success('Heslo bylo úspěšně změněno');
-                    setLoading(false);
-                  } else if (newPassword) {
-                    toast.error('Heslo musí mít alespoň 8 znaků');
-                  }
-                }}
-                disabled={loading}
-                className="w-full py-3 rounded-2xl bg-white border border-amber-200 shadow-sm text-sm font-bold text-amber-700 hover:bg-amber-50 transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Zpracovávám...' : 'Změnit heslo'}
-              </button>
+              <form onSubmit={handleChangePassword} className="space-y-3">
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Nové heslo"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-4 py-3 rounded-2xl bg-white border border-amber-200 text-sm outline-none focus:border-amber-500"
+                />
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Nové heslo znovu"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 rounded-2xl bg-white border border-amber-200 text-sm outline-none focus:border-amber-500"
+                />
+                {passwordError && <p className="text-xs font-semibold text-red-600">{passwordError}</p>}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-2xl bg-white border border-amber-200 shadow-sm text-sm font-bold text-amber-700 hover:bg-amber-50 transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Zpracovávám...' : 'Změnit heslo'}
+                </button>
+              </form>
            </div>
         </div>
       </div>

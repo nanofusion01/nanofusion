@@ -90,7 +90,7 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
             <div className="bg-green-50 p-4 rounded-xl border border-green-200">
               <h4 className="text-green-800 font-bold mb-2">Účet úspěšně vytvořen!</h4>
               <p className="text-sm text-green-700 mb-4">
-                Zkopírujte heslo a předejte ho uživateli. Již se znovu nezobrazí.
+                Zkopírujte heslo a předejte ho uživateli. Již se znovu nezobrazí – po prvním přihlášení si ho uživatel musí změnit.
               </p>
               <div className="flex gap-2 items-center bg-white p-3 rounded-lg border border-green-100">
                 <code className="text-lg font-mono flex-1">{createdUser.password}</code>
