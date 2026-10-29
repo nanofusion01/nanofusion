@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { submitInquiry } from "@/lib/inquiry";
 import { calculateRangeEstimate } from "@/lib/calculator";
+import { FormError } from "@/components/ui/form-error";
 
 interface ServiceConfiguratorProps {
   basePrice: number;
@@ -23,19 +24,22 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
     area: 100,
   });
 
+  const [formError, setFormError] = useState<string | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
 
   const handleNext = () => {
-    if (!formData.firstName || formData.firstName.length < 2) return alert("Prosím zadejte Vaše jméno a příjmení.");
-    if (!formData.location || formData.location.length < 2) return alert("Prosím zadejte přesnou lokaci.");
-    if (!formData.phone || formData.phone.length < 9) return alert("Prosím zadejte telefonní číslo.");
-    if (!formData.email || !formData.email.includes("@")) return alert("Prosím zadejte platnou e-mailovou adresu.");
-    if (!formData.gdpr) return alert("Prosím potvrďte souhlas se zpracováním osobních údajů (GDPR).");
-    
+    setFormError(null);
+    if (!formData.firstName || formData.firstName.length < 2) return setFormError("Prosím zadejte Vaše jméno a příjmení.");
+    if (!formData.location || formData.location.length < 2) return setFormError("Prosím zadejte přesnou lokaci.");
+    if (!formData.phone || formData.phone.length < 9) return setFormError("Prosím zadejte telefonní číslo.");
+    if (!formData.email || !formData.email.includes("@")) return setFormError("Prosím zadejte platnou e-mailovou adresu.");
+    if (!formData.gdpr) return setFormError("Prosím potvrďte souhlas se zpracováním osobních údajů (GDPR).");
+
     setStep(2);
   };
 
   const handleCalculate = async () => {
+    setFormError(null);
     setIsSubmitting(true);
     const area = formData.area || 0;
     const { min, max } = calculateRangeEstimate(area, basePrice);
@@ -54,7 +58,7 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
       setResult({ min, max });
     } catch (e: any) {
       console.error(e);
-      alert(e.message || "Omlouváme se, odeslání selhalo.");
+      setFormError(e.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setIsSubmitting(false);
     }
@@ -143,6 +147,9 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
               <span>Souhlasím se zpracováním osobních údajů v souladu s <a href="/gdpr" className="text-amber-500 font-bold underline hover:text-amber-600 transition-colors">GDPR</a> pro účely vytvoření cenové nabídky. *</span>
             </label>
           </div>
+          <div className="mb-3">
+            <FormError message={formError} />
+          </div>
           <button 
             onClick={handleNext}
             className="block text-center w-full bg-gradient-to-br from-amber-500 to-amber-600 text-white p-[0.8rem] rounded-[0.6rem] font-black cursor-pointer uppercase text-[0.9rem] shadow-[0_4px_15px_rgba(245,158,11,0.35)] transition-all hover:scale-[1.02]"
@@ -186,6 +193,9 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
             />
           </div>
 
+          <div className="mb-3">
+            <FormError message={formError} />
+          </div>
           <div className="flex gap-[0.65rem]">
             <button 
               onClick={() => setStep(1)}

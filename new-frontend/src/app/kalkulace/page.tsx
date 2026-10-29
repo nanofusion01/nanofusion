@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { submitInquiry } from "@/lib/inquiry";
 import { calculateSimplePrice } from "@/lib/calculator";
+import { FormError } from "@/components/ui/form-error";
 
 export default function KalkulacePage() {
   const [area, setArea] = useState(100);
@@ -16,6 +17,7 @@ export default function KalkulacePage() {
   const [showPrice, setShowPrice] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Načtení reálné ceny z DB configurator_prices (výchozí základ pro dlažby/čištění)
   useEffect(() => {
@@ -39,9 +41,10 @@ export default function KalkulacePage() {
 
   const handleCalculateAndSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
 
     if (!area || area <= 0) {
-      alert("Zadejte prosím platnou plochu v m².");
+      setFormError("Zadejte prosím platnou plochu v m².");
       return;
     }
 
@@ -64,7 +67,7 @@ export default function KalkulacePage() {
       setShowPrice(true);
     } catch (error: any) {
       console.error("Chyba při odesílání poptávky:", error);
-      alert(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }
@@ -183,6 +186,10 @@ export default function KalkulacePage() {
                   onChange={(e) => setPhoto(e.target.files?.[0] || null)}
                   className="w-full px-4 py-3 border-2 border-dashed border-slate-300 rounded-xl text-sm bg-slate-50 cursor-pointer"
                 />
+              </div>
+
+              <div className="mb-4">
+                <FormError message={formError} />
               </div>
 
               {!showPrice ? (

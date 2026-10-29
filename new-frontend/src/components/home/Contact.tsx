@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { submitInquiry } from "@/lib/inquiry";
+import { FormError } from "@/components/ui/form-error";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 
@@ -63,10 +64,12 @@ export function Contact() {
   const [message, setMessage] = useState("");
   const [botField, setBotField] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
 
     setSubmitting(true);
 
@@ -89,7 +92,7 @@ export function Contact() {
       setMessage("");
     } catch (error: any) {
       console.error("Error submitting form:", error);
-      alert(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }
@@ -247,6 +250,10 @@ export function Contact() {
                     placeholder="Popište nám prosím vaše potřeby..."
                     className="mb-6"
                   />
+
+                  <div className="mb-4">
+                    <FormError message={formError} />
+                  </div>
 
                   <Button
                     type="submit"

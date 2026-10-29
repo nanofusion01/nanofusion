@@ -65,6 +65,27 @@ test.describe("E2E Test: Kalkulačka a odeslání poptávky (/kalkulace)", () =>
   });
 });
 
+test.describe("E2E Test: Chyba při odeslání poptávky", () => {
+  test("zobrazí chybu z API přímo ve formuláři a neukáže cenu", async ({ page }) => {
+    await page.route("**/api/inquiry", async (route) => {
+      await route.fulfill({
+        status: 429,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "Odeslali jste příliš mnoho poptávek. Zkuste to prosím za pár minut, nebo nám zavolejte." }),
+      });
+    });
+
+    await page.goto("/kalkulace");
+    await page.waitForLoadState("networkidle");
+    await page.locator("input[placeholder='Vaše jméno']").fill("Jan Testovací");
+    await page.locator("input[placeholder='Telefonní číslo']").fill("+420 777 888 999");
+    await page.locator("button[type='submit']").click();
+
+    await expect(page.locator("p[role='alert']")).toContainText("příliš mnoho poptávek");
+    await expect(page.locator("text=✓ Úspěšně odesláno. Zavoláme vám.")).toHaveCount(0);
+  });
+});
+
 test.describe("E2E Test: Kontaktní formulář na domovské stránce (/)", () => {
   test("úspěšně odešle poptávku z kontaktního formuláře (se zachycením API)", async ({ page }) => {
     let interceptedContactPayload: any = null;
