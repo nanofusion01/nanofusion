@@ -69,7 +69,9 @@ export default function KalkulacePage() {
       setShowPrice(true);
     } catch (error) {
       console.error("Chyba při odesílání poptávky:", error);
-      setFormError(errorMessage(error) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(
+        errorMessage(error) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -85,12 +87,10 @@ export default function KalkulacePage() {
                 Bezplatná konzultace po celé ČR
               </span>
               <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
-                Nezávazná poptávka{" "}
-                <span className="text-amber-500">NANOFusion</span>
+                Nezávazná poptávka <span className="text-amber-500">NANOFusion</span>
               </h1>
               <p className="text-lg text-slate-600 max-w-lg mx-auto">
-                Získejte přesnou cenovou nabídku a bezplatnou konzultaci do 24
-                hodin.
+                Získejte přesnou cenovou nabídku a bezplatnou konzultaci do 24 hodin.
               </p>
             </div>
 
@@ -100,9 +100,7 @@ export default function KalkulacePage() {
             >
               <div className="mb-8">
                 <div className="font-bold text-xl mb-1">Kalkulace zdarma do 24 h</div>
-                <div className="text-slate-500 text-sm">
-                  Získejte okamžitý odhad ceny pro váš projekt.
-                </div>
+                <div className="text-slate-500 text-sm">Získejte okamžitý odhad ceny pro váš projekt.</div>
               </div>
 
               {/* Honeypot field - skryté pro lidi, viditelné pro roboty */}
@@ -123,7 +121,7 @@ export default function KalkulacePage() {
                 </label>
                 <div className="relative">
                   <input
-                  id="kalk-area"
+                    id="kalk-area"
                     type="number"
                     value={area}
                     onChange={(e) => setArea(Number(e.target.value))}
@@ -132,9 +130,7 @@ export default function KalkulacePage() {
                     required
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl font-bold text-lg bg-slate-50 outline-none focus:border-amber-500"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">
-                    m²
-                  </span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">m²</span>
                 </div>
               </div>
 
@@ -209,21 +205,15 @@ export default function KalkulacePage() {
                 </button>
               ) : (
                 <div className="text-center">
-                  <span className="text-sm text-slate-500 font-semibold">
-                    Předběžná cena pro vaši plochu:
-                  </span>
-                  <div className="text-5xl font-bold text-amber-500 my-2">
-                    {estimatedPrice.toLocaleString()} Kč
-                  </div>
+                  <span className="text-sm text-slate-500 font-semibold">Předběžná cena pro vaši plochu:</span>
+                  <div className="text-5xl font-bold text-amber-500 my-2">{estimatedPrice.toLocaleString()} Kč</div>
                   <div className="bg-emerald-50 rounded-xl p-4 text-emerald-700 font-bold text-sm border border-emerald-200 mb-8">
                     ✓ Úspěšně odesláno. Zavoláme vám.
                   </div>
                 </div>
               )}
 
-              <div className="text-center text-xs text-slate-500 mt-4">
-                Nezávazné a zdarma · odpověď do 24 h
-              </div>
+              <div className="text-center text-xs text-slate-500 mt-4">Nezávazné a zdarma · odpověď do 24 h</div>
             </form>
           </div>
         </div>

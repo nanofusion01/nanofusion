@@ -3,17 +3,17 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { 
-  Plus, 
-  GripVertical, 
-  Settings2, 
-  Eye, 
-  EyeOff, 
-  Trash2, 
+import {
+  Plus,
+  GripVertical,
+  Settings2,
+  Eye,
+  EyeOff,
+  Trash2,
   ChevronRight,
   Sparkles,
   Camera,
-  MessageSquareQuote
+  MessageSquareQuote,
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import * as actionsRaw from './actions'
@@ -37,7 +37,11 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
     if (!newServiceName) return
     setCreating(true)
     try {
-      const slug = newServiceName.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+      const slug = newServiceName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
       await createService({ name: newServiceName, slug })
       toast.success('Služba vytvořena')
       setShowAdd(false)
@@ -54,7 +58,7 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
   const handleToggleStatus = async (item: Service) => {
     try {
       await toggleServiceStatus(item.id, !item.is_active)
-      setServices(prev => prev.map(s => s.id === item.id ? { ...s, is_active: !s.is_active } : s))
+      setServices((prev) => prev.map((s) => (s.id === item.id ? { ...s, is_active: !s.is_active } : s)))
       toast.success(item.is_active ? 'Služba deaktivována' : 'Služba aktivována')
     } catch {
       toast.error('Chyba při změně stavu')
@@ -64,7 +68,7 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
   const handleDelete = async (id: string) => {
     try {
       await deleteService(id)
-      setServices(prev => prev.filter(s => s.id !== id))
+      setServices((prev) => prev.filter((s) => s.id !== id))
       toast.success('Služba smazána')
       setDeleteConfirm(null)
     } catch {
@@ -76,7 +80,9 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Správa služeb</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Správa služeb
+          </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             Definujte služby, před/po fotky a specifické recenze.
           </p>
@@ -92,7 +98,10 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
       </div>
 
       {showAdd && (
-        <div className="p-6 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-300" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+        <div
+          className="p-6 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-300"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+        >
           <h3 className="font-bold mb-4">Vytvořit novou službu</h3>
           <div className="flex gap-3">
             <input
@@ -102,8 +111,8 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
               placeholder="Název služby (např. Keramická ochrana laku)"
               className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none border transition-all"
               style={{ borderColor: 'var(--border)', background: 'var(--bg-base)' }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--brand-primary)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+              onFocus={(e) => (e.target.style.borderColor = 'var(--brand-primary)')}
+              onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
             />
             <button
               onClick={handleCreate}
@@ -126,7 +135,10 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
 
       <div className="grid gap-4">
         {services.length === 0 ? (
-          <div className="py-20 text-center rounded-2xl border-2 border-dashed" style={{ borderColor: 'var(--border)' }}>
+          <div
+            className="py-20 text-center rounded-2xl border-2 border-dashed"
+            style={{ borderColor: 'var(--border)' }}
+          >
             <Sparkles size={40} className="mx-auto mb-3 opacity-20" />
             <p style={{ color: 'var(--text-secondary)' }}>Zatím žádné služby.</p>
           </div>
@@ -135,17 +147,17 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
             <div
               key={item.id}
               className="group p-5 rounded-2xl transition-all duration-200 flex items-center gap-5 hover:shadow-xl hover:scale-[1.005]"
-              style={{ 
-                background: 'var(--bg-surface)', 
+              style={{
+                background: 'var(--bg-surface)',
                 border: '1px solid var(--border)',
-                opacity: item.is_active ? 1 : 0.7
+                opacity: item.is_active ? 1 : 0.7,
               }}
             >
               <div className="cursor-grab p-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <GripVertical size={20} style={{ color: 'var(--text-muted)' }} />
               </div>
 
-              <div 
+              <div
                 className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border"
                 style={{ borderColor: 'var(--border)' }}
               >
@@ -159,7 +171,9 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
               </div>
 
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>{item.name}</h3>
+                <h3 className="font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>
+                  {item.name}
+                </h3>
                 <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-muted)' }}>
                   <span className="flex items-center gap-1.5">
                     <Camera size={14} /> {item.service_before_after?.[0]?.count ?? 0} fotky
@@ -178,15 +192,19 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
                   style={{ background: 'var(--bg-base)', border: '1px solid var(--border)' }}
                   title={item.is_active ? 'Deaktivovat' : 'Aktivovat'}
                 >
-                  {item.is_active ? <Eye size={18} className="text-blue-500" /> : <EyeOff size={18} className="text-slate-400" />}
+                  {item.is_active ? (
+                    <Eye size={18} className="text-blue-500" />
+                  ) : (
+                    <EyeOff size={18} className="text-slate-400" />
+                  )}
                 </button>
                 <Link
                   href={`/admin/services/${item.id}`}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
-                  style={{ 
-                    background: 'var(--bg-base)', 
+                  style={{
+                    background: 'var(--bg-base)',
                     border: '1px solid var(--border)',
-                    color: 'var(--text-primary)' 
+                    color: 'var(--text-primary)',
                   }}
                 >
                   <Settings2 size={16} />
@@ -208,7 +226,10 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-sm p-6 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200" style={{ background: 'var(--bg-surface)' }}>
+          <div
+            className="w-full max-w-sm p-6 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
+            style={{ background: 'var(--bg-surface)' }}
+          >
             <h3 className="text-xl font-bold mb-2">Smazat službu?</h3>
             <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
               Tato akce je nevratná. Smažou se i všechny fotky a recenze k této službě.

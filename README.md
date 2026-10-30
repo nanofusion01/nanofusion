@@ -36,6 +36,7 @@ Kořen repozitáře obsahuje jen tyto dvě aplikace a pomocné skripty v `packag
 * `npm test` &rarr; Spustí sadu automatických unit testů (Vitest)
 * `npm run test:e2e` &rarr; Spustí E2E testy v prohlížeči (Playwright)
 * `npm run gen:types` &rarr; Obnoví TypeScript typy databáze z živého schématu Supabase
+* `npm run format` (v `new-frontend` / `admin-panel`) &rarr; Zformátuje kód Prettierem; CI kontroluje `format:check`. Hromadné přeformátování je v `.git-blame-ignore-revs` (`git config blame.ignoreRevsFile .git-blame-ignore-revs`).
 
 Před prvním spuštěním je potřeba nainstalovat závislosti v obou aplikacích (viz níže). Pokud běží web i administrace současně, Next.js přidělí druhé aplikaci volný port (např. `3001`).
 

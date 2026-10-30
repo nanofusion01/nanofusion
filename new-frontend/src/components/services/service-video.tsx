@@ -1,11 +1,12 @@
-
 /** Video ke službě (YouTube nebo soubor). */
 function parseVideoSource(url: string | null | undefined) {
   if (!url || typeof url !== "string" || !url.trim()) return null;
   const trimmed = url.trim();
 
   // YouTube (watch, shorts, embed, youtu.be)
-  const ytMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+  const ytMatch = trimmed.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
+  );
   if (ytMatch) {
     return {
       type: "youtube" as const,
@@ -46,7 +47,7 @@ export function ServiceVideo({ videoUrl, serviceName }: { videoUrl: string | nul
   return (
     <section id="video" className="py-20 bg-slate-900 text-white overflow-hidden relative">
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F7A51D_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
-      
+
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
           <span className="text-amber-500 font-bold text-xs uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full inline-block mb-3 border border-amber-500/20">
@@ -70,13 +71,7 @@ export function ServiceVideo({ videoUrl, serviceName }: { videoUrl: string | nul
               allowFullScreen
             />
           ) : (
-            <video
-              src={parsed.src}
-              controls
-              playsInline
-              preload="metadata"
-              className="w-full h-full object-cover"
-            />
+            <video src={parsed.src} controls playsInline preload="metadata" className="w-full h-full object-cover" />
           )}
         </div>
       </div>

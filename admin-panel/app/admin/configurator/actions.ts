@@ -10,7 +10,8 @@ export async function updatePrice(id: string, price: number) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('configurator_prices')
+    const { error } = await supabase
+      .from('configurator_prices')
       .update({ price, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw new Error(error.message)
@@ -23,9 +24,7 @@ export async function updatePriceLabel(id: string, label: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('configurator_prices')
-      .update({ label })
-      .eq('id', id)
+    const { error } = await supabase.from('configurator_prices').update({ label }).eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/configurator')
     await revalidateFrontend()
@@ -37,9 +36,7 @@ export async function savePrices(prices: { id: string; price: number }[]) {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
     const updates = prices.map(({ id, price }) =>
-      supabase.from('configurator_prices')
-        .update({ price, updated_at: new Date().toISOString() })
-        .eq('id', id)
+      supabase.from('configurator_prices').update({ price, updated_at: new Date().toISOString() }).eq('id', id)
     )
     await Promise.all(updates)
     revalidatePath('/admin/configurator')

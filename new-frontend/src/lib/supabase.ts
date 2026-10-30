@@ -21,7 +21,11 @@ export function optimizeImg(url: string | null | undefined, width: number = 800)
   // z našeho Supabase Storage; SVG a cizí domény necháme beze změny.
   // (Dřív přes externí bezplatnou proxy wsrv.nl, na které byl web závislý.)
   const marker = "/storage/v1/object/public/";
-  if (normalized.toLowerCase().split("?")[0].endsWith(".svg") || !normalized.startsWith(supabaseUrl) || !normalized.includes(marker)) {
+  if (
+    normalized.toLowerCase().split("?")[0].endsWith(".svg") ||
+    !normalized.startsWith(supabaseUrl) ||
+    !normalized.includes(marker)
+  ) {
     return normalized;
   }
 

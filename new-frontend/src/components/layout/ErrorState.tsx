@@ -20,7 +20,12 @@ export function ErrorState({
         <p className="text-gray-600 text-lg mb-10">{text}</p>
         <div className="flex flex-wrap items-center justify-center gap-4">
           {action}
-          <Button href="/" variant={action ? "white" : "primary"} size="lg" className={action ? "border border-gray-200" : ""}>
+          <Button
+            href="/"
+            variant={action ? "white" : "primary"}
+            size="lg"
+            className={action ? "border border-gray-200" : ""}
+          >
             Zpět na úvod
           </Button>
         </div>

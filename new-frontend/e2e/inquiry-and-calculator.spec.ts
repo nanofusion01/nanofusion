@@ -74,7 +74,9 @@ test.describe("E2E Test: Chyba při odeslání poptávky", () => {
       await route.fulfill({
         status: 429,
         contentType: "application/json",
-        body: JSON.stringify({ error: "Odeslali jste příliš mnoho poptávek. Zkuste to prosím za pár minut, nebo nám zavolejte." }),
+        body: JSON.stringify({
+          error: "Odeslali jste příliš mnoho poptávek. Zkuste to prosím za pár minut, nebo nám zavolejte.",
+        }),
       });
     });
 

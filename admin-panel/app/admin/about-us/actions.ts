@@ -9,9 +9,8 @@ export async function updateAboutConfig(key: string, value: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('site_config')
-      .upsert({ key, value }, { onConflict: 'key' })
-    
+    const { error } = await supabase.from('site_config').upsert({ key, value }, { onConflict: 'key' })
+
     if (error) throw new Error(error.message)
     revalidatePath('/admin/about-us')
     revalidatePath('/')

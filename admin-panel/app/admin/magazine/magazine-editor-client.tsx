@@ -4,16 +4,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  ArrowLeft, 
-  Save, 
-  Globe, 
-  Eye, 
-  Trash2, 
-  Image as ImageIcon,
-  Type,
-  Loader2
-} from 'lucide-react'
+import { ArrowLeft, Save, Globe, Eye, Trash2, Image as ImageIcon, Type, Loader2 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import * as actionsRaw from './actions'
 import { TiptapEditor } from '@/components/admin/editor'
@@ -83,10 +74,11 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
   }
 
   const generateSlug = (title: string) => {
-    return title.toLowerCase()
+    return title
+      .toLowerCase()
       .trim()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '')
@@ -115,10 +107,13 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="flex items-center justify-between sticky top-0 z-10 py-4" style={{ background: 'var(--bg-base)' }}>
+      <div
+        className="flex items-center justify-between sticky top-0 z-10 py-4"
+        style={{ background: 'var(--bg-base)' }}
+      >
         <div className="flex items-center gap-4">
-          <Link 
-            href="/admin/magazine" 
+          <Link
+            href="/admin/magazine"
             className="p-2 rounded-xl border hover:bg-slate-50 transition-colors"
             style={{ borderColor: 'var(--border)' }}
           >
@@ -128,9 +123,7 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
             <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
               {initialArticle ? 'Editace článku' : 'Nový článek'}
             </h1>
-            <p className="text-sm opacity-60">
-              {article.title || 'Rozepsaný článek'}
-            </p>
+            <p className="text-sm opacity-60">{article.title || 'Rozepsaný článek'}</p>
           </div>
         </div>
 
@@ -167,7 +160,10 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
 
       <div className="grid grid-cols-3 gap-8">
         <div className="col-span-2 space-y-6">
-          <div className="p-8 rounded-3xl space-y-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+          <div
+            className="p-8 rounded-3xl space-y-6"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+          >
             <div className="space-y-4">
               <input
                 type="text"
@@ -188,61 +184,66 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
               </div>
             </div>
 
-            <TiptapEditor 
-              content={article.content || ''} 
-              onChange={(html) => setArticle({ ...article, content: html })} 
+            <TiptapEditor
+              content={article.content || ''}
+              onChange={(html) => setArticle({ ...article, content: html })}
             />
           </div>
         </div>
 
         <div className="space-y-6">
-          <div className="p-6 rounded-3xl space-y-6 sticky top-24" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+          <div
+            className="p-6 rounded-3xl space-y-6 sticky top-24"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+          >
             <h3 className="font-bold flex items-center gap-2">
               <ImageIcon size={18} />
               Náhledový obrázek
             </h3>
-            
+
             <div className="space-y-4">
-              <div 
+              <div
                 className="aspect-video rounded-2xl border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer"
                 style={{ borderColor: 'var(--border)', background: 'var(--bg-base)' }}
               >
                 {article.hero_image_url ? (
-                  <img src={article.hero_image_url} alt="Úvodní obrázek článku" className="w-full h-full object-cover" />
+                  <img
+                    src={article.hero_image_url}
+                    alt="Úvodní obrázek článku"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <>
-                    {uploading ? <Loader2 className="animate-spin opacity-20" size={32} /> : <ImageIcon size={32} className="opacity-20 mb-2" />}
+                    {uploading ? (
+                      <Loader2 className="animate-spin opacity-20" size={32} />
+                    ) : (
+                      <ImageIcon size={32} className="opacity-20 mb-2" />
+                    )}
                     <span className="text-xs opacity-40">{uploading ? 'Nahrávám...' : 'Nahrát z počítače'}</span>
                   </>
                 )}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                   <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation()
                       fileInputRef.current?.click()
                     }}
                     className="bg-white px-4 py-2 rounded-lg text-xs font-bold shadow-xl hover:bg-slate-50"
-                   >
+                  >
                     Nahrát z PC
-                   </button>
-                   <button 
+                  </button>
+                  <button
                     onClick={(e) => {
                       e.stopPropagation()
                       const url = prompt('Nebo vložte URL:')
-                      if(url) setArticle({...article, hero_image_url: url})
+                      if (url) setArticle({ ...article, hero_image_url: url })
                     }}
                     className="text-white text-[10px] font-bold underline opacity-80"
-                   >
+                  >
                     Zadat URL
-                   </button>
+                  </button>
                 </div>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileUpload} 
-                  className="hidden" 
-                  accept="image/*" 
-                />
+                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
               </div>
 
               <div className="space-y-1">
@@ -285,7 +286,7 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
                     { value: 'sluzby/impregnation', label: 'Impregnace' },
                     { value: 'sluzby/antislip', label: 'Protiskluzné nátěry' },
                     { value: 'sluzby/ceramfloor', label: 'Ochrana dlažeb & keramik' },
-                    { value: 'sluzby/antibac', label: 'Antibakteriální nátěry' }
+                    { value: 'sluzby/antibac', label: 'Antibakteriální nátěry' },
                   ]
 
                   return (
@@ -294,14 +295,21 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
                       onChange={(e) => {
                         const newTarget = e.target.value
                         const clean = content.replace(/<!--\s*target_service:\s*.*?\s*-->/g, '').trim()
-                        const updatedContent = newTarget === 'kalkulacka' ? clean : `${clean}\n<!-- target_service: ${newTarget} -->`
+                        const updatedContent =
+                          newTarget === 'kalkulacka' ? clean : `${clean}\n<!-- target_service: ${newTarget} -->`
                         setArticle({ ...article, content: updatedContent })
                       }}
                       className="w-full px-3 py-2.5 rounded-xl border text-xs font-semibold outline-none cursor-pointer"
-                      style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                      style={{
+                        background: 'var(--bg-base)',
+                        borderColor: 'var(--border)',
+                        color: 'var(--text-primary)',
+                      }}
                     >
-                      {servicesList.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                      {servicesList.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </select>
                   )
@@ -310,25 +318,27 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
             </div>
 
             <div className="pt-6 border-t" style={{ borderColor: 'var(--border)' }}>
-               <h3 className="font-bold flex items-center gap-2 mb-4 text-sm">
+              <h3 className="font-bold flex items-center gap-2 mb-4 text-sm">
                 <Type size={18} />
                 Publikační info
               </h3>
               <div className="space-y-3">
-                 <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Vytvořeno:</span>
-                    <span className="font-semibold">{article.created_at ? new Date(article.created_at).toLocaleDateString('cs-CZ') : 'Dnes'}</span>
-                 </div>
-                 <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Poslední úprava:</span>
-                    <span className="font-semibold">Nyní</span>
-                 </div>
-                 <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Stav:</span>
-                    <span className={`font-black ${article.is_published ? 'text-green-500' : 'text-amber-500'}`}>
-                      {article.is_published ? 'PUBLIKOVÁNO' : 'KONCEPT'}
-                    </span>
-                 </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">Vytvořeno:</span>
+                  <span className="font-semibold">
+                    {article.created_at ? new Date(article.created_at).toLocaleDateString('cs-CZ') : 'Dnes'}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">Poslední úprava:</span>
+                  <span className="font-semibold">Nyní</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">Stav:</span>
+                  <span className={`font-black ${article.is_published ? 'text-green-500' : 'text-amber-500'}`}>
+                    {article.is_published ? 'PUBLIKOVÁNO' : 'KONCEPT'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

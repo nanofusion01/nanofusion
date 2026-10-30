@@ -11,10 +11,16 @@ export function ServiceCTA() {
           Zanechte nám na sebe kontakt a my se vám co nejdříve ozveme s nezávaznou nabídkou pro vaši konkrétní situaci.
         </p>
         <div className="flex flex-wrap justify-center gap-6">
-          <Button href="#kalkulacka" className="h-16 px-10 text-lg font-black rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 shadow-xl shadow-amber-500/20">
+          <Button
+            href="#kalkulacka"
+            className="h-16 px-10 text-lg font-black rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 shadow-xl shadow-amber-500/20"
+          >
             SPOČÍTEJTE SI CENU <span className="ml-2">→</span>
           </Button>
-          <a href="tel:+420774509409" className="inline-flex items-center justify-center gap-3 h-16 px-10 text-lg font-bold rounded-xl bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all">
+          <a
+            href="tel:+420774509409"
+            className="inline-flex items-center justify-center gap-3 h-16 px-10 text-lg font-bold rounded-xl bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all"
+          >
             <Phone className="w-5 h-5 text-amber-500" />
             +420 774 509 409
           </a>

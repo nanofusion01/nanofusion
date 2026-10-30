@@ -34,15 +34,14 @@ export async function POST(request: NextRequest) {
 
   const parsed = inquirySchema.safeParse({ ...body, photo: undefined, botField: undefined });
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues.map((i) => i.message).join(", ") },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: parsed.error.issues.map((i) => i.message).join(", ") }, { status: 400 });
   }
 
   // Délkové limity - ochrana DB před obřími payloady
-  const tooLong = [parsed.data.name, parsed.data.phone, parsed.data.email, parsed.data.service, parsed.data.source]
-    .some((v) => (v ?? "").length > 200) || (parsed.data.message ?? "").length > 5000;
+  const tooLong =
+    [parsed.data.name, parsed.data.phone, parsed.data.email, parsed.data.service, parsed.data.source].some(
+      (v) => (v ?? "").length > 200
+    ) || (parsed.data.message ?? "").length > 5000;
   if (tooLong) {
     return NextResponse.json({ error: "Některé pole je příliš dlouhé." }, { status: 400 });
   }
@@ -68,9 +67,8 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const photoName = typeof body.photoName === "string" && INQUIRY_PHOTO_NAME.test(body.photoName)
-    ? body.photoName
-    : null;
+  const photoName =
+    typeof body.photoName === "string" && INQUIRY_PHOTO_NAME.test(body.photoName) ? body.photoName : null;
   const photo = photoName
     ? { name: photoName, url: `${supabaseUrl}/storage/v1/object/public/inquiries/${photoName}` }
     : undefined;

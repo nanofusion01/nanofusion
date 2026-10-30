@@ -1,7 +1,13 @@
 import { sanitizeHtml } from "@/lib/sanitize";
 
 /** Sekce „Co nabízíme“: popis postupu a body výhod služby. */
-export function ServiceBenefits({ processDescription, benefits }: { processDescription: string; benefits: { title: string; desc: string }[] }) {
+export function ServiceBenefits({
+  processDescription,
+  benefits,
+}: {
+  processDescription: string;
+  benefits: { title: string; desc: string }[];
+}) {
   if (!processDescription && benefits.length === 0) return null;
 
   return (
@@ -22,19 +28,22 @@ export function ServiceBenefits({ processDescription, benefits }: { processDescr
                 {benefits.map((benefit, idx) => (
                   <div key={idx} className="flex items-start gap-4">
                     <div className="flex-shrink-0 mt-1 bg-amber-100 rounded-full p-1.5">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#f59e0b"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="20 6 9 17 4 12"></polyline>
                       </svg>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-slate-800 mb-1">
-                        {benefit.title}
-                      </div>
-                      {benefit.desc && (
-                        <div className="text-slate-600 text-sm leading-relaxed">
-                          {benefit.desc}
-                        </div>
-                      )}
+                      <div className="text-lg font-bold text-slate-800 mb-1">{benefit.title}</div>
+                      {benefit.desc && <div className="text-slate-600 text-sm leading-relaxed">{benefit.desc}</div>}
                     </div>
                   </div>
                 ))}

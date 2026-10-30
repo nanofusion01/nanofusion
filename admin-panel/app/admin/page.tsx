@@ -63,20 +63,15 @@ export default async function AdminDashboard() {
     openChatsResult,
   ] = await Promise.all([
     supabase.from('inquiries').select('*', { count: 'exact', head: true }),
-    supabase.from('inquiries')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'new'),
-    supabase.from('external_reviews')
-      .select('*', { count: 'exact', head: true })
-      .eq('approved', false),
+    supabase.from('inquiries').select('*', { count: 'exact', head: true }).eq('status', 'new'),
+    supabase.from('external_reviews').select('*', { count: 'exact', head: true }).eq('approved', false),
     supabase.from('realizations').select('*', { count: 'exact', head: true }),
-    supabase.from('inquiries')
+    supabase
+      .from('inquiries')
       .select('id, name, email, service, status, created_at, source')
       .order('created_at', { ascending: false })
       .limit(5),
-    supabase.from('chat_sessions')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'open'),
+    supabase.from('chat_sessions').select('*', { count: 'exact', head: true }).eq('status', 'open'),
   ])
 
   const totalInquiries = inquiriesResult.count ?? 0
@@ -91,7 +86,6 @@ export default async function AdminDashboard() {
     in_progress: 'V řešení',
     resolved: 'Vyřešeno',
   }
-
 
   const statusColor: Record<string, { bg: string; text: string }> = {
     new: { bg: '#eff6ff', text: '#2563eb' },
@@ -204,10 +198,7 @@ export default async function AdminDashboard() {
                     <tr
                       key={inq.id}
                       style={{
-                        borderBottom:
-                          i < recentInquiries.length - 1
-                            ? '1px solid var(--border)'
-                            : undefined,
+                        borderBottom: i < recentInquiries.length - 1 ? '1px solid var(--border)' : undefined,
                       }}
                     >
                       <td className="px-6 py-4 text-sm" style={{ color: 'var(--text-muted)' }}>
@@ -221,10 +212,7 @@ export default async function AdminDashboard() {
                           {inq.email || ''}
                         </p>
                       </td>
-                      <td
-                        className="px-6 py-4 text-sm"
-                        style={{ color: 'var(--text-secondary)' }}
-                      >
+                      <td className="px-6 py-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
                         {inq.service || '—'}
                       </td>
                       <td className="px-6 py-4">

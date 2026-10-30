@@ -18,8 +18,18 @@
 import { stripHtml } from './strip-html'
 
 const CZ_MONTHS: Record<string, number> = {
-  ledna: 0, února: 1, března: 2, dubna: 3, května: 4, června: 5,
-  července: 6, srpna: 7, září: 8, října: 9, listopadu: 10, prosince: 11,
+  ledna: 0,
+  února: 1,
+  března: 2,
+  dubna: 3,
+  května: 4,
+  června: 5,
+  července: 6,
+  srpna: 7,
+  září: 8,
+  října: 9,
+  listopadu: 10,
+  prosince: 11,
 }
 
 function parseCzechDate(input: string): string | null {
@@ -54,12 +64,13 @@ export function parseFirmyReviews(html: string): ParsedFirmyReview[] {
     const content = commentMatch ? stripHtml(commentMatch[1]) : ''
     if (content.length < 5) continue
 
-    const rating = starsMatch
-      ? Math.max(1, Math.min(5, (starsMatch[1].match(/ratingStar full/g) || []).length))
-      : 5
+    const rating = starsMatch ? Math.max(1, Math.min(5, (starsMatch[1].match(/ratingStar full/g) || []).length)) : 5
     const published_at = dateMatch ? parseCzechDate(dateMatch[1].trim()) : null
 
-    const extId = `firmy_${Buffer.from(author + content.substring(0, 30)).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+    const extId = `firmy_${Buffer.from(author + content.substring(0, 30))
+      .toString('base64')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .substring(0, 32)}`
     reviews.push({ external_id: extId, author, rating, content, published_at })
   }
 

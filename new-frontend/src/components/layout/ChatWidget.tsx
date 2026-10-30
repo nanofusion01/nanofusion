@@ -37,11 +37,11 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  
+
   const [sessionId, setSessionId] = useState("");
   const [botKnowledge, setBotKnowledge] = useState<Record<string, KnowledgeEntry>>({});
   const [greetingButtons, setGreetingButtons] = useState<string[]>([]);
-  
+
   const [userData, setUserData] = useState({
     service: "",
     location: "",
@@ -89,10 +89,7 @@ export function ChatWidget() {
       }
 
       // Load bot knowledge
-      const { data: knowledgeData } = await supabase
-        .from("bot_knowledge")
-        .select("*")
-        .eq("is_active", true);
+      const { data: knowledgeData } = await supabase.from("bot_knowledge").select("*").eq("is_active", true);
 
       if (knowledgeData) {
         setBotKnowledge(buildKnowledgeBase(knowledgeData));
@@ -176,7 +173,9 @@ export function ChatWidget() {
         }
         setUserData((prev) => ({ ...prev, area }));
         setChatState("ASK_CONTACT");
-        botSay("Děkuji. Poslední krok - zanechte mi prosím vaše **telefonní číslo**, ať se vám můžeme ozvat s nabídkou. 📞");
+        botSay(
+          "Děkuji. Poslední krok - zanechte mi prosím vaše **telefonní číslo**, ať se vám můžeme ozvat s nabídkou. 📞"
+        );
         break;
       }
 
@@ -211,7 +210,7 @@ export function ChatWidget() {
       case "FINISHED":
         botSay("Jsem připraven na vaše dotazy. Co vás konkrétně zajímá ohledně našich technologií nebo záruk?");
         break;
-        
+
       default:
         botSay("Rozumím. S čím dalším vám mohu pomoci?");
     }
@@ -232,7 +231,9 @@ export function ChatWidget() {
       botSay(knownAnswer);
       if (chatState !== "FINISHED") {
         setTimeout(() => {
-          botSay("Vraťme se ale k vaší poptávce - klidně mi řekněte víc o tom, co potřebujete, ať vám můžu pomoct dál. 🙂");
+          botSay(
+            "Vraťme se ale k vaší poptávce - klidně mi řekněte víc o tom, co potřebujete, ať vám můžu pomoct dál. 🙂"
+          );
         }, 2500);
       }
       return;
@@ -300,9 +301,15 @@ export function ChatWidget() {
     text.split("\n").map((line, li) => (
       <React.Fragment key={li}>
         {li > 0 && <br />}
-        {line.split(/(\*\*.*?\*\*)/g).map((part, pi) =>
-          part.startsWith("**") && part.endsWith("**") ? <strong key={pi}>{part.slice(2, -2)}</strong> : <span key={pi}>{part}</span>
-        )}
+        {line
+          .split(/(\*\*.*?\*\*)/g)
+          .map((part, pi) =>
+            part.startsWith("**") && part.endsWith("**") ? (
+              <strong key={pi}>{part.slice(2, -2)}</strong>
+            ) : (
+              <span key={pi}>{part}</span>
+            )
+          )}
       </React.Fragment>
     ));
 
@@ -356,7 +363,7 @@ export function ChatWidget() {
                 >
                   {renderText(msg.text)}
                 </div>
-                
+
                 {/* Quick Replies */}
                 {msg.quickReplies && msg.quickReplies.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-3">
@@ -366,9 +373,13 @@ export function ChatWidget() {
                         onClick={() => {
                           if (reply.startsWith("🔗")) {
                             // Simple navigation fallback
-                            const target = reply.includes("Recenze") ? "reference" : 
-                                          reply.includes("Realizace") ? "realizace" : 
-                                          reply.includes("Služby") ? "sluzby" : "";
+                            const target = reply.includes("Recenze")
+                              ? "reference"
+                              : reply.includes("Realizace")
+                                ? "realizace"
+                                : reply.includes("Služby")
+                                  ? "sluzby"
+                                  : "";
                             if (target) {
                               const el = document.getElementById(`${target}-sec`);
                               if (el) {
@@ -389,7 +400,7 @@ export function ChatWidget() {
                 )}
               </div>
             ))}
-            
+
             {isTyping && (
               <div className="flex items-start">
                 <div className="bg-white border border-gray-100 shadow-sm rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-gray-500 flex gap-1 items-center">

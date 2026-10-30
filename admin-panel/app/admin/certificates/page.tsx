@@ -3,11 +3,8 @@ import { CertificatesClient } from './certificates-client'
 
 export default async function CertificatesPage() {
   const supabase = await createClient()
-  
-  const { data: config } = await supabase.from('site_config')
-    .select('value')
-    .eq('key', 'about_certificates')
-    .single()
+
+  const { data: config } = await supabase.from('site_config').select('value').eq('key', 'about_certificates').single()
 
   const initialCertificates = config?.value ? JSON.parse(config.value) : []
 

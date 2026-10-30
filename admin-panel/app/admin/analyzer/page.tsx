@@ -4,39 +4,39 @@ import type { NanoTip } from './actions'
 
 const DEFAULT_NANO_TIPS: NanoTip[] = [
   {
-    id: "lifetime",
-    title: "Životnost",
-    text: "Nanopovlak Nanofusion chrání povrch 3–5 let bez nutnosti opakování.",
+    id: 'lifetime',
+    title: 'Životnost',
+    text: 'Nanopovlak Nanofusion chrání povrch 3–5 let bez nutnosti opakování.',
   },
   {
-    id: "self-cleaning",
-    title: "Samočistící efekt",
-    text: "Díky hydrofobní vrstvě stéká voda i nečistoty samy — povrch se čistí deštěm.",
+    id: 'self-cleaning',
+    title: 'Samočistící efekt',
+    text: 'Díky hydrofobní vrstvě stéká voda i nečistoty samy — povrch se čistí deštěm.',
   },
   {
-    id: "uv",
-    title: "UV ochrana",
-    text: "Nanovrstva odráží UV záření a brání vyblednutí barev fasády či auta.",
+    id: 'uv',
+    title: 'UV ochrana',
+    text: 'Nanovrstva odráží UV záření a brání vyblednutí barev fasády či auta.',
   },
   {
-    id: "bio",
-    title: "Stop mechům a řasám",
-    text: "Ošetřený povrch zabraňuje opětovnému usazování mechů, řas a lišejníků.",
+    id: 'bio',
+    title: 'Stop mechům a řasám',
+    text: 'Ošetřený povrch zabraňuje opětovnému usazování mechů, řas a lišejníků.',
   },
   {
-    id: "eco",
-    title: "Šetrné k okolí",
-    text: "Naše přípravky jsou biologicky odbouratelné a bezpečné pro rostliny i zvířata.",
+    id: 'eco',
+    title: 'Šetrné k okolí',
+    text: 'Naše přípravky jsou biologicky odbouratelné a bezpečné pro rostliny i zvířata.',
   },
   {
-    id: "warranty",
-    title: "Záruka kvality",
-    text: "Na profesionální aplikaci poskytujeme záruku až 5 let písemně.",
+    id: 'warranty',
+    title: 'Záruka kvality',
+    text: 'Na profesionální aplikaci poskytujeme záruku až 5 let písemně.',
   },
   {
-    id: "speed",
-    title: "Rychlá realizace",
-    text: "Běžnou fasádu rodinného domu zvládneme ošetřit za 1–2 dny.",
+    id: 'speed',
+    title: 'Rychlá realizace',
+    text: 'Běžnou fasádu rodinného domu zvládneme ošetřit za 1–2 dny.',
   },
 ]
 
@@ -45,11 +45,11 @@ export default async function AnalyzerPage() {
   if (!supabase) {
     return <AnalyzerClient initialTips={DEFAULT_NANO_TIPS} initialLeads={[]} />
   }
-  
+
   // Tipy analyzátoru + AI analýzy (tabulka ai_analyses)
   const [configResult, leadsResult] = await Promise.all([
     supabase.from('site_config').select('*').eq('key', 'nano_tips').maybeSingle(),
-    supabase.from('ai_analyses').select('*').order('created_at', { ascending: false })
+    supabase.from('ai_analyses').select('*').order('created_at', { ascending: false }),
   ])
 
   let config = configResult.data
@@ -60,7 +60,8 @@ export default async function AnalyzerPage() {
     // If not found in site_config, seed the default values using the Admin client (bypassing RLS write restrictions)
     const adminSupabase = await createAdminClient()
     if (adminSupabase) {
-      const { data: inserted, error } = await adminSupabase.from('site_config')
+      const { data: inserted, error } = await adminSupabase
+        .from('site_config')
         .insert({
           key: 'nano_tips',
           value: JSON.stringify(DEFAULT_NANO_TIPS),
@@ -68,7 +69,7 @@ export default async function AnalyzerPage() {
         })
         .select()
         .single()
-      
+
       if (!error && inserted) {
         config = inserted
       }

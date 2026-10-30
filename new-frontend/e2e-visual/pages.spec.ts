@@ -41,7 +41,12 @@ async function settle(page: Page) {
     Promise.all(
       Array.from(document.images)
         .filter((img) => !img.complete)
-        .map((img) => new Promise((r) => { img.onload = img.onerror = r; }))
+        .map(
+          (img) =>
+            new Promise((r) => {
+              img.onload = img.onerror = r;
+            })
+        )
     )
   );
 }

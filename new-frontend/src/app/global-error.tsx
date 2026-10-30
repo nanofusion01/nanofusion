@@ -20,7 +20,10 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           <h1 className="text-3xl font-black text-gray-900 mb-4">Něco se pokazilo</h1>
           <p className="text-gray-600 text-lg mb-10">
             Web se nepodařilo načíst. Zkuste to prosím znovu, nebo nám zavolejte na{" "}
-            <a href="tel:+420774509409" className="text-amber-600 font-bold">+420 774 509 409</a>.
+            <a href="tel:+420774509409" className="text-amber-600 font-bold">
+              +420 774 509 409
+            </a>
+            .
           </p>
           <button
             onClick={reset}

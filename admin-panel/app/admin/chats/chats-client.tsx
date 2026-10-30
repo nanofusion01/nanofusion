@@ -74,14 +74,16 @@ export function ChatsClient({ sessions }: { sessions: ChatSession[] }) {
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Chaty (Nanobot)</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Chaty (Nanobot)
+          </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             {sessions.length} relací · <span style={{ color: '#2563eb' }}>{openCount} otevřených</span>
           </p>
         </div>
 
-        {sessions.length > 0 && (
-          !deleteAllConfirm ? (
+        {sessions.length > 0 &&
+          (!deleteAllConfirm ? (
             <button
               onClick={() => setDeleteAllConfirm(true)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
@@ -92,15 +94,23 @@ export function ChatsClient({ sessions }: { sessions: ChatSession[] }) {
           ) : (
             <div className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg" style={{ background: '#fef2f2' }}>
               <span style={{ color: '#991b1b' }}>Nevratně smazat všech {sessions.length} relací?</span>
-              <button onClick={handleDeleteAll} disabled={deletingAll} className="font-bold disabled:opacity-60" style={{ color: '#ef4444' }}>
+              <button
+                onClick={handleDeleteAll}
+                disabled={deletingAll}
+                className="font-bold disabled:opacity-60"
+                style={{ color: '#ef4444' }}
+              >
                 {deletingAll ? 'Mažu...' : 'Ano, smazat'}
               </button>
-              <button onClick={() => setDeleteAllConfirm(false)} disabled={deletingAll} style={{ color: 'var(--text-muted)' }}>
+              <button
+                onClick={() => setDeleteAllConfirm(false)}
+                disabled={deletingAll}
+                style={{ color: 'var(--text-muted)' }}
+              >
                 Zrušit
               </button>
             </div>
-          )
-        )}
+          ))}
       </div>
 
       {checkedIds.size > 0 && (
@@ -131,11 +141,23 @@ export function ChatsClient({ sessions }: { sessions: ChatSession[] }) {
               </>
             ) : (
               <>
-                <span className="text-xs" style={{ color: '#991b1b' }}>Opravdu smazat?</span>
-                <button onClick={handleDeleteSelected} disabled={bulkDeleting} className="font-bold text-xs disabled:opacity-60" style={{ color: '#ef4444' }}>
+                <span className="text-xs" style={{ color: '#991b1b' }}>
+                  Opravdu smazat?
+                </span>
+                <button
+                  onClick={handleDeleteSelected}
+                  disabled={bulkDeleting}
+                  className="font-bold text-xs disabled:opacity-60"
+                  style={{ color: '#ef4444' }}
+                >
                   {bulkDeleting ? 'Mažu...' : 'Ano, smazat'}
                 </button>
-                <button onClick={() => setBulkDeleteConfirm(false)} disabled={bulkDeleting} className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                <button
+                  onClick={() => setBulkDeleteConfirm(false)}
+                  disabled={bulkDeleting}
+                  className="text-xs"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   Zrušit
                 </button>
               </>
@@ -144,7 +166,10 @@ export function ChatsClient({ sessions }: { sessions: ChatSession[] }) {
         </div>
       )}
 
-      <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+      >
         {sessions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <MessageSquare size={44} style={{ color: 'var(--text-muted)' }} />
@@ -158,7 +183,11 @@ export function ChatsClient({ sessions }: { sessions: ChatSession[] }) {
                   <input type="checkbox" checked={allChecked} onChange={toggleCheckAll} className="cursor-pointer" />
                 </th>
                 {['Uživatel', 'Začátek', 'Poslední aktivita', 'Zprávy', 'Stav'].map((col) => (
-                  <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                  <th
+                    key={col}
+                    className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     {col}
                   </th>
                 ))}
@@ -182,31 +211,50 @@ export function ChatsClient({ sessions }: { sessions: ChatSession[] }) {
                       />
                     </td>
                     <td className="px-0 py-0">
-                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      <Link
+                        href={`/admin/chats/${session.id}`}
+                        className="block px-5 py-4 text-sm font-semibold"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         {session.user_identifier || 'Anonymní'}
                       </Link>
                     </td>
                     <td className="px-0 py-0">
-                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4 text-sm" style={{ color: 'var(--text-muted)' }}>
+                      <Link
+                        href={`/admin/chats/${session.id}`}
+                        className="block px-5 py-4 text-sm"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
                         {new Date(session.started_at).toLocaleString('cs-CZ')}
                       </Link>
                     </td>
                     <td className="px-0 py-0">
-                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4 text-sm" style={{ color: 'var(--text-muted)' }}>
+                      <Link
+                        href={`/admin/chats/${session.id}`}
+                        className="block px-5 py-4 text-sm"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
                         {new Date(session.last_activity).toLocaleString('cs-CZ')}
                       </Link>
                     </td>
                     <td className="px-0 py-0">
-                      <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      <Link
+                        href={`/admin/chats/${session.id}`}
+                        className="block px-5 py-4 text-sm font-semibold"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         {msgCount}
                       </Link>
                     </td>
                     <td className="px-0 py-0">
                       <Link href={`/admin/chats/${session.id}`} className="block px-5 py-4">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{
-                          background: session.status === 'open' ? '#eff6ff' : '#f1f5f9',
-                          color: session.status === 'open' ? '#2563eb' : '#94a3b8',
-                        }}>
+                        <span
+                          className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                          style={{
+                            background: session.status === 'open' ? '#eff6ff' : '#f1f5f9',
+                            color: session.status === 'open' ? '#2563eb' : '#94a3b8',
+                          }}
+                        >
                           {session.status === 'open' ? 'Otevřený' : 'Uzavřený'}
                         </span>
                       </Link>

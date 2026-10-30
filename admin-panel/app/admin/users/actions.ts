@@ -25,25 +25,18 @@ export async function deleteUser(id: string) {
     // profiles.id odkazuje na auth.users bez ON DELETE CASCADE, takže Auth
     // odmítne smazat uživatele, dokud existuje jeho profil. Nejdřív proto
     // smažeme profil (a zapamatujeme si ho), potom uživatele z Auth.
-    const { data: profile, error: readError } = await supabase.from('profiles')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle()
+    const { data: profile, error: readError } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle()
     if (readError) throw new Error(readError.message)
 
     if (profile?.role === 'admin') {
-      const { count } = await supabase.from('profiles')
-        .select('id', { count: 'exact', head: true })
-        .eq('role', 'admin')
+      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'admin')
       if ((count ?? 0) <= 1) {
         throw new Error('Nelze smazat posledního administrátora.')
       }
     }
 
     if (profile) {
-      const { error: profileError } = await supabase.from('profiles')
-        .delete()
-        .eq('id', id)
+      const { error: profileError } = await supabase.from('profiles').delete().eq('id', id)
       if (profileError) throw new Error(profileError.message)
     }
 
@@ -82,8 +75,7 @@ export async function addUser(email: string) {
 
     // Profil založí trigger handle_new_user (vždy s rolí editor) - pozvaní
     // uživatelé jsou ale administrátoři, takže roli nastavíme explicitně.
-    const { error: roleError } = await supabase.from('profiles')
-      .upsert({ id: data.user.id, email, role: 'admin' })
+    const { error: roleError } = await supabase.from('profiles').upsert({ id: data.user.id, email, role: 'admin' })
     if (roleError) throw new Error(`Účet vytvořen, ale nepodařilo se nastavit roli: ${roleError.message}`)
 
     revalidatePath('/admin/users')
@@ -95,9 +87,7 @@ export async function updateUserRole(id: string, role: 'admin' | 'editor') {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('profiles')
-      .update({ role })
-      .eq('id', id)
+    const { error } = await supabase.from('profiles').update({ role }).eq('id', id)
 
     if (error) throw new Error(error.message)
     revalidatePath('/admin/users')
@@ -108,7 +98,9 @@ export async function updateUserRole(id: string, role: 'admin' | 'editor') {
 export async function clearForcePasswordChange() {
   return safeAction(async () => {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) throw new Error('Nejste přihlášeni.')
     const admin = await createAdminClient()
     const { error } = await admin.auth.admin.updateUserById(user.id, {

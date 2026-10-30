@@ -8,7 +8,17 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { errorMessage } from "@/lib/utils";
 
 // Lokální komponenty
-const ContactInfoItem = ({ icon, title, content, href }: { icon: React.ReactNode, title: string, content: string, href?: string }) => (
+const ContactInfoItem = ({
+  icon,
+  title,
+  content,
+  href,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  content: string;
+  href?: string;
+}) => (
   <div className="flex items-center gap-4">
     <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0 text-amber-500">
       {icon}
@@ -16,7 +26,9 @@ const ContactInfoItem = ({ icon, title, content, href }: { icon: React.ReactNode
     <div>
       <div className="text-sm text-slate-500 mb-0.5">{title}</div>
       {href ? (
-        <a href={href} className="text-slate-900 font-bold hover:text-amber-500 transition-colors">{content}</a>
+        <a href={href} className="text-slate-900 font-bold hover:text-amber-500 transition-colors">
+          {content}
+        </a>
       ) : (
         <div className="text-slate-900 font-bold">{content}</div>
       )}
@@ -29,28 +41,32 @@ type FieldElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 interface ContactInputProps extends Omit<React.InputHTMLAttributes<FieldElement>, "onChange"> {
   onChange?: React.ChangeEventHandler<FieldElement>;
   label: string;
-  as?: 'input' | 'select' | 'textarea';
+  as?: "input" | "select" | "textarea";
   children?: React.ReactNode;
   rows?: number;
 }
 
-const ContactInput = ({ label, as = 'input', className = '', children, ...props }: ContactInputProps) => {
+const ContactInput = ({ label, as = "input", className = "", children, ...props }: ContactInputProps) => {
   const id = useId();
-  const baseClasses = "w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 font-medium placeholder:text-slate-400 outline-none focus:border-amber-500 transition-colors";
+  const baseClasses =
+    "w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 font-medium placeholder:text-slate-400 outline-none focus:border-amber-500 transition-colors";
   return (
     <div className={className}>
-      <label htmlFor={id} className="block text-sm font-bold text-slate-900 mb-2">{label}</label>
-      {as === 'textarea' ? (
-        <textarea
-          id={id}
-          className={`${baseClasses} resize-y`}
-          {...props}
-        />
-      ) : as === 'select' ? (
+      <label htmlFor={id} className="block text-sm font-bold text-slate-900 mb-2">
+        {label}
+      </label>
+      {as === "textarea" ? (
+        <textarea id={id} className={`${baseClasses} resize-y`} {...props} />
+      ) : as === "select" ? (
         <select
           id={id}
           className={`${baseClasses} text-slate-600 appearance-none`}
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2rem' }}
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "right 1rem center",
+            backgroundSize: "1.2rem",
+          }}
           {...props}
         >
           {children}
@@ -98,7 +114,9 @@ export function Contact() {
       setMessage("");
     } catch (error) {
       console.error("Error submitting form:", error);
-      setFormError(errorMessage(error) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(
+        errorMessage(error) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -108,11 +126,14 @@ export function Contact() {
     <section className="py-12 md:py-16 bg-white" id="kontakt">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-
           {/* Left Column: Info */}
           <div className="flex flex-col justify-center items-start lg:col-span-6 xl:col-span-6">
             <SectionHeader
-              title={<>Získejte cenovou nabídku <span className="text-amber-500">zdarma</span></>}
+              title={
+                <>
+                  Získejte cenovou nabídku <span className="text-amber-500">zdarma</span>
+                </>
+              }
               preTitle="KONTAKTUJTE NÁS"
               align="left"
               variant="left"
@@ -120,7 +141,8 @@ export function Contact() {
               className="mb-10 w-full"
             />
             <p className="text-slate-600 text-lg mb-10 leading-relaxed max-w-lg">
-              Vyplňte formulář a my se vám ozveme do 24 hodin s nezávaznou cenovou nabídkou. Konzultace a zaměření je zcela zdarma.
+              Vyplňte formulář a my se vám ozveme do 24 hodin s nezávaznou cenovou nabídkou. Konzultace a zaměření je
+              zcela zdarma.
             </p>
 
             <div className="space-y-6">
@@ -130,7 +152,11 @@ export function Contact() {
                 href="tel:+420774509409"
                 icon={
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
                   </svg>
                 }
               />
@@ -140,7 +166,11 @@ export function Contact() {
                 href="mailto:info@nanofusion.cz"
                 icon={
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                   </svg>
                 }
               />
@@ -149,7 +179,11 @@ export function Contact() {
                 content="Celá Česká republika"
                 icon={
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 }
@@ -159,7 +193,11 @@ export function Contact() {
                 content="Po–Pá 7:00–18:00"
                 icon={
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 }
               />
@@ -193,11 +231,7 @@ export function Contact() {
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">Děkujeme!</h3>
                   <p className="text-slate-600">Vaše poptávka byla úspěšně odeslána. Brzy se vám ozveme.</p>
-                  <Button
-                    type="button"
-                    className="mt-6"
-                    onClick={() => setSuccess(false)}
-                  >
+                  <Button type="button" className="mt-6" onClick={() => setSuccess(false)}>
                     Odeslat další poptávku
                   </Button>
                 </div>
@@ -261,11 +295,7 @@ export function Contact() {
                     <FormError message={formError} />
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full h-12 text-sm justify-center gap-2"
-                  >
+                  <Button type="submit" disabled={submitting} className="w-full h-12 text-sm justify-center gap-2">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
@@ -279,7 +309,6 @@ export function Contact() {
               )}
             </form>
           </div>
-
         </div>
       </div>
     </section>

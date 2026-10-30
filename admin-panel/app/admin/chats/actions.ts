@@ -9,9 +9,7 @@ export async function setChatSessionStatus(id: string, status: 'open' | 'closed'
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('chat_sessions')
-      .update({ status })
-      .eq('id', id)
+    const { error } = await supabase.from('chat_sessions').update({ status }).eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/chats')
     revalidatePath(`/admin/chats/${id}`)
@@ -22,9 +20,7 @@ export async function deleteChatSession(id: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('chat_sessions')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('chat_sessions').delete().eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/chats')
   })
@@ -36,9 +32,7 @@ export async function deleteChatSessions(ids: string[]) {
     if (ids.length === 0) return
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('chat_sessions')
-      .delete()
-      .in('id', ids)
+    const { error } = await supabase.from('chat_sessions').delete().in('id', ids)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/chats')
     revalidatePath('/admin')
@@ -51,9 +45,7 @@ export async function deleteAllChatSessions() {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('chat_sessions')
-      .delete()
-      .not('id', 'is', null)
+    const { error } = await supabase.from('chat_sessions').delete().not('id', 'is', null)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/chats')
     revalidatePath('/admin')

@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
-import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js"
+import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js'
 
 /**
  * Jsou nastavené proměnné prostředí pro Supabase? Layout podle toho ukáže
@@ -26,22 +26,21 @@ export async function createClient(): Promise<SupabaseClient<Database>> {
   if (!key) missingEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
   return createServerClient<Database>(url, key, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options)
-            })
-          } catch {
-            // Ignore cookie errors in Server Components
-          }
-        },
+    cookies: {
+      getAll() {
+        return cookieStore.getAll()
       },
-    }
-  )
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        } catch {
+          // Ignore cookie errors in Server Components
+        }
+      },
+    },
+  })
 }
 
 /** Klient se service role klíčem (obchází RLS) – jen na serveru, vždy až po requireAdmin*. */
@@ -55,7 +54,7 @@ export async function createAdminClient(): Promise<SupabaseClient<Database>> {
   return createSupabaseClient<Database>(url, serviceKey, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   })
 }

@@ -11,7 +11,15 @@ import type { ProcessStep } from '../types'
 const { saveServiceProcessSteps } = unwrapActions(actionsRaw)
 
 /** Záložka „Jak to funguje“: kroky postupu práce u služby. */
-export function ProcessTab({ serviceId, processSteps, setProcessSteps }: { serviceId: string; processSteps: ProcessStep[]; setProcessSteps: React.Dispatch<React.SetStateAction<ProcessStep[]>> }) {
+export function ProcessTab({
+  serviceId,
+  processSteps,
+  setProcessSteps,
+}: {
+  serviceId: string
+  processSteps: ProcessStep[]
+  setProcessSteps: React.Dispatch<React.SetStateAction<ProcessStep[]>>
+}) {
   const [savingProcess, setSavingProcess] = useState(false)
   // --- Process steps save ---
   const handleSaveProcess = async () => {
@@ -32,7 +40,9 @@ export function ProcessTab({ serviceId, processSteps, setProcessSteps }: { servi
         <div className="flex justify-between items-center pb-4 border-b" style={{ borderColor: 'var(--border)' }}>
           <div>
             <h3 className="text-lg font-bold">Jak to funguje (Krok za krokem)</h3>
-            <p className="text-sm text-slate-400">Upravte specifický postup a jednotlivé kroky realizace pro tuto službu.</p>
+            <p className="text-sm text-slate-400">
+              Upravte specifický postup a jednotlivé kroky realizace pro tuto službu.
+            </p>
           </div>
           <div className="flex gap-3">
             <button
@@ -58,8 +68,8 @@ export function ProcessTab({ serviceId, processSteps, setProcessSteps }: { servi
 
         <div className="space-y-4">
           {processSteps.map((stepItem, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className="p-5 rounded-2xl border space-y-4 relative"
               style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
             >

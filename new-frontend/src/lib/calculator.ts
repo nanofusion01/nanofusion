@@ -35,4 +35,3 @@ export function calculateRangeEstimate(area: number, basePrice: number): PriceEs
 
   return { min, max, base: calcBase };
 }
-

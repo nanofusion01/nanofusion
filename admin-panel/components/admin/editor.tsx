@@ -9,7 +9,22 @@ import { Color } from '@tiptap/extension-color'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { FontFamily } from '@tiptap/extension-font-family'
 import { TextAlign } from '@tiptap/extension-text-align'
-import { Bold, Italic, List, ListOrdered, Undo, Redo, Heading1, Heading2, Link as LinkIcon, Image as ImageIcon, AlignCenter, AlignLeft, AlignRight, Pipette } from 'lucide-react'
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Undo,
+  Redo,
+  Heading1,
+  Heading2,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  Pipette,
+} from 'lucide-react'
 
 interface EditorProps {
   content: string
@@ -34,7 +49,10 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-slate-50 rounded-t-xl" style={{ borderColor: 'var(--border)' }}>
+    <div
+      className="flex flex-wrap items-center gap-1 p-2 border-b bg-slate-50 rounded-t-xl"
+      style={{ borderColor: 'var(--border)' }}
+    >
       {/* Text Style */}
       <button
         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -57,7 +75,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
       {/* Font Family */}
       <select
-        onChange={e => editor.chain().focus().setFontFamily(e.target.value).run()}
+        onChange={(e) => editor.chain().focus().setFontFamily(e.target.value).run()}
         className="text-xs font-semibold bg-white border rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-amber-500/20"
         value={editor.getAttributes('textStyle').fontFamily || ''}
       >
@@ -70,12 +88,27 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
       {/* Color Picker */}
       <div className="relative flex items-center group ml-1">
-        <div className="relative p-2 rounded-lg hover:bg-slate-200 cursor-pointer transition-colors flex items-center gap-1" title="Barva textu">
+        <div
+          className="relative p-2 rounded-lg hover:bg-slate-200 cursor-pointer transition-colors flex items-center gap-1"
+          title="Barva textu"
+        >
           <Pipette size={18} style={{ color: editor.getAttributes('textStyle').color || 'inherit' }} />
           <input
             type="color"
-            onInput={e => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
-            onChange={e => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
+            onInput={(e) =>
+              editor
+                .chain()
+                .focus()
+                .setColor((e.target as HTMLInputElement).value)
+                .run()
+            }
+            onChange={(e) =>
+              editor
+                .chain()
+                .focus()
+                .setColor((e.target as HTMLInputElement).value)
+                .run()
+            }
             value={editor.getAttributes('textStyle').color || '#000000'}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
@@ -146,7 +179,11 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       <div className="w-px h-6 bg-slate-300 mx-1" />
 
       {/* Others */}
-      <button onClick={setLink} className={`p-2 rounded-lg hover:bg-slate-200 transition-colors ${editor.isActive('link') ? 'bg-white shadow-sm text-amber-600' : ''}`} title="Odkaz">
+      <button
+        onClick={setLink}
+        className={`p-2 rounded-lg hover:bg-slate-200 transition-colors ${editor.isActive('link') ? 'bg-white shadow-sm text-amber-600' : ''}`}
+        title="Odkaz"
+      >
         <LinkIcon size={18} />
       </button>
       <button onClick={addImage} className="p-2 rounded-lg hover:bg-slate-200 transition-colors" title="Obrázek">
@@ -154,10 +191,18 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       </button>
 
       <div className="ml-auto flex items-center gap-1">
-        <button onClick={() => editor.chain().focus().undo().run()} className="p-2 rounded-lg hover:bg-slate-200 transition-colors" title="Zpět">
+        <button
+          onClick={() => editor.chain().focus().undo().run()}
+          className="p-2 rounded-lg hover:bg-slate-200 transition-colors"
+          title="Zpět"
+        >
           <Undo size={18} />
         </button>
-        <button onClick={() => editor.chain().focus().redo().run()} className="p-2 rounded-lg hover:bg-slate-200 transition-colors" title="Vpřed">
+        <button
+          onClick={() => editor.chain().focus().redo().run()}
+          className="p-2 rounded-lg hover:bg-slate-200 transition-colors"
+          title="Vpřed"
+        >
           <Redo size={18} />
         </button>
       </div>
@@ -189,9 +234,9 @@ export function TiptapEditor({ content, onChange }: EditorProps) {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-slate max-w-none focus:outline-none min-h-[300px] p-6 text-slate-800 bg-white'
-      }
-    }
+        class: 'prose prose-slate max-w-none focus:outline-none min-h-[300px] p-6 text-slate-800 bg-white',
+      },
+    },
   })
 
   // Synchronizace prop content do editoru (Tiptap ignoruje změny props by default)
@@ -202,7 +247,10 @@ export function TiptapEditor({ content, onChange }: EditorProps) {
   }, [content, editor])
 
   return (
-    <div className="border rounded-xl flex flex-col overflow-hidden transition-all focus-within:ring-4 focus-within:ring-amber-500/10 focus-within:border-amber-500/50" style={{ borderColor: 'var(--border)' }}>
+    <div
+      className="border rounded-xl flex flex-col overflow-hidden transition-all focus-within:ring-4 focus-within:ring-amber-500/10 focus-within:border-amber-500/50"
+      style={{ borderColor: 'var(--border)' }}
+    >
       <MenuBar editor={editor} />
       <div className="bg-white">
         <EditorContent editor={editor} />

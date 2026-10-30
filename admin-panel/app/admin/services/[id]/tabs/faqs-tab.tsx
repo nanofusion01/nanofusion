@@ -11,7 +11,15 @@ const { addServiceFaq, updateServiceFaq, deleteServiceFaq } = unwrapActions(acti
 const { updateFaq, deleteFaq } = unwrapActions(faqActionsRaw)
 
 /** Záložka „Q&A“: časté dotazy ke službě (vlastní i obecné ze sekce FAQ). */
-export function FaqsTab({ serviceId, faqs, setFaqs }: { serviceId: string; faqs: ServiceFAQ[]; setFaqs: React.Dispatch<React.SetStateAction<ServiceFAQ[]>> }) {
+export function FaqsTab({
+  serviceId,
+  faqs,
+  setFaqs,
+}: {
+  serviceId: string
+  faqs: ServiceFAQ[]
+  setFaqs: React.Dispatch<React.SetStateAction<ServiceFAQ[]>>
+}) {
   return (
     <>
       <div className="space-y-6">
@@ -32,14 +40,20 @@ export function FaqsTab({ serviceId, faqs, setFaqs }: { serviceId: string; faqs:
 
         <div className="grid gap-4">
           {faqs.map((faq) => (
-            <div key={faq.id} className="p-6 rounded-2xl border space-y-4" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
+            <div
+              key={faq.id}
+              className="p-6 rounded-2xl border space-y-4"
+              style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
+            >
               <div className="flex items-start gap-4">
                 <div className="flex-1 space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase text-slate-400 flex items-center justify-between">
                       <span>Otázka</span>
                       {faq.is_global && (
-                        <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[9px] font-black tracking-tighter">GLOBÁLNÍ</span>
+                        <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[9px] font-black tracking-tighter">
+                          GLOBÁLNÍ
+                        </span>
                       )}
                     </label>
                     <input
@@ -47,7 +61,7 @@ export function FaqsTab({ serviceId, faqs, setFaqs }: { serviceId: string; faqs:
                       value={faq.question}
                       onChange={(e) => {
                         const val = e.target.value
-                        setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, question: val } : f))
+                        setFaqs((prev) => prev.map((f) => (f.id === faq.id ? { ...f, question: val } : f)))
                       }}
                       onBlur={async (e) => {
                         if (faq.is_global) {
@@ -68,13 +82,13 @@ export function FaqsTab({ serviceId, faqs, setFaqs }: { serviceId: string; faqs:
                         value={faq.order_index || 0}
                         onChange={(e) => {
                           const val = parseInt(e.target.value) || 0
-                          setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, order_index: val } : f))
+                          setFaqs((prev) => prev.map((f) => (f.id === faq.id ? { ...f, order_index: val } : f)))
                         }}
                         onBlur={async (e) => {
                           const val = parseInt(e.target.value) || 0
                           await updateServiceFaq(faq.id, { order_index: val })
                           // Seřadíme lokálně po změně
-                          setFaqs(prev => [...prev].sort((a, b) => (a.order_index || 0) - (b.order_index || 0)))
+                          setFaqs((prev) => [...prev].sort((a, b) => (a.order_index || 0) - (b.order_index || 0)))
                         }}
                         className="w-full px-4 py-2 rounded-lg border text-sm outline-none focus:border-amber-500"
                         style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
@@ -86,7 +100,7 @@ export function FaqsTab({ serviceId, faqs, setFaqs }: { serviceId: string; faqs:
                         value={faq.answer}
                         onChange={(e) => {
                           const val = e.target.value
-                          setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, answer: val } : f))
+                          setFaqs((prev) => prev.map((f) => (f.id === faq.id ? { ...f, answer: val } : f)))
                         }}
                         onBlur={async (e) => {
                           if (faq.is_global) {
@@ -111,7 +125,7 @@ export function FaqsTab({ serviceId, faqs, setFaqs }: { serviceId: string; faqs:
                         } else {
                           await deleteServiceFaq(faq.id)
                         }
-                        setFaqs(faqs.filter(f => f.id !== faq.id))
+                        setFaqs(faqs.filter((f) => f.id !== faq.id))
                         toast.success('Dotaz smazán')
                       }
                     }}
@@ -127,7 +141,7 @@ export function FaqsTab({ serviceId, faqs, setFaqs }: { serviceId: string; faqs:
                       } else {
                         await updateServiceFaq(faq.id, { is_active: newStatus })
                       }
-                      setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, is_active: newStatus } : f))
+                      setFaqs((prev) => prev.map((f) => (f.id === faq.id ? { ...f, is_active: newStatus } : f)))
                       toast.success(newStatus ? 'Aktivováno' : 'Deaktivováno')
                     }}
                     title={faq.is_active ? 'Skrýt z webu' : 'Zobrazit na webu'}

@@ -14,54 +14,54 @@ import type { Article } from "@/lib/types";
 // v `target_service` komentářích starších článků, ale VÝSLEDNÝ slug musí
 // být vždy ten aktuální český, jinak "Spočítat cenu" zase skončí na 404.
 const SERVICE_MAP: Record<string, { slug: string; name: string }> = {
-  'kalkulacka': { slug: '', name: 'Kalkulačka' },
-  'facade': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
-  'sluzby/facade': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
-  'cisteni-fasad': { slug: 'cisteni-fasad', name: 'Čištění fasád' },
+  kalkulacka: { slug: "", name: "Kalkulačka" },
+  facade: { slug: "cisteni-fasad", name: "Čištění fasád" },
+  "sluzby/facade": { slug: "cisteni-fasad", name: "Čištění fasád" },
+  "cisteni-fasad": { slug: "cisteni-fasad", name: "Čištění fasád" },
 
-  'roof': { slug: 'cisteni-strech', name: 'Čištění střech' },
-  'sluzby/roof': { slug: 'cisteni-strech', name: 'Čištění střech' },
-  'cisteni-strech': { slug: 'cisteni-strech', name: 'Čištění střech' },
+  roof: { slug: "cisteni-strech", name: "Čištění střech" },
+  "sluzby/roof": { slug: "cisteni-strech", name: "Čištění střech" },
+  "cisteni-strech": { slug: "cisteni-strech", name: "Čištění střech" },
 
-  'pavement': { slug: 'cisteni-dlazby', name: 'Čištění dlažeb' },
-  'sluzby/pavement': { slug: 'cisteni-dlazby', name: 'Čištění dlažeb' },
-  'cisteni-dlazby': { slug: 'cisteni-dlazby', name: 'Čištění dlažeb' },
+  pavement: { slug: "cisteni-dlazby", name: "Čištění dlažeb" },
+  "sluzby/pavement": { slug: "cisteni-dlazby", name: "Čištění dlažeb" },
+  "cisteni-dlazby": { slug: "cisteni-dlazby", name: "Čištění dlažeb" },
 
-  'pv': { slug: 'cisteni-fotovoltaiky', name: 'Čištění fotovoltaiky' },
-  'sluzby/pv': { slug: 'cisteni-fotovoltaiky', name: 'Čištění fotovoltaiky' },
-  'cisteni-fotovoltaiky': { slug: 'cisteni-fotovoltaiky', name: 'Čištění fotovoltaiky' },
+  pv: { slug: "cisteni-fotovoltaiky", name: "Čištění fotovoltaiky" },
+  "sluzby/pv": { slug: "cisteni-fotovoltaiky", name: "Čištění fotovoltaiky" },
+  "cisteni-fotovoltaiky": { slug: "cisteni-fotovoltaiky", name: "Čištění fotovoltaiky" },
 
-  'graffiti': { slug: 'odstraneni-graffiti', name: 'Odstranění graffiti' },
-  'sluzby/graffiti': { slug: 'odstraneni-graffiti', name: 'Odstranění graffiti' },
-  'odstraneni-graffiti': { slug: 'odstraneni-graffiti', name: 'Odstranění graffiti' },
+  graffiti: { slug: "odstraneni-graffiti", name: "Odstranění graffiti" },
+  "sluzby/graffiti": { slug: "odstraneni-graffiti", name: "Odstranění graffiti" },
+  "odstraneni-graffiti": { slug: "odstraneni-graffiti", name: "Odstranění graffiti" },
 
-  'industrial': { slug: 'prumyslove-cisteni', name: 'Průmyslové čištění' },
-  'sluzby/industrial': { slug: 'prumyslove-cisteni', name: 'Průmyslové čištění' },
-  'prumyslove-cisteni': { slug: 'prumyslove-cisteni', name: 'Průmyslové čištění' },
+  industrial: { slug: "prumyslove-cisteni", name: "Průmyslové čištění" },
+  "sluzby/industrial": { slug: "prumyslove-cisteni", name: "Průmyslové čištění" },
+  "prumyslove-cisteni": { slug: "prumyslove-cisteni", name: "Průmyslové čištění" },
 
-  'facade-paint': { slug: 'natery-fasad', name: 'Nátěry fasád' },
-  'sluzby/facade-paint': { slug: 'natery-fasad', name: 'Nátěry fasád' },
-  'natery-fasad': { slug: 'natery-fasad', name: 'Nátěry fasád' },
+  "facade-paint": { slug: "natery-fasad", name: "Nátěry fasád" },
+  "sluzby/facade-paint": { slug: "natery-fasad", name: "Nátěry fasád" },
+  "natery-fasad": { slug: "natery-fasad", name: "Nátěry fasád" },
 
-  'roof-paint': { slug: 'natery-strech', name: 'Nátěry střech' },
-  'sluzby/roof-paint': { slug: 'natery-strech', name: 'Nátěry střech' },
-  'natery-strech': { slug: 'natery-strech', name: 'Nátěry střech' },
+  "roof-paint": { slug: "natery-strech", name: "Nátěry střech" },
+  "sluzby/roof-paint": { slug: "natery-strech", name: "Nátěry střech" },
+  "natery-strech": { slug: "natery-strech", name: "Nátěry střech" },
 
-  'impregnation': { slug: 'nano-impregnace', name: 'Nano impregnace' },
-  'sluzby/impregnation': { slug: 'nano-impregnace', name: 'Nano impregnace' },
-  'nano-impregnace': { slug: 'nano-impregnace', name: 'Nano impregnace' },
+  impregnation: { slug: "nano-impregnace", name: "Nano impregnace" },
+  "sluzby/impregnation": { slug: "nano-impregnace", name: "Nano impregnace" },
+  "nano-impregnace": { slug: "nano-impregnace", name: "Nano impregnace" },
 
-  'antislip': { slug: 'protiskluzove-natery', name: 'Protiskluzové nátěry' },
-  'sluzby/antislip': { slug: 'protiskluzove-natery', name: 'Protiskluzové nátěry' },
-  'protiskluzove-natery': { slug: 'protiskluzove-natery', name: 'Protiskluzové nátěry' },
+  antislip: { slug: "protiskluzove-natery", name: "Protiskluzové nátěry" },
+  "sluzby/antislip": { slug: "protiskluzove-natery", name: "Protiskluzové nátěry" },
+  "protiskluzove-natery": { slug: "protiskluzove-natery", name: "Protiskluzové nátěry" },
 
-  'ceramfloor': { slug: 'ochrana-podlah-ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
-  'sluzby/ceramfloor': { slug: 'ochrana-podlah-ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
-  'ochrana-podlah-ceramfloor': { slug: 'ochrana-podlah-ceramfloor', name: 'Ochrana dlažeb CeramFloor' },
+  ceramfloor: { slug: "ochrana-podlah-ceramfloor", name: "Ochrana dlažeb CeramFloor" },
+  "sluzby/ceramfloor": { slug: "ochrana-podlah-ceramfloor", name: "Ochrana dlažeb CeramFloor" },
+  "ochrana-podlah-ceramfloor": { slug: "ochrana-podlah-ceramfloor", name: "Ochrana dlažeb CeramFloor" },
 
-  'antibac': { slug: 'antibakterialni-ochrana', name: 'Antibakteriální ochrana' },
-  'sluzby/antibac': { slug: 'antibakterialni-ochrana', name: 'Antibakteriální ochrana' },
-  'antibakterialni-ochrana': { slug: 'antibakterialni-ochrana', name: 'Antibakteriální ochrana' },
+  antibac: { slug: "antibakterialni-ochrana", name: "Antibakteriální ochrana" },
+  "sluzby/antibac": { slug: "antibakterialni-ochrana", name: "Antibakteriální ochrana" },
+  "antibakterialni-ochrana": { slug: "antibakterialni-ochrana", name: "Antibakteriální ochrana" },
 };
 
 function getTargetService(article: Article) {
@@ -74,15 +74,15 @@ function getTargetService(article: Article) {
     }
   }
 
-  if (!target || target === 'kalkulacka') {
+  if (!target || target === "kalkulacka") {
     return null;
   }
 
-  const normalized = target.replace(/^\/+/g, '').replace(/^sluzby\//, 'sluzby/');
+  const normalized = target.replace(/^\/+/g, "").replace(/^sluzby\//, "sluzby/");
   if (SERVICE_MAP[normalized]) return SERVICE_MAP[normalized];
   if (SERVICE_MAP[target]) return SERVICE_MAP[target];
 
-  return { slug: target.replace(/^sluzby\//, ''), name: 'Související služba' };
+  return { slug: target.replace(/^sluzby\//, ""), name: "Související služba" };
 }
 
 function ArticleCard({ article, onClick }: { article: Article; onClick: () => void }) {
@@ -92,10 +92,10 @@ function ArticleCard({ article, onClick }: { article: Article; onClick: () => vo
   if (dateString) {
     const d = new Date(dateString);
     if (!isNaN(d.getTime())) {
-      formattedDate = d.toLocaleDateString('cs-CZ', {
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric'
+      formattedDate = d.toLocaleDateString("cs-CZ", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
       });
     } else {
       formattedDate = dateString;
@@ -103,21 +103,26 @@ function ArticleCard({ article, onClick }: { article: Article; onClick: () => vo
   }
 
   return (
-    <div 
+    <div
       onClick={onClick}
       className="group/card flex flex-col bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 h-auto w-[85vw] md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.33rem)] shrink-0 cursor-pointer"
     >
       <div className="relative aspect-[3/2] overflow-hidden bg-slate-100">
         {article.hero_image_url ? (
-          <img 
-            src={article.hero_image_url} 
+          <img
+            src={article.hero_image_url}
             alt={article.title}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-slate-300">
             <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
           </div>
         )}
@@ -132,14 +137,20 @@ function ArticleCard({ article, onClick }: { article: Article; onClick: () => vo
             </span>
           )}
         </div>
-        
+
         <h3 className="text-xl font-bold text-slate-900 mb-6 group-hover/card:text-amber-600 transition-colors line-clamp-3 leading-snug">
           {article.title}
         </h3>
-        
+
         <div className="mt-auto flex items-center text-amber-500 font-bold text-sm transition-colors">
-          Číst článek 
-          <svg className="ml-1 w-4 h-4 transition-transform group-hover/card:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          Číst článek
+          <svg
+            className="ml-1 w-4 h-4 transition-transform group-hover/card:translate-x-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={3}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </div>
@@ -157,10 +168,10 @@ function ArticleModalContent({ article, onClose }: { article: Article; onClose: 
   if (dateString) {
     const d = new Date(dateString);
     if (!isNaN(d.getTime())) {
-      formattedDate = d.toLocaleDateString('cs-CZ', {
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric'
+      formattedDate = d.toLocaleDateString("cs-CZ", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
       });
     } else {
       formattedDate = dateString;
@@ -168,15 +179,15 @@ function ArticleModalContent({ article, onClose }: { article: Article; onClose: 
   }
 
   // Clean comment from content for display
-  const cleanedContent = (article.content || '').replace(/<!--\s*target_service:\s*.*?\s*-->/g, '').trim();
+  const cleanedContent = (article.content || "").replace(/<!--\s*target_service:\s*.*?\s*-->/g, "").trim();
 
   return (
     <div className="flex flex-col">
       {/* Hero Image */}
       <div className="w-full aspect-video md:h-[360px] relative rounded-3xl overflow-hidden bg-slate-100">
         {article.hero_image_url ? (
-          <img 
-            src={article.hero_image_url} 
+          <img
+            src={article.hero_image_url}
             alt={article.title}
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -191,17 +202,13 @@ function ArticleModalContent({ article, onClose }: { article: Article; onClose: 
       <div className="mt-8 flex flex-col lg:flex-row gap-8">
         {/* Left Column: Title & Badges */}
         <div className="flex-1 flex flex-col justify-center">
-          <h2 className="text-3xl font-extrabold text-[#1a1a24] mb-4 leading-tight">
-            {article.title}
-          </h2>
+          <h2 className="text-3xl font-extrabold text-[#1a1a24] mb-4 leading-tight">{article.title}</h2>
 
           <div className="flex flex-wrap items-center gap-3 text-sm font-bold mb-4">
             <div className="bg-[#fff8eb] text-amber-500 px-4 py-2 rounded-full uppercase tracking-wide text-xs">
               AKTUALITA
             </div>
-            <div className="bg-slate-100 text-slate-600 px-4 py-2 rounded-full text-xs">
-              {formattedDate}
-            </div>
+            <div className="bg-slate-100 text-slate-600 px-4 py-2 rounded-full text-xs">{formattedDate}</div>
             {targetService && (
               <div className="bg-amber-50 text-amber-600 px-4 py-2 rounded-full text-xs flex items-center gap-1.5 font-bold">
                 <span>🔧</span>
@@ -209,7 +216,6 @@ function ArticleModalContent({ article, onClose }: { article: Article; onClose: 
               </div>
             )}
           </div>
-
         </div>
 
         {/* Right Column: CTA */}
@@ -219,9 +225,11 @@ function ArticleModalContent({ article, onClose }: { article: Article; onClose: 
               {targetService ? `Zaujala vás tato služba?` : "Zaujal vás tento článek?"}
             </h3>
             <p className="text-amber-50 text-sm mb-6 leading-relaxed">
-              {targetService ? `Rádi pro vás připravíme nezávaznou kalkulaci pro ${targetService.name.toLowerCase()} zdarma.` : "Rádi pro vás připravíme nezávaznou kalkulaci zdarma."}
+              {targetService
+                ? `Rádi pro vás připravíme nezávaznou kalkulaci pro ${targetService.name.toLowerCase()} zdarma.`
+                : "Rádi pro vás připravíme nezávaznou kalkulaci zdarma."}
             </p>
-            <button 
+            <button
               onClick={() => {
                 onClose();
                 if (targetService?.slug) {
@@ -246,12 +254,10 @@ function ArticleModalContent({ article, onClose }: { article: Article; onClose: 
       {/* Full Content */}
       {cleanedContent && (
         <div className="mt-8 border border-gray-200 rounded-3xl p-8 bg-white">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
-            Obsah článku
-          </h4>
-          <div 
-            className="prose prose-slate max-w-none text-gray-600 leading-relaxed" 
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(cleanedContent) }} 
+          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Obsah článku</h4>
+          <div
+            className="prose prose-slate max-w-none text-gray-600 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(cleanedContent) }}
           />
         </div>
       )}
@@ -268,13 +274,9 @@ export function ArticlesCarousel({ articles }: { articles: Article[] }) {
   return (
     <>
       <div className="relative group">
-        <CarouselArrows 
-          onScroll={scrollByAmount} 
-          canScrollLeft={canScrollLeft} 
-          canScrollRight={canScrollRight} 
-        />
+        <CarouselArrows onScroll={scrollByAmount} canScrollLeft={canScrollLeft} canScrollRight={canScrollRight} />
 
-        <div 
+        <div
           ref={scrollRef}
           className="flex overflow-x-auto gap-4 sm:gap-8 hide-scrollbar pb-8 pt-4 px-[7.5vw] md:px-1"
         >
@@ -285,12 +287,7 @@ export function ArticlesCarousel({ articles }: { articles: Article[] }) {
       </div>
 
       <Modal isOpen={!!selectedArticle} onClose={() => setSelectedArticle(null)} title="">
-        {selectedArticle && (
-          <ArticleModalContent 
-            article={selectedArticle} 
-            onClose={() => setSelectedArticle(null)} 
-          />
-        )}
+        {selectedArticle && <ArticleModalContent article={selectedArticle} onClose={() => setSelectedArticle(null)} />}
       </Modal>
     </>
   );

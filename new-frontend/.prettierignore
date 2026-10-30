@@ -1,0 +1,11 @@
+# generované soubory (npm run gen:types, Next.js, Playwright)
+**/database.types.ts
+.next
+node_modules
+playwright-report*
+test-results
+e2e-visual/__snapshots__
+public
+supabase/functions/**/deno.lock
+package-lock.json
+*.md

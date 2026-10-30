@@ -45,9 +45,7 @@ export function ChatDetailActions({ id, status }: { id: string; status: 'open' |
         disabled={loading}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60"
         style={
-          status === 'open'
-            ? { background: '#f0fdf4', color: '#16a34a' }
-            : { background: '#eff6ff', color: '#2563eb' }
+          status === 'open' ? { background: '#f0fdf4', color: '#16a34a' } : { background: '#eff6ff', color: '#2563eb' }
         }
       >
         {status === 'open' ? <CheckCircle size={14} /> : <RotateCcw size={14} />}

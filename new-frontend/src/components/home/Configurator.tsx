@@ -2,9 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { ConfiguratorClient } from "./ConfiguratorClient";
 
 export async function Configurator() {
-  const { data: prices, error } = await supabase
-    .from("configurator_prices")
-    .select("item_key, label, price");
+  const { data: prices, error } = await supabase.from("configurator_prices").select("item_key, label, price");
 
   if (error) {
     console.warn("Failed to load configurator_prices", error);
@@ -13,8 +11,12 @@ export async function Configurator() {
   return (
     <section className="py-12 md:py-16 bg-slate-50 relative">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <ConfiguratorClient 
-          prices={(prices ?? []).map((p) => ({ item_key: p.item_key, label: p.label ?? p.item_key, price: p.price ?? 0 }))}
+        <ConfiguratorClient
+          prices={(prices ?? []).map((p) => ({
+            item_key: p.item_key,
+            label: p.label ?? p.item_key,
+            price: p.price ?? 0,
+          }))}
         />
       </div>
     </section>

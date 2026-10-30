@@ -15,18 +15,20 @@ export async function updateAnalyzerTips(tips: NanoTip[]) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('site_config')
-      .upsert({ 
-        key: 'nano_tips', 
-        value: JSON.stringify(tips), 
-        description: 'NanoTipy zobrazované během AI analýzy' 
-      }, { onConflict: 'key' })
-    
+    const { error } = await supabase.from('site_config').upsert(
+      {
+        key: 'nano_tips',
+        value: JSON.stringify(tips),
+        description: 'NanoTipy zobrazované během AI analýzy',
+      },
+      { onConflict: 'key' }
+    )
+
     if (error) {
       console.error('Failed to update analyzer tips:', error)
       throw new Error(error.message)
     }
-    
+
     revalidatePath('/admin/analyzer')
   })
 }

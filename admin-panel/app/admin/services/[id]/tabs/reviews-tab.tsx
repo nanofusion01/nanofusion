@@ -11,7 +11,17 @@ import type { ServiceReview, ExternalReview } from '../types'
 const { addServiceReview, deleteServiceReview } = unwrapActions(actionsRaw)
 
 /** Záložka „Vybrané recenze“: recenze zobrazené na stránce služby. */
-export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, externalReviews }: { serviceId: string; serviceReviews: ServiceReview[]; setServiceReviews: React.Dispatch<React.SetStateAction<ServiceReview[]>>; externalReviews: ExternalReview[] }) {
+export function ReviewsTab({
+  serviceId,
+  serviceReviews,
+  setServiceReviews,
+  externalReviews,
+}: {
+  serviceId: string
+  serviceReviews: ServiceReview[]
+  setServiceReviews: React.Dispatch<React.SetStateAction<ServiceReview[]>>
+  externalReviews: ExternalReview[]
+}) {
   const [showAddReview, setShowAddReview] = useState(false)
   const [addingReview, setAddingReview] = useState(false)
   const [revAuthor, setRevAuthor] = useState('')
@@ -24,7 +34,9 @@ export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, exter
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Vybrané recenze k této službě</h2>
+            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              Vybrané recenze k této službě
+            </h2>
             <p className="text-sm opacity-60">Recenze, které se budou zobrazovat na detailu této služby.</p>
           </div>
           <button
@@ -38,16 +50,21 @@ export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, exter
         </div>
 
         {showAddReview && (
-          <div className="p-6 rounded-2xl border space-y-4 max-w-xl" style={{ borderColor: 'var(--border)', background: 'var(--bg-surface-2)' }}>
+          <div
+            className="p-6 rounded-2xl border space-y-4 max-w-xl"
+            style={{ borderColor: 'var(--border)', background: 'var(--bg-surface-2)' }}
+          >
             <h3 className="font-bold text-sm">Nová recenze</h3>
-            
+
             {/* Dropdown for selecting existing approved review */}
             {externalReviews.length > 0 && (
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Kopírovat z existujících recenzí</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+                  Kopírovat z existujících recenzí
+                </label>
                 <select
                   onChange={(e) => {
-                    const selected = externalReviews.find(r => r.id === e.target.value)
+                    const selected = externalReviews.find((r) => r.id === e.target.value)
                     if (selected) {
                       setRevAuthor(selected.author || '')
                       setRevRating(selected.rating || 5)
@@ -59,8 +76,10 @@ export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, exter
                   className="w-full px-3 py-2.5 rounded-xl border outline-none text-sm"
                   style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
                 >
-                  <option value="" disabled>-- Vyberte recenzi pro automatické vyplnění --</option>
-                  {externalReviews.map(r => (
+                  <option value="" disabled>
+                    -- Vyberte recenzi pro automatické vyplnění --
+                  </option>
+                  {externalReviews.map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.author} ({r.source}) - {r.content?.substring(0, 60)}...
                     </option>
@@ -82,7 +101,9 @@ export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, exter
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Hodnocení (1-5)</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+                  Hodnocení (1-5)
+                </label>
                 <input
                   type="number"
                   min={1}
@@ -94,7 +115,9 @@ export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, exter
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Odkud recenze je</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+                  Odkud recenze je
+                </label>
                 <select
                   value={revSource}
                   onChange={(e) => setRevSource(e.target.value)}
@@ -141,7 +164,7 @@ export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, exter
                   setAddingReview(true)
                   try {
                     const newRev = await addServiceReview(serviceId, revAuthor, revRating, revContent, revSource)
-                    setServiceReviews(prev => [newRev, ...prev])
+                    setServiceReviews((prev) => [newRev, ...prev])
                     setShowAddReview(false)
                     setRevAuthor('')
                     setRevContent('')
@@ -169,7 +192,8 @@ export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, exter
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <div className="flex gap-1 text-amber-500 font-bold">
-                    {'★'.repeat(rev.rating || 5)}{'☆'.repeat(5 - (rev.rating || 5))}
+                    {'★'.repeat(rev.rating || 5)}
+                    {'☆'.repeat(5 - (rev.rating || 5))}
                   </div>
                   <div className="flex items-center gap-2">
                     <h4 className="font-bold">{rev.author}</h4>
@@ -184,7 +208,7 @@ export function ReviewsTab({ serviceId, serviceReviews, setServiceReviews, exter
                   onClick={async () => {
                     if (confirm('Smazat tuto recenzi?')) {
                       await deleteServiceReview(rev.id, serviceId)
-                      setServiceReviews(prev => prev.filter(r => r.id !== rev.id))
+                      setServiceReviews((prev) => prev.filter((r) => r.id !== rev.id))
                       toast.success('Recenze smazána')
                     }
                   }}

@@ -60,19 +60,21 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
     if (!editing) return
     setSaving(true)
     try {
-      await updateFaq(editing.id, { 
-        question: editing.question, 
+      await updateFaq(editing.id, {
+        question: editing.question,
         answer: editing.answer,
-        page_section: editing.page_section 
+        page_section: editing.page_section,
       })
       setFaqs((prev) =>
         prev.map((f) =>
-          f.id === editing.id ? { 
-            ...f, 
-            question: editing.question, 
-            answer: editing.answer,
-            page_section: editing.page_section 
-          } : f
+          f.id === editing.id
+            ? {
+                ...f,
+                question: editing.question,
+                answer: editing.answer,
+                page_section: editing.page_section,
+              }
+            : f
         )
       )
       toast.success('FAQ aktualizována')
@@ -87,9 +89,7 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
   const handleToggleActive = async (faq: Faq) => {
     try {
       await updateFaq(faq.id, { is_active: !faq.is_active })
-      setFaqs((prev) =>
-        prev.map((f) => (f.id === faq.id ? { ...f, is_active: !f.is_active } : f))
-      )
+      setFaqs((prev) => prev.map((f) => (f.id === faq.id ? { ...f, is_active: !f.is_active } : f)))
       toast.success(faq.is_active ? 'FAQ deaktivována' : 'FAQ aktivována')
     } catch {
       toast.error('Nepodařilo se aktualizovat FAQ')
@@ -142,7 +142,10 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
             Nová otázka
           </h2>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+            <label
+              className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+              style={{ color: 'var(--text-muted)' }}
+            >
               Otázka
             </label>
             <input
@@ -155,7 +158,10 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+            <label
+              className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+              style={{ color: 'var(--text-muted)' }}
+            >
               Zobrazit na stránce
             </label>
             <select
@@ -164,23 +170,28 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
               className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
               style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
             >
-              {PAGE_SECTIONS.map(s => (
-                <option key={s.value} value={s.value}>{s.label}</option>
+              {PAGE_SECTIONS.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+            <label
+              className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+              style={{ color: 'var(--text-muted)' }}
+            >
               Odpověď
             </label>
-            <TiptapEditor 
-              content={newFaq.answer} 
-              onChange={(html) => setNewFaq({ ...newFaq, answer: html })} 
-            />
+            <TiptapEditor content={newFaq.answer} onChange={(html) => setNewFaq({ ...newFaq, answer: html })} />
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => { setShowAdd(false); setNewFaq({ question: '', answer: '', page_section: 'home' }) }}
+              onClick={() => {
+                setShowAdd(false)
+                setNewFaq({ question: '', answer: '', page_section: 'home' })
+              }}
               className="px-4 py-2.5 rounded-xl text-sm font-semibold"
               style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
             >
@@ -214,9 +225,7 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
               className="rounded-xl overflow-hidden transition-all duration-150"
               style={{
                 background: 'var(--bg-surface)',
-                border: faq.id === editing?.id
-                  ? '2px solid var(--brand-primary)'
-                  : '1px solid var(--border)',
+                border: faq.id === editing?.id ? '2px solid var(--brand-primary)' : '1px solid var(--border)',
                 opacity: faq.is_active ? 1 : 0.5,
               }}
             >
@@ -224,7 +233,10 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                 /* Edit Mode */
                 <div className="p-5 space-y-3">
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                    <label
+                      className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
                       Otázka
                     </label>
                     <input
@@ -236,16 +248,22 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                    <label
+                      className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
                       Odpověď
                     </label>
-                    <TiptapEditor 
-                      content={editing.answer} 
-                      onChange={(html) => setEditing({ ...editing, answer: html })} 
+                    <TiptapEditor
+                      content={editing.answer}
+                      onChange={(html) => setEditing({ ...editing, answer: html })}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                    <label
+                      className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
                       Stránka
                     </label>
                     <select
@@ -254,8 +272,10 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                       className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
                       style={{ border: '1px solid var(--brand-primary)', color: 'var(--text-primary)' }}
                     >
-                      {PAGE_SECTIONS.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
+                      {PAGE_SECTIONS.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -312,7 +332,14 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                         {faq.is_active ? 'Aktivní' : 'Skrytá'}
                       </button>
                       <button
-                        onClick={() => setEditing({ id: faq.id, question: faq.question, answer: faq.answer, page_section: faq.page_section === 'home' ? 'home' : 'subpage' })}
+                        onClick={() =>
+                          setEditing({
+                            id: faq.id,
+                            question: faq.question,
+                            answer: faq.answer,
+                            page_section: faq.page_section === 'home' ? 'home' : 'subpage',
+                          })
+                        }
                         className="text-xs px-2.5 py-1 rounded-full font-semibold"
                         style={{ background: 'var(--bg-surface-2)', color: 'var(--text-secondary)' }}
                       >
@@ -335,7 +362,11 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
                   {expanded === faq.id && (
                     <div
                       className="px-5 pb-4 text-sm leading-relaxed prose prose-sm max-w-none"
-                      style={{ color: 'var(--text-secondary)', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}
+                      style={{
+                        color: 'var(--text-secondary)',
+                        borderTop: '1px solid var(--border)',
+                        paddingTop: '1rem',
+                      }}
                       dangerouslySetInnerHTML={{ __html: faq.answer }}
                     />
                   )}
@@ -357,16 +388,27 @@ export function FaqsClient({ initialFaqs }: FaqsClientProps) {
             style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="rounded-full flex items-center justify-center" style={{ width: 44, height: 44, background: '#fef2f2' }}>
+              <div
+                className="rounded-full flex items-center justify-center"
+                style={{ width: 44, height: 44, background: '#fef2f2' }}
+              >
                 <AlertTriangle size={22} style={{ color: '#ef4444' }} />
               </div>
               <div>
-                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Smazat FAQ?</h3>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Tato akce je nevratná</p>
+                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
+                  Smazat FAQ?
+                </h3>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  Tato akce je nevratná
+                </p>
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold" style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+              >
                 Zrušit
               </button>
               <button

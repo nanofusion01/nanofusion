@@ -77,25 +77,29 @@ export function GeneralTab({ service, setService }: { service: Service; setServi
 
         <div className="space-y-4">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Hlavní popis (Web)</label>
-          <TiptapEditor 
-            content={service.description || ''} 
-            onChange={(html) => setService({ ...service, description: html })} 
+          <TiptapEditor
+            content={service.description || ''}
+            onChange={(html) => setService({ ...service, description: html })}
           />
         </div>
 
         <div className="space-y-4">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Co to obnáší (Proces)</label>
-          <TiptapEditor 
-            content={service.process_description || ''} 
-            onChange={(html) => setService({ ...service, process_description: html })} 
+          <TiptapEditor
+            content={service.process_description || ''}
+            onChange={(html) => setService({ ...service, process_description: html })}
           />
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Co nabízíme (Vlastnosti s fajfkou)</label>
-              <p className="text-xs text-slate-500 mt-0.5">Jednotlivé body zobrazené v boxu „Co nabízíme:“ pod popisem služby.</p>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Co nabízíme (Vlastnosti s fajfkou)
+              </label>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Jednotlivé body zobrazené v boxu „Co nabízíme:“ pod popisem služby.
+              </p>
             </div>
           </div>
           <div className="space-y-3">
@@ -103,10 +107,16 @@ export function GeneralTab({ service, setService }: { service: Service; setServi
               const { title, desc } = parseFeature(feature)
 
               return (
-                <div key={idx} className="p-4 rounded-xl border flex flex-col md:flex-row gap-3 items-start md:items-center" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl border flex flex-col md:flex-row gap-3 items-start md:items-center"
+                  style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+                >
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
                     <div className="md:col-span-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Název položky</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                        Název položky
+                      </label>
                       <input
                         type="text"
                         value={title}
@@ -121,7 +131,9 @@ export function GeneralTab({ service, setService }: { service: Service; setServi
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Podrobný popis</label>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                        Podrobný popis
+                      </label>
                       <input
                         type="text"
                         value={desc}
@@ -152,7 +164,12 @@ export function GeneralTab({ service, setService }: { service: Service; setServi
             })}
             <button
               type="button"
-              onClick={() => setService({ ...service, features: [...(service.features || []), JSON.stringify({ title: '', desc: '' })] })}
+              onClick={() =>
+                setService({
+                  ...service,
+                  features: [...(service.features || []), JSON.stringify({ title: '', desc: '' })],
+                })
+              }
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-amber-500/50 text-sm font-bold text-amber-500 hover:bg-amber-500/10 transition-colors mt-2"
             >
               <Plus size={16} /> Přidat další položku do „Co nabízíme“
@@ -177,7 +194,10 @@ export function GeneralTab({ service, setService }: { service: Service; setServi
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleHeroUpload(f) }}
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (f) handleHeroUpload(f)
+              }}
             />
             <button
               onClick={() => heroFileRef.current?.click()}
@@ -201,9 +221,7 @@ export function GeneralTab({ service, setService }: { service: Service; setServi
             <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Video ke službě (YouTube, Google Disk, MP4...)
             </label>
-            <span className="text-[11px] text-amber-600 font-medium">
-              Zobrazí se pod sekcí Z realizací
-            </span>
+            <span className="text-[11px] text-amber-600 font-medium">Zobrazí se pod sekcí Z realizací</span>
           </div>
           <div className="flex gap-3">
             <input
@@ -219,7 +237,10 @@ export function GeneralTab({ service, setService }: { service: Service; setServi
               type="file"
               accept="video/*"
               className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleVideoUpload(f) }}
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (f) handleVideoUpload(f)
+              }}
             />
             <button
               onClick={() => videoFileRef.current?.click()}
@@ -230,40 +251,46 @@ export function GeneralTab({ service, setService }: { service: Service; setServi
               {uploadingVideo ? 'Nahrávám...' : 'Nahrát video'}
             </button>
           </div>
-          {service.video_url && (() => {
-            const trimmed = (service.video_url || '').trim();
-            const ytMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-            const ytId = ytMatch ? ytMatch[1] : null;
-            const driveMatch = trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-            const driveId = driveMatch ? driveMatch[1] : null;
+          {service.video_url &&
+            (() => {
+              const trimmed = (service.video_url || '').trim()
+              const ytMatch = trimmed.match(
+                /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
+              )
+              const ytId = ytMatch ? ytMatch[1] : null
+              const driveMatch = trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/)
+              const driveId = driveMatch ? driveMatch[1] : null
 
-            return (
-              <div className="mt-3 rounded-xl overflow-hidden border relative aspect-video max-w-md bg-black" style={{ borderColor: 'var(--border)' }}>
-                {ytId ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${ytId}`}
-                    className="w-full h-full border-0"
-                    allow="autoplay; encrypted-media"
-                  />
-                ) : driveId ? (
-                  <iframe
-                    src={`https://drive.google.com/file/d/${driveId}/preview`}
-                    className="w-full h-full border-0"
-                    allow="autoplay"
-                  />
-                ) : (
-                  <video src={service.video_url} controls playsInline className="w-full h-full object-cover" />
-                )}
-                <button
-                  onClick={() => setService({ ...service, video_url: '' })}
-                  className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 text-white hover:bg-black transition-colors z-10"
-                  title="Odstranit video"
+              return (
+                <div
+                  className="mt-3 rounded-xl overflow-hidden border relative aspect-video max-w-md bg-black"
+                  style={{ borderColor: 'var(--border)' }}
                 >
-                  <X size={16} />
-                </button>
-              </div>
-            )
-          })()}
+                  {ytId ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${ytId}`}
+                      className="w-full h-full border-0"
+                      allow="autoplay; encrypted-media"
+                    />
+                  ) : driveId ? (
+                    <iframe
+                      src={`https://drive.google.com/file/d/${driveId}/preview`}
+                      className="w-full h-full border-0"
+                      allow="autoplay"
+                    />
+                  ) : (
+                    <video src={service.video_url} controls playsInline className="w-full h-full object-cover" />
+                  )}
+                  <button
+                    onClick={() => setService({ ...service, video_url: '' })}
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 text-white hover:bg-black transition-colors z-10"
+                    title="Odstranit video"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )
+            })()}
         </div>
       </div>
     </>

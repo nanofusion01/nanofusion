@@ -30,10 +30,12 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
 
   const handleNext = () => {
     setFormError(null);
-    if (!formData.firstName || formData.firstName.length < 2) return setFormError("Prosím zadejte Vaše jméno a příjmení.");
+    if (!formData.firstName || formData.firstName.length < 2)
+      return setFormError("Prosím zadejte Vaše jméno a příjmení.");
     if (!formData.location || formData.location.length < 2) return setFormError("Prosím zadejte přesnou lokaci.");
     if (!formData.phone || formData.phone.length < 9) return setFormError("Prosím zadejte telefonní číslo.");
-    if (!formData.email || !formData.email.includes("@")) return setFormError("Prosím zadejte platnou e-mailovou adresu.");
+    if (!formData.email || !formData.email.includes("@"))
+      return setFormError("Prosím zadejte platnou e-mailovou adresu.");
     if (!formData.gdpr) return setFormError("Prosím potvrďte souhlas se zpracováním osobních údajů (GDPR).");
 
     setStep(2);
@@ -59,7 +61,9 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
       setResult({ min, max });
     } catch (e) {
       console.error(e);
-      setFormError(errorMessage(e) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(
+        errorMessage(e) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -94,44 +98,54 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
         <div className="space-y-[0.65rem]">
           <div className="font-black text-[1.15rem] mb-[0.35rem] text-amber-500">Konfigurátor</div>
           <div className="text-slate-500 text-[0.8rem] mb-[0.85rem] leading-relaxed">
-            Tento konfigurátor slouží ke zjištění orientační ceny. Ceny jsou uvedeny bez DPH, které činí 12 % nebo 21 % dle typu subjektu. Po vyplnění formuláře vás bude kontaktovat náš technik a na základě informací vám vytvoří finální cenovou nabídku, která vás k ničemu nezavazuje a je zcela ZDARMA.
+            Tento konfigurátor slouží ke zjištění orientační ceny. Ceny jsou uvedeny bez DPH, které činí 12 % nebo 21 %
+            dle typu subjektu. Po vyplnění formuláře vás bude kontaktovat náš technik a na základě informací vám vytvoří
+            finální cenovou nabídku, která vás k ničemu nezavazuje a je zcela ZDARMA.
           </div>
 
           <div>
-            <label className="block font-extrabold mb-[0.3rem] text-[0.725rem] uppercase text-slate-600">Jméno a Příjmení *</label>
-            <input 
-              type="text" 
-              placeholder="Jan Novák" 
+            <label className="block font-extrabold mb-[0.3rem] text-[0.725rem] uppercase text-slate-600">
+              Jméno a Příjmení *
+            </label>
+            <input
+              type="text"
+              placeholder="Jan Novák"
               value={formData.firstName}
               onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
               className="w-full p-[0.65rem_0.85rem] border-[1.5px] border-slate-300 rounded-[0.6rem] text-[0.9rem] bg-white outline-none focus:border-amber-500 transition-colors"
             />
           </div>
           <div>
-            <label className="block font-extrabold mb-[0.3rem] text-[0.725rem] uppercase text-slate-600">Přesná lokace *</label>
-            <input 
-              type="text" 
-              placeholder="Např. Praha 4, U Lesa 12" 
+            <label className="block font-extrabold mb-[0.3rem] text-[0.725rem] uppercase text-slate-600">
+              Přesná lokace *
+            </label>
+            <input
+              type="text"
+              placeholder="Např. Praha 4, U Lesa 12"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               className="w-full p-[0.65rem_0.85rem] border-[1.5px] border-slate-300 rounded-[0.6rem] text-[0.9rem] bg-white outline-none focus:border-amber-500 transition-colors"
             />
           </div>
           <div>
-            <label className="block font-extrabold mb-[0.3rem] text-[0.725rem] uppercase text-slate-600">Telefon *</label>
-            <input 
-              type="tel" 
-              placeholder="+420 777 123 456" 
+            <label className="block font-extrabold mb-[0.3rem] text-[0.725rem] uppercase text-slate-600">
+              Telefon *
+            </label>
+            <input
+              type="tel"
+              placeholder="+420 777 123 456"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               className="w-full p-[0.65rem_0.85rem] border-[1.5px] border-slate-300 rounded-[0.6rem] text-[0.9rem] bg-white outline-none focus:border-amber-500 transition-colors"
             />
           </div>
           <div className="mb-[0.85rem]">
-            <label className="block font-extrabold mb-[0.3rem] text-[0.725rem] uppercase text-slate-600">E-mail *</label>
-            <input 
-              type="email" 
-              placeholder="jan.novak@email.cz" 
+            <label className="block font-extrabold mb-[0.3rem] text-[0.725rem] uppercase text-slate-600">
+              E-mail *
+            </label>
+            <input
+              type="email"
+              placeholder="jan.novak@email.cz"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full p-[0.65rem_0.85rem] border-[1.5px] border-slate-300 rounded-[0.6rem] text-[0.9rem] bg-white outline-none focus:border-amber-500 transition-colors"
@@ -139,19 +153,25 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
           </div>
           <div className="mb-[0.85rem]">
             <label className="flex items-start gap-2 text-[0.725rem] text-slate-600 cursor-pointer leading-relaxed">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 checked={formData.gdpr}
                 onChange={(e) => setFormData({ ...formData, gdpr: e.target.checked })}
-                className="mt-0.5 cursor-pointer w-[15px] h-[15px] shrink-0" 
+                className="mt-0.5 cursor-pointer w-[15px] h-[15px] shrink-0"
               />
-              <span>Souhlasím se zpracováním osobních údajů v souladu s <a href="/gdpr" className="text-amber-500 font-bold underline hover:text-amber-600 transition-colors">GDPR</a> pro účely vytvoření cenové nabídky. *</span>
+              <span>
+                Souhlasím se zpracováním osobních údajů v souladu s{" "}
+                <a href="/gdpr" className="text-amber-500 font-bold underline hover:text-amber-600 transition-colors">
+                  GDPR
+                </a>{" "}
+                pro účely vytvoření cenové nabídky. *
+              </span>
             </label>
           </div>
           <div className="mb-3">
             <FormError message={formError} />
           </div>
-          <button 
+          <button
             onClick={handleNext}
             className="block text-center w-full bg-gradient-to-br from-amber-500 to-amber-600 text-white p-[0.8rem] rounded-[0.6rem] font-black cursor-pointer uppercase text-[0.9rem] shadow-[0_4px_15px_rgba(245,158,11,0.35)] transition-all hover:scale-[1.02]"
           >
@@ -162,15 +182,18 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
         <div>
           <div className="font-black text-[1.15rem] mb-[0.25rem] text-slate-900">Specifikace zakázky</div>
           <div className="text-slate-500 text-[0.825rem] mb-[0.85rem]">
-            Zadejte výměru plochy a přiložte fotografii, abychom si udělali lepší představu o stavu povrchu (pokud fotku nemáte, nic se neděje).
+            Zadejte výměru plochy a přiložte fotografii, abychom si udělali lepší představu o stavu povrchu (pokud fotku
+            nemáte, nic se neděje).
           </div>
-          
+
           <div className="mb-[0.85rem]">
-            <label className="block font-extrabold mb-[0.4rem] text-[0.75rem] uppercase text-slate-600">Plocha v m² *</label>
+            <label className="block font-extrabold mb-[0.4rem] text-[0.75rem] uppercase text-slate-600">
+              Plocha v m² *
+            </label>
             <div className="relative">
-              <input 
-                type="number" 
-                min="10" 
+              <input
+                type="number"
+                min="10"
                 max="10000"
                 value={formData.area}
                 onChange={(e) => setFormData({ ...formData, area: parseInt(e.target.value) || 0 })}
@@ -181,9 +204,11 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
           </div>
 
           <div className="mb-4">
-            <label className="block font-extrabold mb-[0.4rem] text-[0.75rem] uppercase text-slate-600">Fotografie objektu (nepovinné)</label>
-            <input 
-              type="file" 
+            <label className="block font-extrabold mb-[0.4rem] text-[0.75rem] uppercase text-slate-600">
+              Fotografie objektu (nepovinné)
+            </label>
+            <input
+              type="file"
               accept="image/*"
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
@@ -198,13 +223,13 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
             <FormError message={formError} />
           </div>
           <div className="flex gap-[0.65rem]">
-            <button 
+            <button
               onClick={() => setStep(1)}
               className="flex-none w-[75px] bg-slate-100 text-slate-600 p-[0.8rem_0.4rem] border border-slate-300 rounded-[0.6rem] font-bold cursor-pointer text-[0.825rem] transition-colors hover:bg-slate-200"
             >
               ← Zpět
             </button>
-            <button 
+            <button
               onClick={handleCalculate}
               disabled={isSubmitting}
               className="flex-1 text-center bg-gradient-to-br from-amber-500 to-amber-600 text-white p-[0.8rem] rounded-[0.6rem] font-black cursor-pointer uppercase text-[0.9rem] shadow-[0_4px_15px_rgba(245,158,11,0.35)] transition-all hover:scale-[1.02] disabled:opacity-70 disabled:hover:scale-100"
@@ -214,7 +239,7 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
           </div>
         </div>
       )}
-      
+
       <div className="text-center text-slate-500 text-[0.775rem] mt-[0.65rem]">
         Nezávazné a zdarma · odpovídáme do 24 h
       </div>

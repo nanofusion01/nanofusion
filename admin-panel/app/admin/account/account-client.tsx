@@ -12,7 +12,7 @@ import type { Tables } from '@/lib/database.types'
 
 const { clearForcePasswordChange } = unwrapActions(usersActionsRaw)
 
-export function AccountClient({ user, profile: initialProfile }: { user: AuthUser, profile: Tables<'profiles'> }) {
+export function AccountClient({ user, profile: initialProfile }: { user: AuthUser; profile: Tables<'profiles'> }) {
   const [profile, setProfile] = useState(initialProfile)
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
@@ -54,11 +54,8 @@ export function AccountClient({ user, profile: initialProfile }: { user: AuthUse
   const handleSaveProfile = async () => {
     setLoading(true)
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ full_name: profile.full_name })
-        .eq('id', user.id)
-      
+      const { error } = await supabase.from('profiles').update({ full_name: profile.full_name }).eq('id', user.id)
+
       if (error) throw error
       toast.success('Profil uložen')
     } catch (err) {
@@ -71,7 +68,9 @@ export function AccountClient({ user, profile: initialProfile }: { user: AuthUse
   return (
     <div className="max-w-4xl space-y-8">
       <div>
-        <h1 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>Můj účet</h1>
+        <h1 className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
+          Můj účet
+        </h1>
         <p className="text-slate-500">Nastavení vašeho administrátorského přístupu</p>
       </div>
 
@@ -84,10 +83,13 @@ export function AccountClient({ user, profile: initialProfile }: { user: AuthUse
       <div className="grid grid-cols-3 gap-8">
         <div className="col-span-2 space-y-6">
           {/* Profile Card */}
-          <div className="p-8 rounded-3xl space-y-8" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+          <div
+            className="p-8 rounded-3xl space-y-8"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+          >
             <div className="flex items-center gap-6">
               <div className="relative group">
-                <div 
+                <div
                   className="w-24 h-24 rounded-3xl flex items-center justify-center font-black text-3xl shadow-xl border-4 border-white"
                   style={{ background: 'var(--brand-primary)', color: 'white' }}
                 >
@@ -99,7 +101,7 @@ export function AccountClient({ user, profile: initialProfile }: { user: AuthUse
                 <p className="text-slate-500 text-sm flex items-center gap-1.5">
                   <Mail size={14} /> {user.email}
                 </p>
-                <span 
+                <span
                   className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest"
                   style={{ background: 'var(--brand-primary-light)', color: 'var(--brand-primary)' }}
                 >
@@ -123,7 +125,9 @@ export function AccountClient({ user, profile: initialProfile }: { user: AuthUse
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Přihlašovací E-mail</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Přihlašovací E-mail
+                </label>
                 <div className="relative">
                   <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
                   <input
@@ -147,12 +151,15 @@ export function AccountClient({ user, profile: initialProfile }: { user: AuthUse
                 <Save size={18} />
                 Uložit změny
               </button>
-                     </div>
-        </div>
+            </div>
+          </div>
 
-        <div className="space-y-6">
-           {/* Security Box */}
-           <div className="p-6 rounded-3xl border shadow-inner" style={{ background: 'linear-gradient(135deg, #fff 0%, #fffbeb 100%)', borderColor: '#fde68a' }}>
+          <div className="space-y-6">
+            {/* Security Box */}
+            <div
+              className="p-6 rounded-3xl border shadow-inner"
+              style={{ background: 'linear-gradient(135deg, #fff 0%, #fffbeb 100%)', borderColor: '#fde68a' }}
+            >
               <Lock size={32} className="text-amber-500 mb-4" />
               <h4 className="font-bold text-lg mb-2">Zabezpečení heslem</h4>
               <p className="text-xs text-amber-700 leading-relaxed mb-6">
@@ -184,10 +191,10 @@ export function AccountClient({ user, profile: initialProfile }: { user: AuthUse
                   {loading ? 'Zpracovávám...' : 'Změnit heslo'}
                 </button>
               </form>
-           </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   )
 }

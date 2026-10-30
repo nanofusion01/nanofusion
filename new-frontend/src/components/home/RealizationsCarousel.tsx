@@ -20,19 +20,24 @@ const WORK_TYPE_TO_CONFIGURATOR_ID: Record<string, string> = {
   "Čištění fasád": "facade",
   "Čištění dlažeb": "pavement",
   "Solární panely": "pv",
-  "Graffiti": "graffiti",
+  Graffiti: "graffiti",
   "Nano-ochrana": "impregnation",
 };
 
 function RealizationCard({ item, onClick }: { item: Realization; onClick: () => void }) {
   const rawUrl = item.realization_photos?.[0]?.url || item.image_url;
-  const imageUrl = rawUrl ? optimizeImg(rawUrl, 600) : `https://placehold.co/600x400/eeeeee/999999?text=${encodeURIComponent(item.title)}`;
-  
+  const imageUrl = rawUrl
+    ? optimizeImg(rawUrl, 600)
+    : `https://placehold.co/600x400/eeeeee/999999?text=${encodeURIComponent(item.title)}`;
+
   return (
-    <div onClick={onClick} className="group/card flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 w-[85vw] md:w-[320px] lg:w-[380px] shrink-0 cursor-pointer">
+    <div
+      onClick={onClick}
+      className="group/card flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 w-[85vw] md:w-[320px] lg:w-[380px] shrink-0 cursor-pointer"
+    >
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-        <img 
-          src={imageUrl} 
+        <img
+          src={imageUrl}
           alt={item.title}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105"
         />
@@ -51,7 +56,11 @@ function RealizationCard({ item, onClick }: { item: Realization; onClick: () => 
         </h3>
         <div className="mt-auto flex items-center text-gray-500 text-sm font-medium">
           <svg className="w-4 h-4 mr-1 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+            <path
+              fillRule="evenodd"
+              d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+              clipRule="evenodd"
+            />
           </svg>
           {item.location || "Neznámá lokalita"}
         </div>
@@ -63,10 +72,8 @@ function RealizationCard({ item, onClick }: { item: Realization; onClick: () => 
 function RealizationModalContent({ item, onClose }: { item: Realization; onClose: () => void }) {
   const allPhotos = item.realization_photos || [];
   // Include main image_url as fallback if no photos exist
-  const photos = allPhotos.length > 0 
-    ? allPhotos.map((p) => p.url) 
-    : (item.image_url ? [item.image_url] : []);
-    
+  const photos = allPhotos.length > 0 ? allPhotos.map((p) => p.url) : item.image_url ? [item.image_url] : [];
+
   const [activeIndex, setActiveIndex] = useState(0);
 
   const nextImage = (e: React.MouseEvent) => {
@@ -84,7 +91,7 @@ function RealizationModalContent({ item, onClose }: { item: Realization; onClose
       {/* Hero Image */}
       <div className="w-full aspect-video md:h-[400px] relative rounded-3xl overflow-hidden bg-slate-100 group">
         {photos.length > 0 ? (
-          <img 
+          <img
             src={optimizeImg(photos[activeIndex], 1200)}
             alt={item.title}
             className="absolute inset-0 w-full h-full object-cover"
@@ -94,21 +101,25 @@ function RealizationModalContent({ item, onClose }: { item: Realization; onClose
             <span className="text-gray-400">Bez obrázku</span>
           </div>
         )}
-        
+
         {/* Gallery Arrows */}
         {photos.length > 1 && (
           <>
-            <button 
+            <button
               onClick={prevImage}
               className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
-            <button 
+            <button
               onClick={nextImage}
               className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </>
         )}
@@ -117,10 +128,8 @@ function RealizationModalContent({ item, onClose }: { item: Realization; onClose
       <div className="mt-8 flex flex-col lg:flex-row gap-8">
         {/* Left Column */}
         <div className="flex-1 flex flex-col">
-          <h2 className="text-3xl font-extrabold text-[#1a1a24] mb-6 leading-tight">
-            {item.title}
-          </h2>
-          
+          <h2 className="text-3xl font-extrabold text-[#1a1a24] mb-6 leading-tight">{item.title}</h2>
+
           {/* Badges */}
           <div className="flex flex-wrap items-center gap-3 text-sm font-bold mb-8">
             <div className="bg-[#fff8eb] text-amber-500 px-4 py-2 rounded-full uppercase tracking-wide text-xs">
@@ -142,10 +151,10 @@ function RealizationModalContent({ item, onClose }: { item: Realization; onClose
           {photos.length > 1 && (
             <div className="flex flex-wrap gap-4 mb-8">
               {photos.map((photo: string, idx: number) => (
-                <button 
+                <button
                   key={idx}
                   onClick={() => setActiveIndex(idx)}
-                  className={`relative w-24 h-20 rounded-xl overflow-hidden border-2 transition-all ${activeIndex === idx ? 'border-amber-500 scale-105' : 'border-transparent hover:scale-105'}`}
+                  className={`relative w-24 h-20 rounded-xl overflow-hidden border-2 transition-all ${activeIndex === idx ? "border-amber-500 scale-105" : "border-transparent hover:scale-105"}`}
                 >
                   <img src={optimizeImg(photo, 200)} className="absolute inset-0 w-full h-full object-cover" alt="" />
                 </button>
@@ -186,10 +195,8 @@ function RealizationModalContent({ item, onClose }: { item: Realization; onClose
       {/* Description Box */}
       {item.description && (
         <div className="mt-8 border border-gray-200 rounded-3xl p-8 bg-white">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
-            Detaily realizace
-          </h4>
-          <div 
+          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Detaily realizace</h4>
+          <div
             className="prose prose-slate max-w-none text-gray-600 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.description) }}
           />
@@ -208,13 +215,9 @@ export function RealizationsCarousel({ realizations }: { realizations: Realizati
   return (
     <>
       <div className="relative group">
-        <CarouselArrows 
-          onScroll={scrollByAmount} 
-          canScrollLeft={canScrollLeft} 
-          canScrollRight={canScrollRight} 
-        />
+        <CarouselArrows onScroll={scrollByAmount} canScrollLeft={canScrollLeft} canScrollRight={canScrollRight} />
 
-        <div 
+        <div
           ref={scrollRef}
           className="flex overflow-x-auto gap-4 sm:gap-6 lg:gap-8 hide-scrollbar pb-8 pt-4 px-[7.5vw] md:px-1"
         >

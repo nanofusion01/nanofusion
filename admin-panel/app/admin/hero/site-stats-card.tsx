@@ -28,7 +28,10 @@ export function SiteStatsCard({ initialValues }: { initialValues: Record<string,
   }
 
   return (
-    <div className="rounded-2xl p-6 shadow-sm border" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+    <div
+      className="rounded-2xl p-6 shadow-sm border"
+      style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+    >
       <div className="flex items-center gap-3 mb-2">
         <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
           <BarChart3 size={20} />

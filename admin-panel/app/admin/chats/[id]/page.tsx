@@ -15,11 +15,7 @@ type ChatMessage = {
 export default async function ChatDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
-  const { data: session } = await supabase
-    .from('chat_sessions')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle()
+  const { data: session } = await supabase.from('chat_sessions').select('*').eq('id', id).maybeSingle()
 
   if (!session) notFound()
 
@@ -51,10 +47,7 @@ export default async function ChatDetailPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      <div
-        className="rounded-xl p-6"
-        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
-      >
+      <div className="rounded-xl p-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
         {messages.length === 0 ? (
           <p className="text-sm text-center py-10" style={{ color: 'var(--text-muted)' }}>
             Tato relace zatím neobsahuje žádné zprávy.
@@ -76,7 +69,11 @@ export default async function ChatDetailPage({ params }: { params: Promise<{ id:
                       className="px-4 py-2.5 rounded-2xl text-sm whitespace-pre-line"
                       style={
                         isBot
-                          ? { background: 'var(--bg-surface-2)', color: 'var(--text-primary)', borderBottomLeftRadius: 4 }
+                          ? {
+                              background: 'var(--bg-surface-2)',
+                              color: 'var(--text-primary)',
+                              borderBottomLeftRadius: 4,
+                            }
                           : { background: 'var(--brand-primary)', color: '#fff', borderBottomRightRadius: 4 }
                       }
                     >

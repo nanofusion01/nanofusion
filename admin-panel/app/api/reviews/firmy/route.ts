@@ -24,7 +24,10 @@ export async function GET(request: Request) {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!profileUrl || !supabaseUrl || !supabaseServiceKey) {
-    return NextResponse.json({ error: 'Chybí konfigurace: FIRMY_CZ_PROFILE_URL, NEXT_PUBLIC_SUPABASE_URL nebo SUPABASE_SERVICE_ROLE_KEY' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Chybí konfigurace: FIRMY_CZ_PROFILE_URL, NEXT_PUBLIC_SUPABASE_URL nebo SUPABASE_SERVICE_ROLE_KEY' },
+      { status: 500 }
+    )
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
@@ -33,9 +36,10 @@ export async function GET(request: Request) {
     // 1. Stáhni HTML profilu Firmy.cz
     const response = await fetch(profileUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'cs-CZ,cs;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       },
       next: { revalidate: 0 },
     })
@@ -57,16 +61,19 @@ export async function GET(request: Request) {
     let skipped = 0
 
     for (const rev of reviews) {
-      const { error } = await supabase.from('external_reviews').upsert({
-        source: 'firmy.cz',
-        external_id: rev.external_id,
-        author: rev.author,
-        rating: rev.rating,
-        content: rev.content,
-        published_at: rev.published_at,
-        approved: false, // Čeká na schválení v admin panelu
-        fetched_at: new Date().toISOString(),
-      }, { onConflict: 'external_id', ignoreDuplicates: true })
+      const { error } = await supabase.from('external_reviews').upsert(
+        {
+          source: 'firmy.cz',
+          external_id: rev.external_id,
+          author: rev.author,
+          rating: rev.rating,
+          content: rev.content,
+          published_at: rev.published_at,
+          approved: false, // Čeká na schválení v admin panelu
+          fetched_at: new Date().toISOString(),
+        },
+        { onConflict: 'external_id', ignoreDuplicates: true }
+      )
 
       if (error) {
         skipped++
@@ -95,11 +102,11 @@ export async function GET(request: Request) {
       parsed_reviews: reviews.length,
       imported,
       skipped,
-      note: imported > 0
-        ? `${imported} nových recenzí čeká na schválení v admin panelu`
-        : 'Žádné nové recenze k importu (buď žádné nové, nebo Firmy.cz zase změnili HTML strukturu)',
+      note:
+        imported > 0
+          ? `${imported} nových recenzí čeká na schválení v admin panelu`
+          : 'Žádné nové recenze k importu (buď žádné nové, nebo Firmy.cz zase změnili HTML strukturu)',
     })
-
   } catch (error) {
     console.error('Firmy.cz scrape error:', error)
     return NextResponse.json({ error: 'Scraping selhal: ' + errorMessage(error) }, { status: 500 })

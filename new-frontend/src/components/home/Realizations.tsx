@@ -5,11 +5,11 @@ import { supabase } from "@/lib/supabase";
 
 async function RealizationsData() {
   const { data: realizations } = await supabase
-    .from('realizations')
-    .select('*, realization_photos(*)')
-    .eq('is_published', true)
-    .order('order_index', { ascending: true })
-    .order('created_at', { ascending: false });
+    .from("realizations")
+    .select("*, realization_photos(*)")
+    .eq("is_published", true)
+    .order("order_index", { ascending: true })
+    .order("created_at", { ascending: false });
 
   if (!realizations || realizations.length === 0) {
     return null;
@@ -30,7 +30,6 @@ export function Realizations() {
   return (
     <section id="realizace" className="py-12 md:py-16 bg-slate-50 font-sans overflow-hidden">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        
         <SectionHeader
           title="Naše realizace v detailu"
           subtitle="Sledujte, jak vracíme povrchům jejich původní vzhled a krásu"
@@ -41,7 +40,6 @@ export function Realizations() {
         <Suspense fallback={<LoadingSpinner />}>
           <RealizationsData />
         </Suspense>
-
       </div>
     </section>
   );

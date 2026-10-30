@@ -15,7 +15,6 @@ import { ServiceProcess } from "@/components/services/service-process";
 import { ServiceVideo } from "@/components/services/service-video";
 import { ServiceCTA } from "@/components/services/service-cta";
 
-
 interface PageProps {
   params: Promise<{
     slug: string;
@@ -23,9 +22,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const { data: services } = await supabase
-    .from("services")
-    .select("slug");
+  const { data: services } = await supabase.from("services").select("slug");
 
   return (services || []).map((service) => ({
     slug: service.slug,
@@ -34,17 +31,13 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const { data: service } = await supabase
-    .from("services")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const { data: service } = await supabase.from("services").select("*").eq("slug", slug).single();
 
   if (!service) return { title: "Služba nenalezena | NANOfusion" };
 
   // Generate short description for meta
   const rawDesc = service.description || "";
-  const plainText = rawDesc.replace(/<[^>]*>?/gm, '');
+  const plainText = rawDesc.replace(/<[^>]*>?/gm, "");
   const metaDesc = plainText.substring(0, 160).trim() + "...";
 
   const title = `${service.name} | NANOfusion`;
@@ -87,11 +80,7 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function ServicePage({ params }: PageProps) {
   const { slug } = await params;
 
-  const { data: service } = await supabase
-    .from("services")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const { data: service } = await supabase.from("services").select("*").eq("slug", slug).single();
 
   if (!service || !service.is_active) {
     notFound();
@@ -111,11 +100,7 @@ export default async function ServicePage({ params }: PageProps) {
       .select("*")
       .eq("service_id", serviceId)
       .order("order_index", { ascending: true }),
-    supabase
-      .from("service_gallery")
-      .select("*")
-      .eq("service_id", serviceId)
-      .order("order_index", { ascending: true }),
+    supabase.from("service_gallery").select("*").eq("service_id", serviceId).order("order_index", { ascending: true }),
     supabase
       .from("service_reviews")
       .select("*")
@@ -147,7 +132,9 @@ export default async function ServicePage({ params }: PageProps) {
 
   let customProcessSteps = localData.process || [];
   // Zkusíme přepsat z databáze, pokud tam něco je (pro zpětnou kompatibilitu)
-  const processConfig = configRes.data?.find(c => c.key === `service_process_${serviceId}` || c.key === `service_process_${slug}`);
+  const processConfig = configRes.data?.find(
+    (c) => c.key === `service_process_${serviceId}` || c.key === `service_process_${slug}`
+  );
   if (processConfig && processConfig.value) {
     try {
       const parsed = JSON.parse(processConfig.value);
@@ -161,24 +148,24 @@ export default async function ServicePage({ params }: PageProps) {
 
   // Admin umožňuje nahrát víc dvojic Před/Po - dřív se použila jen ta první,
   // teď jede celá sada a komponenta mezi nimi sama průběžně přepíná.
-  const beforeAfterPairs = beforeAfterPhotos
-    .flatMap((p) =>
-      p.before_url && p.after_url && p.before_url !== p.after_url
-        ? [{ before_url: p.before_url, after_url: p.after_url }]
-        : []
-    );
+  const beforeAfterPairs = beforeAfterPhotos.flatMap((p) =>
+    p.before_url && p.after_url && p.before_url !== p.after_url
+      ? [{ before_url: p.before_url, after_url: p.after_url }]
+      : []
+  );
   const hasBeforeAfter = beforeAfterPairs.length > 0;
 
   let ytId = null;
   if (service.video_url) {
-    const ytMatch = service.video_url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+    const ytMatch = service.video_url.match(
+      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
+    );
     if (ytMatch) ytId = ytMatch[1];
   }
 
   const processDescription = service.process_description || localData.what_included || "";
-  const benefits = (service.features && service.features.length > 0)
-    ? service.features.map(parseFeature)
-    : (localData.benefits || []);
+  const benefits =
+    service.features && service.features.length > 0 ? service.features.map(parseFeature) : localData.benefits || [];
   // Galerie a recenze jen ze skutečných dat z administrace - žádné
   // ilustrační fotky ani ukázkové texty, které by se tvářily jako reálné.
   const gallery = dbGalleryPhotos.map((p) => p.url);
@@ -187,61 +174,51 @@ export default async function ServicePage({ params }: PageProps) {
   const sourceLabel = (source?: string) =>
     source === "google" ? "Google" : source === "firmy.cz" ? "Firmy.cz" : "Recenze zákazníka";
 
-  const mappedReviews = specificReviews.length > 0
-    ? specificReviews.map((r) => ({
-        id: r.id,
-        name: r.author || "Zákazník",
-        text: r.content,
-        rating: r.rating || 5,
-        source: sourceLabel(r.source),
-      }))
-    : [];
+  const mappedReviews =
+    specificReviews.length > 0
+      ? specificReviews.map((r) => ({
+          id: r.id,
+          name: r.author || "Zákazník",
+          text: r.content,
+          rating: r.rating || 5,
+          source: sourceLabel(r.source),
+        }))
+      : [];
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": service.name,
-    "provider": {
+    name: service.name,
+    provider: {
       "@type": "LocalBusiness",
-      "name": "NANOfusion",
-      "url": SITE_URL,
-      "telephone": "+420774509409",
-      "email": "info@nanofusion.cz",
+      name: "NANOfusion",
+      url: SITE_URL,
+      telephone: "+420774509409",
+      email: "info@nanofusion.cz",
     },
-    "description": service.description ? service.description.replace(/<[^>]*>?/gm, '').substring(0, 160) : "",
-    "areaServed": "CZ",
-    "url": `${SITE_URL}/sluzby/${slug}`,
+    description: service.description ? service.description.replace(/<[^>]*>?/gm, "").substring(0, 160) : "",
+    areaServed: "CZ",
+    url: `${SITE_URL}/sluzby/${slug}`,
   };
 
   return (
     <main className="font-sans">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <ServiceHero service={service} ytId={ytId} basePrice={basePrice} siteStats={siteStats} />
 
       <ServiceBenefits processDescription={processDescription} benefits={benefits} />
 
       <ServiceProcess serviceName={service.name} steps={customProcessSteps} processNote={processNote} />
 
-      {hasBeforeAfter && (
-        <ServiceBeforeAfter pairs={beforeAfterPairs} />
-      )}
+      {hasBeforeAfter && <ServiceBeforeAfter pairs={beforeAfterPairs} />}
 
-      {gallery.length > 0 && (
-        <ServiceGallery images={gallery} />
-      )}
+      {gallery.length > 0 && <ServiceGallery images={gallery} />}
 
       <ServiceVideo videoUrl={service.video_url} serviceName={service.name} />
 
-      {mappedReviews.length > 0 && (
-        <Reviews initialReviews={mappedReviews} autoScroll={false} siteStats={siteStats} />
-      )}
+      {mappedReviews.length > 0 && <Reviews initialReviews={mappedReviews} autoScroll={false} siteStats={siteStats} />}
 
-      {faqs.length > 0 && (
-        <FAQ initialFaqs={faqs} />
-      )}
+      {faqs.length > 0 && <FAQ initialFaqs={faqs} />}
 
       <ServiceCTA />
     </main>

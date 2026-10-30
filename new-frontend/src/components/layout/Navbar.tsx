@@ -28,17 +28,26 @@ export function Navbar() {
   return (
     <nav className="bg-[#EBEBEB] text-[#4A4A4A] py-3 shadow-sm relative">
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between max-w-7xl">
-        
         {/* Left: Logo */}
         <div className="flex lg:flex-1 justify-start">
-          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity" onClick={() => setIsOpen(false)}>
-            <Image src="/logo.png" alt="NANOfusion" width={240} height={80} className="h-24 md:h-16 w-auto object-contain cursor-pointer" />
+          <Link
+            href="/"
+            className="flex items-center hover:opacity-80 transition-opacity"
+            onClick={() => setIsOpen(false)}
+          >
+            <Image
+              src="/logo.png"
+              alt="NANOfusion"
+              width={240}
+              height={80}
+              className="h-24 md:h-16 w-auto object-contain cursor-pointer"
+            />
           </Link>
         </div>
 
         {/* Center: Desktop Menu */}
         <div className="hidden lg:flex items-center justify-center gap-6 xl:gap-8">
-          {navLinks.map((link) => (
+          {navLinks.map((link) =>
             link.external ? (
               <a
                 key={link.label}
@@ -64,7 +73,7 @@ export function Navbar() {
                 {link.label}
               </Link>
             )
-          ))}
+          )}
         </div>
 
         {/* Right: Button & Mobile Toggle */}
@@ -92,7 +101,7 @@ export function Navbar() {
       {isOpen && (
         <div className="lg:hidden absolute top-full left-0 right-0 bg-[#EBEBEB] shadow-md border-t border-gray-200 z-50">
           <div className="flex flex-col py-4 px-4 gap-4">
-            {navLinks.map((link) => (
+            {navLinks.map((link) =>
               link.external ? (
                 <a
                   key={link.label}
@@ -120,12 +129,8 @@ export function Navbar() {
                   {link.label}
                 </Link>
               )
-            ))}
-            <Button
-              href={kalkulackaHref}
-              onClick={() => setIsOpen(false)}
-              className="w-full mt-2"
-            >
+            )}
+            <Button href={kalkulackaHref} onClick={() => setIsOpen(false)} className="w-full mt-2">
               Spočítat cenu
             </Button>
           </div>

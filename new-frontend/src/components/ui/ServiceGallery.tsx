@@ -12,12 +12,8 @@ export function ServiceGallery({ images }: ServiceGalleryProps) {
   return (
     <section className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-black text-amber-500 mb-2 text-center">
-          Z realizací
-        </h2>
-        <p className="text-center text-gray-500 mb-12 text-lg">
-          Reálné ukázky našich dokončených prací
-        </p>
+        <h2 className="text-3xl md:text-4xl font-black text-amber-500 mb-2 text-center">Z realizací</h2>
+        <p className="text-center text-gray-500 mb-12 text-lg">Reálné ukázky našich dokončených prací</p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {images.map((url, i) => (

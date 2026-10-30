@@ -80,29 +80,35 @@ export function ServiceBeforeAfter({ pairs, rotateIntervalMs = 6000 }: ServiceBe
     handleMove(e.touches[0].clientX);
   };
 
-  const startDrag = () => { isDraggingRef.current = true; };
-  const endDrag = () => { isDraggingRef.current = false; };
+  const startDrag = () => {
+    isDraggingRef.current = true;
+  };
+  const endDrag = () => {
+    isDraggingRef.current = false;
+  };
 
   if (!active) return null;
 
   return (
     <section className="py-20 bg-slate-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl md:text-4xl font-black text-amber-500 mb-2">
-          Před a Po
-        </h2>
-        <p className="text-gray-500 mb-10 text-lg">
-          Táhněte posuvníkem a porovnejte rozdíl sami
-        </p>
+        <h2 className="text-3xl md:text-4xl font-black text-amber-500 mb-2">Před a Po</h2>
+        <p className="text-gray-500 mb-10 text-lg">Táhněte posuvníkem a porovnejte rozdíl sami</p>
 
         <div
           ref={containerRef}
           className="relative rounded-2xl overflow-hidden aspect-[16/10] select-none shadow-xl border-2 border-amber-500 cursor-ew-resize touch-none"
-          onMouseDown={(e) => { startDrag(); handleMove(e.clientX); }}
+          onMouseDown={(e) => {
+            startDrag();
+            handleMove(e.clientX);
+          }}
           onMouseUp={endDrag}
           onMouseLeave={endDrag}
           onMouseMove={onMouseMove}
-          onTouchStart={(e) => { startDrag(); handleMove(e.touches[0].clientX); }}
+          onTouchStart={(e) => {
+            startDrag();
+            handleMove(e.touches[0].clientX);
+          }}
           onTouchEnd={endDrag}
           onTouchMove={onTouchMove}
         >
@@ -135,10 +141,28 @@ export function ServiceBeforeAfter({ pairs, rotateIntervalMs = 6000 }: ServiceBe
             style={{ left: `${sliderPosition}%`, transform: "translateX(-50%)" }}
           >
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-amber-500 border-2 border-white rounded-full flex items-center justify-center shadow-[0_4px_16px_rgba(245,158,11,0.6)] text-white font-bold text-sm">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <polyline points="15 18 9 12 15 6"></polyline>
               </svg>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </div>
@@ -174,7 +198,11 @@ export function ServiceBeforeAfter({ pairs, rotateIntervalMs = 6000 }: ServiceBe
               // tlačítko má klikací plochu 24 px, viditelná je jen tečka uvnitř
               <button
                 key={i}
-                onClick={() => { setActiveIndex(i); setHasInteracted(false); setSliderPosition(50); }}
+                onClick={() => {
+                  setActiveIndex(i);
+                  setHasInteracted(false);
+                  setSliderPosition(50);
+                }}
                 aria-label={`Zobrazit dvojici ${i + 1}`}
                 className="group h-6 min-w-6 px-1 flex items-center justify-center"
               >

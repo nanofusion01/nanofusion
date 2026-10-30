@@ -15,7 +15,8 @@ export async function uploadHeroFile(formData: FormData) {
     const file = formData.get('file') as File
     if (!file) throw new Error('Chybí soubor')
     const publicUrl = await uploadFile(supabase, file, 'heroes', 'hero')
-    const { error } = await supabase.from('hero_media')
+    const { error } = await supabase
+      .from('hero_media')
       .insert({ url: publicUrl, type: file.type.startsWith('video/') ? 'video' : 'image', is_active: false })
     if (error) throw new Error(error.message)
     revalidatePath('/admin/hero')
@@ -23,14 +24,12 @@ export async function uploadHeroFile(formData: FormData) {
   })
 }
 
-
 export async function updateHeroTitle(value: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('site_config')
-      .upsert({ key: 'hero_title', value }, { onConflict: 'key' })
-    
+    const { error } = await supabase.from('site_config').upsert({ key: 'hero_title', value }, { onConflict: 'key' })
+
     if (error) throw new Error(error.message)
     revalidatePath('/admin/hero')
     await revalidateFrontend()
@@ -41,15 +40,16 @@ export async function toggleHeroMedia(id: string, is_active: boolean) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    
+
     if (is_active) {
       await supabase.from('hero_media').update({ is_active: false }).neq('id', id)
     }
 
-    const { error } = await supabase.from('hero_media')
+    const { error } = await supabase
+      .from('hero_media')
       .update({ is_active, updated_at: new Date().toISOString() })
       .eq('id', id)
-    
+
     if (error) throw new Error(error.message)
     revalidatePath('/admin/hero')
     await revalidateFrontend()
@@ -60,9 +60,8 @@ export async function addHeroMedia(url: string, type: 'image' | 'video') {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('hero_media')
-      .insert({ url, type, is_active: false })
-    
+    const { error } = await supabase.from('hero_media').insert({ url, type, is_active: false })
+
     if (error) throw new Error(error.message)
     revalidatePath('/admin/hero')
   })
@@ -72,10 +71,8 @@ export async function deleteHeroMedia(id: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('hero_media')
-      .delete()
-      .eq('id', id)
-    
+    const { error } = await supabase.from('hero_media').delete().eq('id', id)
+
     if (error) throw new Error(error.message)
     revalidatePath('/admin/hero')
   })

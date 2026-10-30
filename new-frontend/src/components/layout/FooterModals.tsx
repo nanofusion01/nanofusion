@@ -272,39 +272,31 @@ export function FooterModals() {
 
   return (
     <>
-      <button 
-        onClick={() => setOpenModal('op')}
+      <button
+        onClick={() => setOpenModal("op")}
         className="hover:text-amber-500 transition-all focus:outline-none underline underline-offset-4 decoration-amber-500/30 hover:decoration-amber-500"
       >
         Obchodní podmínky
       </button>
       <span className="hidden sm:inline">|</span>
-      <button 
-        onClick={() => setOpenModal('gdpr')}
+      <button
+        onClick={() => setOpenModal("gdpr")}
         className="hover:text-amber-500 transition-all focus:outline-none underline underline-offset-4 decoration-amber-500/30 hover:decoration-amber-500"
       >
         GDPR
       </button>
 
-      <Modal 
-        isOpen={openModal === 'op'} 
-        onClose={() => setOpenModal(null)}
-        title="Obchodní podmínky"
-      >
-        <div 
+      <Modal isOpen={openModal === "op"} onClose={() => setOpenModal(null)} title="Obchodní podmínky">
+        <div
           className="prose prose-slate max-w-none text-slate-700"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(opHtml) }} 
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(opHtml) }}
         />
       </Modal>
 
-      <Modal 
-        isOpen={openModal === 'gdpr'} 
-        onClose={() => setOpenModal(null)}
-        title="Zásady ochrany osobních údajů"
-      >
-        <div 
+      <Modal isOpen={openModal === "gdpr"} onClose={() => setOpenModal(null)} title="Zásady ochrany osobních údajů">
+        <div
           className="prose prose-slate max-w-none text-slate-700"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(gdprHtml) }} 
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(gdprHtml) }}
         />
       </Modal>
     </>
