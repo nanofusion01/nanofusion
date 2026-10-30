@@ -31,6 +31,14 @@ test.describe('Administrace – chybové stránky', () => {
   })
 })
 
+test.describe('Administrace – odkaz z e-mailu (reset hesla)', () => {
+  test('neplatný odkaz vrátí na přihlášení s hláškou', async ({ page }) => {
+    await page.goto('/admin/auth/callback?code=neplatny&next=/admin/account')
+    await expect(page).toHaveURL(/\/admin\/login\?chyba=odkaz/)
+    await expect(page.getByText('Odkaz z e-mailu je neplatný nebo vypršel')).toBeVisible()
+  })
+})
+
 test.describe('Administrace – staré veřejné adresy', () => {
   for (const [from, to] of [
     ['/poptavka', '/kalkulace'],
