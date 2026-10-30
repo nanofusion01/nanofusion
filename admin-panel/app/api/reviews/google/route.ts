@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { revalidateFrontend } from '@/lib/revalidate-frontend'
+import { stripHtml } from '@/lib/strip-html'
 import { errorMessage } from '@/lib/utils'
 
 /** Recenze z Google Places API (Place Details → reviews). */
@@ -9,21 +10,6 @@ interface GooglePlaceReview {
   rating: number
   text?: string
   time: number
-}
-
-// Recenze se na webu vždy vykreslují jako čistý text - nikdy jako HTML -
-// proto sem nesmí projít žádné značky.
-function stripHtml(input: string): string {
-  return input
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#0?39;/gi, "'")
-    .replace(/\s+/g, ' ')
-    .trim()
 }
 
 export async function GET(request: Request) {

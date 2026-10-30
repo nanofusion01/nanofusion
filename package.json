@@ -11,9 +11,10 @@
     "build:frontend": "cd new-frontend && npm run build",
     "build:admin": "cd admin-panel && npm run build",
     "build:all": "npm run build:frontend && npm run build:admin",
-    "test": "npm run test:frontend",
+    "test": "npm run test:frontend && npm run test:admin",
     "test:frontend": "cd new-frontend && npm test",
-    "test:e2e": "cd new-frontend && npm run test:e2e",
-    "gen:types": "node scripts/gen-db-types.mjs"
+    "test:e2e": "cd new-frontend && npm run test:e2e && cd ../admin-panel && npm run test:e2e",
+    "gen:types": "node scripts/gen-db-types.mjs",
+    "test:admin": "cd admin-panel && npm test"
   }
 }
