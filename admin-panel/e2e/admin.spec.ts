@@ -23,6 +23,14 @@ test.describe("Administrace – přístup bez přihlášení", () => {
   });
 });
 
+test.describe("Administrace – chybové stránky", () => {
+  test("neexistující adresa vrátí 404 s odkazem do administrace", async ({ page }) => {
+    const res = await page.goto("/neexistujici-stranka");
+    expect(res?.status()).toBe(404);
+    await expect(page.getByRole("heading", { name: "Stránka neexistuje" })).toBeVisible();
+  });
+});
+
 test.describe("Administrace – staré veřejné adresy", () => {
   for (const [from, to] of [
     ["/poptavka", "/kalkulace"],

@@ -211,3 +211,12 @@ test.describe("E2E Test: AI asistent Nanobot", () => {
     await expect.poll(() => transcript?.messages?.some((m) => m.text.includes("Chci vyčistit fasádu"))).toBe(true);
   });
 });
+
+test.describe("Chybové stránky", () => {
+  test("neexistující adresa vrátí 404 se stránkou v designu webu", async ({ page }) => {
+    const res = await page.goto("/sluzby/neexistujici-sluzba");
+    expect(res?.status()).toBe(404);
+    await expect(page.getByRole("heading", { name: "Tuto stránku jsme nenašli" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Zpět na úvod" })).toHaveAttribute("href", "/");
+  });
+});
