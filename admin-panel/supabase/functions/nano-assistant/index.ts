@@ -46,9 +46,12 @@ serve(async (req) => {
     // 2. Omezit délku jednotlivé zprávy na 1000 znaků (ochrana před vyčerpáním tokenů)
     // 3. Vzít maximálně posledních 8 zpráv
     const sanitizedMessages = rawMessages
-      .filter((m: any) => m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant'))
+      .filter((m: unknown): m is { role: 'user' | 'assistant'; content: string } =>
+        typeof m === 'object' && m !== null &&
+        typeof (m as { content?: unknown }).content === 'string' &&
+        ['user', 'assistant'].includes((m as { role?: unknown }).role as string))
       .slice(-8)
-      .map((m: any) => ({
+      .map((m) => ({
         role: m.role as 'user' | 'assistant',
         content: String(m.content).slice(0, 1000),
       }))

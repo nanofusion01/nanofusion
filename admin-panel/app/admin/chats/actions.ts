@@ -9,7 +9,6 @@ export async function setChatSessionStatus(id: string, status: 'open' | 'closed'
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
     const { error } = await supabase.from('chat_sessions')
       .update({ status })
       .eq('id', id)
@@ -23,7 +22,6 @@ export async function deleteChatSession(id: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
     const { error } = await supabase.from('chat_sessions')
       .delete()
       .eq('id', id)
@@ -38,7 +36,6 @@ export async function deleteChatSessions(ids: string[]) {
     if (ids.length === 0) return
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
     const { error } = await supabase.from('chat_sessions')
       .delete()
       .in('id', ids)
@@ -54,7 +51,6 @@ export async function deleteAllChatSessions() {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
     const { error } = await supabase.from('chat_sessions')
       .delete()
       .not('id', 'is', null)

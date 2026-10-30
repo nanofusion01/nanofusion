@@ -17,17 +17,18 @@ import {
   X
 } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
-import { compressImage } from '@/lib/utils'
+import { compressImage, errorMessage } from '@/lib/utils'
 import * as actionsRaw from '../actions'
 import { TiptapEditor } from '@/components/admin/editor'
 import { unwrapActions } from '@/lib/action-result'
 
-const { updateService, addServiceFaq, updateServiceFaq, deleteServiceFaq, uploadServiceHeroImage, uploadBeforeAfterPhoto, deleteBeforeAfter, uploadGalleryPhoto, deleteGalleryPhoto, addServiceReview, deleteServiceReview, saveServiceProcessSteps } = unwrapActions(actionsRaw)
+const { updateService, addServiceFaq, updateServiceFaq, deleteServiceFaq, uploadServiceHeroImage, deleteBeforeAfter, uploadGalleryPhoto, deleteGalleryPhoto, addServiceReview, deleteServiceReview, saveServiceProcessSteps } = unwrapActions(actionsRaw)
 
 type Service = Tables<'services'>
 type BeforeAfter = Tables<'service_before_after'>
 type GalleryPhoto = Tables<'service_gallery'>
-type ServiceFAQ = Tables<'service_faqs'>
+// FAQ služby; is_global = obecná otázka z tabulky faqs zobrazená i u této služby
+type ServiceFAQ = Tables<'service_faqs'> & { is_global?: boolean }
 type ServiceReview = Tables<'service_reviews'>
 type ExternalReview = Tables<'external_reviews'>
 
@@ -60,6 +61,29 @@ const DEFAULT_BENEFITS: Record<string, Array<{ title: string; desc: string }>> =
     { title: 'Ochrana proti oleji a mastnotě', desc: 'Impregnace zabraňuje vsakování kapalin a usnadňuje údržbu.' },
     { title: 'Doplnění křemičitého písku', desc: 'Po vyčištění a vyschnutí vyplníme spáry novým křemičitým pískem.' }
   ]
+}
+
+/**
+ * Bod „Co nabízíme“ je v DB uložený jako text: buď JSON {title, desc},
+ * nebo „Název - popis“ / „Název: popis“, případně jen název.
+ */
+function parseFeature(feature: string): { title: string; desc: string } {
+  try {
+    const parsed: unknown = JSON.parse(feature)
+    if (typeof parsed === 'object' && parsed !== null) {
+      const p = parsed as { title?: string; desc?: string; description?: string }
+      return { title: p.title || '', desc: p.desc || p.description || '' }
+    }
+    return { title: String(feature), desc: '' }
+  } catch {
+    for (const sep of [' - ', ': ']) {
+      if (feature.includes(sep)) {
+        const [first, ...rest] = feature.split(sep)
+        return { title: first.trim(), desc: rest.join(sep).trim() }
+      }
+    }
+    return { title: feature, desc: '' }
+  }
 }
 
 export function ServiceDetailClient({
@@ -118,8 +142,8 @@ export function ServiceDetailClient({
       const url = await import('../actions').then(m => unwrapActions(m).uploadServiceVideo(service.id, fd))
       setService({ ...service, video_url: url })
       toast.success('Krátké video pro náhled služby nahráno')
-    } catch (err: any) {
-      toast.error('Chyba uploadu videa: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba uploadu videa: ' + errorMessage(err))
     } finally {
       setUploadingVideo(false)
     }
@@ -140,8 +164,8 @@ export function ServiceDetailClient({
       const { id, ...data } = service
       await updateService(id, data)
       toast.success('Změny uloženy')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     } finally {
       setSaving(false)
     }
@@ -153,8 +177,8 @@ export function ServiceDetailClient({
     try {
       await saveServiceProcessSteps(service.id, processSteps)
       toast.success('Postup krok za krokem uložen')
-    } catch (err: any) {
-      toast.error('Chyba uložení postupu: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba uložení postupu: ' + errorMessage(err))
     } finally {
       setSavingProcess(false)
     }
@@ -170,8 +194,8 @@ export function ServiceDetailClient({
       const url = await uploadServiceHeroImage(service.id, fd)
       setService({ ...service, hero_image_url: url })
       toast.success('Hero obrázek nahrán')
-    } catch (err: any) {
-      toast.error('Chyba uploadu: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba uploadu: ' + errorMessage(err))
     } finally {
       setUploadingHero(false)
     }
@@ -209,8 +233,8 @@ export function ServiceDetailClient({
       if (beforeFileRef.current) beforeFileRef.current.value = ''
       if (afterFileRef.current) afterFileRef.current.value = ''
       toast.success('Srovnání přidáno')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     } finally {
       setAddingBeforeAfter(false)
     }
@@ -222,8 +246,8 @@ export function ServiceDetailClient({
       await deleteBeforeAfter(id, service.id)
       setBeforeAfterItems(prev => prev.filter(i => i.id !== id))
       toast.success('Srovnání smazáno')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     }
   }
 
@@ -239,8 +263,8 @@ export function ServiceDetailClient({
         setGalleryPhotos(prev => [...prev, newItem])
       }
       toast.success('Fotky do galerie nahrány')
-    } catch (err: any) {
-      toast.error('Chyba uploadu: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba uploadu: ' + errorMessage(err))
     } finally {
       setUploadingGallery(false)
       if (galleryFileRef.current) galleryFileRef.current.value = ''
@@ -253,8 +277,8 @@ export function ServiceDetailClient({
       await deleteGalleryPhoto(id, service.id)
       setGalleryPhotos(prev => prev.filter(i => i.id !== id))
       toast.success('Fotka smazána')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     }
   }
 
@@ -287,16 +311,16 @@ export function ServiceDetailClient({
 
       {/* Tabs */}
       <div className="flex gap-2 p-1.5 rounded-2xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
-        {[
+        {([
           { id: 'general', label: 'Základní info', icon: <Layout size={16} /> },
           { id: 'process', label: `Jak to funguje (${processSteps.length})`, icon: <ListOrdered size={16} /> },
           { id: 'photos', label: `Fotky (${beforeAfterItems.length + galleryPhotos.length})`, icon: <Camera size={16} /> },
           { id: 'faqs', label: `Q&A (${faqs.length})`, icon: <MessageSquareQuote size={16} /> },
           { id: 'reviews', label: `Vybrané recenze (${serviceReviews.length})`, icon: <MessageSquareQuote size={16} /> },
-        ].map((tab) => (
+        ] satisfies { id: typeof activeTab; label: string; icon: React.ReactNode }[]).map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200"
             style={{
               background: activeTab === tab.id ? 'var(--bg-surface)' : 'transparent',
@@ -362,36 +386,8 @@ export function ServiceDetailClient({
                 </div>
               </div>
               <div className="space-y-3">
-                {(service.features || []).map((feature: any, idx: number) => {
-                  let title = ''
-                  let desc = ''
-                  if (typeof feature === 'object' && feature !== null) {
-                    title = feature.title || ''
-                    desc = feature.desc || feature.description || ''
-                  } else {
-                    try {
-                      const parsed = JSON.parse(feature)
-                      if (typeof parsed === 'object' && parsed !== null) {
-                        title = parsed.title || ''
-                        desc = parsed.desc || parsed.description || ''
-                      } else {
-                        title = String(feature)
-                      }
-                    } catch {
-                      const str = String(feature || '')
-                      if (str.includes(' - ')) {
-                        const parts = str.split(' - ')
-                        title = parts[0].trim()
-                        desc = parts.slice(1).join(' - ').trim()
-                      } else if (str.includes(': ')) {
-                        const parts = str.split(': ')
-                        title = parts[0].trim()
-                        desc = parts.slice(1).join(': ').trim()
-                      } else {
-                        title = str
-                      }
-                    }
-                  }
+                {(service.features || []).map((feature: string, idx: number) => {
+                  const { title, desc } = parseFeature(feature)
 
                   return (
                     <div key={idx} className="p-4 rounded-xl border flex flex-col md:flex-row gap-3 items-start md:items-center" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
@@ -752,13 +748,13 @@ export function ServiceDetailClient({
                     <div className="space-y-2 text-center">
                       <span className="text-[10px] uppercase font-black text-red-400">Před</span>
                       <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 border-2 border-red-100">
-                        <img src={item.before_url || ''} className="w-full h-full object-cover" />
+                        <img src={item.before_url || ''} alt="Před" className="w-full h-full object-cover" />
                       </div>
                     </div>
                     <div className="space-y-2 text-center">
                       <span className="text-[10px] uppercase font-black text-green-500">Po</span>
                       <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 border-2 border-green-100">
-                        <img src={item.after_url || ''} className="w-full h-full object-cover" />
+                        <img src={item.after_url || ''} alt="Po" className="w-full h-full object-cover" />
                       </div>
                     </div>
                   </div>
@@ -775,7 +771,7 @@ export function ServiceDetailClient({
               ))}
               {beforeAfterItems.length === 0 && !showAddBeforeAfter && (
                 <div className="text-center py-12 opacity-40 text-sm border-2 border-dashed rounded-2xl">
-                  Zatím žádné srovnání. Klikněte na "Přidat srovnání".
+                  Zatím žádné srovnání. Klikněte na „Přidat srovnání“.
                 </div>
               )}
             </div>
@@ -822,7 +818,7 @@ export function ServiceDetailClient({
               </div>
               {galleryPhotos.length === 0 && (
                 <div className="text-center py-12 opacity-40 text-sm border-2 border-dashed rounded-2xl">
-                  Zatím žádné fotky v galerii. Klikněte na "Nahrát fotky".
+                  Zatím žádné fotky v galerii. Klikněte na „Nahrát fotky“.
                 </div>
               )}
             </div>
@@ -855,7 +851,7 @@ export function ServiceDetailClient({
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-slate-400 flex items-center justify-between">
                           <span>Otázka</span>
-                          {(faq as any).is_global && (
+                          {faq.is_global && (
                             <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[9px] font-black tracking-tighter">GLOBÁLNÍ</span>
                           )}
                         </label>
@@ -867,7 +863,7 @@ export function ServiceDetailClient({
                             setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, question: val } : f))
                           }}
                           onBlur={async (e) => {
-                            if ((faq as any).is_global) {
+                            if (faq.is_global) {
                               await import('../../faqs/actions').then(m => m.updateFaq(faq.id, { question: e.target.value }))
                             } else {
                               await updateServiceFaq(faq.id, { question: e.target.value })
@@ -906,7 +902,7 @@ export function ServiceDetailClient({
                               setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, answer: val } : f))
                             }}
                             onBlur={async (e) => {
-                              if ((faq as any).is_global) {
+                              if (faq.is_global) {
                                 await import('../../faqs/actions').then(m => m.updateFaq(faq.id, { answer: e.target.value }))
                               } else {
                                 await updateServiceFaq(faq.id, { answer: e.target.value })
@@ -923,7 +919,7 @@ export function ServiceDetailClient({
                       <button
                         onClick={async () => {
                           if (confirm('Smazat tento dotaz?')) {
-                            if ((faq as any).is_global) {
+                            if (faq.is_global) {
                               await import('../../faqs/actions').then(m => m.deleteFaq(faq.id))
                             } else {
                               await deleteServiceFaq(faq.id)
@@ -939,7 +935,7 @@ export function ServiceDetailClient({
                       <button
                         onClick={async () => {
                           const newStatus = !faq.is_active
-                          if ((faq as any).is_global) {
+                          if (faq.is_global) {
                             await import('../../faqs/actions').then(m => m.updateFaq(faq.id, { is_active: newStatus }))
                           } else {
                             await updateServiceFaq(faq.id, { is_active: newStatus })
@@ -958,7 +954,7 @@ export function ServiceDetailClient({
               ))}
               {faqs.length === 0 && (
                 <div className="text-center py-12 opacity-40 text-sm border-2 border-dashed rounded-2xl">
-                  Zatím žádné dotazy. Klikněte na "Přidat dotaz".
+                  Zatím žádné dotazy. Klikněte na „Přidat dotaz“.
                 </div>
               )}
             </div>
@@ -1093,8 +1089,8 @@ export function ServiceDetailClient({
                         setRevContent('')
                         setRevSource('manual')
                         toast.success('Recenze přidána')
-                      } catch (err: any) {
-                        toast.error('Chyba: ' + err.message)
+                      } catch (err) {
+                        toast.error('Chyba: ' + errorMessage(err))
                       } finally {
                         setAddingReview(false)
                       }
@@ -1120,11 +1116,11 @@ export function ServiceDetailClient({
                       <div className="flex items-center gap-2">
                         <h4 className="font-bold">{rev.author}</h4>
                         <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
-                          {(rev as any).source === 'google' ? 'Google' : (rev as any).source === 'firmy.cz' ? 'Firmy.cz' : 'Ručně přidáno'}
+                          {rev.source === 'google' ? 'Google' : rev.source === 'firmy.cz' ? 'Firmy.cz' : 'Ručně přidáno'}
                         </span>
                       </div>
                       <p className="text-sm text-slate-500">{new Date(rev.created_at).toLocaleDateString('cs')}</p>
-                      <p className="pt-2 text-slate-700 max-w-2xl text-sm leading-relaxed">"{rev.content}"</p>
+                      <p className="pt-2 text-slate-700 max-w-2xl text-sm leading-relaxed">„{rev.content}“</p>
                     </div>
                     <button
                       onClick={async () => {

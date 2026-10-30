@@ -1,8 +1,12 @@
-/**
- * TASK 10: CSV export poptávek
- * Použití v client komponentě: importuj exportInquiriesCSV a zavolej při kliknutí na tlačítko
- */
-export function exportInquiriesCSV(inquiries: any[]) {
+import type { Tables } from '@/lib/database.types'
+
+type ExportRow = Pick<
+  Tables<'inquiries'>,
+  'id' | 'created_at' | 'name' | 'email' | 'phone' | 'service' | 'message' | 'status' | 'source' | 'notes'
+>
+
+/** CSV export poptávek (tlačítko „Exportovat CSV“ v přehledu poptávek). */
+export function exportInquiriesCSV(inquiries: ExportRow[]) {
   const headers = [
     'ID',
     'Datum',
@@ -11,8 +15,6 @@ export function exportInquiriesCSV(inquiries: any[]) {
     'Telefon',
     'Služba',
     'Zpráva',
-    'Plocha (m²)',
-    'Odhad ceny',
     'Stav',
     'Zdroj',
     'Poznámky',
@@ -32,8 +34,6 @@ export function exportInquiriesCSV(inquiries: any[]) {
     r.phone || '',
     r.service || '',
     `"${(r.message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
-    r.area != null ? String(r.area) : '',
-    r.total_price_est || '',
     statusMap[r.status] || r.status,
     r.source || '',
     `"${(r.notes || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,

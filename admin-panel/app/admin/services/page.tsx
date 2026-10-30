@@ -7,5 +7,5 @@ export default async function ServicesPage() {
     .select('*, service_before_after(count), service_reviews(count)')
     .order('order_index', { ascending: true })
 
-  return <ServicesClient initialServices={(services as any[]) ?? []} />
+  return <ServicesClient initialServices={services ?? []} />
 }

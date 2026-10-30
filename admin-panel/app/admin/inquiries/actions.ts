@@ -67,7 +67,6 @@ export async function deleteInquiries(ids: string[]) {
     if (ids.length === 0) return
     await requireAdmin()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
 
     const { error } = await supabase.from('inquiries')
       .delete()
@@ -91,7 +90,6 @@ export async function deleteAllInquiries() {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
 
     const { error } = await supabase.from('inquiries')
       .delete()

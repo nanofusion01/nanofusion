@@ -6,6 +6,7 @@ import { Star, CheckCircle, XCircle, Trash2, Plus, AlertTriangle } from 'lucide-
 import { Tables } from '@/lib/database.types'
 import * as actionsRaw from './actions'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { approveReview, rejectReview, deleteReview, addManualReview } = unwrapActions(actionsRaw)
 type Review = Tables<'external_reviews'>
@@ -46,8 +47,8 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
       toast.success(`Importováno ${res.imported} recenzí`)
       setShowBulkModal(false)
       setBulkText('')
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e) {
+      toast.error(errorMessage(e))
     } finally {
       setLoading(null)
     }
@@ -130,8 +131,8 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
               try {
                 const res = await unwrapActions(await import('./actions')).syncFirmyReviews()
                 toast.success(`Synchronizace dokončena: ${res.imported} nových recenzí`)
-              } catch (e: any) {
-                toast.error(e.message)
+              } catch (e) {
+                toast.error(errorMessage(e))
               } finally {
                 setLoading(null)
               }

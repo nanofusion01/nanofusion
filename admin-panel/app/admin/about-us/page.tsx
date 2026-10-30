@@ -18,10 +18,9 @@ export default async function AboutUsPage() {
       'about_certs_subtitle'
     ])
 
-  const configMap = (config || []).reduce((acc: any, item: any) => {
-    acc[item.key] = item.value
-    return acc
-  }, {})
+  const configMap: Record<string, string> = Object.fromEntries(
+    (config ?? []).map((item) => [item.key, item.value ?? ''])
+  )
 
   const defaultStats = JSON.stringify([
     { label: 'Realizací', value: '950+' },

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { HeroClient } from './hero-client'
+import { oneOf } from '@/lib/utils'
 
 export default async function HeroPage() {
   const supabase = await createClient()
@@ -17,8 +18,8 @@ export default async function HeroPage() {
 
   return (
     <HeroClient 
-      initialItems={(heroItems as any[]) || []} 
-      initialTitle={(config as any)?.value || 'Špičková péče o to,<br>co jste usilovně vybudovali'} 
+      initialItems={(heroItems ?? []).map((h) => ({ ...h, type: oneOf(h.type, ['image', 'video'] as const, 'image') }))}
+      initialTitle={config?.value || 'Špičková péče o to,<br>co jste usilovně vybudovali'} 
     />
   )
 }

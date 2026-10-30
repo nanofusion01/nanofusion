@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import * as actionsRaw from './actions'
 import { toast } from 'sonner'
-import { Save, Plus, Trash2, Image as ImageIcon, ExternalLink, Award } from 'lucide-react'
+import { Save, Plus, Trash2, Image as ImageIcon, Award } from 'lucide-react'
 import NextImage from 'next/image'
 import { unwrapActions } from '@/lib/action-result'
 
@@ -52,7 +52,7 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
       const url = await uploadCertificateImage(formData)
       handleChange(id, 'imageUrl', url)
       toast.success('Obrázek nahrán')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při nahrávání')
     } finally {
       setUploadingId(null)
@@ -64,7 +64,7 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
     try {
       await updateCertificatesConfig(certificates)
       toast.success('Certifikáty uloženy')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při ukládání')
     } finally {
       setIsSaving(false)
@@ -77,7 +77,7 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Certifikáty a Ocenění</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Spravujte certifikáty, které se zobrazí v karuselu v sekci "O nás".
+            Spravujte certifikáty, které se zobrazí v karuselu v sekci „O nás“.
           </p>
         </div>
         <button

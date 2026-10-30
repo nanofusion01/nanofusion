@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { UsersClient } from './users-client'
+import { oneOf } from '@/lib/utils'
 
 export default async function UsersPage() {
   const supabase = await createClient()
@@ -19,7 +20,7 @@ export default async function UsersPage() {
     .single()
 
   if (currentProfile?.role !== 'admin') {
-    return <div className="p-10 text-center text-red-500 font-bold">Přístup odepřen: Váš účet nemá roli 'admin'. Kontaktujte správce.</div>
+    return <div className="p-10 text-center text-red-500 font-bold">Přístup odepřen: Váš účet nemá roli „admin“. Kontaktujte správce.</div>
   }
 
   const { data: profiles } = await supabase
@@ -29,8 +30,8 @@ export default async function UsersPage() {
 
   return (
     <UsersClient
-      initialProfiles={(profiles as any[]) || []}
-      currentUserId={user!.id}
+      initialProfiles={(profiles ?? []).map((p) => ({ ...p, role: oneOf(p.role, ['admin', 'editor'] as const, 'editor') }))}
+      currentUserId={user.id}
     />
   )
 }

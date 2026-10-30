@@ -61,7 +61,7 @@ export function AboutClient({
   const [description, setDescription] = useState(initialDescription)
 
   // States for Tab 2: Stats & Why Us
-  const [stats, setStats] = useState<any[]>(JSON.parse(initialStats))
+  const [stats, setStats] = useState<{ label: string; value: string }[]>(JSON.parse(initialStats))
   const [whyTitle, setWhyTitle] = useState(initialWhyTitle)
   const [whyPoints, setWhyPoints] = useState<string[]>(JSON.parse(initialWhyPoints))
 
@@ -78,7 +78,7 @@ export function AboutClient({
     try {
       await updateAboutConfig(key, value)
       toast.success('Změny byly úspěšně uloženy')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při ukládání')
     } finally {
       setIsSaving(false)
@@ -113,7 +113,7 @@ export function AboutClient({
       const url = await uploadCertificateImage(formData)
       handleCertChange(id, 'imageUrl', url)
       toast.success('Obrázek nahrán')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při nahrávání')
     } finally {
       setUploadingId(null)
@@ -129,7 +129,7 @@ export function AboutClient({
       // Poté samotný seznam certifikátů
       await updateAboutConfig('about_certificates', JSON.stringify(certificates))
       toast.success('Certifikace a všechny certifikáty byly uloženy')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při ukládání certifikátů')
     } finally {
       setIsSaving(false)
@@ -142,7 +142,7 @@ export function AboutClient({
       await updateAboutConfig('about_why_title', whyTitle)
       await updateAboutConfig('about_why_points', JSON.stringify(whyPoints))
       toast.success('Sekce Proč NANOfusion byla úspěšně uložena')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při ukládání')
     } finally {
       setIsSaving(false)
@@ -154,7 +154,7 @@ export function AboutClient({
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Správa sekce O nás</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-          Upravte kompletní obsah, který se zobrazí v modálním okně po kliknutí na "O nás" (texty, výhody, statistiky a certifikace).
+          Upravte kompletní obsah, který se zobrazí v modálním okně po kliknutí na „O nás“ (texty, výhody, statistiky a certifikace).
         </p>
       </div>
 
@@ -337,7 +337,7 @@ export function AboutClient({
               <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
                 <CheckSquare size={20} />
               </div>
-              <h2 className="text-lg font-bold">Důvody "Proč my?" (Pravý panel)</h2>
+              <h2 className="text-lg font-bold">Důvody „Proč my?“ (Pravý panel)</h2>
             </div>
             
             <div className="space-y-4">

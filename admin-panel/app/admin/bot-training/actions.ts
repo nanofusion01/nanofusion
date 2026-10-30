@@ -69,8 +69,8 @@ export async function uploadBotDocument(formData: FormData) {
         }
         throw new Error('Chyba nahrávání: ' + uploadError.message)
       }
-    } catch (e: any) {
-      throw new Error(e.message)
+    } catch (e) {
+      throw new Error(e instanceof Error ? e.message : String(e))
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -78,13 +78,14 @@ export async function uploadBotDocument(formData: FormData) {
       .getPublicUrl(filePath)
 
     // 2. Parse PDF using pdf2json (Edge/Vercel safe)
-    const PDFParser = require('pdf2json');
+    const { default: PDFParser } = await import('pdf2json')
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
     const extractedText = await new Promise<string>((resolve, reject) => {
-      const pdfParser = new (PDFParser as any)(null, 1);
-      pdfParser.on("pdfParser_dataError", (errData: any) => reject(new Error(errData.parserError)));
+      const pdfParser = new PDFParser(null, true);
+      pdfParser.on("pdfParser_dataError", (errData) =>
+        reject(errData instanceof Error ? errData : errData.parserError));
       pdfParser.on("pdfParser_dataReady", () => {
         resolve(pdfParser.getRawTextContent());
       });

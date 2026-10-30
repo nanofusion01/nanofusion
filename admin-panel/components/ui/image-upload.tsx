@@ -3,6 +3,8 @@
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import { toast } from 'sonner'
+import { errorMessage } from '@/lib/utils'
 
 type StorageBucket = 'heroes' | 'services' | 'gallery' | 'realizations' | 'articles'
 
@@ -30,11 +32,11 @@ export function ImageUpload({
 
   const uploadFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('Vyberte prosím obrázek (JPG, PNG, WebP, atd.)')
+      toast.error('Vyberte prosím obrázek (JPG, PNG, WebP, atd.)')
       return
     }
     if (file.size > 10 * 1024 * 1024) {
-      alert('Obrázek je příliš velký (max 10 MB)')
+      toast.error('Obrázek je příliš velký (max 10 MB)')
       return
     }
 
@@ -66,9 +68,9 @@ export function ImageUpload({
       setProgress(100)
       setPreview(publicUrl)
       onUpload(publicUrl)
-    } catch (err: any) {
+    } catch (err) {
       console.error('Upload failed:', err)
-      alert(`Nahrávání selhalo: ${err?.message || 'Neznámá chyba'}`)
+      toast.error(`Nahrávání selhalo: ${errorMessage(err)}`)
       setPreview(currentUrl ?? null)
     } finally {
       setUploading(false)

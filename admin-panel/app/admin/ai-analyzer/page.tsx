@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { AIAnalyzerClient } from './ai-analyzer-client'
+import { oneOf } from '@/lib/utils'
 
 export default async function AIAnalyzerPage() {
   const supabase = await createClient()
@@ -9,5 +10,10 @@ export default async function AIAnalyzerPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
-  return <AIAnalyzerClient initialAnalyses={(analyses as any[]) || []} />
+  const STATUSES = ['new', 'in_progress', 'contacted', 'resolved'] as const
+  return (
+    <AIAnalyzerClient
+      initialAnalyses={(analyses ?? []).map((a) => ({ ...a, status: oneOf(a.status, STATUSES, 'new') }))}
+    />
+  )
 }

@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
 import { Realization } from './realizations-client'
 import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
+import type { Tables } from '@/lib/database.types'
 
 export async function createRealization(data: {
   title: string
@@ -84,11 +85,11 @@ export async function uploadMultipleRealizationPhotos(
     const files = formData.getAll('files') as File[]
     if (!files || files.length === 0) throw new Error('No files provided')
 
-    const results = []
+    const results: Tables<'realization_photos'>[] = []
     for (const file of files) {
       try {
         const publicUrl = await uploadFile(supabase, file, 'realizations', realizationId)
-        const res: any = await supabase.from('realization_photos').insert({
+        const res = await supabase.from('realization_photos').insert({
           realization_id: realizationId,
           url: publicUrl,
           order_index: Math.floor(Date.now() / 1000) + results.length,
@@ -118,7 +119,7 @@ export async function uploadRealizationPhoto(
 
     const publicUrl = await uploadFile(supabase, fileData, 'realizations', realizationId)
 
-    const res: any = await supabase.from('realization_photos').insert({
+    const res = await supabase.from('realization_photos').insert({
       realization_id: realizationId,
       url: publicUrl,
       order_index: Math.floor(Date.now() / 1000), 

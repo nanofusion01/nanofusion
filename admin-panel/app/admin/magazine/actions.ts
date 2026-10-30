@@ -4,8 +4,9 @@ import { safeAction } from '@/lib/action-result'
 import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
+import type { Tables } from '@/lib/database.types'
 
-export async function saveArticle(id: string | null, data: any) {
+export async function saveArticle(id: string | null, data: Partial<Tables<'articles'>>) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
@@ -18,8 +19,9 @@ export async function saveArticle(id: string | null, data: any) {
       if (error) throw new Error(error.message)
     } else {
       // Create — uses 'articles' table (unified with public web)
+      if (!data.title || !data.slug) throw new Error('Článek musí mít název a adresu (slug).')
       const { error } = await supabase.from('articles')
-        .insert({ ...data, is_published: false })
+        .insert({ ...data, title: data.title, slug: data.slug, is_published: false })
       if (error) throw new Error(error.message)
     }
     

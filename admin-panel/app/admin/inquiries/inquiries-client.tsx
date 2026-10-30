@@ -2,21 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
-import {
-  Search,
-  Download,
-  Filter,
-  ClipboardList,
-  X,
-  ChevronDown,
-  ChevronRight,
-  Home,
-  Phone,
-  Mail,
-  MessageSquare,
-  Trash2,
-  AlertTriangle,
-} from 'lucide-react'
+import { Search, Download, Filter, ClipboardList, X, ChevronDown, ChevronRight, Home, Phone, Mail, Trash2, AlertTriangle } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { inquirySourceLabel } from '@/lib/inquiry-source-label'
 import * as actionsRaw from './actions'
@@ -170,7 +156,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
       if (selectedInquiry?.id === id) {
         setSelectedInquiry({ ...selectedInquiry, status: status as Inquiry['status'] })
       }
-    } catch (err) {
+    } catch {
       toast.error('Nepodařilo se aktualizovat stav')
     } finally {
       setUpdatingStatus(false)

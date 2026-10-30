@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { MessageSquare, Trash2 } from 'lucide-react'
 import * as actionsRaw from './actions'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { deleteChatSessions, deleteAllChatSessions } = unwrapActions(actionsRaw)
 type ChatSession = {
@@ -47,8 +48,8 @@ export function ChatsClient({ sessions }: { sessions: ChatSession[] }) {
       await deleteChatSessions(Array.from(checkedIds))
       toast.success(`Smazáno ${checkedIds.size} relací`)
       window.location.reload()
-    } catch (e: any) {
-      toast.error(e.message || 'Chyba při mazání')
+    } catch (e) {
+      toast.error(errorMessage(e) || 'Chyba při mazání')
     } finally {
       setBulkDeleting(false)
       setBulkDeleteConfirm(false)
@@ -61,8 +62,8 @@ export function ChatsClient({ sessions }: { sessions: ChatSession[] }) {
       await deleteAllChatSessions()
       toast.success('Všechny chat relace smazány')
       window.location.reload()
-    } catch (e: any) {
-      toast.error(e.message || 'Chyba při mazání')
+    } catch (e) {
+      toast.error(errorMessage(e) || 'Chyba při mazání')
     } finally {
       setDeletingAll(false)
       setDeleteAllConfirm(false)

@@ -8,11 +8,18 @@ import { stripHtml } from '@/lib/strip-html'
 import { parseFirmyReviews } from '@/lib/firmy-scraper'
 import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
 
+/** Recenze z Google Places API (Place Details → reviews). */
+interface GooglePlaceReview {
+  author_name: string
+  rating: number
+  text?: string
+  time: number
+}
+
 export async function approveReview(id: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
     const { error } = await supabase.from('external_reviews')
       .update({ approved: true })
       .eq('id', id)
@@ -26,7 +33,6 @@ export async function rejectReview(id: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
     const { error } = await supabase.from('external_reviews')
       .update({ approved: false })
       .eq('id', id)
@@ -40,7 +46,6 @@ export async function deleteReview(id: string) {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
     const { error } = await supabase.from('external_reviews')
       .delete()
       .eq('id', id)
@@ -58,7 +63,6 @@ export async function addManualReview(data: {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
     const { error } = await supabase.from('external_reviews').insert({
       source: 'manual',
       author: data.author,
@@ -78,7 +82,6 @@ export async function approveFirmyReview(firmyReviewId: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    if (!supabase) throw new Error('Admin client unavailable')
 
     const { data: review, error: fetchError } = await supabase.from('firmy_reviews')
       .select('*')
@@ -179,7 +182,7 @@ export async function syncGoogleReviews() {
 
     if (data.status !== 'OK') throw new Error(`Google API: ${data.error_message || data.status}`)
 
-    const googleReviews: any[] = data.result?.reviews || []
+    const googleReviews: GooglePlaceReview[] = data.result?.reviews || []
     let imported = 0
 
     for (const rev of googleReviews) {

@@ -30,33 +30,43 @@ export default async function ServiceDetailPage(props: { params: Promise<{ id: s
     { data: processConfig }
   ] = await Promise.all([
     supabase.from('service_faqs').select('*').eq('service_id', params.id).order('order_index'),
-    supabase.from('faqs').select('*').eq('page_section', (service as any).slug).order('order_index'),
+    supabase.from('faqs').select('*').eq('page_section', service.slug).order('order_index'),
     supabase.from('site_config').select('value').eq('key', `service_process_${params.id}`).maybeSingle()
   ])
 
   // Merge them for the client
   const allFaqs = [
-    ...((serviceSpecificFaqs as any[]) ?? []),
-    ...((globalSectionFaqs as any[]) ?? []).map(f => ({ ...f, is_global: true }))
+    ...(serviceSpecificFaqs ?? []),
+    // obecné FAQ z tabulky faqs (sekce dané služby) ve tvaru FAQ služby
+    ...(globalSectionFaqs ?? []).map((f) => ({
+      id: f.id,
+      service_id: params.id,
+      question: f.question,
+      answer: f.answer,
+      order_index: f.order_index,
+      is_active: f.is_active,
+      created_at: "",
+      is_global: true,
+    }))
   ]
 
   let initialProcessSteps: Array<{ step: string; title: string; desc: string }> = []
   if (processConfig?.value) {
     try {
       initialProcessSteps = JSON.parse(processConfig.value)
-    } catch (e) {
+    } catch {
       initialProcessSteps = []
     }
   }
 
   return (
     <ServiceDetailClient
-      service={service as any}
-      beforeAfterItems={(beforeAfter as any[]) ?? []}
-      galleryPhotos={(galleryPhotos as any[]) ?? []}
-      serviceFaqs={allFaqs as any[]}
-      serviceReviews={(serviceReviews as any[]) ?? []}
-      externalReviews={(externalReviews as any[]) ?? []}
+      service={service}
+      beforeAfterItems={beforeAfter ?? []}
+      galleryPhotos={galleryPhotos ?? []}
+      serviceFaqs={allFaqs}
+      serviceReviews={serviceReviews ?? []}
+      externalReviews={externalReviews ?? []}
       initialProcessSteps={initialProcessSteps}
     />
   )

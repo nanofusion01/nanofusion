@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { revalidateFrontend } from '@/lib/revalidate-frontend'
 import { uploadFile } from '@/lib/storage'
 import { requireAdmin, requireAdminOrEditor } from '@/lib/supabase/auth-guard'
+import type { Updates } from '@/lib/database.types'
 
 export async function createService(data: { name: string; slug: string }) {
   return safeAction(async () => {
@@ -19,11 +20,11 @@ export async function createService(data: { name: string; slug: string }) {
     if (error) throw new Error(error.message)
     revalidatePath('/admin/services')
     revalidateFrontend()
-    return (service as any).id
+    return service.id
   })
 }
 
-export async function updateService(id: string, data: any) {
+export async function updateService(id: string, data: Updates<'services'>) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
@@ -92,7 +93,7 @@ export async function addServiceFaq(serviceId: string, question: string, answer:
   })
 }
 
-export async function updateServiceFaq(id: string, data: any) {
+export async function updateServiceFaq(id: string, data: Updates<'service_faqs'>) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
@@ -305,7 +306,7 @@ export async function getServiceProcessSteps(serviceId: string) {
     if (data?.value) {
       try {
         return JSON.parse(data.value)
-      } catch (e) {
+      } catch {
         return []
       }
     }

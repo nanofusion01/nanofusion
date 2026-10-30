@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { errorMessage } from '@/lib/utils'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -111,9 +112,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
-  } catch (error: any) {
-    console.error('notify-inquiry error:', error.message)
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error) {
+    console.error('notify-inquiry error:', errorMessage(error))
+    return new Response(JSON.stringify({ error: errorMessage(error) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

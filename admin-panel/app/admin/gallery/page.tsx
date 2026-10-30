@@ -17,8 +17,8 @@ export default async function GalleryPage() {
 
   return (
     <GalleryClient
-      initialItems={(items as any[]) ?? []}
-      initialAlbums={(albums as any[]) ?? []}
+      initialItems={items ?? []}
+      initialAlbums={albums ?? []}
     />
   )
 }

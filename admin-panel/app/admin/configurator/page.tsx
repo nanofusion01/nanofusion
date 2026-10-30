@@ -11,7 +11,7 @@ export default async function ConfiguratorPage() {
   ] = await Promise.all([
     supabase.from('configurator_prices').select('*').order('label'),
     supabase.from('chat_sessions')
-      .select('id, user_identifier, status, started_at, last_activity, messages')
+      .select('id, session_token, user_identifier, status, started_at, last_activity, messages')
       .order('last_activity', { ascending: false })
       .limit(50),
     supabase.from('inquiries')
@@ -21,9 +21,9 @@ export default async function ConfiguratorPage() {
 
   return (
     <ConfiguratorClient
-      initialPrices={(prices as any[]) ?? []}
-      initialChatSessions={(chatSessions as any[]) ?? []}
-      initialInquiries={(inquiries as any[]) ?? []}
+      initialPrices={prices ?? []}
+      initialChatSessions={chatSessions ?? []}
+      initialInquiries={inquiries ?? []}
     />
   )
 }

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Bot, User } from 'lucide-react'
 import { ChatDetailActions } from './chat-detail-client'
+import { oneOf } from '@/lib/utils'
 
 type ChatMessage = {
   type?: 'Asistent' | 'Zákazník' | string
@@ -22,7 +23,9 @@ export default async function ChatDetailPage({ params }: { params: Promise<{ id:
 
   if (!session) notFound()
 
-  const messages: ChatMessage[] = Array.isArray(session.messages) ? (session.messages as any[]) : []
+  const messages: ChatMessage[] = (Array.isArray(session.messages) ? session.messages : []).filter(
+    (m): m is ChatMessage => typeof m === 'object' && m !== null && !Array.isArray(m)
+  )
 
   return (
     <div className="space-y-5">
@@ -44,7 +47,7 @@ export default async function ChatDetailPage({ params }: { params: Promise<{ id:
               {new Date(session.last_activity).toLocaleString('cs-CZ')} · {messages.length} zpráv
             </p>
           </div>
-          <ChatDetailActions id={session.id} status={session.status as 'open' | 'closed'} />
+          <ChatDetailActions id={session.id} status={oneOf(session.status, ['open', 'closed'] as const, 'open')} />
         </div>
       </div>
 

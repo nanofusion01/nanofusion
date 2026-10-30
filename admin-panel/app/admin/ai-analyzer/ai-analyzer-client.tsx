@@ -3,26 +3,7 @@
 import { useState } from 'react'
 import * as actionsRaw from './actions'
 import { toast } from 'sonner'
-import { 
-  Brain, 
-  Trash2, 
-  Search, 
-  Mail, 
-  Phone, 
-  Clock, 
-  AlertCircle, 
-  CheckCircle2, 
-  User, 
-  Home, 
-  Calendar,
-  Sparkles,
-  ExternalLink,
-  MessageSquare,
-  FileText,
-  X,
-  Save,
-  Loader2
-} from 'lucide-react'
+import { Brain, Trash2, Search, Mail, Phone, User, Home, Sparkles, ExternalLink, FileText, X, Save, Loader2 } from 'lucide-react'
 import { unwrapActions } from '@/lib/action-result'
 
 const { updateAnalysisStatus, updateAnalysisNotes, deleteAnalysis } = unwrapActions(actionsRaw)
@@ -61,12 +42,6 @@ export function AIAnalyzerClient({
   const [isSavingNote, setIsSavingNote] = useState(false)
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null)
 
-  const statusLabels: Record<AIAnalysis['status'], string> = {
-    new: 'Nová',
-    in_progress: 'V řešení',
-    contacted: 'Kontaktováno',
-    resolved: 'Vyřešeno'
-  }
 
   const statusColors: Record<AIAnalysis['status'], { bg: string; text: string; dot: string }> = {
     new: { bg: '#eff6ff', text: '#2563eb', dot: '#3b82f6' },
@@ -90,7 +65,7 @@ export function AIAnalyzerClient({
         setSelectedAnalysis(prev => prev ? { ...prev, status: newStatus } : null)
       }
       toast.success('Stav analýzy byl úspěšně aktualizován')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při aktualizaci stavu')
     } finally {
       setIsUpdatingStatus(null)
@@ -105,7 +80,7 @@ export function AIAnalyzerClient({
       setAnalyses(prev => prev.map(a => a.id === selectedAnalysis.id ? { ...a, additional_notes: noteText } : a))
       setSelectedAnalysis(prev => prev ? { ...prev, additional_notes: noteText } : null)
       toast.success('Poznámky byly uloženy')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při ukládání poznámek')
     } finally {
       setIsSavingNote(false)
@@ -121,7 +96,7 @@ export function AIAnalyzerClient({
         setSelectedAnalysis(null)
       }
       toast.success('Analýza byla smazána')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při mazání analýzy')
     }
   }

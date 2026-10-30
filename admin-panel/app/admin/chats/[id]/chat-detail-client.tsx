@@ -6,6 +6,7 @@ import { CheckCircle, RotateCcw, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import * as actionsRaw from '../actions'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { setChatSessionStatus, deleteChatSession } = unwrapActions(actionsRaw)
 export function ChatDetailActions({ id, status }: { id: string; status: 'open' | 'closed' }) {
@@ -18,8 +19,8 @@ export function ChatDetailActions({ id, status }: { id: string; status: 'open' |
     try {
       await setChatSessionStatus(id, status === 'open' ? 'closed' : 'open')
       toast.success(status === 'open' ? 'Konverzace uzavřena' : 'Konverzace znovu otevřena')
-    } catch (e: any) {
-      toast.error(e.message || 'Chyba při ukládání stavu')
+    } catch (e) {
+      toast.error(errorMessage(e) || 'Chyba při ukládání stavu')
     } finally {
       setLoading(false)
     }
@@ -31,8 +32,8 @@ export function ChatDetailActions({ id, status }: { id: string; status: 'open' |
       await deleteChatSession(id)
       toast.success('Konverzace smazána')
       router.push('/admin/chats')
-    } catch (e: any) {
-      toast.error(e.message || 'Chyba při mazání')
+    } catch (e) {
+      toast.error(errorMessage(e) || 'Chyba při mazání')
       setLoading(false)
     }
   }

@@ -1,4 +1,4 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient, isSupabaseConfigured } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/admin/sidebar'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
@@ -8,6 +8,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  // 0. Bez klíčů k databázi administrace nemůže fungovat - ukázat srozumitelnou chybu
+  if (!isSupabaseConfigured()) {
+    return <ConfigError />
+  }
+
   // 1. Auth check — MUSÍ být přes createClient() s cookies, NE admin client
   const supabase = await createClient()
   const {
@@ -26,22 +31,10 @@ export default async function AdminLayout({
   }
 
   // 2. DB dotazy přes admin client (bypasses RLS pro profiles/reviews)
-  const adminSupabase = await createAdminClient()
-
-  if (!adminSupabase) {
-    return (
-      <div style={{ padding: '40px', background: '#fef2f2', color: '#991b1b', border: '2px solid #ef4444', margin: '20px', borderRadius: '12px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Chyba konfigurace (Vercel)</h1>
-        <p style={{ marginTop: '12px' }}>Admin panel nemá přístup k databázi. Chybí klíče v nastavení Vercelu.</p>
-        <ul style={{ marginTop: '12px', listStyle: 'disc', paddingLeft: '20px' }}>
-          <li>NEXT_PUBLIC_SUPABASE_URL</li>
-          <li>NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
-          <li>SUPABASE_SERVICE_ROLE_KEY</li>
-        </ul>
-        <p style={{ marginTop: '12px' }}>Přidej je do <b>Settings &rarr; Environment Variables</b> a dej <b>Redeploy</b>.</p>
-      </div>
-    )
+  if (!isSupabaseConfigured({ withServiceRole: true })) {
+    return <ConfigError />
   }
+  const adminSupabase = await createAdminClient()
 
   // 3. Fetch / Create profile
   let { data: profile } = await adminSupabase.from('profiles')
@@ -75,7 +68,7 @@ export default async function AdminLayout({
       .select('*', { count: 'exact', head: true })
       .eq('status', 'new')
     newAnalyses = count ?? 0
-  } catch (e) {
+  } catch {
     // Tichý fallback, pokud tabulka ještě v DB neexistuje
   }
 
@@ -86,7 +79,7 @@ export default async function AdminLayout({
         pendingReviews={pendingReviews ?? 0}
         newAnalyses={newAnalyses}
         userEmail={user.email}
-        userRole={(profile as any)?.role ?? 'admin'}
+        userRole={profile?.role ?? 'admin'}
       />
 
       {/* Main content */}
@@ -95,6 +88,22 @@ export default async function AdminLayout({
           {children}
         </main>
       </div>
+    </div>
+  )
+}
+
+/** Hláška o chybějících proměnných prostředí (např. po nasazení bez klíčů). */
+function ConfigError() {
+  return (
+    <div style={{ padding: '40px', background: '#fef2f2', color: '#991b1b', border: '2px solid #ef4444', margin: '20px', borderRadius: '12px' }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Chyba konfigurace (Vercel)</h1>
+      <p style={{ marginTop: '12px' }}>Admin panel nemá přístup k databázi. Chybí klíče v nastavení Vercelu.</p>
+      <ul style={{ marginTop: '12px', listStyle: 'disc', paddingLeft: '20px' }}>
+        <li>NEXT_PUBLIC_SUPABASE_URL</li>
+        <li>NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
+        <li>SUPABASE_SERVICE_ROLE_KEY</li>
+      </ul>
+      <p style={{ marginTop: '12px' }}>Přidej je do <b>Settings &rarr; Environment Variables</b> a dej <b>Redeploy</b>.</p>
     </div>
   )
 }

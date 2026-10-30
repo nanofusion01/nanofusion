@@ -40,10 +40,6 @@ export function AdminHeader() {
     }
   }
 
-  const currentPageLabel =
-    routeLabels[pathname] ||
-    (pathname.split('/').pop() || 'Dashboard')
-
   return (
     <header
       className="fixed top-0 right-0 flex items-center px-4 md:px-8 bg-white z-40"

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { parseFirmyReviews, parseFirmyStats } from '@/lib/firmy-scraper'
+import { errorMessage } from '@/lib/utils'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -82,7 +83,7 @@ export async function GET(request: Request) {
           review_count: reviewCount,
           updated_at: new Date().toISOString(),
         })
-      } catch (_) {} // Tabulka nemusí existovat
+      } catch {} // Tabulka nemusí existovat
     }
 
     console.log(`Firmy.cz sync: ${imported} nových, ${skipped} přeskočeno, ${reviews.length} celkem`)
@@ -99,8 +100,8 @@ export async function GET(request: Request) {
         : 'Žádné nové recenze k importu (buď žádné nové, nebo Firmy.cz zase změnili HTML strukturu)',
     })
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Firmy.cz scrape error:', error)
-    return NextResponse.json({ error: 'Scraping selhal: ' + error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Scraping selhal: ' + errorMessage(error) }, { status: 500 })
   }
 }

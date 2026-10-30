@@ -3,19 +3,17 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js"
 
-function createDummySupabaseClient() {
-  const handler: ProxyHandler<any> = {
-    get(target, prop) {
-      if (prop === 'from' || prop === 'select' || prop === 'eq' || prop === 'order' || prop === 'limit' || prop === 'match' || prop === 'single' || prop === 'maybeSingle' || prop === 'update' || prop === 'insert' || prop === 'delete') {
-        return () => new Proxy({}, handler)
-      }
-      if (prop === 'then') {
-        return (resolve: any) => resolve({ data: [], error: null })
-      }
-      return new Proxy({}, handler)
-    }
-  }
-  return new Proxy({}, handler)
+/**
+ * Jsou nastavené proměnné prostředí pro Supabase? Layout podle toho ukáže
+ * chybu konfigurace. `withServiceRole` ověří i klíč pro serverové operace.
+ */
+export function isSupabaseConfigured({ withServiceRole = false } = {}): boolean {
+  const base = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  return withServiceRole ? base && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY) : base
+}
+
+function missingEnv(name: string): never {
+  throw new Error(`Chybí proměnná prostředí ${name} (viz admin-panel/.env.example).`)
 }
 
 export async function createClient(): Promise<SupabaseClient<Database>> {
@@ -24,10 +22,8 @@ export async function createClient(): Promise<SupabaseClient<Database>> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  if (!url || !key) {
-    console.warn('Supabase keys missing - returning dummy client')
-    return createDummySupabaseClient() as unknown as SupabaseClient<Database>
-  }
+  if (!url) missingEnv('NEXT_PUBLIC_SUPABASE_URL')
+  if (!key) missingEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
   return createServerClient<Database>(url, key, {
       cookies: {
@@ -47,16 +43,14 @@ export async function createClient(): Promise<SupabaseClient<Database>> {
     }
   )
 }
-// Admin client with service role key — server-side only
-// Using standard createClient to ensure RLS bypass without cookie interference
+
+/** Klient se service role klíčem (obchází RLS) – jen na serveru, vždy až po requireAdmin*. */
 export async function createAdminClient(): Promise<SupabaseClient<Database>> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  if (!url || !serviceKey) {
-    console.warn('Supabase Admin keys missing - returning dummy client')
-    return createDummySupabaseClient() as unknown as SupabaseClient<Database>
-  }
+  if (!url) missingEnv('NEXT_PUBLIC_SUPABASE_URL')
+  if (!serviceKey) missingEnv('SUPABASE_SERVICE_ROLE_KEY')
 
   return createSupabaseClient<Database>(url, serviceKey, {
     auth: {

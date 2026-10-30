@@ -1,15 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { inquirySourceLabel } from '@/lib/inquiry-source-label'
-import {
-  ClipboardList,
-  Star,
-  HardHat,
-  MessageSquare,
-  TrendingUp,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-} from 'lucide-react'
+import { ClipboardList, Star, HardHat, MessageSquare, TrendingUp, Clock, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 function StatCard({
@@ -63,7 +54,6 @@ function StatCard({
 export default async function AdminDashboard() {
   const supabase = await createAdminClient()
 
-  // Use (supabase as any) or (supabase.from(...) as any) to bypass strict TypeScript checks
   const [
     inquiriesResult,
     newInquiriesResult,
@@ -207,7 +197,7 @@ export default async function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {(recentInquiries as any[]).map((inq, i) => {
+                {recentInquiries.map((inq, i) => {
                   const st = inq.status as string
                   const colors = statusColor[st] || statusColor['new']
                   return (
