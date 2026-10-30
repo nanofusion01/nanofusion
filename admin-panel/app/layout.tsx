@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
@@ -14,18 +14,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   icons: { icon: '/logo.png' },
   manifest: '/manifest.json',
-  themeColor: '#f59e0b',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'NF Admin',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#f59e0b',
 }
 
 export default function RootLayout({
