@@ -18,10 +18,10 @@ export async function Videos() {
     .eq('is_active', true)
     .order('order_index', { ascending: true });
 
-  const formattedAlbums = (albums || []).map((album: any) => {
+  const formattedAlbums = (albums || []).map((album) => {
     const photos = (album.gallery_items || [])
-      .filter((it: any) => it.is_active !== false)
-      .sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0));
+      .filter((it) => it.is_active !== false)
+      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
 
     return {
       id: album.id,
@@ -30,20 +30,20 @@ export async function Videos() {
       caption: album.caption || album.title,
       order_index: album.order_index ?? 0,
       url: photos[0]?.url || '',
-      photos: photos.map((p: any) => ({ url: p.url, caption: p.caption || '' })),
+      photos: photos.map((p) => ({ url: p.url ?? '', caption: p.caption || '' })),
       count: photos.length,
     };
-  }).filter((a: any) => a.photos.length > 0);
+  }).filter((a) => a.photos.length > 0);
 
-  const formattedStandalone = (standaloneItems || []).map((item: any) => ({
+  const formattedStandalone = (standaloneItems || []).map((item) => ({
     id: item.id,
     type: item.type as 'youtube' | 'image',
     youtube_id: item.youtube_id,
-    url: item.url,
+    url: item.url ?? '',
     title: item.caption || (item.type === 'youtube' ? 'Video' : 'Fotografie'),
     caption: item.caption,
     order_index: item.order_index ?? 0,
-    photos: [{ url: item.url, caption: item.caption || '' }],
+    photos: [{ url: item.url ?? '', caption: item.caption || '' }],
     count: 1,
   }));
 

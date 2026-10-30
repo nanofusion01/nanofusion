@@ -2,8 +2,9 @@
 import { FAQAccordion } from "./FAQAccordion";
 import { FAQModalButton } from "./FAQModalButton";
 import { supabase } from "@/lib/supabase";
+import type { FaqItem } from "@/lib/types";
 
-export async function FAQ({ initialFaqs }: { initialFaqs?: any[] }) {
+export async function FAQ({ initialFaqs }: { initialFaqs?: FaqItem[] }) {
   let homeFaqs = initialFaqs;
   let allFaqs = initialFaqs || [];
 

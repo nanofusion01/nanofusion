@@ -57,7 +57,7 @@ export default async function Home() {
     .eq('approved', true)
     .order('published_at', { ascending: false });
 
-  const reviews = (externalReviews || []).map((r: any) => ({
+  const reviews = (externalReviews || []).map((r) => ({
     id: r.id,
     name: r.author,
     text: r.content,

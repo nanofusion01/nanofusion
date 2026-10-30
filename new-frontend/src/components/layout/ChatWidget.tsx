@@ -68,11 +68,8 @@ export function ChatWidget() {
         setIsBotEnabled(true);
         setSessionId("chat_" + Math.random().toString(36).substring(2, 11));
 
-        setTimeout(() => {
-          if (!isOpen && window.location.hash !== "#admin") {
-            setIsOpen(true);
-          }
-        }, 1200);
+        // chat se po načtení stránky sám otevře (setIsOpen(true) je idempotentní)
+        setTimeout(() => setIsOpen(true), 1200);
       }
 
       // Load bot knowledge

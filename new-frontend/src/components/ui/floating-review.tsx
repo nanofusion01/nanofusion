@@ -21,8 +21,8 @@ export function FloatingReview() {
         </span>
       </div>
       <p className="text-gray-200 text-sm italic font-medium leading-relaxed">
-        "Profesionální přístup, skvělá komunikace a výsledek čištění fasády
-        předčil naše očekávání. Doporučuji!"
+        „Profesionální přístup, skvělá komunikace a výsledek čištění fasády
+        předčil naše očekávání. Doporučuji!“
       </p>
       <div className="flex items-center gap-2 mt-1">
         <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-xs font-bold text-white">

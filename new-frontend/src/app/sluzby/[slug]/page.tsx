@@ -7,10 +7,15 @@ import { ServiceGallery } from "@/components/ui/ServiceGallery";
 import { Phone, Mail, Clock } from "lucide-react";
 import { ServiceConfigurator } from "@/components/services/ServiceConfigurator";
 import { Button } from "@/components/ui/button";
-import { localCatalog } from "@/data/localCatalog";
+import { localCatalog, type ServiceCatalogEntry } from "@/data/localCatalog";
 import { SERVICE_PRICE_KEYS } from "@/data/servicePriceKeys";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { SITE_URL, OG_IMAGE } from "@/lib/site";
+import { parseFeature } from "@/lib/service-features";
+import type { Service } from "@/lib/types";
+
+/** Krok postupu práce: z administrace (site_config) nebo z doplňkového obsahu služby. */
+type ProcessStepItem = { id?: string; step?: string; title: string; desc?: string; description?: string };
 
 interface PageProps {
   params: Promise<{
@@ -130,7 +135,7 @@ export default async function ServicePage({ params }: PageProps) {
   const specificReviews = reviewsRes.data || [];
 
   // Použijeme localCatalog pro bohatý obsah, který není v Supabase tabulce (jako na starém webu)
-  const localData = localCatalog[slug] || {};
+  const localData: Partial<ServiceCatalogEntry> = localCatalog[slug] ?? {};
 
   const priceKey = SERVICE_PRICE_KEYS[slug] || localData.price_key || slug;
   const { data: priceData } = await supabase
@@ -157,8 +162,11 @@ export default async function ServicePage({ params }: PageProps) {
   // Admin umožňuje nahrát víc dvojic Před/Po - dřív se použila jen ta první,
   // teď jede celá sada a komponenta mezi nimi sama průběžně přepíná.
   const beforeAfterPairs = beforeAfterPhotos
-    .filter((p: any) => p.before_url && p.after_url && p.before_url !== p.after_url)
-    .map((p: any) => ({ before_url: p.before_url, after_url: p.after_url }));
+    .flatMap((p) =>
+      p.before_url && p.after_url && p.before_url !== p.after_url
+        ? [{ before_url: p.before_url, after_url: p.after_url }]
+        : []
+    );
   const hasBeforeAfter = beforeAfterPairs.length > 0;
 
   let ytId = null;
@@ -169,48 +177,25 @@ export default async function ServicePage({ params }: PageProps) {
 
   const processDescription = service.process_description || localData.what_included || "";
   const benefits = (service.features && service.features.length > 0)
-    ? service.features.map((f: any) => {
-        if (typeof f === "object" && f !== null) {
-          return { title: f.title || "", desc: f.desc || f.description || "" };
-        }
-        try {
-          const parsed = JSON.parse(f);
-          if (typeof parsed === "object" && parsed !== null) {
-            return { title: parsed.title || "", desc: parsed.desc || parsed.description || "" };
-          }
-        } catch {}
-        const str = String(f || "");
-        if (str.includes(" - ")) {
-          const parts = str.split(" - ");
-          return { title: parts[0].trim(), desc: parts.slice(1).join(" - ").trim() };
-        }
-        if (str.includes(": ")) {
-          const parts = str.split(": ");
-          return { title: parts[0].trim(), desc: parts.slice(1).join(": ").trim() };
-        }
-        return { title: str, desc: "" };
-      })
+    ? service.features.map(parseFeature)
     : (localData.benefits || []);
-  // Fotky spravované v adminu (tabulka service_gallery) mají přednost
-  // před statickými placeholder fotkami z localCatalog.
-  const gallery = dbGalleryPhotos.length > 0
-    ? dbGalleryPhotos.map((p: any) => p.url)
-    : (localData.gallery || []);
-  const quote = localData.quote;
+  // Galerie a recenze jen ze skutečných dat z administrace - žádné
+  // ilustrační fotky ani ukázkové texty, které by se tvářily jako reálné.
+  const gallery = dbGalleryPhotos.map((p) => p.url);
   const processNote = localData.process_note;
 
   const sourceLabel = (source?: string) =>
     source === "google" ? "Google" : source === "firmy.cz" ? "Firmy.cz" : "Ověřená recenze";
 
   const mappedReviews = specificReviews.length > 0
-    ? specificReviews.map((r: any) => ({
+    ? specificReviews.map((r) => ({
         id: r.id,
         name: r.author || "Zákazník",
         text: r.content,
         rating: r.rating || 5,
         source: sourceLabel(r.source),
       }))
-    : (quote ? [{ id: "quote", name: "Zákazník", text: quote, rating: 5, source: "Ověřená recenze" }] : []);
+    : [];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -236,7 +221,7 @@ export default async function ServicePage({ params }: PageProps) {
       />
       <ServiceHero service={service} ytId={ytId} basePrice={basePrice} />
 
-      <ServiceBenefits service={service} processDescription={processDescription} benefits={benefits} />
+      <ServiceBenefits processDescription={processDescription} benefits={benefits} />
 
       <ServiceProcess serviceName={service.name} steps={customProcessSteps} processNote={processNote} />
 
@@ -248,7 +233,7 @@ export default async function ServicePage({ params }: PageProps) {
         <ServiceGallery images={gallery} />
       )}
 
-      <ServiceVideo videoUrl={service.video_url || localData.video_url} serviceName={service.name} />
+      <ServiceVideo videoUrl={service.video_url} serviceName={service.name} />
 
       {mappedReviews.length > 0 && (
         <Reviews initialReviews={mappedReviews} autoScroll={false} />
@@ -263,7 +248,7 @@ export default async function ServicePage({ params }: PageProps) {
   );
 }
 
-function ServiceHero({ service, ytId, basePrice }: { service: any; ytId: string | null; basePrice: number }) {
+function ServiceHero({ service, ytId, basePrice }: { service: Service; ytId: string | null; basePrice: number }) {
   const stats = [
     "14 let zkušeností",
     "950+ dokončených projektů",
@@ -342,7 +327,7 @@ function ServiceHero({ service, ytId, basePrice }: { service: any; ytId: string 
   );
 }
 
-function ServiceBenefits({ service, processDescription, benefits }: { service: any; processDescription: string; benefits: any[] }) {
+function ServiceBenefits({ processDescription, benefits }: { processDescription: string; benefits: { title: string; desc: string }[] }) {
   if (!processDescription && benefits.length === 0) return null;
 
   return (
@@ -388,7 +373,7 @@ function ServiceBenefits({ service, processDescription, benefits }: { service: a
   );
 }
 
-function ServiceProcess({ serviceName, steps, processNote }: { serviceName: string; steps: any[]; processNote?: string }) {
+function ServiceProcess({ serviceName, steps, processNote }: { serviceName: string; steps: ProcessStepItem[]; processNote?: string }) {
   if (!steps || steps.length === 0) return null;
 
   const count = steps.length;
@@ -407,7 +392,7 @@ function ServiceProcess({ serviceName, steps, processNote }: { serviceName: stri
         <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 sm:gap-6">
           {steps.map((step, idx) => (
             <div
-              key={step.id || idx}
+              key={step.id ?? idx}
               className={`flex-1 min-w-0 bg-white rounded-2xl border-2 border-amber-500 shadow-xl shadow-amber-500/5 flex flex-col items-center text-center relative ${
                 isCompact ? "p-5 md:p-6" : "p-6 md:p-8"
               }`}
@@ -423,7 +408,7 @@ function ServiceProcess({ serviceName, steps, processNote }: { serviceName: stri
                 {step.title}
               </h3>
               <p className={`text-slate-600 leading-relaxed ${isCompact ? "text-sm" : "text-base"}`}>
-                {step.desc || step.description}
+                {step.desc ?? step.description}
               </p>
             </div>
           ))}

@@ -4,19 +4,20 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { Pill } from "@/components/ui/pill";
 import { useCarousel } from "@/hooks/useCarousel";
+import type { Review } from "@/lib/types";
 
-function ReviewCard({ review }: { review: any }) {
+function ReviewCard({ review }: { review: Review }) {
   return (
     <div
       className="flex-none w-[280px] md:w-[300px] bg-slate-800 rounded-2xl p-6 flex flex-col snap-center md:snap-start self-start"
     >
       <div className="text-amber-500 mb-3 flex gap-1">
-        {Array.from({ length: review.rating }).map((_, i) => (
+        {Array.from({ length: review.rating ?? 5 }).map((_, i) => (
           <span key={i}>★</span>
         ))}
       </div>
       <p className="text-slate-300 italic mb-4 leading-relaxed line-clamp-4">
-        "{review.text}"
+        „{review.text}“
       </p>
       <div>
         <h4 className="text-white font-bold">{review.name}</h4>
@@ -26,7 +27,7 @@ function ReviewCard({ review }: { review: any }) {
   );
 }
 
-export function Reviews({ initialReviews, autoScroll = true }: { initialReviews?: any[]; autoScroll?: boolean }) {
+export function Reviews({ initialReviews, autoScroll = true }: { initialReviews?: Review[]; autoScroll?: boolean }) {
   const { scrollRef, scrollByAmount, canScrollLeft, canScrollRight } = useCarousel(autoScroll ? 0.5 : 0, 350);
 
   // Statická data z původního webu jako záloha

@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 
+/** Tělo požadavku na /api/inquiry, které test zachytí. */
+type InquiryPayload = { name?: string; phone?: string; email?: string; source?: string };
+
 test.describe("E2E Test: Kalkulačka a odeslání poptávky (/kalkulace)", () => {
   test("zobrazuje formulář, pole pro m² a skrytý antispam honeypot", async ({ page }) => {
     await page.goto("/kalkulace");
@@ -20,7 +23,7 @@ test.describe("E2E Test: Kalkulačka a odeslání poptávky (/kalkulace)", () =>
 
   test("úspěšně odešle poptávku z kalkulačky a zobrazí spočtenou cenu (se zachycením API)", async ({ page }) => {
     // Zachycení volání /api/inquiry, aby nevznikala falešná data v produkční databázi
-    let interceptedPayload: any = null;
+    let interceptedPayload = null as InquiryPayload | null;
     await page.route("**/api/inquiry", async (route) => {
       if (route.request().method() === "POST") {
         interceptedPayload = route.request().postDataJSON();
@@ -59,9 +62,9 @@ test.describe("E2E Test: Kalkulačka a odeslání poptávky (/kalkulace)", () =>
 
     // Ověření správnosti zachyceného payloadu v API
     expect(interceptedPayload).not.toBeNull();
-    expect(interceptedPayload.name).toBe("Jan Testovací");
-    expect(interceptedPayload.phone).toBe("+420 777 888 999");
-    expect(interceptedPayload.source).toBe("Kalkulačka");
+    expect(interceptedPayload?.name).toBe("Jan Testovací");
+    expect(interceptedPayload?.phone).toBe("+420 777 888 999");
+    expect(interceptedPayload?.source).toBe("Kalkulačka");
   });
 });
 
@@ -88,7 +91,7 @@ test.describe("E2E Test: Chyba při odeslání poptávky", () => {
 
 test.describe("E2E Test: Kontaktní formulář na domovské stránce (/)", () => {
   test("úspěšně odešle poptávku z kontaktního formuláře (se zachycením API)", async ({ page }) => {
-    let interceptedContactPayload: any = null;
+    let interceptedContactPayload = null as InquiryPayload | null;
     await page.route("**/api/inquiry", async (route) => {
       if (route.request().method() === "POST") {
         interceptedContactPayload = route.request().postDataJSON();
@@ -128,9 +131,9 @@ test.describe("E2E Test: Kontaktní formulář na domovské stránce (/)", () =>
 
     // Ověření zachyceného payloadu
     expect(interceptedContactPayload).not.toBeNull();
-    expect(interceptedContactPayload.name).toBe("Petr Kontaktní");
-    expect(interceptedContactPayload.email).toBe("petr.kontakt@example.cz");
-    expect(interceptedContactPayload.source).toBe("Kontaktní formulář");
+    expect(interceptedContactPayload?.name).toBe("Petr Kontaktní");
+    expect(interceptedContactPayload?.email).toBe("petr.kontakt@example.cz");
+    expect(interceptedContactPayload?.source).toBe("Kontaktní formulář");
   });
 });
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import { submitInquiry } from "@/lib/inquiry";
 import { FormError } from '@/components/ui/form-error';
 import { Button } from "@/components/ui/button";

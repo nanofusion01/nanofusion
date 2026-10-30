@@ -25,20 +25,20 @@ export function Pill({ className, href, icon, external, children, ...props }: Pi
   if (href) {
     if (external) {
       return (
-        <a href={href} target="_blank" rel="noopener noreferrer" className={compClass} {...(props as any)}>
+        <a href={href} target="_blank" rel="noopener noreferrer" className={compClass} {...props}>
           {content}
         </a>
       );
     }
     return (
-      <Link href={href} className={compClass} {...(props as any)}>
+      <Link href={href} className={compClass} {...props}>
         {content}
       </Link>
     );
   }
 
   return (
-    <div className={compClass} {...(props as any)}>
+    <div className={compClass} {...props}>
       {content}
     </div>
   );

@@ -1,6 +1,7 @@
 import { SectionHeader } from "@/components/ui/section-header";
 import { supabase } from "@/lib/supabase";
 import { sanitizeHtml } from "@/lib/sanitize";
+import type { Stat, Certificate } from "@/lib/types";
 
 async function getConfig() {
   const { data } = await supabase.from("site_config").select("key, value");
@@ -20,10 +21,10 @@ function AboutStory({ description }: { description: string }) {
 }
 
 function AboutStats({ statsRaw }: { statsRaw: string }) {
-  let stats: any[] = [];
+  let stats: Stat[] = [];
   try {
     stats = JSON.parse(statsRaw || '[]');
-  } catch (e) {
+  } catch {
     stats = [];
   }
 
@@ -42,10 +43,10 @@ function AboutStats({ statsRaw }: { statsRaw: string }) {
 }
 
 function AboutCertifications({ title, subtitle, certsRaw }: { title: string, subtitle: string, certsRaw: string }) {
-  let certs: any[] = [];
+  let certs: Certificate[] = [];
   try {
     certs = JSON.parse(certsRaw || '[]');
-  } catch (e) {
+  } catch {
     certs = [];
   }
 
@@ -74,7 +75,7 @@ function AboutWhyUs({ title, pointsRaw }: { title: string, pointsRaw: string }) 
   let points: string[] = [];
   try {
     points = JSON.parse(pointsRaw || '[]');
-  } catch (e) {
+  } catch {
     points = [];
   }
 

@@ -84,10 +84,10 @@ export default function GDPRPage() {
                     Správcem osobních údajů podle čl. 4 bod 7 nařízení Evropského
                     parlamentu a Rady (EU) 2016/679 o ochraně fyzických osob v
                     souvislosti se zpracováním osobních údajů a o volném pohybu
-                    těchto údajů (dále jen: „GDPR") je{' '}
+                    těchto údajů (dále jen: „GDPR“) je{' '}
                     <strong>Nano Fusion s.r.o.</strong>, IČ: 29375363, se sídlem
                     Pod Nádražím 370, 664 01 Bílovice nad Svitavou (dále jen:
-                    „správce").
+                    „správce“).
                   </li>
                   <li>
                     Kontaktní údaje správce jsou: adresa: Nano Fusion s.r.o., Pod

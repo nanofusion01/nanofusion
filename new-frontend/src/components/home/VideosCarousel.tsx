@@ -6,15 +6,16 @@ import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { Modal } from "@/components/ui/modal";
 import { optimizeImg } from "@/lib/supabase";
 import { ChevronLeft, ChevronRight, Images } from "lucide-react";
+import type { GalleryEntry } from "@/lib/types";
 
-export function VideosCarousel({ videos }: { videos: any[] }) {
+export function VideosCarousel({ videos }: { videos: GalleryEntry[] }) {
   const { scrollRef, scrollByAmount, canScrollLeft, canScrollRight } = useCarousel(1);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<GalleryEntry | null>(null);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
   if (!videos || videos.length === 0) return null;
 
-  const handleOpen = (item: any) => {
+  const handleOpen = (item: GalleryEntry) => {
     setActivePhotoIndex(0);
     setSelectedItem(item);
   };
@@ -104,7 +105,7 @@ export function VideosCarousel({ videos }: { videos: any[] }) {
               ) : (
                 <img 
                   src={selectedItem.url} 
-                  alt={selectedItem.title || selectedItem.caption}
+                  alt={selectedItem.title || selectedItem.caption || ""}
                   className="max-w-full max-h-[75vh] object-contain"
                 />
               )}
@@ -117,7 +118,7 @@ export function VideosCarousel({ videos }: { videos: any[] }) {
                   Všechny fotografie v této realizaci ({selectedItem.photos.length}):
                 </div>
                 <div className="flex flex-wrap sm:flex-nowrap gap-3 overflow-x-auto pb-2 pt-1 px-1">
-                  {selectedItem.photos.map((photo: any, index: number) => (
+                  {selectedItem.photos.map((photo, index) => (
                     <button
                       key={index}
                       type="button"
@@ -152,7 +153,7 @@ export function VideosCarousel({ videos }: { videos: any[] }) {
   );
 }
 
-function VideoCard({ video, onClick }: { video: any; onClick: () => void }) {
+function VideoCard({ video, onClick }: { video: GalleryEntry; onClick: () => void }) {
   const isVideo = video.type === 'youtube' || !!video.youtube_id;
   const isAlbum = video.type === 'album' || (video.photos && video.photos.length > 1);
   const title = video.title || video.caption || (isVideo ? 'Video' : 'Fotografie');

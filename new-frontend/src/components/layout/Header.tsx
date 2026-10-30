@@ -1,8 +1,4 @@
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import { cn } from "@/lib/utils";
 
 async function getConfig() {
   const { data } = await supabase.from("site_config").select("key, value");

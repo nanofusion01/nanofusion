@@ -2,9 +2,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { SectionHeader } from "@/components/ui/section-header";
 import { sanitizeHtml } from "@/lib/sanitize";
+import type { Service } from "@/lib/types";
 
 // Local component (Helper / Colocated Component) for cleaner code
-function ServiceCard({ service }: { service: any }) {
+function ServiceCard({ service }: { service: Service }) {
   let ytId = null;
   if (service.video_url) {
     const ytMatch = service.video_url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);

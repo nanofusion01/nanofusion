@@ -5,6 +5,7 @@ import { submitInquiry } from "@/lib/inquiry";
 import { FormError } from "@/components/ui/form-error";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
+import { errorMessage } from "@/lib/utils";
 
 // Lokální komponenty
 const ContactInfoItem = ({ icon, title, content, href }: { icon: React.ReactNode, title: string, content: string, href?: string }) => (
@@ -23,7 +24,10 @@ const ContactInfoItem = ({ icon, title, content, href }: { icon: React.ReactNode
   </div>
 );
 
-interface ContactInputProps extends React.InputHTMLAttributes<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> {
+type FieldElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+interface ContactInputProps extends Omit<React.InputHTMLAttributes<FieldElement>, "onChange"> {
+  onChange?: React.ChangeEventHandler<FieldElement>;
   label: string;
   as?: 'input' | 'select' | 'textarea';
   children?: React.ReactNode;
@@ -38,19 +42,18 @@ const ContactInput = ({ label, as = 'input', className = '', children, ...props 
       {as === 'textarea' ? (
         <textarea
           className={`${baseClasses} resize-y`}
-          rows={(props as any).rows}
-          {...(props as any)}
+          {...props}
         />
       ) : as === 'select' ? (
         <select
           className={`${baseClasses} text-slate-600 appearance-none`}
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2rem' }}
-          {...(props as any)}
+          {...props}
         >
           {children}
         </select>
       ) : (
-        <input className={baseClasses} {...(props as any)} />
+        <input className={baseClasses} {...props} />
       )}
     </div>
   );
@@ -90,9 +93,9 @@ export function Contact() {
       setEmail("");
       setService("");
       setMessage("");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error submitting form:", error);
-      setFormError(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(errorMessage(error) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }
@@ -203,7 +206,7 @@ export function Contact() {
                       type="text"
                       required
                       value={name}
-                      onChange={(e: any) => setName(e.target.value)}
+                      onChange={(e) => setName(e.target.value)}
                       placeholder="Jan Novák"
                     />
                     <ContactInput
@@ -211,7 +214,7 @@ export function Contact() {
                       type="tel"
                       required
                       value={phone}
-                      onChange={(e: any) => setPhone(e.target.value)}
+                      onChange={(e) => setPhone(e.target.value)}
                       placeholder="+420 ..."
                     />
                   </div>
@@ -222,14 +225,14 @@ export function Contact() {
                       type="email"
                       required
                       value={email}
-                      onChange={(e: any) => setEmail(e.target.value)}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="jan@email.cz"
                     />
                     <ContactInput
                       label="O jakou službu máte zájem?"
                       as="select"
                       value={service}
-                      onChange={(e: any) => setService(e.target.value)}
+                      onChange={(e) => setService(e.target.value)}
                     >
                       <option value="">Vyberte službu</option>
                       <option value="Čištění střech">Čištění střech</option>
@@ -246,7 +249,7 @@ export function Contact() {
                     as="textarea"
                     rows={4}
                     value={message}
-                    onChange={(e: any) => setMessage(e.target.value)}
+                    onChange={(e) => setMessage(e.target.value)}
                     placeholder="Popište nám prosím vaše potřeby..."
                     className="mb-6"
                   />

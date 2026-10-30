@@ -6,6 +6,7 @@ import { submitInquiry } from "@/lib/inquiry";
 import { calculateSimplePrice } from "@/lib/calculator";
 import { FormError } from "@/components/ui/form-error";
 import { CALCULATOR_PRICE_KEY } from "@/data/servicePriceKeys";
+import { errorMessage } from "@/lib/utils";
 
 export default function KalkulacePage() {
   const [area, setArea] = useState(100);
@@ -66,9 +67,9 @@ export default function KalkulacePage() {
       });
 
       setShowPrice(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Chyba při odesílání poptávky:", error);
-      setFormError(error.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(errorMessage(error) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setSubmitting(false);
     }

@@ -1,7 +1,6 @@
-import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { supabase, optimizeImg } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { sanitizeHtml } from "@/lib/sanitize";
 
 async function getConfig() {
