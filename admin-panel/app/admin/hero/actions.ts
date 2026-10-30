@@ -5,6 +5,8 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { uploadFile } from '@/lib/storage'
 import { requireAdminOrEditor } from '@/lib/supabase/auth-guard'
+import { revalidateFrontend } from '@/lib/revalidate-frontend'
+import { SITE_STAT_KEYS } from '@/lib/site-stats'
 
 export async function uploadHeroFile(formData: FormData) {
   return safeAction(async () => {
@@ -31,7 +33,7 @@ export async function updateHeroTitle(value: string) {
     
     if (error) throw new Error(error.message)
     revalidatePath('/admin/hero')
-    revalidatePath('/')
+    await revalidateFrontend()
   })
 }
 
@@ -50,7 +52,7 @@ export async function toggleHeroMedia(id: string, is_active: boolean) {
     
     if (error) throw new Error(error.message)
     revalidatePath('/admin/hero')
-    revalidatePath('/')
+    await revalidateFrontend()
   })
 }
 
@@ -76,5 +78,21 @@ export async function deleteHeroMedia(id: string) {
     
     if (error) throw new Error(error.message)
     revalidatePath('/admin/hero')
+  })
+}
+
+/** Uloží čísla zobrazovaná na webu (počet projektů, hodnocení…). */
+export async function updateSiteStats(values: Record<string, string>) {
+  return safeAction(async () => {
+    await requireAdminOrEditor()
+    const rows = Object.entries(values)
+      .filter(([key]) => SITE_STAT_KEYS.includes(key))
+      .map(([key, value]) => ({ key, value: String(value).trim().slice(0, 30) }))
+    if (rows.length === 0) throw new Error('Nic k uložení')
+    const supabase = await createAdminClient()
+    const { error } = await supabase.from('site_config').upsert(rows, { onConflict: 'key' })
+    if (error) throw new Error(error.message)
+    revalidatePath('/admin/hero')
+    await revalidateFrontend()
   })
 }
