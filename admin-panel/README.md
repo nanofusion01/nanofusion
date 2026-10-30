@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NANOfusion – administrace (CMS)
 
-## Getting Started
+Next.js 16 aplikace pro správu obsahu webu, ceníku, poptávek, recenzí, chatbota a uživatelů.
+Celkový přehled projektu, nasazení a bezpečnostní zásady jsou v [README v kořeni repozitáře](../README.md).
 
-First, run the development server:
+## Spuštění
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local   # Supabase URL, anon a service role klíč
+npm install
+npm run dev                  # http://localhost:3000/admin
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Skripty
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Příkaz | Popis |
+|---|---|
+| `npm run dev` | vývojový server |
+| `npm run build` | produkční build (zároveň kontrola typů) |
+| `npm run lint` | ESLint |
+| `npm run test:e2e` | E2E testy (Playwright) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Struktura
 
-## Learn More
+- `app/admin/*` – sekce administrace; každá má `page.tsx` (načtení dat na serveru), `*-client.tsx` (UI) a `actions.ts` (serverové akce)
+- `lib/action-result.ts` – `safeAction` / `unwrapActions`: chyby serverových akcí se v produkci zobrazují se skutečnou zprávou
+- `lib/supabase/auth-guard.ts` – `requireAdmin` / `requireAdminOrEditor`, volá je každá serverová akce
+- `proxy.ts` – ochrana tras `/admin/*`, vynucená změna dočasného hesla
+- `supabase/migrations` – schéma databáze (`001`–`015`), `supabase/functions` – edge funkce (AI asistent, notifikace)
+- `e2e/` – Playwright testy
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Typy databáze (`lib/database.types.ts`) se generují příkazem `npm run gen:types` z kořene repozitáře.

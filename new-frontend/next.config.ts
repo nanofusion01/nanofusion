@@ -20,6 +20,8 @@ const OLD_TO_NEW_SERVICE_SLUG: Record<string, string> = {
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, "../"),
+  // nevytvářet automaticky AGENTS.md / CLAUDE.md při `next dev`
+  agentRules: false,
   async redirects() {
     return Object.entries(OLD_TO_NEW_SERVICE_SLUG).map(([oldSlug, newSlug]) => ({
       source: `/sluzby/${oldSlug}`,

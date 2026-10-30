@@ -1,6 +1,5 @@
 -- ============================================================
 -- MASTER DATABASE REPAIR SCRIPT — NANOfusion
--- Fixed version for STRV-level stability
 -- ============================================================
 
 -- 1. Ensure extensions

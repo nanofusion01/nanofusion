@@ -158,7 +158,7 @@ export function AboutClient({
         </p>
       </div>
 
-      {/* STRV-grade Tabs Control */}
+      {/* Přepínání záložek */}
       <div className="flex border-b border-slate-200" style={{ borderColor: 'var(--border)' }}>
         <button
           onClick={() => setActiveTab('texty')}

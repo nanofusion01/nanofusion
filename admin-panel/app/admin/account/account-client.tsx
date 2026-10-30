@@ -22,7 +22,6 @@ const { clearForcePasswordChange } = unwrapActions(usersActionsRaw)
 export function AccountClient({ user, profile: initialProfile }: { user: any, profile: any }) {
   const [profile, setProfile] = useState(initialProfile)
   const [loading, setLoading] = useState(false)
-  const [passkeys, setPasskeys] = useState<any[]>([]) // Mock for now
   const supabase = createClient()
   const mustChangePassword = Boolean(user?.app_metadata?.force_password_change)
   const [newPassword, setNewPassword] = useState('')
@@ -76,10 +75,6 @@ export function AccountClient({ user, profile: initialProfile }: { user: any, pr
     }
   }
 
-  const handleAddPasskey = () => {
-    toast.info('Biometrické ověření (WebAuthn) je ve vývoji. Vyžaduje bezpečnou doménu.')
-  }
-
   return (
     <div className="max-w-4xl space-y-8">
       <div>
@@ -105,9 +100,6 @@ export function AccountClient({ user, profile: initialProfile }: { user: any, pr
                 >
                   {profile.full_name?.charAt(0) || user.email?.charAt(0)}
                 </div>
-                <button className="absolute -bottom-2 -right-2 p-2 bg-white rounded-xl shadow-lg border hover:scale-110 transition-transform">
-                  <Camera size={16} />
-                </button>
               </div>
               <div>
                 <h3 className="font-bold text-xl">{profile.full_name || 'Uživatel'}</h3>
