@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FooterModals } from "./FooterModals";
 import { ADMIN_URL } from "@/lib/site";
+import { supabase } from "@/lib/supabase";
 
 const SocialIcon = ({ href, label, children }: { href: string; label: string; children: React.ReactNode }) => (
   <a 
@@ -15,21 +16,31 @@ const SocialIcon = ({ href, label, children }: { href: string; label: string; ch
   </a>
 );
 
-export function Footer() {
-  const services = [
-    { label: "Čištění fasád", href: "/sluzby/cisteni-fasad" },
-    { label: "Čištění střech", href: "/sluzby/cisteni-strech" },
-    { label: "Čištění dlažeb", href: "/sluzby/cisteni-dlazby" },
-    { label: "Solární panely", href: "/sluzby/cisteni-fotovoltaiky" },
-    { label: "Odstranění graffiti", href: "/sluzby/odstraneni-graffiti" },
-    { label: "Průmyslové čištění", href: "/sluzby/prumyslove-cisteni" },
-    { label: "Nátěry fasád", href: "/sluzby/natery-fasad" },
-    { label: "Nátěry střech", href: "/sluzby/natery-strech" },
-    { label: "Nano impregnace", href: "/sluzby/nano-impregnace" },
-    { label: "Protiskluzová úprava", href: "/sluzby/protiskluzove-natery" },
-    { label: "IG CeramFloor", href: "/sluzby/ochrana-podlah-ceramfloor" },
-    { label: "Antibakteriální ochrana", href: "/sluzby/antibakterialni-ochrana" }
-  ];
+const SERVICES = [
+  { label: "Čištění fasád", href: "/sluzby/cisteni-fasad" },
+  { label: "Čištění střech", href: "/sluzby/cisteni-strech" },
+  { label: "Čištění dlažeb", href: "/sluzby/cisteni-dlazby" },
+  { label: "Solární panely", href: "/sluzby/cisteni-fotovoltaiky" },
+  { label: "Odstranění graffiti", href: "/sluzby/odstraneni-graffiti" },
+  { label: "Průmyslové čištění", href: "/sluzby/prumyslove-cisteni" },
+  { label: "Nátěry fasád", href: "/sluzby/natery-fasad" },
+  { label: "Nátěry střech", href: "/sluzby/natery-strech" },
+  { label: "Nano impregnace", href: "/sluzby/nano-impregnace" },
+  { label: "Protiskluzová úprava", href: "/sluzby/protiskluzove-natery" },
+  { label: "IG CeramFloor", href: "/sluzby/ochrana-podlah-ceramfloor" },
+  { label: "Antibakteriální ochrana", href: "/sluzby/antibakterialni-ochrana" },
+];
+
+/** Služby vypnuté v administraci se v patičce nezobrazí (jejich stránka vrací 404). */
+async function getActiveServices() {
+  const { data, error } = await supabase.from("services").select("slug").eq("is_active", true);
+  if (error || !data) return SERVICES;
+  const active = new Set(data.map((s) => `/sluzby/${s.slug}`));
+  return SERVICES.filter((s) => active.has(s.href));
+}
+
+export async function Footer() {
+  const services = await getActiveServices();
 
   return (
     <footer className="bg-[#111] text-gray-400 pt-20 pb-8 font-sans">
