@@ -3,6 +3,38 @@ import type { NextConfig } from "next";
 
 const publicSiteUrl = process.env.NEXT_PUBLIC_PUBLIC_SITE_URL || process.env.PUBLIC_SITE_URL || 'https://nanofusion.vercel.app';
 
+const isDev = process.env.NODE_ENV !== 'production'
+const isPreview = process.env.VERCEL_ENV === 'preview'
+
+/**
+ * Content-Security-Policy administrace. Zatím jen Report-Only: porušení se
+ * hlásí na /api/csp-report (log Vercelu), nic se neblokuje. Náhledy médií
+ * (YouTube, Google Drive, obrázky z obsahu) mohou být z libovolného HTTPS zdroje.
+ */
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}${isPreview ? ' https://vercel.live' : ''}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' blob: https:",
+  "font-src 'self' data:",
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co${isPreview ? ' https://vercel.live wss://*.pusher.com' : ''}`,
+  'frame-src https:',
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  'report-uri /api/csp-report',
+].join('; ')
+
+const securityHeaders = [
+  { key: 'Content-Security-Policy-Report-Only', value: csp },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()' },
+]
+
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(__dirname, '..'),
   turbopack: {
@@ -24,6 +56,9 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '20mb',
     },
+  },
+  async headers() {
+    return [{ source: '/:path*', headers: securityHeaders }];
   },
   async redirects() {
     return [

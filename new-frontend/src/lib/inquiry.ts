@@ -2,6 +2,10 @@ import { z } from "zod";
 import { supabase } from "./supabase";
 import type { Inserts } from "./database.types";
 
+// Zod jinak zkouší `new Function()` (zrychlení validace), což Content-Security-
+// Policy bez 'unsafe-eval' hlásí jako porušení. Validace funguje stejně i bez toho.
+z.config({ jitless: true });
+
 export const inquirySchema = z
   .object({
     name: z.string().min(2, "Zadejte prosím vaše jméno a příjmení (min. 2 znaky)"),

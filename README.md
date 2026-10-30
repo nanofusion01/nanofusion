@@ -77,6 +77,7 @@ Vzorové konfigurace naleznete v:
 * **Rate limit AI chatbota:** Edge funkce `nano-assistant` povolí max. 30 zpráv za hodinu z jedné IP adresy (`CHAT_LIMIT_PER_HOUR`), aby nešlo navyšovat účet za OpenAI.
 * **Chybové hlášky v administraci:** Serverové akce vrací chyby jako hodnotu (`safeAction` / `unwrapActions` v `lib/action-result.ts`), takže administrátor i v produkci vidí skutečný důvod chyby.
 * **Nové účty:** Dočasné heslo se generuje kryptograficky bezpečně a uživatel si ho musí po prvním přihlášení změnit (`app_metadata.force_password_change`, vynucuje `proxy.ts`).
+* **Bezpečnostní HTTP hlavičky:** Obě aplikace posílají `X-Frame-Options: DENY` (ochrana před clickjackingem), `X-Content-Type-Options`, `Referrer-Policy` a `Permissions-Policy` (`next.config.ts`); HSTS doplňuje Vercel. Content-Security-Policy běží zatím v režimu Report-Only – porušení se zapisují do logu Vercelu přes `/api/csp-report` a po ověření v provozu se přepne na vynucování (`Content-Security-Policy`).
 * **On-Demand Revalidace:** Synchronizace změn z CMS do veřejného webu probíhá přes zabezpečený endpoint `/api/revalidate` chráněný tokenem `REVALIDATION_TOKEN`.
 
 ---
