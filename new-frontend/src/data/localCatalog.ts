@@ -256,7 +256,7 @@ export const localCatalog: Record<string, ServiceCatalogEntry> = {
 
 // Všech 12 služeb má teď v DB český slug (services.slug), ale tenhle
 // katalog byl psaný pod původními anglickými klíči - bez aliasů by každá
-// služba tiše přišla o fallback texty/galerii/benefity, stejně jako to
+// služba tiše přišla o doplňkové texty a benefity, stejně jako to
 // dřív chybělo jen u cisteni-fasad a natery-fasad.
 localCatalog['natery-fasad'] = localCatalog['facade-paint'];
 localCatalog['cisteni-strech'] = localCatalog['roof'];

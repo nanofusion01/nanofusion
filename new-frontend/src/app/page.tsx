@@ -62,9 +62,12 @@ export default async function Home() {
     name: r.author,
     text: r.content,
     rating: r.rating,
+    // štítek podle skutečného zdroje - ručně zadané recenze nejsou „ověřené“ portálem
     source: r.source?.toLowerCase().includes('google')
       ? 'Ověřeno na Google'
-      : 'Ověřeno na Firmy.cz',
+      : r.source?.toLowerCase().includes('firmy')
+        ? 'Ověřeno na Firmy.cz'
+        : 'Recenze zákazníka',
   }));
 
   return (
