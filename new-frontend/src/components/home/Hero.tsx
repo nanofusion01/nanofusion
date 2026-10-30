@@ -39,6 +39,16 @@ const Stats = () => {
 export const Hero = async () => {
   const config = await getConfig();
 
+  // Nejnovější schválená recenze s 5 hvězdičkami pro plovoucí ukázku
+  const { data: latestReview } = await supabase
+    .from("external_reviews")
+    .select("author, content, source")
+    .eq("approved", true)
+    .eq("rating", 5)
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+
   const { data: mediaData } = await supabase
     .from("hero_media")
     .select("*")
@@ -145,7 +155,7 @@ export const Hero = async () => {
         </div>
 
         {/* Floating Review on Video */}
-        <FloatingReview />
+        <FloatingReview review={latestReview} />
 
 
         {/* Bottom Curved Arch Separator */}

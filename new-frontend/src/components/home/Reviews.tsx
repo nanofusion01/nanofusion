@@ -30,53 +30,9 @@ function ReviewCard({ review }: { review: Review }) {
 export function Reviews({ initialReviews, autoScroll = true }: { initialReviews?: Review[]; autoScroll?: boolean }) {
   const { scrollRef, scrollByAmount, canScrollLeft, canScrollRight } = useCarousel(autoScroll ? 0.5 : 0, 350);
 
-  // Statická data z původního webu jako záloha
-  const defaultReviews = [
-    {
-      id: 1,
-      name: "Jan Novák",
-      text: "Skvělá práce, střecha vypadá jako nová!",
-      rating: 5,
-      source: "Ověřený zákazník"
-    },
-    {
-      id: 2,
-      name: "Marie Dvořáková",
-      text: "Profesionální přístup a perfektní výsledek čištění fasády.",
-      rating: 5,
-      source: "Ověřená recenze"
-    },
-    {
-      id: 3,
-      name: "Martin K.",
-      text: "Nanofusion nám dělali nano-ochranu fotovoltaiky. Od té doby se panely méně špiní a výkon je stabilnější. Super technologie.",
-      rating: 5,
-      source: "Ověřená recenze"
-    },
-    {
-      id: 4,
-      name: "Jana Hasalová",
-      text: "Vynikající servis při čištění zámkové dlažby. Vypadá jako nová. Děkujeme za profesionální práci.",
-      rating: 5,
-      source: "Ověřená recenze"
-    },
-    {
-      id: 5,
-      name: "Janina",
-      text: "Čištění střechy proběhlo rychle a precizně. Firma dodržela vše, co slíbila. Velmi spokojená.",
-      rating: 5,
-      source: "Ověřená recenze"
-    },
-    {
-      id: 6,
-      name: "Hrabalova Blanka",
-      text: "Profesionální přístup, skvělá komunikace a výsledek čištění fasády předčil naše očekávání. Doporučuji!",
-      rating: 5,
-      source: "Ověřená recenze"
-    }
-  ];
-
-  const reviews = initialReviews && initialReviews.length > 0 ? initialReviews : defaultReviews;
+  // Jen skutečné recenze z administrace; bez nich se sekce nezobrazí
+  const reviews = initialReviews ?? [];
+  if (reviews.length === 0) return null;
 
   return (
     <section id="reference" className="py-10 md:py-12 bg-[#111111] font-sans relative overflow-hidden">
