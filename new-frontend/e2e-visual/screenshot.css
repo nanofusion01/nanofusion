@@ -1,0 +1,4 @@
+/* Při snímcích skrýt video z YouTube - pod ním je statický náhled. */
+iframe[src*="youtube.com/embed"] {
+  visibility: hidden !important;
+}

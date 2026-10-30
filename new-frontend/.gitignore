@@ -43,3 +43,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# vizuální regresní testy (snímky závisí na OS a obsahu DB)
+/e2e-visual/__snapshots__/
+/playwright-report-visual/

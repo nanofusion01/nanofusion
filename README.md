@@ -160,6 +160,16 @@ npx playwright install chromium   # jednorázově
 npm run test:e2e
 ```
 
+### 3. Vizuální regresní testy (Playwright)
+* **`new-frontend/e2e-visual/`**: celostránkové snímky všech veřejných stránek (úvod, kalkulace, O nás, právní stránky a 12 služeb) na počítači i mobilu. Čas v prohlížeči je zmrazený, aby automatické přepínání a chat dávaly pokaždé stejný obraz.
+* Pojistka při refaktoringu: snímky se pořídí před změnou a po ní se porovnají. Závisí na OS a na obsahu v databázi, proto se necommitují a nespouští se v CI.
+
+```bash
+cd new-frontend && npm run build
+npm run test:visual:baseline   # před změnou
+npm run test:visual            # po změně - selže, pokud se vzhled liší
+```
+
 ---
 
 ## 📂 Struktura migrací a skriptů Supabase
