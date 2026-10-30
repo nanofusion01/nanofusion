@@ -146,16 +146,12 @@ npm test
 cd new-frontend && npm test
 ```
 
-#### Pokryté moduly (30 testů):
-1. **`calculator.test.ts`**: Skutečné produkční funkce kalkulačky (`calculateSimplePrice`, `calculateRangeEstimate`), matematické zaokrouhlování na desítky, 10% rezerva a ošetření chybných vstupů (0 m², záporné hodnoty).
-2. **`inquiry.test.ts`**: Striktní Zod schéma validace poptávek (povinný e-mail pro Kontaktní formulář, telefon min. 9 číslic, podpora e-mailu i v chatu, ochrana před zadaným "000000000").
-3. **`sanitize.test.ts`**: Bezpečnostní testy XSS sanitizace přes `isomorphic-dompurify` (eliminace `<script>`, SVG `onload`, `javascript:` URI a vnořených tagů).
-4. **`optimize-img.test.ts`**: Zmenšování obrázků přes Supabase Image Transformation.
-
-Testy `inquiry.test.ts` pokrývají i sestavení záznamu poptávky na serveru a ochranu proti podvržené cestě k fotce.
+#### Pokryté moduly
+* **Web (48 testů):** výpočty cen a napojení služeb na ceník, Zod validace poptávek, API routy `/api/inquiry` a `/api/chat-session` (validace, antispam, rate limit, fotky), logika chatu (kontakt, plocha, znalostní báze, značka `[LEAD]`), sanitizace HTML, zmenšování obrázků.
+* **Administrace (9 testů):** `safeAction` / `unwrapActions` (skutečné chybové hlášky), pomocné funkce a štítky zdrojů poptávek.
 
 ### 2. End-to-End testy (Playwright)
-* **`new-frontend/e2e/`** (7 testů): kalkulačka, honeypot, odeslání poptávky z kalkulačky i kontaktního formuláře, zobrazení chyby z API ve formuláři a navigace. Volání `/api/inquiry` se zachytává, takže do databáze nevznikají testovací data.
+* **`new-frontend/e2e/`** (8 testů): kalkulačka, honeypot, odeslání poptávky z kalkulačky i kontaktního formuláře, zobrazení chyby z API, AI asistent (odpověď, poptávka, uložení přepisu) a navigace. Volání `/api/inquiry` se zachytává, takže do databáze nevznikají testovací data.
 * **`admin-panel/e2e/`** (7 testů): přesměrování nepřihlášených na login, `noindex`, přesměrování starých veřejných adres na web a přihlášení se zobrazením poptávek (spustí se jen s testovacím účtem v `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`).
 
 ```bash
@@ -179,6 +175,6 @@ TypeScript typy databáze (`database.types.ts` v obou aplikacích) se generují 
 ## 🗺️ Architektonický plán pro budoucí rozvoj (Doporučení pro produkci)
 
 1. **Turborepo monorepo**: Přechod na strukturu `apps/web`, `apps/admin` a `packages/database`, `packages/ui` pro plně sdílené TypeScript balíčky a centralizovaný build cache.
-2. **Odstranění zbývajících `any`**: Supabase klienti jsou typovaní a v administraci zbývá 48 přetypování `as any` (ze 194) – hlavně u formulářových dat a JSON polí.
+2. **Rozdělení přehledu poptávek** v administraci (828 řádků) na menší komponenty.
 3. **Cloudflare Turnstile** na veřejných formulářích jako další vrstva ochrany proti botům (vyžaduje účet Cloudflare a klíče).
 
