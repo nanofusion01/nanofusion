@@ -9,17 +9,13 @@ import { SITE_STATS_DEFAULTS, type SiteStats } from "@/lib/site-stats";
 
 function ReviewCard({ review }: { review: Review }) {
   return (
-    <div
-      className="flex-none w-[280px] md:w-[300px] bg-slate-800 rounded-2xl p-6 flex flex-col snap-center md:snap-start self-start"
-    >
+    <div className="flex-none w-[280px] md:w-[300px] bg-slate-800 rounded-2xl p-6 flex flex-col snap-center md:snap-start self-start">
       <div className="text-amber-500 mb-3 flex gap-1">
         {Array.from({ length: review.rating ?? 5 }).map((_, i) => (
           <span key={i}>★</span>
         ))}
       </div>
-      <p className="text-slate-300 italic mb-4 leading-relaxed line-clamp-4">
-        „{review.text}“
-      </p>
+      <p className="text-slate-300 italic mb-4 leading-relaxed line-clamp-4">„{review.text}“</p>
       <div>
         <p className="text-white font-bold">{review.name}</p>
         <p className="text-slate-400 text-sm">{review.source}</p>
@@ -46,7 +42,6 @@ export function Reviews({
   return (
     <section id="reference" className="py-10 md:py-12 bg-[#111111] font-sans relative overflow-hidden">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative">
-
         <SectionHeader
           title="Co o nás říkají naši klienti"
           subtitle="Reference čerpáme z portálů Firmy.cz a Google. Spokojenost našich klientů je pro nás prioritou číslo jedna."
@@ -72,12 +67,7 @@ export function Reviews({
 
         {/* Carousel Container */}
         <div className="relative group">
-
-          <CarouselArrows
-            onScroll={scrollByAmount}
-            canScrollLeft={canScrollLeft}
-            canScrollRight={canScrollRight}
-          />
+          <CarouselArrows onScroll={scrollByAmount} canScrollLeft={canScrollLeft} canScrollRight={canScrollRight} />
 
           {/* Gradient Edges */}
           <div className="absolute top-0 bottom-0 left-0 w-16 bg-gradient-to-r from-[#111111] to-transparent z-10 pointer-events-none" />

@@ -15,7 +15,15 @@ import { ReviewsTab } from './tabs/reviews-tab'
 
 const { updateService } = unwrapActions(actionsRaw)
 
-import type { Service, BeforeAfter, GalleryPhoto, ServiceFAQ, ServiceReview, ExternalReview, ProcessStep } from './types'
+import type {
+  Service,
+  BeforeAfter,
+  GalleryPhoto,
+  ServiceFAQ,
+  ServiceReview,
+  ExternalReview,
+  ProcessStep,
+} from './types'
 
 interface Props {
   service: Service
@@ -32,20 +40,20 @@ const DEFAULT_BENEFITS: Record<string, Array<{ title: string; desc: string }>> =
     { title: 'Odstranění řas a plísní', desc: 'Vyčistíme fasádu od smogu, plísní, řas, prachu a organických nánosů.' },
     { title: 'Nano-ochrana až 10 let', desc: 'Špičková impregnace odpuzuje vodu a chrání povrch před špínou.' },
     { title: 'Nízkotlaké mytí', desc: 'Čistíme šetrně s regulovaným tlakem bez poškození fasádních omítek.' },
-    { title: 'Záruka a garance', desc: 'Dlouhodobá záruka na opětovný výskyt organických nečistot.' }
+    { title: 'Záruka a garance', desc: 'Dlouhodobá záruka na opětovný výskyt organických nečistot.' },
   ],
-  'roof': [
+  roof: [
     { title: 'Všechny typy krytin', desc: 'Čistíme tašky pálené, betonové, plechové, šindel i eternit.' },
     { title: 'Prevence zatékání', desc: 'Odstraněním mechu zamezíme zadržování vody a degradaci krytiny.' },
     { title: 'Hydrofobní ochrana', desc: 'Nano impregnace odpuzuje vodu a poskytuje samočistící efekt.' },
-    { title: 'Čištění okapů', desc: 'Součástí každé realizace je vyčištění a kontrola okapových žlabů.' }
+    { title: 'Čištění okapů', desc: 'Součástí každé realizace je vyčištění a kontrola okapových žlabů.' },
   ],
-  'pavement': [
+  pavement: [
     { title: 'Odstranění mechu a plevele', desc: 'Vyčistíme zarostlé spáry i hluboko usazené nečistoty.' },
     { title: 'Obnova původního vzhledu', desc: 'Dlažba získá zpět svou barvu a čistý reprezentativní vzhled.' },
     { title: 'Ochrana proti oleji a mastnotě', desc: 'Impregnace zabraňuje vsakování kapalin a usnadňuje údržbu.' },
-    { title: 'Doplnění křemičitého písku', desc: 'Po vyčištění a vyschnutí vyplníme spáry novým křemičitým pískem.' }
-  ]
+    { title: 'Doplnění křemičitého písku', desc: 'Po vyčištění a vyschnutí vyplníme spáry novým křemičitým pískem.' },
+  ],
 }
 
 export function ServiceDetailClient({
@@ -55,7 +63,7 @@ export function ServiceDetailClient({
   serviceFaqs: initialFaqs,
   serviceReviews: initialReviews,
   externalReviews,
-  initialProcessSteps
+  initialProcessSteps,
 }: Props) {
   const [activeTab, setActiveTab] = useState<'general' | 'process' | 'photos' | 'faqs' | 'reviews'>('general')
   const [faqs, setFaqs] = useState<ServiceFAQ[]>(initialFaqs)
@@ -67,24 +75,22 @@ export function ServiceDetailClient({
       const defaults = DEFAULT_BENEFITS[initialService.slug] || []
       return {
         ...initialService,
-        features: defaults.map(d => JSON.stringify(d))
+        features: defaults.map((d) => JSON.stringify(d)),
       }
     }
     return initialService
   })
-  
+
   const defaultSteps = [
     { step: '01', title: 'Posouzení', desc: 'Zhodnotíme stav povrchu a navrhneme vhodný čisticí postup.' },
     { step: '02', title: 'Příprava', desc: 'Bezpečně ochraníme okolí a připravíme techniku.' },
     { step: '03', title: 'Realizace', desc: 'Aplikace šetrných čistících přípravků a oplach.' },
-    { step: '04', title: 'Impregnace', desc: 'Nanesení finální ochranné nano-impregnace.' }
+    { step: '04', title: 'Impregnace', desc: 'Nanesení finální ochranné nano-impregnace.' },
   ]
   const [processSteps, setProcessSteps] = useState<ProcessStep[]>(
     initialProcessSteps && initialProcessSteps.length > 0 ? initialProcessSteps : defaultSteps
   )
   const [saving, setSaving] = useState(false)
-
-
 
   // --- General save ---
   const handleSaveGeneral = async () => {
@@ -100,12 +106,6 @@ export function ServiceDetailClient({
     }
   }
 
-
-
-
-
-
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -118,7 +118,9 @@ export function ServiceDetailClient({
             <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{service.name}</h1>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              {service.name}
+            </h1>
             <p className="text-sm opacity-60">Úprava služby a jejího obsahu</p>
           </div>
         </div>
@@ -135,13 +137,23 @@ export function ServiceDetailClient({
 
       {/* Tabs */}
       <div className="flex gap-2 p-1.5 rounded-2xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
-        {([
-          { id: 'general', label: 'Základní info', icon: <Layout size={16} /> },
-          { id: 'process', label: `Jak to funguje (${processSteps.length})`, icon: <ListOrdered size={16} /> },
-          { id: 'photos', label: `Fotky (${beforeAfterItems.length + galleryPhotos.length})`, icon: <Camera size={16} /> },
-          { id: 'faqs', label: `Q&A (${faqs.length})`, icon: <MessageSquareQuote size={16} /> },
-          { id: 'reviews', label: `Vybrané recenze (${serviceReviews.length})`, icon: <MessageSquareQuote size={16} /> },
-        ] satisfies { id: typeof activeTab; label: string; icon: React.ReactNode }[]).map((tab) => (
+        {(
+          [
+            { id: 'general', label: 'Základní info', icon: <Layout size={16} /> },
+            { id: 'process', label: `Jak to funguje (${processSteps.length})`, icon: <ListOrdered size={16} /> },
+            {
+              id: 'photos',
+              label: `Fotky (${beforeAfterItems.length + galleryPhotos.length})`,
+              icon: <Camera size={16} />,
+            },
+            { id: 'faqs', label: `Q&A (${faqs.length})`, icon: <MessageSquareQuote size={16} /> },
+            {
+              id: 'reviews',
+              label: `Vybrané recenze (${serviceReviews.length})`,
+              icon: <MessageSquareQuote size={16} />,
+            },
+          ] satisfies { id: typeof activeTab; label: string; icon: React.ReactNode }[]
+        ).map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -149,7 +161,7 @@ export function ServiceDetailClient({
             style={{
               background: activeTab === tab.id ? 'var(--bg-surface)' : 'transparent',
               color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
-              boxShadow: activeTab === tab.id ? 'var(--shadow-sm)' : 'none'
+              boxShadow: activeTab === tab.id ? 'var(--shadow-sm)' : 'none',
             }}
           >
             {tab.icon}
@@ -164,16 +176,33 @@ export function ServiceDetailClient({
         {activeTab === 'general' && <GeneralTab service={service} setService={setService} />}
 
         {/* --- PROCESS TAB (Jak to funguje / Krok za krokem) --- */}
-        {activeTab === 'process' && <ProcessTab serviceId={service.id} processSteps={processSteps} setProcessSteps={setProcessSteps} />}
+        {activeTab === 'process' && (
+          <ProcessTab serviceId={service.id} processSteps={processSteps} setProcessSteps={setProcessSteps} />
+        )}
 
         {/* --- PHOTOS TAB --- */}
-        {activeTab === 'photos' && <PhotosTab serviceId={service.id} beforeAfterItems={beforeAfterItems} setBeforeAfterItems={setBeforeAfterItems} galleryPhotos={galleryPhotos} setGalleryPhotos={setGalleryPhotos} />}
+        {activeTab === 'photos' && (
+          <PhotosTab
+            serviceId={service.id}
+            beforeAfterItems={beforeAfterItems}
+            setBeforeAfterItems={setBeforeAfterItems}
+            galleryPhotos={galleryPhotos}
+            setGalleryPhotos={setGalleryPhotos}
+          />
+        )}
 
         {/* --- FAQ TAB --- */}
         {activeTab === 'faqs' && <FaqsTab serviceId={service.id} faqs={faqs} setFaqs={setFaqs} />}
 
         {/* --- REVIEWS TAB --- */}
-        {activeTab === 'reviews' && <ReviewsTab serviceId={service.id} serviceReviews={serviceReviews} setServiceReviews={setServiceReviews} externalReviews={externalReviews} />}
+        {activeTab === 'reviews' && (
+          <ReviewsTab
+            serviceId={service.id}
+            serviceReviews={serviceReviews}
+            setServiceReviews={setServiceReviews}
+            externalReviews={externalReviews}
+          />
+        )}
       </div>
     </div>
   )

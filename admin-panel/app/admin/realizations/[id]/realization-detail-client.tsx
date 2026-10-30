@@ -4,15 +4,31 @@ import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import {
-  ArrowLeft, Save, Upload, Trash2, Eye, EyeOff,
-  MapPin, Clock, Wrench, Loader2, ImageIcon, Plus
+  ArrowLeft,
+  Save,
+  Upload,
+  Trash2,
+  Eye,
+  EyeOff,
+  MapPin,
+  Clock,
+  Wrench,
+  Loader2,
+  ImageIcon,
+  Plus,
 } from 'lucide-react'
 import * as actionsRaw from '../actions'
 import { TiptapEditor } from '@/components/admin/editor'
 import { unwrapActions } from '@/lib/action-result'
 import { errorMessage } from '@/lib/utils'
 
-const { updateRealization, togglePublished, deleteRealizationPhoto, updateRealizationPhotos, uploadMultipleRealizationPhotos } = unwrapActions(actionsRaw)
+const {
+  updateRealization,
+  togglePublished,
+  deleteRealizationPhoto,
+  updateRealizationPhotos,
+  uploadMultipleRealizationPhotos,
+} = unwrapActions(actionsRaw)
 
 type Realization = {
   id: string
@@ -35,8 +51,14 @@ type Photo = {
 }
 
 const WORK_TYPES = [
-  'Čištění střech', 'Čištění fasád', 'Čištění dlažeb',
-  'Solární panely', 'Nano-ochrana', 'Komplexní projekt', 'Graffiti', 'Jiné',
+  'Čištění střech',
+  'Čištění fasád',
+  'Čištění dlažeb',
+  'Solární panely',
+  'Nano-ochrana',
+  'Komplexní projekt',
+  'Graffiti',
+  'Jiné',
 ]
 
 export function RealizationDetailClient({
@@ -67,13 +89,15 @@ export function RealizationDetailClient({
         category: r.category ?? undefined,
         youtube_id: r.youtube_id ?? undefined,
       })
-      
+
       // Save photo metadata (captions and order)
-      await updateRealizationPhotos(photos.map((p, i) => ({
-        id: p.id,
-        caption: p.caption ?? undefined,
-        order_index: i
-      })))
+      await updateRealizationPhotos(
+        photos.map((p, i) => ({
+          id: p.id,
+          caption: p.caption ?? undefined,
+          order_index: i,
+        }))
+      )
 
       toast.success('Realizace a galerie uloženy')
     } catch (err) {
@@ -96,33 +120,33 @@ export function RealizationDetailClient({
   const handlePhotoUpload = async (files: FileList) => {
     setUploading(true)
     const fileArray = Array.from(files)
-    
+
     try {
       // Chunk files to stay under Vercel's 4.5MB payload limit for Server Actions
-      const CHUNK_SIZE = 2; 
-      let totalUploaded = 0;
+      const CHUNK_SIZE = 2
+      let totalUploaded = 0
 
       for (let i = 0; i < fileArray.length; i += CHUNK_SIZE) {
-        const chunk = fileArray.slice(i, i + CHUNK_SIZE);
+        const chunk = fileArray.slice(i, i + CHUNK_SIZE)
         const fd = new FormData()
-        chunk.forEach(f => fd.append('files', f))
-        
+        chunk.forEach((f) => fd.append('files', f))
+
         const newPhotosData = await uploadMultipleRealizationPhotos(r.id, fd)
-        
+
         if (newPhotosData && newPhotosData.length > 0) {
           const mappedPhotos = newPhotosData.map((p) => ({
             id: p.id,
             url: p.url,
             caption: p.caption,
-            order_index: p.order_index
+            order_index: p.order_index,
           }))
-          setPhotos(prev => [...prev, ...mappedPhotos])
+          setPhotos((prev) => [...prev, ...mappedPhotos])
           totalUploaded += mappedPhotos.length
         }
       }
 
       if (totalUploaded > 0) {
-        toast.success(`Nahráno ${totalUploaded} fotek. Nezapomeňte kliknout na ULOŽIT.`);
+        toast.success(`Nahráno ${totalUploaded} fotek. Nezapomeňte kliknout na ULOŽIT.`)
       } else {
         toast.error('Nepodařilo se nahrát žádné fotky.')
       }
@@ -139,21 +163,21 @@ export function RealizationDetailClient({
     const newPhotos = [...photos]
     const targetIndex = direction === 'left' ? index - 1 : index + 1
     if (targetIndex < 0 || targetIndex >= newPhotos.length) return
-    
+
     const [moved] = newPhotos.splice(index, 1)
     newPhotos.splice(targetIndex, 0, moved)
     setPhotos(newPhotos)
   }
 
   const updatePhotoCaption = (id: string, caption: string) => {
-    setPhotos(prev => prev.map(p => p.id === id ? { ...p, caption } : p))
+    setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, caption } : p)))
   }
 
   const handleDeletePhoto = async (photoId: string) => {
     if (!confirm('Smazat tuto fotku?')) return
     try {
       await deleteRealizationPhoto(photoId)
-      setPhotos(prev => prev.filter(p => p.id !== photoId))
+      setPhotos((prev) => prev.filter((p) => p.id !== photoId))
       toast.success('Fotka smazána')
     } catch (err) {
       toast.error('Chyba: ' + errorMessage(err))
@@ -206,10 +230,12 @@ export function RealizationDetailClient({
 
       {/* Tabs */}
       <div className="flex gap-2 p-1.5 rounded-2xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
-        {([
-          { id: 'info', label: 'Základní info' },
-          { id: 'photos', label: `Fotografie (${photos.length})` },
-        ] satisfies { id: typeof activeTab; label: string }[]).map((tab) => (
+        {(
+          [
+            { id: 'info', label: 'Základní info' },
+            { id: 'photos', label: `Fotografie (${photos.length})` },
+          ] satisfies { id: typeof activeTab; label: string }[]
+        ).map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -235,7 +261,7 @@ export function RealizationDetailClient({
               <input
                 type="text"
                 value={r.title}
-                onChange={e => setR({ ...r, title: e.target.value })}
+                onChange={(e) => setR({ ...r, title: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border outline-none text-sm font-semibold"
                 style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
               />
@@ -246,7 +272,7 @@ export function RealizationDetailClient({
               <input
                 type="text"
                 value={r.subtitle || ''}
-                onChange={e => setR({ ...r, subtitle: e.target.value })}
+                onChange={(e) => setR({ ...r, subtitle: e.target.value })}
                 placeholder="Krátký výstižný podnadpis"
                 className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
                 style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
@@ -261,7 +287,7 @@ export function RealizationDetailClient({
                 <input
                   type="text"
                   value={r.location || ''}
-                  onChange={e => setR({ ...r, location: e.target.value })}
+                  onChange={(e) => setR({ ...r, location: e.target.value })}
                   placeholder="např. Praha - Západ"
                   className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
                   style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
@@ -274,7 +300,7 @@ export function RealizationDetailClient({
                 <input
                   type="text"
                   value={r.duration || ''}
-                  onChange={e => setR({ ...r, duration: e.target.value })}
+                  onChange={(e) => setR({ ...r, duration: e.target.value })}
                   placeholder="např. 2 dny"
                   className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
                   style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
@@ -289,12 +315,16 @@ export function RealizationDetailClient({
                 </label>
                 <select
                   value={r.work_type || ''}
-                  onChange={e => setR({ ...r, work_type: e.target.value })}
+                  onChange={(e) => setR({ ...r, work_type: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
                   style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                 >
                   <option value="">-- Vyberte typ --</option>
-                  {WORK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  {WORK_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="space-y-2">
@@ -304,7 +334,7 @@ export function RealizationDetailClient({
                 <input
                   type="text"
                   value={r.youtube_id || ''}
-                  onChange={e => setR({ ...r, youtube_id: e.target.value })}
+                  onChange={(e) => setR({ ...r, youtube_id: e.target.value })}
                   placeholder="např. dQw4w9WgXcQ"
                   className="w-full px-4 py-3 rounded-xl border outline-none text-sm"
                   style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
@@ -314,10 +344,7 @@ export function RealizationDetailClient({
 
             <div className="space-y-4">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Popis realizace</label>
-              <TiptapEditor 
-                content={r.description || ''} 
-                onChange={(html) => setR({ ...r, description: html })} 
-              />
+              <TiptapEditor content={r.description || ''} onChange={(html) => setR({ ...r, description: html })} />
             </div>
           </div>
         )}
@@ -328,7 +355,9 @@ export function RealizationDetailClient({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-lg">Fotografie realizace</h3>
-                <p className="text-sm opacity-50 mt-1">První fotka se zobrazí jako hlavní. Doporučujeme maximálně 10 fotografií.</p>
+                <p className="text-sm opacity-50 mt-1">
+                  První fotka se zobrazí jako hlavní. Doporučujeme maximálně 10 fotografií.
+                </p>
               </div>
               <div>
                 <input
@@ -337,7 +366,9 @@ export function RealizationDetailClient({
                   accept="image/*"
                   multiple
                   className="hidden"
-                  onChange={e => { if (e.target.files?.length) handlePhotoUpload(e.target.files) }}
+                  onChange={(e) => {
+                    if (e.target.files?.length) handlePhotoUpload(e.target.files)
+                  }}
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
@@ -363,20 +394,26 @@ export function RealizationDetailClient({
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {photos.map((photo, i) => (
-                  <div
-                    key={photo.id}
-                    className="flex flex-col gap-2"
-                  >
+                  <div key={photo.id} className="flex flex-col gap-2">
                     <div
                       className="relative group rounded-2xl overflow-hidden border"
-                      style={{ aspectRatio: '4/3', borderColor: i === 0 ? 'var(--brand-primary)' : 'var(--border)', borderWidth: i === 0 ? 2 : 1 }}
+                      style={{
+                        aspectRatio: '4/3',
+                        borderColor: i === 0 ? 'var(--brand-primary)' : 'var(--border)',
+                        borderWidth: i === 0 ? 2 : 1,
+                      }}
                     >
                       {i === 0 && (
                         <span className="absolute top-2 left-2 z-10 text-[10px] font-black bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">
                           Hlavní
                         </span>
                       )}
-                      <img src={photo.url} alt={photo.caption || "Fotka realizace"} className="w-full h-full object-cover" loading="lazy" />
+                      <img
+                        src={photo.url}
+                        alt={photo.caption || 'Fotka realizace'}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                         <button
                           onClick={() => movePhoto(i, 'left')}
@@ -400,7 +437,7 @@ export function RealizationDetailClient({
                         </button>
                       </div>
                     </div>
-                    <input 
+                    <input
                       type="text"
                       placeholder="Popisek fotky..."
                       value={photo.caption || ''}

@@ -81,54 +81,46 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: LayoutProps<"/">) {
+export default function RootLayout({ children }: LayoutProps<"/">) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
-        "name": "NANOfusion s.r.o.",
-        "legalName": "NANOfusion s.r.o.",
-        "image": OG_IMAGE,
+        name: "NANOfusion s.r.o.",
+        legalName: "NANOfusion s.r.o.",
+        image: OG_IMAGE,
         "@id": `${baseUrl}/#organization`,
-        "url": baseUrl,
-        "telephone": "+420774509409",
-        "email": "info@nanofusion.cz",
-        "priceRange": "$$",
-        "address": {
+        url: baseUrl,
+        telephone: "+420774509409",
+        email: "info@nanofusion.cz",
+        priceRange: "$$",
+        address: {
           "@type": "PostalAddress",
-          "streetAddress": "Cezavy 627",
-          "addressLocality": "Blučina",
-          "postalCode": "664 56",
-          "addressCountry": "CZ",
+          streetAddress: "Cezavy 627",
+          addressLocality: "Blučina",
+          postalCode: "664 56",
+          addressCountry: "CZ",
         },
-        "geo": {
+        geo: {
           "@type": "GeoCoordinates",
           latitude: 49.0553,
           longitude: 16.6432,
         },
-        "openingHoursSpecification": {
+        openingHoursSpecification: {
           "@type": "OpeningHoursSpecification",
-          dayOfWeek: [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-          ],
+          dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
           opens: "07:00",
           closes: "18:00",
         },
-        "aggregateRating": {
+        aggregateRating: {
           "@type": "AggregateRating",
           ratingValue: "4.95",
           reviewCount: "180",
           bestRating: "5",
         },
-        "areaServed": [
+        areaServed: [
           { "@type": "Country", name: "Česká republika" },
           { "@type": "City", name: "Brno" },
           { "@type": "City", name: "Praha" },
@@ -136,7 +128,7 @@ export default function RootLayout({
           { "@type": "City", name: "Zlín" },
           { "@type": "City", name: "Ostrava" },
         ],
-        "sameAs": [
+        sameAs: [
           "https://www.facebook.com/nanofusioncz",
           "https://www.instagram.com/nano_fusion_cz/",
           "https://www.linkedin.com/company/nanofusion/",
@@ -147,10 +139,9 @@ export default function RootLayout({
         "@context": "https://schema.org",
         "@type": "WebSite",
         "@id": `${baseUrl}/#website`,
-        "url": baseUrl,
-        "name": "NANOfusion",
-        "description":
-          "Specialisté na čištění a nano-ochranu střech, fasád, dlažeb a fotovoltaiky v ČR",
+        url: baseUrl,
+        name: "NANOfusion",
+        description: "Specialisté na čištění a nano-ochranu střech, fasád, dlažeb a fotovoltaiky v ČR",
         publisher: { "@id": `${baseUrl}/#organization` },
         inLanguage: "cs-CZ",
       },
@@ -170,15 +161,9 @@ export default function RootLayout({
   };
 
   return (
-    <html
-      lang="cs"
-      className={`${inter.variable} h-full antialiased`}
-    >
+    <html lang="cs" className={`${inter.variable} h-full antialiased`}>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className="min-h-full flex flex-col pt-[108px]">
         <ScrollHandler />

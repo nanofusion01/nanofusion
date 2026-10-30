@@ -4,7 +4,9 @@ export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg-base)' }}>
       <div className="text-center">
-        <p className="text-5xl font-black mb-3" style={{ color: 'var(--brand-primary)' }}>404</p>
+        <p className="text-5xl font-black mb-3" style={{ color: 'var(--brand-primary)' }}>
+          404
+        </p>
         <h1 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
           Stránka neexistuje
         </h1>

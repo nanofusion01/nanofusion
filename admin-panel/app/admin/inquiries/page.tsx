@@ -10,7 +10,7 @@ export default async function InquiriesPage() {
   // Poptávky z webu + AI analýzy (tabulka ai_analyses)
   const [inquiriesResult, leadsResult] = await Promise.all([
     supabase.from('inquiries').select('*'),
-    supabase.from('ai_analyses').select('*')
+    supabase.from('ai_analyses').select('*'),
   ])
 
   const rawInquiries = inquiriesResult.data || []
@@ -32,7 +32,9 @@ export default async function InquiriesPage() {
   rawInquiries.forEach((inq) => {
     let p = inq.original_photo_url || inq.photo_url
     if (!p && inq.message) {
-      const match = inq.message.match(/(https?:\/\/[^\s\n]+inquiries\/[^\s\n]+|kalkulace_[a-zA-Z0-9_]+\.[a-zA-Z]{3,4}|inquiry_[a-zA-Z0-9_]+\.[a-zA-Z]{3,4})/)
+      const match = inq.message.match(
+        /(https?:\/\/[^\s\n]+inquiries\/[^\s\n]+|kalkulace_[a-zA-Z0-9_]+\.[a-zA-Z]{3,4}|inquiry_[a-zA-Z0-9_]+\.[a-zA-Z]{3,4})/
+      )
       if (match) p = match[1]
     }
     const fn = extractInquiryFileName(p)
@@ -50,7 +52,7 @@ export default async function InquiriesPage() {
       const { data: signedResults, error: signedError } = await supabase.storage
         .from('inquiries')
         .createSignedUrls(Array.from(filePathsToSign), 86400) // 24 hodin
-      
+
       if (!signedError && signedResults) {
         signedResults.forEach((res) => {
           if (res.signedUrl && res.path) {
@@ -110,9 +112,5 @@ export default async function InquiriesPage() {
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
 
-  return (
-    <InquiriesClient
-      initialInquiries={allInquiries}
-    />
-  )
+  return <InquiriesClient initialInquiries={allInquiries} />
 }

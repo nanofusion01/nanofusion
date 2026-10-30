@@ -24,7 +24,8 @@ export async function requireAdminOrEditor(): Promise<AuthUser> {
 
   // Získáme profil uživatele přes adminClient, aby byla role ověřena přímo v DB
   const adminClient = await createAdminClient()
-  const { data: profile, error: profileError } = await adminClient.from('profiles')
+  const { data: profile, error: profileError } = await adminClient
+    .from('profiles')
     .select('id, role, full_name, email')
     .eq('id', user.id)
     .single()
@@ -57,4 +58,3 @@ export async function requireAdmin(): Promise<AuthUser> {
   }
   return authUser
 }
-

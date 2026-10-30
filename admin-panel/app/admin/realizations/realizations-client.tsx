@@ -88,11 +88,19 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
   }, [realizations, search, workTypeFilter])
 
   const openCreate = () => {
-    setForm({ title: '', subtitle: '', description: '', location: '', duration: '', work_type: '', category: '', youtube_id: '' })
+    setForm({
+      title: '',
+      subtitle: '',
+      description: '',
+      location: '',
+      duration: '',
+      work_type: '',
+      category: '',
+      youtube_id: '',
+    })
     setEditingId(null)
     setModal('create')
   }
-
 
   const handleSave = async () => {
     if (!form.title) {
@@ -107,9 +115,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
         toast.success('Realizace vytvořena')
       } else if (editingId) {
         await updateRealization(editingId, form)
-        setRealizations((prev) =>
-          prev.map((r) => (r.id === editingId ? { ...r, ...form } : r))
-        )
+        setRealizations((prev) => prev.map((r) => (r.id === editingId ? { ...r, ...form } : r)))
         toast.success('Realizace uložena')
       }
       setModal(null)
@@ -123,9 +129,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
   const handleTogglePublished = async (r: Realization) => {
     try {
       await togglePublished(r.id, !r.is_published)
-      setRealizations((prev) =>
-        prev.map((x) => (x.id === r.id ? { ...x, is_published: !x.is_published } : x))
-      )
+      setRealizations((prev) => prev.map((x) => (x.id === r.id ? { ...x, is_published: !x.is_published } : x)))
       toast.success(r.is_published ? 'Realizace skryta' : 'Realizace zveřejněna')
     } catch {
       toast.error('Nepodařilo se aktualizovat stav')
@@ -151,7 +155,9 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Realizace</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Realizace
+          </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             {realizations.length} realizací · {realizations.filter((r) => r.is_published).length} zveřejněno
           </p>
@@ -167,9 +173,16 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 p-4 rounded-xl" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+      <div
+        className="flex flex-wrap gap-3 p-4 rounded-xl"
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+      >
         <div className="flex-1 relative min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2"
+            style={{ color: 'var(--text-muted)' }}
+          />
           <input
             type="text"
             placeholder="Hledat realizace..."
@@ -187,14 +200,19 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
         >
           <option value="all">Všechny typy</option>
           {WORK_TYPES.map((t) => (
-            <option key={t} value={t}>{t}</option>
+            <option key={t} value={t}>
+              {t}
+            </option>
           ))}
         </select>
       </div>
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 rounded-xl gap-3" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+        <div
+          className="flex flex-col items-center justify-center py-20 rounded-xl gap-3"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+        >
           <p style={{ color: 'var(--text-muted)' }}>Žádné realizace nenalezeny</p>
         </div>
       ) : (
@@ -219,9 +237,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                     : 'var(--bg-surface-2)',
                 }}
               >
-                {!r.realization_photos?.[0] && (
-                  <ImageIcon size={36} style={{ color: 'var(--text-muted)' }} />
-                )}
+                {!r.realization_photos?.[0] && <ImageIcon size={36} style={{ color: 'var(--text-muted)' }} />}
                 <div className="absolute top-3 right-3 flex gap-2">
                   <span
                     className="text-xs font-semibold px-2.5 py-1 rounded-full"
@@ -295,9 +311,17 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
         >
           <div
             className="w-full max-w-lg rounded-2xl overflow-hidden animate-fade-in"
-            style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)', maxHeight: '90vh', overflowY: 'auto' }}
+            style={{
+              background: 'var(--bg-surface)',
+              boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
           >
-            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div
+              className="flex items-center justify-between px-6 py-5"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
               <h2 className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>
                 {modal === 'create' ? 'Nová realizace' : 'Upravit realizaci'}
               </h2>
@@ -314,7 +338,10 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                 { key: 'youtube_id', label: 'YouTube ID', placeholder: 'ID videa (např. dQw4w9WgXcQ)' },
               ].map((field) => (
                 <div key={field.key}>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                  <label
+                    className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     {field.label}
                   </label>
                   <input
@@ -328,7 +355,10 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                 </div>
               ))}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                <label
+                  className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   Typ práce
                 </label>
                 <select
@@ -338,11 +368,18 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                   style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                 >
                   <option value="">-- Vyberte typ --</option>
-                  {WORK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {WORK_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                <label
+                  className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   Popis
                 </label>
                 <textarea
@@ -358,70 +395,105 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
               {/* Photo Management Section (Edit mode only) */}
               {modal === 'edit' && editingId && (
                 <div className="pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
+                  <label
+                    className="block text-xs font-semibold uppercase tracking-wider mb-3"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     Fotografie realizace
                   </label>
                   <div className="grid grid-cols-3 gap-2 mb-4">
-                    {realizations.find(r => r.id === editingId)?.realization_photos?.map((photo) => (
-                      <div key={photo.id} className="relative aspect-video rounded-lg overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
-                        <img src={photo.url} alt={photo.caption || "Fotka realizace"} className="w-full h-full object-cover" />
-                        <button 
-                          onClick={async () => {
-                            if (confirm('Smazat tuto fotku?')) {
-                              const { deleteRealizationPhoto } = unwrapActions(await import('./actions'));
-                              await deleteRealizationPhoto(photo.id);
-                              toast.success('Fotka smazána');
-                              setRealizations(prev => prev.map(r => r.id === editingId ? {
-                                ...r, 
-                                realization_photos: r.realization_photos?.filter(p => p.id !== photo.id)
-                              } : r));
-                            }
-                          }}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                    {realizations
+                      .find((r) => r.id === editingId)
+                      ?.realization_photos?.map((photo) => (
+                        <div
+                          key={photo.id}
+                          className="relative aspect-video rounded-lg overflow-hidden border"
+                          style={{ borderColor: 'var(--border)' }}
                         >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    ))}
-                    <label className={`aspect-video rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors ${uploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-black/5'}`} style={{ borderColor: 'var(--border)' }}>
+                          <img
+                            src={photo.url}
+                            alt={photo.caption || 'Fotka realizace'}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={async () => {
+                              if (confirm('Smazat tuto fotku?')) {
+                                const { deleteRealizationPhoto } = unwrapActions(await import('./actions'))
+                                await deleteRealizationPhoto(photo.id)
+                                toast.success('Fotka smazána')
+                                setRealizations((prev) =>
+                                  prev.map((r) =>
+                                    r.id === editingId
+                                      ? {
+                                          ...r,
+                                          realization_photos: r.realization_photos?.filter((p) => p.id !== photo.id),
+                                        }
+                                      : r
+                                  )
+                                )
+                              }
+                            }}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    <label
+                      className={`aspect-video rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors ${uploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-black/5'}`}
+                      style={{ borderColor: 'var(--border)' }}
+                    >
                       {uploading ? (
                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-amber-500 border-t-transparent" />
                       ) : (
                         <>
                           <Plus size={20} style={{ color: 'var(--text-muted)' }} />
-                          <span className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--text-muted)' }}>PŘIDAT</span>
+                          <span className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--text-muted)' }}>
+                            PŘIDAT
+                          </span>
                         </>
                       )}
-                      <input 
-                        type="file" 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        className="hidden"
                         accept="image/*"
                         disabled={uploading}
                         onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          
-                          setUploading(true);
+                          const file = e.target.files?.[0]
+                          if (!file) return
+
+                          setUploading(true)
                           try {
-                            const { uploadRealizationPhoto } = unwrapActions(await import('./actions'));
-                            const formData = new FormData();
-                            formData.append('file', file);
-                            const url = await uploadRealizationPhoto(editingId, formData);
-                            
+                            const { uploadRealizationPhoto } = unwrapActions(await import('./actions'))
+                            const formData = new FormData()
+                            formData.append('file', file)
+                            const url = await uploadRealizationPhoto(editingId, formData)
+
                             // Update local state for immediate feedback
-                            setRealizations(prev => prev.map(r => r.id === editingId ? {
-                              ...r,
-                              realization_photos: [
-                                ...(r.realization_photos || []),
-                                { id: Math.random().toString(), url, caption: null, order_index: (r.realization_photos?.length || 0) }
-                              ]
-                            } : r));
-                            
-                            toast.success('Fotka nahrána');
+                            setRealizations((prev) =>
+                              prev.map((r) =>
+                                r.id === editingId
+                                  ? {
+                                      ...r,
+                                      realization_photos: [
+                                        ...(r.realization_photos || []),
+                                        {
+                                          id: Math.random().toString(),
+                                          url,
+                                          caption: null,
+                                          order_index: r.realization_photos?.length || 0,
+                                        },
+                                      ],
+                                    }
+                                  : r
+                              )
+                            )
+
+                            toast.success('Fotka nahrána')
                           } catch (err) {
-                            toast.error('Nahrávání selhalo: ' + errorMessage(err));
+                            toast.error('Nahrávání selhalo: ' + errorMessage(err))
                           } finally {
-                            setUploading(false);
+                            setUploading(false)
                           }
                         }}
                       />
@@ -454,19 +526,36 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
 
       {/* Delete Confirm */}
       {deleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center p-4 z-50" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="w-full max-w-sm rounded-2xl p-6 animate-fade-in" style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4 z-50"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl p-6 animate-fade-in"
+            style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
+          >
             <div className="flex items-center gap-3 mb-4">
-              <div className="rounded-full flex items-center justify-center" style={{ width: 44, height: 44, background: '#fef2f2' }}>
+              <div
+                className="rounded-full flex items-center justify-center"
+                style={{ width: 44, height: 44, background: '#fef2f2' }}
+              >
                 <AlertTriangle size={22} style={{ color: '#ef4444' }} />
               </div>
               <div>
-                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Smazat realizaci?</h3>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Smaže se i všechny fotky</p>
+                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
+                  Smazat realizaci?
+                </h3>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  Smaže se i všechny fotky
+                </p>
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold" style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+              >
                 Zrušit
               </button>
               <button

@@ -31,18 +31,21 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
   const [savingSection, setSavingSection] = useState(false)
   const [savingSteps, setSavingSteps] = useState(false)
   const [editingStep, setEditingStep] = useState<string | null>(null)
-  
+
   const supabase = createClient()
 
   const handleSaveSection = async () => {
     setSavingSection(true)
     try {
-      const { error } = await supabase.from('site_sections').upsert({
-        section_key: 'how_it_works',
-        title: section.title,
-        subtitle: section.subtitle,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'section_key' })
+      const { error } = await supabase.from('site_sections').upsert(
+        {
+          section_key: 'how_it_works',
+          title: section.title,
+          subtitle: section.subtitle,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'section_key' }
+      )
 
       if (error) throw error
       toast.success('Hlavička sekce uložena')
@@ -61,7 +64,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
       title: 'Nový krok',
       description: '',
       icon: 'ArrowRight',
-      order_index: steps.length
+      order_index: steps.length,
     }
     setSteps([...steps, newStep])
     setEditingStep(newStep.id)
@@ -69,7 +72,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
 
   const handleDeleteStep = async (id: string) => {
     if (id.startsWith('new-')) {
-      setSteps(steps.filter(s => s.id !== id))
+      setSteps(steps.filter((s) => s.id !== id))
       return
     }
 
@@ -78,7 +81,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
     try {
       const { error } = await supabase.from('how_it_works_steps').delete().eq('id', id)
       if (error) throw error
-      setSteps(steps.filter(s => s.id !== id))
+      setSteps(steps.filter((s) => s.id !== id))
       toast.success('Krok smazán')
     } catch (err) {
       toast.error('Nepodařilo se smazat krok')
@@ -93,7 +96,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
       const stepsToSave = steps.map((s, idx) => ({
         ...s,
         id: s.id.startsWith('new-') ? undefined : s.id,
-        order_index: idx
+        order_index: idx,
       }))
 
       for (const step of stepsToSave) {
@@ -120,7 +123,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
     const newSteps = [...steps]
     const targetIdx = direction === 'up' ? idx - 1 : idx + 1
     if (targetIdx < 0 || targetIdx >= steps.length) return
-    
+
     const [moved] = newSteps.splice(idx, 1)
     newSteps.splice(targetIdx, 0, moved)
     setSteps(newSteps)
@@ -129,14 +132,19 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
   return (
     <div className="space-y-8 pb-20">
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Jak to funguje</h1>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          Jak to funguje
+        </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
           Upravte hlavní nadpis a jednotlivé kroky procesu, který se zobrazuje v sekci „Jak to funguje“.
         </p>
       </div>
 
       {/* 1. Section Header Editor */}
-      <div className="rounded-2xl p-6 shadow-sm border" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+      <div
+        className="rounded-2xl p-6 shadow-sm border"
+        style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+      >
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
             <Layout size={20} />
@@ -168,7 +176,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
             />
           </div>
         </div>
-        
+
         <div className="flex justify-end mt-6">
           <button
             onClick={handleSaveSection}
@@ -210,14 +218,25 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
             <div
               key={step.id}
               className="group rounded-2xl border shadow-sm overflow-hidden transition-all"
-              style={{ background: 'var(--bg-surface)', borderColor: editingStep === step.id ? 'var(--brand-primary)' : 'var(--border)' }}
+              style={{
+                background: 'var(--bg-surface)',
+                borderColor: editingStep === step.id ? 'var(--brand-primary)' : 'var(--border)',
+              }}
             >
-              <div className="flex items-center p-4 bg-slate-50/50 border-b transition-colors group-hover:bg-slate-50" style={{ borderColor: 'var(--border)' }}>
+              <div
+                className="flex items-center p-4 bg-slate-50/50 border-b transition-colors group-hover:bg-slate-50"
+                style={{ borderColor: 'var(--border)' }}
+              >
                 <div className="flex items-center gap-4 flex-1">
-                  <div className="w-10 h-10 rounded-xl bg-white border flex items-center justify-center font-bold text-amber-600 shadow-sm" style={{ borderColor: 'var(--border)' }}>
+                  <div
+                    className="w-10 h-10 rounded-xl bg-white border flex items-center justify-center font-bold text-amber-600 shadow-sm"
+                    style={{ borderColor: 'var(--border)' }}
+                  >
                     {step.step_number}
                   </div>
-                  <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{step.title || 'Nový krok'}</h3>
+                  <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
+                    {step.title || 'Nový krok'}
+                  </h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex border rounded-lg overflow-hidden mr-2" style={{ borderColor: 'var(--border)' }}>
@@ -267,7 +286,11 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
                           setSteps(newSteps)
                         }}
                         className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-amber-500/20 outline-none transition-all font-medium text-sm"
-                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                        style={{
+                          background: 'var(--bg-base)',
+                          borderColor: 'var(--border)',
+                          color: 'var(--text-primary)',
+                        }}
                         placeholder="Např. 01"
                       />
                     </div>
@@ -282,7 +305,11 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
                           setSteps(newSteps)
                         }}
                         className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-amber-500/20 outline-none transition-all font-medium text-sm"
-                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                        style={{
+                          background: 'var(--bg-base)',
+                          borderColor: 'var(--border)',
+                          color: 'var(--text-primary)',
+                        }}
                         placeholder="Např. Kontaktujte nás"
                       />
                     </div>
@@ -300,7 +327,11 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
                           setSteps(newSteps)
                         }}
                         className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-amber-500/20 outline-none transition-all font-medium text-sm"
-                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                        style={{
+                          background: 'var(--bg-base)',
+                          borderColor: 'var(--border)',
+                          color: 'var(--text-primary)',
+                        }}
                         placeholder="Phone, ClipboardCheck, ShieldCheck..."
                       />
                       <p className="text-[10px] text-slate-400 mt-1 italic flex items-center gap-1">
@@ -325,10 +356,16 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
           ))}
 
           {steps.length === 0 && (
-            <div className="text-center py-20 rounded-3xl border-2 border-dashed bg-slate-50/50" style={{ borderColor: 'var(--border)' }}>
+            <div
+              className="text-center py-20 rounded-3xl border-2 border-dashed bg-slate-50/50"
+              style={{ borderColor: 'var(--border)' }}
+            >
               <Brain size={48} className="mx-auto mb-4 opacity-10" />
               <p className="text-slate-400 font-bold">Zatím nebyly přidány žádné kroky.</p>
-              <button onClick={handleAddStep} className="mt-4 text-amber-500 font-black uppercase text-xs tracking-widest hover:underline">
+              <button
+                onClick={handleAddStep}
+                className="mt-4 text-amber-500 font-black uppercase text-xs tracking-widest hover:underline"
+              >
                 + Přidat první krok
               </button>
             </div>

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 export function useCarousel(speed = 0, scrollAmount = 350) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -22,8 +22,8 @@ export function useCarousel(speed = 0, scrollAmount = 350) {
     if (!scrollContainer) return;
 
     checkScroll();
-    scrollContainer.addEventListener('scroll', checkScroll);
-    
+    scrollContainer.addEventListener("scroll", checkScroll);
+
     // Pro zachycení změny velikosti okna
     const observer = new ResizeObserver(checkScroll);
     observer.observe(scrollContainer);
@@ -34,14 +34,14 @@ export function useCarousel(speed = 0, scrollAmount = 350) {
     if (speed > 0) {
       let exactScroll = scrollContainer.scrollLeft;
       let currentDirection = 1; // 1 pro pohyb doprava, -1 pro pohyb doleva
-      
+
       const scroll = () => {
         if (!isHovered && scrollContainer && !isManualScrolling.current) {
           exactScroll += speed * currentDirection;
           scrollContainer.scrollLeft = exactScroll;
-          
+
           const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-          
+
           // Ping-pong logika: Pokud dojedeme na konec, otočíme směr
           if (maxScroll > 10) {
             // Použijeme < 1 místo <= 1, aby se to nezasekávalo kvůli zaokrouhlení
@@ -60,29 +60,33 @@ export function useCarousel(speed = 0, scrollAmount = 350) {
       animationFrameId = requestAnimationFrame(scroll);
     }
 
-    const handleMouseEnter = () => { isHovered = true; };
-    const handleMouseLeave = () => { isHovered = false; };
+    const handleMouseEnter = () => {
+      isHovered = true;
+    };
+    const handleMouseLeave = () => {
+      isHovered = false;
+    };
 
-    scrollContainer.addEventListener('mouseenter', handleMouseEnter);
-    scrollContainer.addEventListener('mouseleave', handleMouseLeave);
+    scrollContainer.addEventListener("mouseenter", handleMouseEnter);
+    scrollContainer.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
       if (speed > 0) cancelAnimationFrame(animationFrameId);
-      scrollContainer.removeEventListener('scroll', checkScroll);
-      scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
-      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
+      scrollContainer.removeEventListener("scroll", checkScroll);
+      scrollContainer.removeEventListener("mouseenter", handleMouseEnter);
+      scrollContainer.removeEventListener("mouseleave", handleMouseLeave);
       observer.disconnect();
       if (manualScrollTimeout.current) clearTimeout(manualScrollTimeout.current);
     };
   }, [speed]);
 
-  const scrollByAmount = (direction: 'left' | 'right') => {
+  const scrollByAmount = (direction: "left" | "right") => {
     if (scrollRef.current) {
       isManualScrolling.current = true;
       if (manualScrollTimeout.current) clearTimeout(manualScrollTimeout.current);
-      
-      const amount = direction === 'left' ? -scrollAmount : scrollAmount;
-      scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+
+      const amount = direction === "left" ? -scrollAmount : scrollAmount;
+      scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
 
       manualScrollTimeout.current = setTimeout(() => {
         isManualScrolling.current = false;

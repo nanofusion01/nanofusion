@@ -8,7 +8,8 @@ import { TiptapEditor } from '@/components/admin/editor'
 import { unwrapActions } from '@/lib/action-result'
 import { errorMessage } from '@/lib/utils'
 
-const { saveKnowledge, deleteKnowledge, toggleKnowledgeActive, uploadBotDocument, setBotEnabledStatus } = unwrapActions(actionsRaw)
+const { saveKnowledge, deleteKnowledge, toggleKnowledgeActive, uploadBotDocument, setBotEnabledStatus } =
+  unwrapActions(actionsRaw)
 
 interface Knowledge {
   id: string
@@ -19,7 +20,13 @@ interface Knowledge {
   created_at: string
 }
 
-export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { initialKnowledge: Knowledge[], initialBotEnabled: boolean }) {
+export function BotTrainingClient({
+  initialKnowledge,
+  initialBotEnabled,
+}: {
+  initialKnowledge: Knowledge[]
+  initialBotEnabled: boolean
+}) {
   const [knowledge, setKnowledge] = useState<Knowledge[]>(initialKnowledge)
   const [botEnabled, setBotEnabled] = useState<boolean>(initialBotEnabled)
   const [isTogglingBot, setIsTogglingBot] = useState(false)
@@ -28,7 +35,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    category: 'obecné'
+    category: 'obecné',
   })
 
   const handleToggleBot = async () => {
@@ -50,7 +57,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
     try {
       const dataToSave = {
         ...formData,
-        id: isEditing || undefined
+        id: isEditing || undefined,
       }
       await saveKnowledge(dataToSave)
       toast.success(isEditing ? 'Znalost byla aktualizována' : 'Nová znalost byla přidána')
@@ -70,7 +77,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
 
     setIsUploading(true)
     const toastId = toast.loading('Čtu PDF a učím Nanobota...')
-    
+
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -89,7 +96,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
     if (!confirm('Opravdu chcete tuto znalost smazat?')) return
     try {
       await deleteKnowledge(id)
-      setKnowledge(knowledge.filter(k => k.id !== id))
+      setKnowledge(knowledge.filter((k) => k.id !== id))
       toast.success('Smazáno')
     } catch {
       toast.error('Chyba při mazání')
@@ -99,7 +106,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
   const handleToggle = async (id: string, current: boolean) => {
     try {
       await toggleKnowledgeActive(id, !current)
-      setKnowledge(knowledge.map(k => k.id === id ? { ...k, is_active: !current } : k))
+      setKnowledge(knowledge.map((k) => (k.id === id ? { ...k, is_active: !current } : k)))
       toast.success(current ? 'Deaktivováno' : 'Aktivováno')
     } catch {
       toast.error('Chyba při změně stavu')
@@ -121,34 +128,38 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
             <Brain className="text-amber-500" size={32} />
             Trénink Nanobota
           </h1>
-          <p className="text-slate-500 mt-2">
-            Naučte AI asistenta fakta o vaší firmě, službách a cenách.
-          </p>
+          <p className="text-slate-500 mt-2">Naučte AI asistenta fakta o vaší firmě, službách a cenách.</p>
         </div>
       </div>
 
       {/* Bot Auto-Pop Status & Activation Card */}
-      <div className={`rounded-3xl p-6 border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
-        botEnabled 
-          ? 'bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 text-white border-emerald-500/30 shadow-xl shadow-emerald-950/20'
-          : 'bg-slate-900 text-white border-slate-800 shadow-xl'
-      }`}>
+      <div
+        className={`rounded-3xl p-6 border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
+          botEnabled
+            ? 'bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 text-white border-emerald-500/30 shadow-xl shadow-emerald-950/20'
+            : 'bg-slate-900 text-white border-slate-800 shadow-xl'
+        }`}
+      >
         <div className="flex items-start gap-4">
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all ${
-            botEnabled 
-              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' 
-              : 'bg-slate-800 text-slate-400 border border-slate-700'
-          }`}>
+          <div
+            className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all ${
+              botEnabled
+                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                : 'bg-slate-800 text-slate-400 border border-slate-700'
+            }`}
+          >
             <Bot size={28} />
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h3 className="font-bold text-xl text-white">Automatické vyskakovací okno Nanobota</h3>
-              <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                botEnabled 
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
-                  : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-              }`}>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                  botEnabled
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                }`}
+              >
                 {botEnabled ? '● Auto-Pop Zapnuto' : '○ Auto-Pop Vypnuto (Pouze ikona)'}
               </span>
             </div>
@@ -170,11 +181,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
               : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black shadow-emerald-500/30 border border-emerald-300/50'
           }`}
         >
-          {isTogglingBot ? (
-            <Loader2 className="animate-spin" size={20} />
-          ) : (
-            <Power size={20} />
-          )}
+          {isTogglingBot ? <Loader2 className="animate-spin" size={20} /> : <Power size={20} />}
           <span>{botEnabled ? 'Vypnout automatické pop-up okno' : 'Zapnout automatické pop-up okno'}</span>
         </button>
       </div>
@@ -205,7 +212,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
                 placeholder="Např. O firmě NANOfusion"
                 className="w-full px-5 py-3 rounded-xl border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
                 value={formData.title}
-                onChange={e => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -213,7 +220,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
               <select
                 className="w-full px-5 py-3 rounded-xl border border-slate-200 focus:border-amber-500 outline-none transition-all appearance-none bg-white"
                 value={formData.category}
-                onChange={e => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               >
                 <option value="obecné">Obecné</option>
                 <option value="služby">Služby</option>
@@ -236,7 +243,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
                 </span>
               )}
             </div>
-            
+
             {formData.category === 'předdefinované' ? (
               <textarea
                 value={formData.content}
@@ -246,12 +253,12 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
                 style={{ background: 'var(--bg-surface-2)' }}
               />
             ) : (
-              <TiptapEditor 
-                content={formData.content} 
-                onChange={(html) => setFormData({ ...formData, content: html })} 
+              <TiptapEditor
+                content={formData.content}
+                onChange={(html) => setFormData({ ...formData, content: html })}
               />
             )}
-            
+
             {formData.category === 'předdefinované' && (
               <p className="text-[11px] text-slate-400 italic">
                 * Pro tuto kategorii nepoužívejte formátování, bot pošle přesně to, co napíšete.
@@ -290,20 +297,23 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <FileUp size={120} className="text-white" />
         </div>
-        
+
         <div className="relative z-10">
           <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
             <FileUp className="text-amber-500" size={24} />
             Hromadné učení z dokumentů
           </h3>
           <p className="text-slate-400 mb-6 max-w-xl">
-            Nahrajte ceníky, technické listy nebo obchodní podmínky v PDF. Nanobot si je sám přečte a naučí se z nich odpovídat.
+            Nahrajte ceníky, technické listy nebo obchodní podmínky v PDF. Nanobot si je sám přečte a naučí se z nich
+            odpovídat.
           </p>
-          
-          <label className={`
+
+          <label
+            className={`
             inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all cursor-pointer
             ${isUploading ? 'bg-slate-800 text-slate-500 pointer-events-none' : 'bg-white text-slate-900 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-white/5'}
-          `}>
+          `}
+          >
             {isUploading ? (
               <>
                 <Loader2 size={20} className="animate-spin" />
@@ -315,13 +325,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
                 Vybrat PDF soubor
               </>
             )}
-            <input 
-              type="file" 
-              className="hidden" 
-              accept=".pdf" 
-              onChange={handleFileUpload} 
-              disabled={isUploading}
-            />
+            <input type="file" className="hidden" accept=".pdf" onChange={handleFileUpload} disabled={isUploading} />
           </label>
         </div>
       </div>
@@ -332,12 +336,14 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
         <div className="grid grid-cols-1 gap-4">
           {knowledge.length === 0 ? (
             <div className="bg-slate-50 border border-dashed border-slate-200 rounded-3xl p-12 text-center">
-              <p className="text-slate-400 font-medium text-lg">Zatím jste bota nic nenaučili. Začněte přidáním prvního bloku informací výše.</p>
+              <p className="text-slate-400 font-medium text-lg">
+                Zatím jste bota nic nenaučili. Začněte přidáním prvního bloku informací výše.
+              </p>
             </div>
           ) : (
-            knowledge.map(k => (
-              <div 
-                key={k.id} 
+            knowledge.map((k) => (
+              <div
+                key={k.id}
                 className="bg-white p-6 rounded-3xl border border-slate-100 flex items-start justify-between gap-6 transition-all hover:shadow-md group"
               >
                 <div className="flex-1 min-w-0">
@@ -360,13 +366,13 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
                   >
                     {k.is_active ? 'Aktivní' : 'Vypnuto'}
                   </button>
-                  <button 
+                  <button
                     onClick={() => startEdit(k)}
                     className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition-all"
                   >
                     <Edit2 size={18} />
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDelete(k.id)}
                     className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
                   >

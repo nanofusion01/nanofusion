@@ -14,8 +14,7 @@ import { getSiteStats } from "@/lib/site-stats";
 import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title:
-    "NANOfusion | Čištění a nano-ochrana střech, fasád a dlažeb",
+  title: "NANOfusion | Čištění a nano-ochrana střech, fasád a dlažeb",
   description:
     "Specialisté na profesionální čištění a dlouhodobou nano-ochranu střech, fasád, dlažeb a fotovoltaiky. Více než 950 realizovaných projektů s garancí až 10 let.",
   alternates: {
@@ -53,10 +52,10 @@ export default async function Home() {
   // ta je prázdná, takže se sem donedávna nikdy nic reálného nedostalo a
   // homepage vždycky padala na natvrdo napsaný fallback v Reviews.tsx.
   const { data: externalReviews } = await supabase
-    .from('external_reviews')
-    .select('*')
-    .eq('approved', true)
-    .order('published_at', { ascending: false });
+    .from("external_reviews")
+    .select("*")
+    .eq("approved", true)
+    .order("published_at", { ascending: false });
 
   const siteStats = await getSiteStats();
   const reviews = (externalReviews || []).map((r) => ({
@@ -65,11 +64,11 @@ export default async function Home() {
     text: r.content,
     rating: r.rating,
     // štítek podle skutečného zdroje - ručně zadané recenze nejsou „ověřené“ portálem
-    source: r.source?.toLowerCase().includes('google')
-      ? 'Ověřeno na Google'
-      : r.source?.toLowerCase().includes('firmy')
-        ? 'Ověřeno na Firmy.cz'
-        : 'Recenze zákazníka',
+    source: r.source?.toLowerCase().includes("google")
+      ? "Ověřeno na Google"
+      : r.source?.toLowerCase().includes("firmy")
+        ? "Ověřeno na Firmy.cz"
+        : "Recenze zákazníka",
   }));
 
   return (

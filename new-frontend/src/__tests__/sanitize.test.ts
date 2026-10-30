@@ -23,7 +23,7 @@ describe("HTML Sanitization (DOMPurify)", () => {
   });
 
   it("neutralizes svg onload attacks", () => {
-    const dirty = '<svg/onload=alert(document.cookie)>';
+    const dirty = "<svg/onload=alert(document.cookie)>";
     const cleaned = sanitizeHtml(dirty);
     expect(cleaned).not.toContain("onload");
     expect(cleaned).not.toContain("alert");
@@ -36,7 +36,7 @@ describe("HTML Sanitization (DOMPurify)", () => {
   });
 
   it("neutralizes nested and malformed script tags", () => {
-    const dirty = '<scr<script>ipt>alert(1)</script>';
+    const dirty = "<scr<script>ipt>alert(1)</script>";
     const cleaned = sanitizeHtml(dirty);
     expect(cleaned).not.toContain("<script>");
     expect(cleaned).not.toContain("</script>");

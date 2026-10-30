@@ -5,15 +5,18 @@ import type { Stat, Certificate } from "@/lib/types";
 
 async function getConfig() {
   const { data } = await supabase.from("site_config").select("key, value");
-  return (data || []).reduce((acc, item) => {
-    acc[item.key] = item.value;
-    return acc;
-  }, {} as Record<string, string>);
+  return (data || []).reduce(
+    (acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 }
 
 function AboutStory({ description }: { description: string }) {
   return (
-    <div 
+    <div
       className="prose prose-slate lg:prose-lg max-w-none text-slate-600 space-y-6"
       dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
     />
@@ -23,7 +26,7 @@ function AboutStory({ description }: { description: string }) {
 function AboutStats({ statsRaw }: { statsRaw: string }) {
   let stats: Stat[] = [];
   try {
-    stats = JSON.parse(statsRaw || '[]');
+    stats = JSON.parse(statsRaw || "[]");
   } catch {
     stats = [];
   }
@@ -42,10 +45,10 @@ function AboutStats({ statsRaw }: { statsRaw: string }) {
   );
 }
 
-function AboutCertifications({ title, subtitle, certsRaw }: { title: string, subtitle: string, certsRaw: string }) {
+function AboutCertifications({ title, subtitle, certsRaw }: { title: string; subtitle: string; certsRaw: string }) {
   let certs: Certificate[] = [];
   try {
-    certs = JSON.parse(certsRaw || '[]');
+    certs = JSON.parse(certsRaw || "[]");
   } catch {
     certs = [];
   }
@@ -71,10 +74,10 @@ function AboutCertifications({ title, subtitle, certsRaw }: { title: string, sub
   );
 }
 
-function AboutWhyUs({ title, pointsRaw }: { title: string, pointsRaw: string }) {
+function AboutWhyUs({ title, pointsRaw }: { title: string; pointsRaw: string }) {
   let points: string[] = [];
   try {
-    points = JSON.parse(pointsRaw || '[]');
+    points = JSON.parse(pointsRaw || "[]");
   } catch {
     points = [];
   }
@@ -119,10 +122,7 @@ export async function About() {
   return (
     <section id="o-nas" className="py-12 md:py-16 bg-slate-50 font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader 
-          title={title}
-          subtitle={subtitle}
-        />
+        <SectionHeader title={title} subtitle={subtitle} />
 
         <AboutStory description={description} />
         <AboutStats statsRaw={statsRaw} />

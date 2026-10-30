@@ -5,7 +5,15 @@ import { sanitizeHtml } from "@/lib/sanitize";
 export type ProcessStepItem = { id?: string; step?: string; title: string; desc?: string; description?: string };
 
 /** Postup práce krok za krokem. */
-export function ServiceProcess({ serviceName, steps, processNote }: { serviceName: string; steps: ProcessStepItem[]; processNote?: string }) {
+export function ServiceProcess({
+  serviceName,
+  steps,
+  processNote,
+}: {
+  serviceName: string;
+  steps: ProcessStepItem[];
+  processNote?: string;
+}) {
   if (!steps || steps.length === 0) return null;
 
   const count = steps.length;
@@ -15,9 +23,7 @@ export function ServiceProcess({ serviceName, steps, processNote }: { serviceNam
     <section className="py-20 bg-slate-50">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-black text-amber-500">
-            Jak čištění probíhá
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-black text-amber-500">Jak čištění probíhá</h2>
         </div>
 
         {/* Vždy v jednom řádku na větších obrazovkách */}
@@ -36,9 +42,7 @@ export function ServiceProcess({ serviceName, steps, processNote }: { serviceNam
               >
                 {String(idx + 1).padStart(2, "0")}
               </div>
-              <h3 className={`font-bold text-slate-900 mb-3 ${isCompact ? "text-lg" : "text-xl"}`}>
-                {step.title}
-              </h3>
+              <h3 className={`font-bold text-slate-900 mb-3 ${isCompact ? "text-lg" : "text-xl"}`}>{step.title}</h3>
               <p className={`text-slate-600 leading-relaxed ${isCompact ? "text-sm" : "text-base"}`}>
                 {step.desc ?? step.description}
               </p>
@@ -51,9 +55,21 @@ export function ServiceProcess({ serviceName, steps, processNote }: { serviceNam
             <Clock className="w-6 h-6 text-amber-500 shrink-0" />
             <span className="text-lg font-medium text-slate-800">
               {processNote ? (
-                <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(processNote.replace(/\d+\s*(?:až|do|a)?\s*\d*\s*(?:dny|dní|hodiny|hodin|den)/g, (match) => `<strong class="text-amber-500">${match}</strong>`)) }} />
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(
+                      processNote.replace(
+                        /\d+\s*(?:až|do|a)?\s*\d*\s*(?:dny|dní|hodiny|hodin|den)/g,
+                        (match) => `<strong class="text-amber-500">${match}</strong>`
+                      )
+                    ),
+                  }}
+                />
               ) : (
-                <>Čištění a ochranu {serviceName.toLowerCase().includes("střech") ? "střechy" : "povrchu"} stihneme za <strong className="text-amber-500">1 až 2 pracovní dny</strong></>
+                <>
+                  Čištění a ochranu {serviceName.toLowerCase().includes("střech") ? "střechy" : "povrchu"} stihneme za{" "}
+                  <strong className="text-amber-500">1 až 2 pracovní dny</strong>
+                </>
               )}
             </span>
           </div>

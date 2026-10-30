@@ -2,10 +2,13 @@ import { supabase } from "@/lib/supabase";
 
 async function getConfig() {
   const { data } = await supabase.from("site_config").select("key, value");
-  return (data || []).reduce((acc, item) => {
-    acc[item.key] = item.value;
-    return acc;
-  }, {} as Record<string, string>);
+  return (data || []).reduce(
+    (acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 }
 
 const TopBar = async () => {

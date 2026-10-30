@@ -76,10 +76,7 @@ function LoginForm() {
       style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
     >
       {/* Background decoration */}
-      <div
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        aria-hidden="true"
-      >
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div
           className="absolute rounded-full blur-3xl opacity-10"
           style={{
@@ -112,10 +109,7 @@ function LoginForm() {
           }}
         >
           {/* Header */}
-          <div
-            className="px-8 pt-10 pb-8 text-center"
-            style={{ borderBottom: '1px solid var(--border)' }}
-          >
+          <div className="px-8 pt-10 pb-8 text-center" style={{ borderBottom: '1px solid var(--border)' }}>
             <div
               className="mx-auto mb-5 flex items-center justify-center rounded-2xl"
               style={{
@@ -262,13 +256,7 @@ function LoginForm() {
             >
               {loading ? (
                 <>
-                  <svg
-                    className="animate-spin"
-                    width={18}
-                    height={18}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
+                  <svg className="animate-spin" width={18} height={18} viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
                     <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
                   </svg>
@@ -284,9 +272,7 @@ function LoginForm() {
           </form>
 
           {/* Footer */}
-          <div
-            className="px-8 pb-8 text-center"
-          >
+          <div className="px-8 pb-8 text-center">
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               © 2025 NANOfusion International s.r.o.
               <br />
@@ -301,11 +287,11 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#0f172a] text-white">
-        Načítání...
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#0f172a] text-white">Načítání...</div>
+      }
+    >
       <LoginForm />
     </Suspense>
   )

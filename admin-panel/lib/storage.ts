@@ -15,9 +15,9 @@ export async function uploadFile(
 
   if (error) throw new Error(`Storage upload failed: ${error.message}`)
 
-  const { data: { publicUrl } } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(data.path)
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(bucket).getPublicUrl(data.path)
 
   return publicUrl
 }

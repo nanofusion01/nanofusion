@@ -27,31 +27,27 @@ export function InquiriesTable({
   onDelete: (id: string) => void
 }) {
   return (
-      <div
-        className="rounded-xl overflow-hidden"
-        style={{ border: filtered.length > 0 ? '1px solid var(--border)' : 'none' }}
-      >
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white rounded-xl border border-dashed">
-            <ClipboardList size={44} style={{ color: 'var(--text-muted)' }} />
-            <p className="font-medium" style={{ color: 'var(--text-secondary)' }}>
-              Žádné poptávky nenalezeny
-            </p>
-            {search && (
-              <button
-                onClick={onClearSearch}
-                className="text-sm"
-                style={{ color: 'var(--brand-primary)' }}
-              >
-                Vymazat hledání
-              </button>
-            )}
-          </div>
-        ) : (
-          <>
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto bg-white">
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{ border: filtered.length > 0 ? '1px solid var(--border)' : 'none' }}
+    >
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white rounded-xl border border-dashed">
+          <ClipboardList size={44} style={{ color: 'var(--text-muted)' }} />
+          <p className="font-medium" style={{ color: 'var(--text-secondary)' }}>
+            Žádné poptávky nenalezeny
+          </p>
+          {search && (
+            <button onClick={onClearSearch} className="text-sm" style={{ color: 'var(--brand-primary)' }}>
+              Vymazat hledání
+            </button>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto bg-white">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-base)' }}>
                   <th className="px-5 py-3" style={{ width: 20 }}>
@@ -82,10 +78,7 @@ export function InquiriesTable({
                       key={inq.id}
                       className="transition-colors duration-100"
                       style={{
-                        borderBottom:
-                          i < filtered.length - 1
-                            ? '1px solid var(--border)'
-                            : undefined,
+                        borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : undefined,
                         cursor: 'pointer',
                       }}
                       onClick={() => onOpen(inq)}
@@ -126,7 +119,7 @@ export function InquiriesTable({
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-xs font-medium px-2 py-1 rounded-md bg-slate-100 text-slate-600">
-                             {inquirySourceLabel(inq.source)}
+                            {inquirySourceLabel(inq.source)}
                           </span>
                           {inq.original_photo_url && (
                             <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 flex items-center gap-1">
@@ -144,10 +137,7 @@ export function InquiriesTable({
                         </span>
                       </td>
                       <td className="px-5 py-4">
-                        <div
-                          className="flex gap-2"
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => onOpen(inq)}
                             className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
@@ -186,7 +176,7 @@ export function InquiriesTable({
               const st = inq.status as string
               const colors = STATUS_COLORS[st] || STATUS_COLORS['new']
               return (
-                <div 
+                <div
                   key={inq.id}
                   onClick={() => onOpen(inq)}
                   className="p-4 rounded-xl space-y-3 bg-white shadow-sm border border-slate-100"
@@ -218,8 +208,8 @@ export function InquiriesTable({
                   </div>
                   <div className="pt-2 flex justify-between items-center border-t border-slate-50">
                     <div className="flex gap-2">
-                       {inq.phone && <Phone size={14} className="text-slate-400" />}
-                       {inq.email && <Mail size={14} className="text-slate-400" />}
+                      {inq.phone && <Phone size={14} className="text-slate-400" />}
+                      {inq.email && <Mail size={14} className="text-slate-400" />}
                     </div>
                     <ChevronRight size={16} className="text-slate-300" />
                   </div>
@@ -227,8 +217,8 @@ export function InquiriesTable({
               )
             })}
           </div>
-          </>
-        )}
-      </div>
+        </>
+      )}
+    </div>
   )
 }

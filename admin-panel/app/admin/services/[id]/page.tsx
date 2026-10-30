@@ -5,33 +5,29 @@ import { ServiceDetailClient } from './service-detail-client'
 export default async function ServiceDetailPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params
   const supabase = await createClient()
-  
+
   const [
     { data: service },
     { data: beforeAfter },
     { data: galleryPhotos },
     { data: serviceReviews },
-    { data: externalReviews }
+    { data: externalReviews },
   ] = await Promise.all([
     supabase.from('services').select('*').eq('id', params.id).single(),
     supabase.from('service_before_after').select('*').eq('service_id', params.id).order('order_index'),
     supabase.from('service_gallery').select('*').eq('service_id', params.id).order('order_index'),
     supabase.from('service_reviews').select('*').eq('service_id', params.id).order('created_at', { ascending: false }),
-    supabase.from('external_reviews').select('*').eq('approved', true).order('published_at', { ascending: false })
+    supabase.from('external_reviews').select('*').eq('approved', true).order('published_at', { ascending: false }),
   ])
 
   if (!service) {
     notFound()
   }
 
-  const [
-    { data: serviceSpecificFaqs },
-    { data: globalSectionFaqs },
-    { data: processConfig }
-  ] = await Promise.all([
+  const [{ data: serviceSpecificFaqs }, { data: globalSectionFaqs }, { data: processConfig }] = await Promise.all([
     supabase.from('service_faqs').select('*').eq('service_id', params.id).order('order_index'),
     supabase.from('faqs').select('*').eq('page_section', service.slug).order('order_index'),
-    supabase.from('site_config').select('value').eq('key', `service_process_${params.id}`).maybeSingle()
+    supabase.from('site_config').select('value').eq('key', `service_process_${params.id}`).maybeSingle(),
   ])
 
   // Merge them for the client
@@ -45,9 +41,9 @@ export default async function ServiceDetailPage(props: { params: Promise<{ id: s
       answer: f.answer,
       order_index: f.order_index,
       is_active: f.is_active,
-      created_at: "",
+      created_at: '',
       is_global: true,
-    }))
+    })),
   ]
 
   let initialProcessSteps: Array<{ step: string; title: string; desc: string }> = []

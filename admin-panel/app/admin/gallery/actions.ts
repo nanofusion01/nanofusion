@@ -10,24 +10,25 @@ export async function addYoutubeItem(url: string, caption?: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const match = url.match(
-      /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
-    )
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/)
     const youtubeId = match?.[1]
     if (!youtubeId) throw new Error('Neplatná YouTube URL')
 
-    const { count } = await supabase.from('gallery_items')
-      .select('*', { count: 'exact', head: true })
+    const { count } = await supabase.from('gallery_items').select('*', { count: 'exact', head: true })
 
-    const { data, error } = await supabase.from('gallery_items').insert({
-      type: 'youtube',
-      url,
-      youtube_id: youtubeId,
-      caption: caption || null,
-      order_index: count ?? 0,
-      is_active: true,
-      album_id: null,
-    }).select().single()
+    const { data, error } = await supabase
+      .from('gallery_items')
+      .insert({
+        type: 'youtube',
+        url,
+        youtube_id: youtubeId,
+        caption: caption || null,
+        order_index: count ?? 0,
+        is_active: true,
+        album_id: null,
+      })
+      .select()
+      .single()
 
     if (error) throw new Error(error.message)
     revalidatePath('/admin/gallery')
@@ -40,17 +41,20 @@ export async function addImageItem(url: string, caption?: string) {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
 
-    const { count } = await supabase.from('gallery_items')
-      .select('*', { count: 'exact', head: true })
+    const { count } = await supabase.from('gallery_items').select('*', { count: 'exact', head: true })
 
-    const { data, error } = await supabase.from('gallery_items').insert({
-      type: 'image',
-      url,
-      caption: caption || null,
-      order_index: count ?? 0,
-      is_active: true,
-      album_id: null,
-    }).select().single()
+    const { data, error } = await supabase
+      .from('gallery_items')
+      .insert({
+        type: 'image',
+        url,
+        caption: caption || null,
+        order_index: count ?? 0,
+        is_active: true,
+        album_id: null,
+      })
+      .select()
+      .single()
 
     if (error) throw new Error(error.message)
     revalidatePath('/admin/gallery')
@@ -85,9 +89,7 @@ export async function updateGalleryCaption(id: string, caption: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('gallery_items')
-      .update({ caption })
-      .eq('id', id)
+    const { error } = await supabase.from('gallery_items').update({ caption }).eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/gallery')
   })
@@ -98,9 +100,7 @@ export async function updateGalleryOrder(updates: { id: string; order_index: num
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
     for (const { id, order_index } of updates) {
-      const { error } = await supabase.from('gallery_items')
-        .update({ order_index })
-        .eq('id', id)
+      const { error } = await supabase.from('gallery_items').update({ order_index }).eq('id', id)
       if (error) console.error(`Error updating order for ${id}:`, error.message)
     }
     revalidatePath('/admin/gallery')
@@ -111,9 +111,7 @@ export async function toggleGalleryItemActive(id: string, is_active: boolean) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('gallery_items')
-      .update({ is_active })
-      .eq('id', id)
+    const { error } = await supabase.from('gallery_items').update({ is_active }).eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/gallery')
   })
@@ -127,14 +125,17 @@ export async function createGalleryAlbum(title: string, caption?: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { count } = await supabase.from('gallery_albums')
-      .select('*', { count: 'exact', head: true })
-    const { data, error } = await supabase.from('gallery_albums').insert({
-      title,
-      caption: caption || null,
-      order_index: count ?? 0,
-      is_active: true,
-    }).select().single()
+    const { count } = await supabase.from('gallery_albums').select('*', { count: 'exact', head: true })
+    const { data, error } = await supabase
+      .from('gallery_albums')
+      .insert({
+        title,
+        caption: caption || null,
+        order_index: count ?? 0,
+        is_active: true,
+      })
+      .select()
+      .single()
     if (error) throw new Error(error.message)
     revalidatePath('/admin/gallery')
     return data
@@ -150,18 +151,23 @@ export async function uploadAlbumPhoto(albumId: string, file: FormData) {
 
     const publicUrl = await uploadFile(supabase, fileData, 'gallery', 'albums')
 
-    const { count } = await supabase.from('gallery_items')
+    const { count } = await supabase
+      .from('gallery_items')
       .select('*', { count: 'exact', head: true })
       .eq('album_id', albumId)
 
-    const { data, error } = await supabase.from('gallery_items').insert({
-      type: 'image',
-      url: publicUrl,
-      caption: (file.get('caption') as string) || null,
-      order_index: count ?? 0,
-      is_active: true,
-      album_id: albumId,
-    }).select().single()
+    const { data, error } = await supabase
+      .from('gallery_items')
+      .insert({
+        type: 'image',
+        url: publicUrl,
+        caption: (file.get('caption') as string) || null,
+        order_index: count ?? 0,
+        is_active: true,
+        album_id: albumId,
+      })
+      .select()
+      .single()
 
     if (error) throw new Error(error.message)
     revalidatePath('/admin/gallery')
@@ -184,9 +190,7 @@ export async function toggleAlbumActive(id: string, is_active: boolean) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('gallery_albums')
-      .update({ is_active })
-      .eq('id', id)
+    const { error } = await supabase.from('gallery_albums').update({ is_active }).eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/gallery')
   })

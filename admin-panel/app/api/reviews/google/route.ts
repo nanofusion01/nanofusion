@@ -48,10 +48,7 @@ export async function GET(request: Request) {
     const data = await res.json()
 
     if (data.status !== 'OK') {
-      return NextResponse.json(
-        { error: `Google Places API: ${data.error_message || data.status}` },
-        { status: 502 }
-      )
+      return NextResponse.json({ error: `Google Places API: ${data.error_message || data.status}` }, { status: 502 })
     }
 
     const googleReviews: GooglePlaceReview[] = data.result?.reviews || []
@@ -93,9 +90,10 @@ export async function GET(request: Request) {
       total_on_google: data.result?.user_ratings_total,
       found: googleReviews.length,
       imported,
-      note: imported > 0
-        ? `${imported} nových Google recenzí importováno a ihned zveřejněno`
-        : 'Žádné nové Google recenze (vše již importováno)',
+      note:
+        imported > 0
+          ? `${imported} nových Google recenzí importováno a ihned zveřejněno`
+          : 'Žádné nové Google recenze (vše již importováno)',
     })
   } catch (error) {
     return NextResponse.json({ error: 'Sync selhal: ' + errorMessage(error) }, { status: 500 })

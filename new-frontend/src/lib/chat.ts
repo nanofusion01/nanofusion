@@ -51,7 +51,11 @@ export function buildKnowledgeBase(
   for (const row of rows) {
     if (row.category !== "předdefinované") continue;
     kb[row.title.toLowerCase().replace(/\s/g, "_")] = {
-      keywords: row.title.toLowerCase().split(",").map((s) => s.trim()).filter(Boolean),
+      keywords: row.title
+        .toLowerCase()
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
       answer: row.content,
     };
   }
@@ -91,10 +95,7 @@ export function parseContact(input: string): { kind: "email" | "phone"; value: s
   if (value.includes("@") && value.includes(".")) return { kind: "email", value };
   const digits = value.replace(/[\s\-()+]/g, "");
   const isValidPhone =
-    /^\d{9,15}$/.test(digits) &&
-    !/^(\d)\1+$/.test(digits) &&
-    digits !== "123456789" &&
-    digits !== "987654321";
+    /^\d{9,15}$/.test(digits) && !/^(\d)\1+$/.test(digits) && digits !== "123456789" && digits !== "987654321";
   return isValidPhone ? { kind: "phone", value } : null;
 }
 

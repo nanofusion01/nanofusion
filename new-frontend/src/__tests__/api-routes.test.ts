@@ -39,7 +39,13 @@ const req = (url: string, body: unknown) =>
     headers: { "content-type": "application/json", "x-forwarded-for": "1.2.3.4" },
   });
 
-const validInquiry = { name: "Jan Novák", phone: "777 888 999", service: "Kalkulačka", source: "Kalkulačka", message: "Plocha 100 m²" };
+const validInquiry = {
+  name: "Jan Novák",
+  phone: "777 888 999",
+  service: "Kalkulačka",
+  source: "Kalkulačka",
+  message: "Plocha 100 m²",
+};
 
 beforeEach(() => {
   db.inserts = [];

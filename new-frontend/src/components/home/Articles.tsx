@@ -5,10 +5,10 @@ import { supabase } from "@/lib/supabase";
 
 async function ArticlesData() {
   const { data: articles } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('is_published', true)
-    .order('published_at', { ascending: false })
+    .from("articles")
+    .select("*")
+    .eq("is_published", true)
+    .order("published_at", { ascending: false })
     .limit(10);
 
   if (!articles || articles.length === 0) {
@@ -30,7 +30,6 @@ export function Articles() {
   return (
     <section id="blog" className="py-12 md:py-16 bg-white font-sans overflow-hidden">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        
         <SectionHeader
           title="Nano-Magazín & Tipy"
           subtitle="Sledujte rady a novinky, jak pečovat o váš dům s moderními technologiemi."
@@ -41,7 +40,6 @@ export function Articles() {
         <Suspense fallback={<LoadingSpinner />}>
           <ArticlesData />
         </Suspense>
-
       </div>
     </section>
   );

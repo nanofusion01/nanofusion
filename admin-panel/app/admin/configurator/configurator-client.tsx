@@ -32,11 +32,7 @@ interface ConfiguratorClientProps {
   initialInquiries: Inquiry[]
 }
 
-export function ConfiguratorClient({
-  initialPrices,
-  initialChatSessions,
-  initialInquiries,
-}: ConfiguratorClientProps) {
+export function ConfiguratorClient({ initialPrices, initialChatSessions, initialInquiries }: ConfiguratorClientProps) {
   const [tab, setTab] = useState<Tab>('prices')
   const [prices, setPrices] = useState<Price[]>(initialPrices)
   const [dirtyPrices, setDirtyPrices] = useState<Set<string>>(new Set())
@@ -56,16 +52,12 @@ export function ConfiguratorClient({
   const handlePriceChange = (id: string, value: string) => {
     const num = parseFloat(value)
     if (isNaN(num) && value !== '') return
-    setPrices((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, price: isNaN(num) ? null : num } : p))
-    )
+    setPrices((prev) => prev.map((p) => (p.id === id ? { ...p, price: isNaN(num) ? null : num } : p)))
     setDirtyPrices((prev) => new Set(prev).add(id))
   }
 
   const handleSaveAll = async () => {
-    const toSave = prices
-      .filter((p) => dirtyPrices.has(p.id))
-      .map((p) => ({ id: p.id, price: p.price ?? 0 }))
+    const toSave = prices.filter((p) => dirtyPrices.has(p.id)).map((p) => ({ id: p.id, price: p.price ?? 0 }))
 
     if (toSave.length === 0) {
       toast.info('Žádné změny k uložení')
@@ -116,10 +108,7 @@ export function ConfiguratorClient({
       </div>
 
       {/* Tabs */}
-      <div
-        className="flex gap-1 p-1 rounded-xl w-fit"
-        style={{ background: 'var(--bg-surface-2)' }}
-      >
+      <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
         {TAB_ITEMS.map((item) => (
           <button
             key={item.id}
@@ -140,10 +129,7 @@ export function ConfiguratorClient({
       {/* ==================== PRICES TAB ==================== */}
       {tab === 'prices' && (
         <div className="space-y-4">
-          <div
-            className="rounded-xl p-4"
-            style={{ background: '#fffbeb', border: '1px solid #fde68a' }}
-          >
+          <div className="rounded-xl p-4" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
             <p className="text-sm" style={{ color: '#92400e' }}>
               💡 Změna těchto hodnot ovlivní výpočty Nanobota a konfigurátoru na webu.
             </p>
@@ -155,13 +141,22 @@ export function ConfiguratorClient({
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--border)' }}>
-                  <th className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                  <th
+                    className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     Položka
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)', width: 200 }}>
+                  <th
+                    className="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: 'var(--text-muted)', width: 200 }}
+                  >
                     Základ (Kč/m²)
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)', width: 120 }}>
+                  <th
+                    className="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: 'var(--text-muted)', width: 120 }}
+                  >
                     Jednotka
                   </th>
                 </tr>
@@ -295,7 +290,11 @@ export function ConfiguratorClient({
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-base)' }}>
                   {['Datum', 'Klient', 'Služba', 'Stav'].map((col) => (
-                    <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                    <th
+                      key={col}
+                      className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
                       {col}
                     </th>
                   ))}
@@ -311,12 +310,21 @@ export function ConfiguratorClient({
                       {new Date(inq.created_at).toLocaleDateString('cs-CZ')}
                     </td>
                     <td className="px-5 py-4">
-                      <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{inq.name || '—'}</p>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{inq.email || inq.phone || ''}</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                        {inq.name || '—'}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                        {inq.email || inq.phone || ''}
+                      </p>
                     </td>
-                    <td className="px-5 py-4 text-sm" style={{ color: 'var(--text-secondary)' }}>{inq.service || '—'}</td>
+                    <td className="px-5 py-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      {inq.service || '—'}
+                    </td>
                     <td className="px-5 py-4">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eff6ff', color: '#2563eb' }}>
+                      <span
+                        className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                        style={{ background: '#eff6ff', color: '#2563eb' }}
+                      >
                         {STATUS_LABELS[inq.status] || inq.status}
                       </span>
                     </td>
@@ -344,7 +352,10 @@ export function ConfiguratorClient({
               flexDirection: 'column',
             }}
           >
-            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div
+              className="flex items-center justify-between px-6 py-4"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
               <div>
                 <h2 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
                   Chat: {selectedChat.user_identifier || 'Anonymní'}
@@ -353,17 +364,18 @@ export function ConfiguratorClient({
                   {new Date(selectedChat.started_at).toLocaleString('cs-CZ')}
                 </p>
               </div>
-              <button onClick={() => setSelectedChat(null)} className="p-2 rounded-lg" style={{ color: 'var(--text-muted)' }}>
+              <button
+                onClick={() => setSelectedChat(null)}
+                className="p-2 rounded-lg"
+                style={{ color: 'var(--text-muted)' }}
+              >
                 <X size={20} />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-3">
               {Array.isArray(selectedChat.messages) && selectedChat.messages.length > 0 ? (
                 (selectedChat.messages as { role: string; content: string }[]).map((msg, i) => (
-                  <div
-                    key={i}
-                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
+                  <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div
                       className="max-w-xs px-4 py-2.5 rounded-2xl text-sm"
                       style={{
@@ -376,7 +388,9 @@ export function ConfiguratorClient({
                   </div>
                 ))
               ) : (
-                <p className="text-center" style={{ color: 'var(--text-muted)' }}>Žádné zprávy</p>
+                <p className="text-center" style={{ color: 'var(--text-muted)' }}>
+                  Žádné zprávy
+                </p>
               )}
             </div>
           </div>

@@ -3,8 +3,18 @@ import { SERVICE_PRICE_KEYS, CALCULATOR_PRICE_KEY } from "../data/servicePriceKe
 
 // Klíče, které existují v tabulce configurator_prices (viz admin › Konfigurátor)
 const DB_PRICE_KEYS = [
-  "antibac", "antislip", "ceramfloor", "facade", "facade-paint", "graffiti",
-  "impregnation", "industrial", "pavement", "pv", "roof", "roof-paint",
+  "antibac",
+  "antislip",
+  "ceramfloor",
+  "facade",
+  "facade-paint",
+  "graffiti",
+  "impregnation",
+  "industrial",
+  "pavement",
+  "pv",
+  "roof",
+  "roof-paint",
 ];
 
 describe("Ceny služeb", () => {

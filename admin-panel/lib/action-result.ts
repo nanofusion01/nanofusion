@@ -7,9 +7,7 @@ import { unstable_rethrow } from 'next/navigation'
  * Akce proto chyby nevyhazují, ale vrací je jako hodnotu - a na klientu je
  * `unwrapActions()` zase převede na běžnou chybu se skutečnou zprávou.
  */
-export type ActionResult<T = void> =
-  | { ok: true; data: T }
-  | { ok: false; error: string }
+export type ActionResult<T = void> = { ok: true; data: T } | { ok: false; error: string }
 
 export async function safeAction<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
   try {
@@ -29,9 +27,7 @@ export function unwrapResult<T>(result: ActionResult<T>): T {
 }
 
 type Unwrapped<M> = {
-  [K in keyof M]: M[K] extends (...args: infer A) => Promise<ActionResult<infer T>>
-    ? (...args: A) => Promise<T>
-    : M[K]
+  [K in keyof M]: M[K] extends (...args: infer A) => Promise<ActionResult<infer T>> ? (...args: A) => Promise<T> : M[K]
 }
 
 /**

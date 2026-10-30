@@ -40,17 +40,17 @@ export function CertificatesTab({
       id: crypto.randomUUID(),
       title: 'Nový certifikát',
       description: 'Popis certifikátu...',
-      imageUrl: ''
+      imageUrl: '',
     }
     setCertificates((prev) => [newCert, ...prev])
   }
 
   const handleRemoveCert = (id: string) => {
-    setCertificates((prev) => prev.filter(c => c.id !== id))
+    setCertificates((prev) => prev.filter((c) => c.id !== id))
   }
 
   const handleCertChange = (id: string, field: keyof Certificate, value: string) => {
-    setCertificates((prev) => prev.map(c => c.id === id ? { ...c, [field]: value } : c))
+    setCertificates((prev) => prev.map((c) => (c.id === id ? { ...c, [field]: value } : c)))
   }
 
   const handleCertImageUpload = async (id: string, file: File) => {
@@ -72,18 +72,21 @@ export function CertificatesTab({
   return (
     <div className="grid grid-cols-1 gap-8">
       {/* Certificate headers */}
-      <div className="rounded-2xl p-6 shadow-sm border space-y-6" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+      <div
+        className="rounded-2xl p-6 shadow-sm border space-y-6"
+        style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+      >
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
             <Award size={20} />
           </div>
           <h2 className="text-lg font-bold">Nadpisy sekce Certifikací</h2>
         </div>
-        
+
         <div className="space-y-4">
           <div>
             <label className="text-xs font-bold uppercase text-slate-400 mb-1.5 block">Hlavní nadpis certifikací</label>
-            <input 
+            <input
               type="text"
               value={certsTitle}
               onChange={(e) => setCertsTitle(e.target.value)}
@@ -94,7 +97,7 @@ export function CertificatesTab({
 
           <div>
             <label className="text-xs font-bold uppercase text-slate-400 mb-1.5 block">Průvodní text (Popisek)</label>
-            <textarea 
+            <textarea
               value={certsSubtitle}
               onChange={(e) => setCertsSubtitle(e.target.value)}
               rows={3}
@@ -110,7 +113,9 @@ export function CertificatesTab({
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-lg font-bold">Jednotlivé certifikáty</h2>
-            <p className="text-xs text-slate-400">Přidávejte a spravujte certifikáty, které se na veřejné stránce zobrazí v mřížce.</p>
+            <p className="text-xs text-slate-400">
+              Přidávejte a spravujte certifikáty, které se na veřejné stránce zobrazí v mřížce.
+            </p>
           </div>
           <button
             onClick={handleAddCert}
@@ -122,12 +127,12 @@ export function CertificatesTab({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {certificates.map((cert) => (
-            <div 
-              key={cert.id} 
+            <div
+              key={cert.id}
               className="rounded-2xl border p-6 space-y-4 relative group transition-all hover:shadow-md"
               style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
             >
-              <button 
+              <button
                 onClick={() => handleRemoveCert(cert.id)}
                 className="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 transition-colors"
               >
@@ -138,28 +143,25 @@ export function CertificatesTab({
                 {/* Image Preview / Upload */}
                 <div className="w-32 h-40 flex-shrink-0 relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
                   {cert.imageUrl ? (
-                    <NextImage 
-                      src={cert.imageUrl} 
-                      alt={cert.title} 
-                      fill 
-                      className="object-cover"
-                    />
+                    <NextImage src={cert.imageUrl} alt={cert.title} fill className="object-cover" />
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
                       <Award size={32} />
                       <span className="text-[10px] mt-2 font-bold uppercase text-center px-2">Bez obrázku</span>
                     </div>
                   )}
-                  
+
                   <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                    <input 
-                      type="file" 
-                      className="hidden" 
+                    <input
+                      type="file"
+                      className="hidden"
                       onChange={(e) => e.target.files?.[0] && handleCertImageUpload(cert.id, e.target.files[0])}
                       accept="image/*"
                     />
                     <div className="text-white text-xs font-bold flex flex-col items-center">
-                      {uploadingId === cert.id ? 'Nahrávám...' : (
+                      {uploadingId === cert.id ? (
+                        'Nahrávám...'
+                      ) : (
                         <>
                           <ImageIcon size={20} className="mb-1" />
                           Změnit
@@ -172,23 +174,33 @@ export function CertificatesTab({
                 {/* Form Fields */}
                 <div className="flex-1 space-y-3">
                   <div>
-                    <label className="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Název certifikátu</label>
-                    <input 
+                    <label className="text-[10px] font-bold uppercase text-slate-400 mb-1 block">
+                      Název certifikátu
+                    </label>
+                    <input
                       type="text"
                       value={cert.title}
                       onChange={(e) => handleCertChange(cert.id, 'title', e.target.value)}
                       className="w-full p-2 rounded-lg border text-sm font-semibold outline-none focus:ring-1 focus:ring-amber-500/30"
-                      style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                      style={{
+                        background: 'var(--bg-base)',
+                        borderColor: 'var(--border)',
+                        color: 'var(--text-primary)',
+                      }}
                     />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Popis / Detaily</label>
-                    <textarea 
+                    <textarea
                       value={cert.description}
                       onChange={(e) => handleCertChange(cert.id, 'description', e.target.value)}
                       rows={4}
                       className="w-full p-2 rounded-lg border text-xs outline-none focus:ring-1 focus:ring-amber-500/30"
-                      style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+                      style={{
+                        background: 'var(--bg-base)',
+                        borderColor: 'var(--border)',
+                        color: 'var(--text-secondary)',
+                      }}
                     />
                   </div>
                 </div>
@@ -198,7 +210,10 @@ export function CertificatesTab({
         </div>
 
         {certificates.length === 0 && (
-          <div className="py-20 text-center border-2 border-dashed rounded-3xl" style={{ borderColor: 'var(--border)' }}>
+          <div
+            className="py-20 text-center border-2 border-dashed rounded-3xl"
+            style={{ borderColor: 'var(--border)' }}
+          >
             <Award size={48} className="mx-auto text-slate-300 mb-4" />
             <p className="text-slate-500 font-medium">Zatím nebyly přidány žádné certifikáty.</p>
           </div>
@@ -212,7 +227,9 @@ export function CertificatesTab({
           disabled={isSaving}
           className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-slate-900 text-white font-bold shadow-2xl hover:bg-black transition-all disabled:opacity-50"
         >
-          {isSaving ? 'Ukládám...' : (
+          {isSaving ? (
+            'Ukládám...'
+          ) : (
             <>
               <Save size={20} /> Uložit všechny certifikáty & nadpisy
             </>

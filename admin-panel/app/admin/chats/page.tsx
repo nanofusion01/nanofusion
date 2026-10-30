@@ -9,7 +9,10 @@ export default async function ChatsPage() {
     .select('*')
     .order('last_activity', { ascending: false })
 
-  const sessions = (rawSessions ?? []).map((s) => ({ ...s, status: oneOf(s.status, ['open', 'closed'] as const, 'open') }))
+  const sessions = (rawSessions ?? []).map((s) => ({
+    ...s,
+    status: oneOf(s.status, ['open', 'closed'] as const, 'open'),
+  }))
 
   return <ChatsClient sessions={sessions} />
 }

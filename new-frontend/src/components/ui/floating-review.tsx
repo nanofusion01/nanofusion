@@ -10,7 +10,8 @@ export interface FloatingReviewData {
 
 function sourceInfo(source: string): { label: string; href: string | null } {
   const s = source.toLowerCase();
-  if (s.includes("google")) return { label: "Google Recenze", href: "https://www.google.com/search?q=NANOfusion+recenze" };
+  if (s.includes("google"))
+    return { label: "Google Recenze", href: "https://www.google.com/search?q=NANOfusion+recenze" };
   if (s.includes("firmy")) return { label: "Firmy.cz", href: FIRMY_CZ_PROFILE };
   return { label: "Recenze zákazníka", href: null };
 }
@@ -27,7 +28,9 @@ export function FloatingReview({ review }: { review: FloatingReviewData | null }
       <div className="flex justify-between items-center">
         <div className="flex gap-1 text-amber-500 text-sm" aria-label="5 z 5 hvězdiček">
           {Array.from({ length: 5 }).map((_, i) => (
-            <span key={i} aria-hidden="true">★</span>
+            <span key={i} aria-hidden="true">
+              ★
+            </span>
           ))}
         </div>
         <span className="text-white/80 text-xs font-semibold bg-white/10 px-2 py-1 rounded-full">{label}</span>
@@ -46,7 +49,12 @@ export function FloatingReview({ review }: { review: FloatingReviewData | null }
     "hidden lg:flex absolute right-12 bottom-32 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 w-[320px] flex-col gap-3 z-30 shadow-2xl";
 
   return href ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={`${className} hover:bg-white/20 transition-all cursor-pointer`}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${className} hover:bg-white/20 transition-all cursor-pointer`}
+    >
       {body}
     </a>
   ) : (

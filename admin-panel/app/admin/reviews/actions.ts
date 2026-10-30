@@ -20,9 +20,7 @@ export async function approveReview(id: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('external_reviews')
-      .update({ approved: true })
-      .eq('id', id)
+    const { error } = await supabase.from('external_reviews').update({ approved: true }).eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/reviews')
     await revalidateFrontend()
@@ -33,9 +31,7 @@ export async function rejectReview(id: string) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('external_reviews')
-      .update({ approved: false })
-      .eq('id', id)
+    const { error } = await supabase.from('external_reviews').update({ approved: false }).eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/reviews')
     await revalidateFrontend()
@@ -46,20 +42,14 @@ export async function deleteReview(id: string) {
   return safeAction(async () => {
     await requireAdmin()
     const supabase = await createAdminClient()
-    const { error } = await supabase.from('external_reviews')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('external_reviews').delete().eq('id', id)
     if (error) throw new Error(error.message)
     revalidatePath('/admin/reviews')
     await revalidateFrontend()
   })
 }
 
-export async function addManualReview(data: {
-  author: string
-  rating: number
-  content: string
-}) {
+export async function addManualReview(data: { author: string; rating: number; content: string }) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
@@ -83,15 +73,16 @@ export async function approveFirmyReview(firmyReviewId: string) {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
 
-    const { data: review, error: fetchError } = await supabase.from('firmy_reviews')
+    const { data: review, error: fetchError } = await supabase
+      .from('firmy_reviews')
       .select('*')
       .eq('id', firmyReviewId)
       .single()
 
     if (fetchError || !review) throw new Error('Recenze nenalezena')
 
-    const { error } = await supabase.from('external_reviews')
-      .upsert({
+    const { error } = await supabase.from('external_reviews').upsert(
+      {
         source: 'firmy.cz',
         external_id: review.external_id || firmyReviewId,
         author: review.author_name,
@@ -99,7 +90,9 @@ export async function approveFirmyReview(firmyReviewId: string) {
         content: stripHtml(review.content ?? ''),
         published_at: review.review_date,
         approved: true,
-      }, { onConflict: 'external_id' })
+      },
+      { onConflict: 'external_id' }
+    )
 
     if (error) throw new Error(error.message)
     revalidatePath('/admin/reviews')
@@ -140,7 +133,8 @@ export async function syncFirmyReviews() {
     let imported = 0
     for (const rev of reviews) {
       // Zkontroluj duplicity ručně (external_id nemá UNIQUE constraint v DB)
-      const { data: existing } = await supabase.from('external_reviews')
+      const { data: existing } = await supabase
+        .from('external_reviews')
         .select('id')
         .eq('external_id', rev.external_id)
         .maybeSingle()
@@ -189,8 +183,11 @@ export async function syncGoogleReviews() {
       if (!rev.text || rev.text.length < 5) continue
       const extId = `google_${rev.time}_${rev.author_name.replace(/\s/g, '').substring(0, 16)}`
 
-      const { data: existing } = await supabase.from('external_reviews')
-        .select('id').eq('external_id', extId).maybeSingle()
+      const { data: existing } = await supabase
+        .from('external_reviews')
+        .select('id')
+        .eq('external_id', extId)
+        .maybeSingle()
       if (existing) continue
 
       const { error } = await supabase.from('external_reviews').insert({
@@ -221,9 +218,12 @@ export async function bulkAddReviews(rawText: string) {
     // Pokročilý parser pro copy-pasted text
     const reviewBlocks = rawText.split(/\n\s*\n/)
     let imported = 0
-    
+
     for (const block of reviewBlocks) {
-      const blockLines = block.split('\n').map(l => l.trim()).filter(Boolean)
+      const blockLines = block
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean)
       if (blockLines.length < 2) continue
 
       const author = blockLines[0]
@@ -233,7 +233,12 @@ export async function bulkAddReviews(rawText: string) {
       const ratingMatch = block.match(/([1-5])\s*(?:hvězd|hv|stars|★)/i) || block.match(/^([1-5])$/m)
       if (ratingMatch) rating = parseInt(ratingMatch[1])
 
-      content = stripHtml(blockLines.slice(1).filter(l => !l.match(/^[1-5]$/) && !l.match(/hvězd/i)).join(' '))
+      content = stripHtml(
+        blockLines
+          .slice(1)
+          .filter((l) => !l.match(/^[1-5]$/) && !l.match(/hvězd/i))
+          .join(' ')
+      )
 
       if (content.length > 5) {
         const { error } = await supabase.from('external_reviews').insert({

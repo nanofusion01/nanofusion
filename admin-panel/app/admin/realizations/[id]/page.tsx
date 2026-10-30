@@ -6,22 +6,15 @@ export default async function RealizationDetailPage(props: { params: Promise<{ i
   const params = await props.params
   const supabase = await createClient()
 
-  const { data: realization } = await supabase.from('realizations')
-    .select('*')
-    .eq('id', params.id)
-    .single()
+  const { data: realization } = await supabase.from('realizations').select('*').eq('id', params.id).single()
 
   if (!realization) notFound()
 
-  const { data: photos } = await supabase.from('realization_photos')
+  const { data: photos } = await supabase
+    .from('realization_photos')
     .select('*')
     .eq('realization_id', params.id)
     .order('order_index', { ascending: true })
 
-  return (
-    <RealizationDetailClient
-      realization={realization}
-      initialPhotos={photos ?? []}
-    />
-  )
+  return <RealizationDetailClient realization={realization} initialPhotos={photos ?? []} />
 }

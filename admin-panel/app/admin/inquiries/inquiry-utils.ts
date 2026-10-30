@@ -42,7 +42,9 @@ export function collectInquiryPhotos(inquiry: Inquiry): string[] {
   const matches = inquiry.message?.match(/(data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=]+|https?:\/\/[^\s\n]+)/g) ?? []
   for (const url of matches) {
     const isImage =
-      url.startsWith('data:image/') || /\.(jpg|jpeg|png|webp|gif)/i.test(url) || url.includes('/storage/v1/object/public/')
+      url.startsWith('data:image/') ||
+      /\.(jpg|jpeg|png|webp|gif)/i.test(url) ||
+      url.includes('/storage/v1/object/public/')
     if (isImage && !photos.includes(url)) photos.push(url)
   }
   return photos

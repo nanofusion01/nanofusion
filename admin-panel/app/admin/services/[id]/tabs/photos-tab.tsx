@@ -8,10 +8,23 @@ import { unwrapActions } from '@/lib/action-result'
 import * as actionsRaw from '../../actions'
 import type { BeforeAfter, GalleryPhoto } from '../types'
 
-const { uploadServiceFile, addBeforeAfter, deleteBeforeAfter, uploadGalleryPhoto, deleteGalleryPhoto } = unwrapActions(actionsRaw)
+const { uploadServiceFile, addBeforeAfter, deleteBeforeAfter, uploadGalleryPhoto, deleteGalleryPhoto } =
+  unwrapActions(actionsRaw)
 
 /** Záložka „Fotky“: srovnání před/po a galerie z realizací. */
-export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, galleryPhotos, setGalleryPhotos }: { serviceId: string; beforeAfterItems: BeforeAfter[]; setBeforeAfterItems: React.Dispatch<React.SetStateAction<BeforeAfter[]>>; galleryPhotos: GalleryPhoto[]; setGalleryPhotos: React.Dispatch<React.SetStateAction<GalleryPhoto[]>> }) {
+export function PhotosTab({
+  serviceId,
+  beforeAfterItems,
+  setBeforeAfterItems,
+  galleryPhotos,
+  setGalleryPhotos,
+}: {
+  serviceId: string
+  beforeAfterItems: BeforeAfter[]
+  setBeforeAfterItems: React.Dispatch<React.SetStateAction<BeforeAfter[]>>
+  galleryPhotos: GalleryPhoto[]
+  setGalleryPhotos: React.Dispatch<React.SetStateAction<GalleryPhoto[]>>
+}) {
   const [showAddBeforeAfter, setShowAddBeforeAfter] = useState(false)
   const [addingBeforeAfter, setAddingBeforeAfter] = useState(false)
   const [uploadingGallery, setUploadingGallery] = useState(false)
@@ -45,7 +58,7 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
       toast.info('Ukládám záznam...')
       const newItem = await addBeforeAfter(serviceId, beforeUrl, afterUrl, baCaption)
 
-      setBeforeAfterItems(prev => [...prev, newItem])
+      setBeforeAfterItems((prev) => [...prev, newItem])
       setShowAddBeforeAfter(false)
       setBaCaption('')
       if (beforeFileRef.current) beforeFileRef.current.value = ''
@@ -61,7 +74,7 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
     if (!confirm('Smazat toto srovnání?')) return
     try {
       await deleteBeforeAfter(id, serviceId)
-      setBeforeAfterItems(prev => prev.filter(i => i.id !== id))
+      setBeforeAfterItems((prev) => prev.filter((i) => i.id !== id))
       toast.success('Srovnání smazáno')
     } catch (err) {
       toast.error('Chyba: ' + errorMessage(err))
@@ -76,7 +89,7 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
         const fd = new FormData()
         fd.append('file', compressed)
         const newItem = await uploadGalleryPhoto(serviceId, fd)
-        setGalleryPhotos(prev => [...prev, newItem])
+        setGalleryPhotos((prev) => [...prev, newItem])
       }
       toast.success('Fotky do galerie nahrány')
     } catch (err) {
@@ -90,7 +103,7 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
     if (!confirm('Smazat tuto fotku z galerie?')) return
     try {
       await deleteGalleryPhoto(id, serviceId)
-      setGalleryPhotos(prev => prev.filter(i => i.id !== id))
+      setGalleryPhotos((prev) => prev.filter((i) => i.id !== id))
       toast.success('Fotka smazána')
     } catch (err) {
       toast.error('Chyba: ' + errorMessage(err))
@@ -113,7 +126,10 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
 
         {/* Add Before/After form */}
         {showAddBeforeAfter && (
-          <div className="p-6 rounded-2xl border-2 space-y-4" style={{ borderColor: 'var(--brand-primary)', background: 'var(--bg-base)' }}>
+          <div
+            className="p-6 rounded-2xl border-2 space-y-4"
+            style={{ borderColor: 'var(--brand-primary)', background: 'var(--bg-base)' }}
+          >
             <div className="flex items-center justify-between">
               <h4 className="font-bold">Nahrát nové srovnání</h4>
               <button onClick={() => setShowAddBeforeAfter(false)} className="p-1 rounded-lg hover:bg-slate-100">
@@ -123,11 +139,21 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase text-slate-400">Fotka PŘED</label>
-                <input ref={beforeFileRef} type="file" accept="image/*" className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
+                <input
+                  ref={beforeFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase text-slate-400">Fotka PO</label>
-                <input ref={afterFileRef} type="file" accept="image/*" className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+                <input
+                  ref={afterFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                />
               </div>
             </div>
             <div className="space-y-2">
@@ -155,7 +181,11 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
 
         <div className="grid gap-6">
           {beforeAfterItems.map((item) => (
-            <div key={item.id} className="p-4 rounded-2xl border flex gap-6" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
+            <div
+              key={item.id}
+              className="p-4 rounded-2xl border flex gap-6"
+              style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
+            >
               <div className="flex-1 grid grid-cols-2 gap-4">
                 <div className="space-y-2 text-center">
                   <span className="text-[10px] uppercase font-black text-red-400">Před</span>
@@ -193,7 +223,9 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-lg">Galerie „Z realizací“</h3>
-              <p className="text-sm text-slate-400">Fotky zobrazené v sekci „Z realizací“ na detailu této služby na webu.</p>
+              <p className="text-sm text-slate-400">
+                Fotky zobrazené v sekci „Z realizací“ na detailu této služby na webu.
+              </p>
             </div>
             <input
               ref={galleryFileRef}
@@ -201,7 +233,10 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
               accept="image/*"
               multiple
               className="hidden"
-              onChange={(e) => { const f = e.target.files; if (f && f.length > 0) handleAddGalleryPhotos(f) }}
+              onChange={(e) => {
+                const f = e.target.files
+                if (f && f.length > 0) handleAddGalleryPhotos(f)
+              }}
             />
             <button
               onClick={() => galleryFileRef.current?.click()}
@@ -216,7 +251,11 @@ export function PhotosTab({ serviceId, beforeAfterItems, setBeforeAfterItems, ga
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {galleryPhotos.map((photo) => (
-              <div key={photo.id} className="relative group rounded-xl overflow-hidden aspect-[4/3] border" style={{ borderColor: 'var(--border)' }}>
+              <div
+                key={photo.id}
+                className="relative group rounded-xl overflow-hidden aspect-[4/3] border"
+                style={{ borderColor: 'var(--border)' }}
+              >
                 <img src={photo.url} alt={photo.caption || 'Realizace'} className="w-full h-full object-cover" />
                 <button
                   onClick={() => handleDeleteGalleryPhoto(photo.id)}

@@ -5,10 +5,7 @@ import { SITE_URL } from "@/lib/site";
 const BASE_URL = SITE_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { data: services } = await supabase
-    .from("services")
-    .select("slug, updated_at")
-    .eq("is_active", true);
+  const { data: services } = await supabase.from("services").select("slug, updated_at").eq("is_active", true);
 
   const serviceEntries: MetadataRoute.Sitemap = (services || []).map((s) => ({
     url: `${BASE_URL}/sluzby/${s.slug}`,

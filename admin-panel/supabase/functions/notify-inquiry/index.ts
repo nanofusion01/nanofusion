@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 /**
  * E-mailová notifikace o nové poptávce.
@@ -56,8 +56,7 @@ serve(async (req) => {
     const service = String(record.service || '').slice(0, 200)
     const message = String(record.message || '').slice(0, 5000)
     const source = String(record.source || 'Web').slice(0, 100)
-    const createdAt = new Date(record.created_at ?? Date.now())
-      .toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })
+    const createdAt = new Date(record.created_at ?? Date.now()).toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })
 
     const row = (label: string, value: string) => `
         <tr style="border-bottom: 1px solid #f1f5f9;">

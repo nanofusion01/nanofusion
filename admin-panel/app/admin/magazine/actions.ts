@@ -10,21 +10,23 @@ export async function saveArticle(id: string | null, data: Partial<Tables<'artic
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
-    
+
     if (id) {
       // Update — uses 'articles' table (unified with public web)
-      const { error } = await supabase.from('articles')
+      const { error } = await supabase
+        .from('articles')
         .update({ ...data, updated_at: new Date().toISOString() })
         .eq('id', id)
       if (error) throw new Error(error.message)
     } else {
       // Create — uses 'articles' table (unified with public web)
       if (!data.title || !data.slug) throw new Error('Článek musí mít název a adresu (slug).')
-      const { error } = await supabase.from('articles')
+      const { error } = await supabase
+        .from('articles')
         .insert({ ...data, title: data.title, slug: data.slug, is_published: false })
       if (error) throw new Error(error.message)
     }
-    
+
     revalidatePath('/admin/magazine')
   })
 }

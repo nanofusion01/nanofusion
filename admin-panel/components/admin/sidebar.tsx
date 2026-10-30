@@ -3,7 +3,26 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import NextImage from 'next/image'
-import { LayoutDashboard, Image as ImageIcon, Wrench, HardHat, Star, Brain, Newspaper, GalleryHorizontal, HelpCircle, Calculator, MessageSquare, ClipboardList, Users, UserCircle, LogOut, Menu, X, Sparkles } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Image as ImageIcon,
+  Wrench,
+  HardHat,
+  Star,
+  Brain,
+  Newspaper,
+  GalleryHorizontal,
+  HelpCircle,
+  Calculator,
+  MessageSquare,
+  ClipboardList,
+  Users,
+  UserCircle,
+  LogOut,
+  Menu,
+  X,
+  Sparkles,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -170,36 +189,25 @@ export function Sidebar({ pendingReviews = 0, newAnalyses = 0, userEmail, userRo
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0f172a] flex items-center justify-between px-4 z-[90] border-b border-white/5">
         <div className="flex items-center gap-3">
           <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white p-1 shadow-sm">
-            <NextImage
-              src="/logo.png"
-              alt="NANOfusion Logo"
-              fill
-              className="object-cover"
-            />
+            <NextImage src="/logo.png" alt="NANOfusion Logo" fill className="object-cover" />
           </div>
           <span className="text-white font-bold text-sm">NANOfusion Admin</span>
         </div>
-        <button
-          onClick={() => setIsOpen(true)}
-          className="p-2 text-slate-400 hover:text-white transition-colors"
-        >
+        <button onClick={() => setIsOpen(true)} className="p-2 text-slate-400 hover:text-white transition-colors">
           <Menu size={24} />
         </button>
       </div>
 
       {/* Mobile Overlay */}
       {isOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[95]"
-          onClick={() => setIsOpen(false)}
-        />
+        <div className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[95]" onClick={() => setIsOpen(false)} />
       )}
 
       {/* Sidebar Container */}
       <aside
         className={cn(
-          "fixed top-0 left-0 h-full flex flex-col z-[100] transition-transform duration-300 lg:translate-x-0 w-64 bg-[#0f172a]",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          'fixed top-0 left-0 h-full flex flex-col z-[100] transition-transform duration-300 lg:translate-x-0 w-64 bg-[#0f172a]',
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
         style={{
           borderRight: '1px solid rgba(255,255,255,0.05)',
@@ -212,22 +220,14 @@ export function Sidebar({ pendingReviews = 0, newAnalyses = 0, userEmail, userRo
         >
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white p-1 shadow-sm">
-              <NextImage
-                src="/logo.png"
-                alt="NANOfusion Logo"
-                fill
-                className="object-cover"
-              />
+              <NextImage src="/logo.png" alt="NANOfusion Logo" fill className="object-cover" />
             </div>
             <div>
               <p className="text-white font-bold text-sm leading-tight">NANOfusion</p>
               <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>Admin Panel</p>
             </div>
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="lg:hidden p-2 text-slate-400 hover:text-white"
-          >
+          <button onClick={() => setIsOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-white">
             <X size={20} />
           </button>
         </div>
@@ -245,7 +245,7 @@ export function Sidebar({ pendingReviews = 0, newAnalyses = 0, userEmail, userRo
               <ul className="space-y-1">
                 {section.items.map((item) => {
                   const active = isActive(item.href)
-                  const showBadge = 
+                  const showBadge =
                     (item.href === '/admin/reviews' && pendingReviews > 0) ||
                     (item.href === '/admin/ai-analyzer' && newAnalyses > 0)
                   const badgeCount = item.href === '/admin/reviews' ? pendingReviews : newAnalyses
@@ -256,14 +256,10 @@ export function Sidebar({ pendingReviews = 0, newAnalyses = 0, userEmail, userRo
                         href={item.href}
                         className={cn(
                           'flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-150 relative',
-                          active
-                            ? 'text-white'
-                            : 'text-[#94a3b8] hover:text-white hover:bg-white/5'
+                          active ? 'text-white' : 'text-[#94a3b8] hover:text-white hover:bg-white/5'
                         )}
                         style={{
-                          background: active
-                            ? 'rgba(245, 158, 11, 0.1)'
-                            : undefined,
+                          background: active ? 'rgba(245, 158, 11, 0.1)' : undefined,
                         }}
                       >
                         {active && (
@@ -274,9 +270,7 @@ export function Sidebar({ pendingReviews = 0, newAnalyses = 0, userEmail, userRo
                         )}
                         <span
                           style={{
-                            color: active
-                              ? 'var(--brand-primary)'
-                              : 'inherit',
+                            color: active ? 'var(--brand-primary)' : 'inherit',
                           }}
                           className="flex-shrink-0"
                         >
@@ -301,10 +295,7 @@ export function Sidebar({ pendingReviews = 0, newAnalyses = 0, userEmail, userRo
         </nav>
 
         {/* User Section */}
-        <div
-          className="p-6"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-        >
+        <div className="p-6" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
           <div className="flex items-center gap-3 mb-4">
             <div
               className="rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
@@ -318,9 +309,7 @@ export function Sidebar({ pendingReviews = 0, newAnalyses = 0, userEmail, userRo
               {userEmail?.charAt(0).toUpperCase() || 'A'}
             </div>
             <div className="min-w-0">
-              <p className="text-white text-xs font-semibold truncate leading-none mb-1">
-                {userEmail || 'Admin'}
-              </p>
+              <p className="text-white text-xs font-semibold truncate leading-none mb-1">{userEmail || 'Admin'}</p>
               <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 10 }}>
                 {userRole === 'admin' ? 'Administrátor' : 'Editor'}
               </p>

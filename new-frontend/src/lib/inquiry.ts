@@ -153,10 +153,7 @@ export const INQUIRY_PHOTO_NAME = /^inquiry_\d+_[a-z0-9]+\.(jpe?g|png|webp|heic|
 /**
  * Sestaví řádek do tabulky inquiries z validovaných dat (běží na serveru).
  */
-export function buildInquiryPayload(
-  data: InquiryInput,
-  photo?: { name: string; url: string }
-): Inserts<"inquiries"> {
+export function buildInquiryPayload(data: InquiryInput, photo?: { name: string; url: string }): Inserts<"inquiries"> {
   let finalMessage = (data.message || "").trim();
   if (photo) {
     finalMessage = finalMessage

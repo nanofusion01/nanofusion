@@ -4,19 +4,14 @@ import { ConfiguratorClient } from './configurator-client'
 export default async function ConfiguratorPage() {
   const supabase = await createClient()
 
-  const [
-    { data: prices },
-    { data: chatSessions },
-    { data: inquiries },
-  ] = await Promise.all([
+  const [{ data: prices }, { data: chatSessions }, { data: inquiries }] = await Promise.all([
     supabase.from('configurator_prices').select('*').order('label'),
-    supabase.from('chat_sessions')
+    supabase
+      .from('chat_sessions')
       .select('id, session_token, user_identifier, status, started_at, last_activity, messages')
       .order('last_activity', { ascending: false })
       .limit(50),
-    supabase.from('inquiries')
-      .select('*')
-      .order('created_at', { ascending: false }),
+    supabase.from('inquiries').select('*').order('created_at', { ascending: false }),
   ])
 
   return (

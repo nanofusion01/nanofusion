@@ -1,7 +1,8 @@
-import path from "path";
-import type { NextConfig } from "next";
+import path from 'path'
+import type { NextConfig } from 'next'
 
-const publicSiteUrl = process.env.NEXT_PUBLIC_PUBLIC_SITE_URL || process.env.PUBLIC_SITE_URL || 'https://nanofusion.vercel.app';
+const publicSiteUrl =
+  process.env.NEXT_PUBLIC_PUBLIC_SITE_URL || process.env.PUBLIC_SITE_URL || 'https://nanofusion.vercel.app'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const isPreview = process.env.VERCEL_ENV === 'preview'
@@ -58,7 +59,7 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
+    return [{ source: '/:path*', headers: securityHeaders }]
   },
   async redirects() {
     return [
@@ -97,8 +98,8 @@ const nextConfig: NextConfig = {
         destination: `${publicSiteUrl}/obchodni-podminky`,
         permanent: false,
       },
-    ];
+    ]
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig

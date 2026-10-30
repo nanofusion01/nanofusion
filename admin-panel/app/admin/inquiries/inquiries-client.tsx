@@ -9,7 +9,8 @@ import { inquiriesToCsv, STATUS_LABELS, type Inquiry } from './inquiry-utils'
 import { InquiriesTable } from './inquiries-table'
 import { InquiryDetailModal } from './inquiry-detail-modal'
 
-const { updateInquiryStatus, updateInquiryNotes, deleteInquiry, deleteInquiries, deleteAllInquiries } = unwrapActions(actionsRaw)
+const { updateInquiryStatus, updateInquiryNotes, deleteInquiry, deleteInquiries, deleteAllInquiries } =
+  unwrapActions(actionsRaw)
 
 interface InquiriesClientProps {
   initialInquiries: Inquiry[]
@@ -37,11 +38,8 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
         !search ||
         [inq.name, inq.email, inq.phone, inq.service, inq.message]
           .filter(Boolean)
-          .some((field) =>
-            field!.toLowerCase().includes(search.toLowerCase())
-          )
-      const matchStatus =
-        statusFilter === 'all' || inq.status === statusFilter
+          .some((field) => field!.toLowerCase().includes(search.toLowerCase()))
+      const matchStatus = statusFilter === 'all' || inq.status === statusFilter
       return matchSearch && matchStatus
     })
   }, [inquiries, search, statusFilter])
@@ -187,8 +185,8 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
             Exportovat CSV
           </button>
 
-          {inquiries.length > 0 && (
-            !deleteAllConfirm ? (
+          {inquiries.length > 0 &&
+            (!deleteAllConfirm ? (
               <button
                 onClick={() => setDeleteAllConfirm(true)}
                 className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold"
@@ -199,15 +197,23 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
             ) : (
               <div className="flex items-center gap-2 text-xs px-3 py-2.5 rounded-xl" style={{ background: '#fef2f2' }}>
                 <span style={{ color: '#991b1b' }}>Nevratně smazat všech {inquiries.length} poptávek?</span>
-                <button onClick={handleDeleteAll} disabled={deletingAll} className="font-bold disabled:opacity-60" style={{ color: '#ef4444' }}>
+                <button
+                  onClick={handleDeleteAll}
+                  disabled={deletingAll}
+                  className="font-bold disabled:opacity-60"
+                  style={{ color: '#ef4444' }}
+                >
                   {deletingAll ? 'Mažu...' : 'Ano, smazat'}
                 </button>
-                <button onClick={() => setDeleteAllConfirm(false)} disabled={deletingAll} style={{ color: 'var(--text-muted)' }}>
+                <button
+                  onClick={() => setDeleteAllConfirm(false)}
+                  disabled={deletingAll}
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   Zrušit
                 </button>
               </div>
-            )
-          )}
+            ))}
         </div>
       </div>
 
@@ -244,17 +250,12 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
               onClick={() => setStatusFilter(status)}
               className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150"
               style={{
-                background:
-                  statusFilter === status
-                    ? 'var(--brand-primary)'
-                    : 'var(--bg-surface-2)',
+                background: statusFilter === status ? 'var(--brand-primary)' : 'var(--bg-surface-2)',
                 color: statusFilter === status ? 'white' : 'var(--text-secondary)',
                 border: '1px solid transparent',
               }}
             >
-              {status === 'all'
-                ? 'Vše'
-                : STATUS_LABELS[status]}
+              {status === 'all' ? 'Vše' : STATUS_LABELS[status]}
             </button>
           ))}
         </div>
@@ -267,7 +268,8 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
           style={{ background: '#fef2f2', border: '1px solid #fecaca' }}
         >
           <span className="text-sm font-semibold" style={{ color: '#991b1b' }}>
-            Vybráno {checkedIds.size} {checkedIds.size === 1 ? 'poptávka' : checkedIds.size < 5 ? 'poptávky' : 'poptávek'}
+            Vybráno {checkedIds.size}{' '}
+            {checkedIds.size === 1 ? 'poptávka' : checkedIds.size < 5 ? 'poptávky' : 'poptávek'}
           </span>
           <div className="flex items-center gap-2">
             {!bulkDeleteConfirm ? (
@@ -289,7 +291,9 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
               </>
             ) : (
               <>
-                <span className="text-xs" style={{ color: '#991b1b' }}>Opravdu smazat?</span>
+                <span className="text-xs" style={{ color: '#991b1b' }}>
+                  Opravdu smazat?
+                </span>
                 <button
                   onClick={handleDeleteSelected}
                   disabled={bulkDeleting}

@@ -3,15 +3,7 @@
 import { useState } from 'react'
 import * as actionsRaw from './actions'
 import { toast } from 'sonner'
-import { 
-  Save, 
-  Award, 
-  Star, 
-  AlignLeft, 
-  Layout, 
-  CheckSquare, 
-  FileText 
-} from 'lucide-react'
+import { Save, Award, Star, AlignLeft, Layout, CheckSquare, FileText } from 'lucide-react'
 import { TiptapEditor } from '@/components/admin/editor'
 import { unwrapActions } from '@/lib/action-result'
 import { CertificatesTab } from './certificates-tab'
@@ -31,8 +23,8 @@ interface AboutClientProps {
   initialCertsSubtitle: string
 }
 
-export function AboutClient({ 
-  initialTitle, 
+export function AboutClient({
+  initialTitle,
   initialSubtitle,
   initialDescription,
   initialStats,
@@ -40,10 +32,10 @@ export function AboutClient({
   initialWhyTitle,
   initialWhyPoints,
   initialCertsTitle,
-  initialCertsSubtitle
+  initialCertsSubtitle,
 }: AboutClientProps) {
   const [activeTab, setActiveTab] = useState<'texty' | 'stats' | 'certs'>('texty')
-  
+
   // States for Tab 1: Texts
   const [title, setTitle] = useState(initialTitle)
   const [subtitle, setSubtitle] = useState(initialSubtitle)
@@ -58,7 +50,7 @@ export function AboutClient({
   const [certsTitle, setCertsTitle] = useState(initialCertsTitle)
   const [certsSubtitle, setCertsSubtitle] = useState(initialCertsSubtitle)
   const [certificates, setCertificates] = useState<Certificate[]>(JSON.parse(initialCertificates))
-  
+
   const [isSaving, setIsSaving] = useState(false)
 
   const handleSave = async (key: string, value: string) => {
@@ -105,9 +97,12 @@ export function AboutClient({
   return (
     <div className="space-y-8 pb-20">
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Správa sekce O nás</h1>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          Správa sekce O nás
+        </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-          Upravte kompletní obsah, který se zobrazí v modálním okně po kliknutí na „O nás“ (texty, výhody, statistiky a certifikace).
+          Upravte kompletní obsah, který se zobrazí v modálním okně po kliknutí na „O nás“ (texty, výhody, statistiky a
+          certifikace).
         </p>
       </div>
 
@@ -149,18 +144,21 @@ export function AboutClient({
       {activeTab === 'texty' && (
         <div className="grid grid-cols-1 gap-8">
           {/* Title & Subtitle */}
-          <div className="rounded-2xl p-6 shadow-sm border space-y-6" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+          <div
+            className="rounded-2xl p-6 shadow-sm border space-y-6"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+          >
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
                 <Layout size={20} />
               </div>
               <h2 className="text-lg font-bold">Základní nápisy</h2>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-bold uppercase text-slate-400 mb-1.5 block">Hlavní titulek</label>
-                <input 
+                <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -178,7 +176,7 @@ export function AboutClient({
 
               <div>
                 <label className="text-xs font-bold uppercase text-slate-400 mb-1.5 block">Podnadpis (Slogan)</label>
-                <input 
+                <input
                   type="text"
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
@@ -197,20 +195,20 @@ export function AboutClient({
           </div>
 
           {/* Description Editor */}
-          <div className="rounded-2xl p-6 shadow-sm border space-y-6" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+          <div
+            className="rounded-2xl p-6 shadow-sm border space-y-6"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+          >
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
                 <AlignLeft size={20} />
               </div>
               <h2 className="text-lg font-bold">Hlavní příběh (Text)</h2>
             </div>
-            
+
             <div className="space-y-4">
-              <TiptapEditor 
-                content={description}
-                onChange={setDescription}
-              />
-              
+              <TiptapEditor content={description} onChange={setDescription} />
+
               <div className="flex justify-end">
                 <button
                   onClick={() => handleSave('about_description', description)}
@@ -230,20 +228,23 @@ export function AboutClient({
       {activeTab === 'stats' && (
         <div className="grid grid-cols-1 gap-8">
           {/* Stats Section */}
-          <div className="rounded-2xl p-6 shadow-sm border space-y-6" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+          <div
+            className="rounded-2xl p-6 shadow-sm border space-y-6"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+          >
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
                 <Star size={20} />
               </div>
               <h2 className="text-lg font-bold">Statistiky (Číselné údaje)</h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {stats.map((stat, idx) => (
                 <div key={idx} className="space-y-3 p-4 rounded-xl border" style={{ borderColor: 'var(--border)' }}>
                   <div>
                     <label className="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Popisek</label>
-                    <input 
+                    <input
                       type="text"
                       value={stat.label}
                       onChange={(e) => {
@@ -252,12 +253,16 @@ export function AboutClient({
                         setStats(newStats)
                       }}
                       className="w-full p-2 rounded-lg border text-sm"
-                      style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                      style={{
+                        background: 'var(--bg-base)',
+                        borderColor: 'var(--border)',
+                        color: 'var(--text-primary)',
+                      }}
                     />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Hodnota</label>
-                    <input 
+                    <input
                       type="text"
                       value={stat.value}
                       onChange={(e) => {
@@ -266,7 +271,11 @@ export function AboutClient({
                         setStats(newStats)
                       }}
                       className="w-full p-2 rounded-lg border text-sm font-bold"
-                      style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                      style={{
+                        background: 'var(--bg-base)',
+                        borderColor: 'var(--border)',
+                        color: 'var(--text-primary)',
+                      }}
                     />
                   </div>
                 </div>
@@ -285,18 +294,21 @@ export function AboutClient({
           </div>
 
           {/* Benefits ("Proč NANOfusion?") Section */}
-          <div className="rounded-2xl p-6 shadow-sm border space-y-6" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+          <div
+            className="rounded-2xl p-6 shadow-sm border space-y-6"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
+          >
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
                 <CheckSquare size={20} />
               </div>
               <h2 className="text-lg font-bold">Důvody „Proč my?“ (Pravý panel)</h2>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-bold uppercase text-slate-400 mb-1.5 block">Nadpis boxu</label>
-                <input 
+                <input
                   type="text"
                   value={whyTitle}
                   onChange={(e) => setWhyTitle(e.target.value)}
@@ -306,11 +318,13 @@ export function AboutClient({
               </div>
 
               <div className="space-y-4">
-                <label className="text-xs font-bold uppercase text-slate-400 mb-1.5 block">3 klíčové výhody (s ikonou ✓)</label>
+                <label className="text-xs font-bold uppercase text-slate-400 mb-1.5 block">
+                  3 klíčové výhody (s ikonou ✓)
+                </label>
                 {whyPoints.map((point, idx) => (
                   <div key={idx} className="flex gap-3 items-center">
                     <span className="font-bold text-amber-500">✓</span>
-                    <input 
+                    <input
                       type="text"
                       value={point}
                       onChange={(e) => {
@@ -319,7 +333,11 @@ export function AboutClient({
                         setWhyPoints(newPoints)
                       }}
                       className="flex-1 p-3 rounded-xl border outline-none"
-                      style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                      style={{
+                        background: 'var(--bg-base)',
+                        borderColor: 'var(--border)',
+                        color: 'var(--text-primary)',
+                      }}
                     />
                   </div>
                 ))}

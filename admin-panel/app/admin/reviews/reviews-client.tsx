@@ -114,7 +114,9 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Recenze</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Recenze
+          </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             {pending.length > 0 && (
               <span style={{ color: 'var(--brand-primary)', fontWeight: 600 }}>
@@ -203,11 +205,20 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             <div
               key={review.id}
               className="rounded-xl p-5 flex gap-4"
-              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow-sm)',
+              }}
             >
               <div
                 className="rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                style={{ width: 44, height: 44, background: 'var(--brand-primary-light)', color: 'var(--brand-primary)' }}
+                style={{
+                  width: 44,
+                  height: 44,
+                  background: 'var(--brand-primary-light)',
+                  color: 'var(--brand-primary)',
+                }}
               >
                 {review.author?.charAt(0).toUpperCase() || '?'}
               </div>
@@ -281,7 +292,9 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
           >
             <div className="px-6 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
-              <h2 className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>Hromadný import recenzí</h2>
+              <h2 className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>
+                Hromadný import recenzí
+              </h2>
               <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                 Zkopírujte text recenzí z Firmy.cz (včetně jmen) a vložte je sem. Oddělte recenze prázdným řádkem.
               </p>
@@ -292,7 +305,11 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
                 onChange={(e) => setBulkText(e.target.value)}
                 placeholder="Jan Novák&#10;5 hvězd&#10;Skvělá práce, doporučuji!&#10;&#10;Petr Svoboda&#10;4 hvězdy&#10;Dobrá komunikace."
                 className="w-full h-64 px-4 py-3 rounded-xl text-sm outline-none font-mono"
-                style={{ border: '1px solid var(--border)', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }}
+                style={{
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-surface-2)',
+                  color: 'var(--text-primary)',
+                }}
               />
               <div className="flex gap-3">
                 <button
@@ -327,14 +344,19 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
           >
             <div className="px-6 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
-              <h2 className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>Přidat recenzi</h2>
+              <h2 className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>
+                Přidat recenzi
+              </h2>
               <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                 Zkopírujte recenzi z Firmy.cz nebo Googlu a vložte ji sem
               </p>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                <label
+                  className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   Jméno zákazníka
                 </label>
                 <input
@@ -343,23 +365,37 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
                   onChange={(e) => setNewReview({ ...newReview, author: e.target.value })}
                   placeholder="Jan Novák"
                   className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
-                  style={{ border: '1px solid var(--border)', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }}
+                  style={{
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-surface-2)',
+                    color: 'var(--text-primary)',
+                  }}
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                <label
+                  className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   Hodnocení
                 </label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <button key={n} onClick={() => setNewReview({ ...newReview, rating: n })} className="p-1">
-                      <Star size={26} fill={n <= newReview.rating ? '#f59e0b' : 'none'} stroke={n <= newReview.rating ? '#f59e0b' : '#cbd5e1'} />
+                      <Star
+                        size={26}
+                        fill={n <= newReview.rating ? '#f59e0b' : 'none'}
+                        stroke={n <= newReview.rating ? '#f59e0b' : '#cbd5e1'}
+                      />
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+                <label
+                  className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   Text recenze
                 </label>
                 <textarea
@@ -368,12 +404,19 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
                   placeholder="Vložte čistý text recenze (bez formátování)"
                   rows={6}
                   className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-y"
-                  style={{ border: '1px solid var(--border)', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }}
+                  style={{
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-surface-2)',
+                    color: 'var(--text-primary)',
+                  }}
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button
-                  onClick={() => { setShowAddModal(false); setNewReview({ author: '', rating: 5, content: '' }) }}
+                  onClick={() => {
+                    setShowAddModal(false)
+                    setNewReview({ author: '', rating: 5, content: '' })
+                  }}
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
                   style={{ border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                 >
@@ -404,12 +447,19 @@ export function ReviewsClient({ initialReviews }: { initialReviews: Review[] }) 
             style={{ background: 'var(--bg-surface)', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="rounded-full flex items-center justify-center" style={{ width: 44, height: 44, background: '#fef2f2' }}>
+              <div
+                className="rounded-full flex items-center justify-center"
+                style={{ width: 44, height: 44, background: '#fef2f2' }}
+              >
                 <AlertTriangle size={22} style={{ color: '#ef4444' }} />
               </div>
               <div>
-                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Smazat recenzi?</h3>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Tato akce je nevratná</p>
+                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
+                  Smazat recenzi?
+                </h3>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  Tato akce je nevratná
+                </p>
               </div>
             </div>
             <div className="flex gap-3">

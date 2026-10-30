@@ -21,7 +21,7 @@ export default async function proxy(request: NextRequest) {
       if (!user && !isLoginPath) {
         return NextResponse.redirect(new URL('/admin/login', request.url))
       }
-      
+
       if (user && isLoginPath) {
         return NextResponse.redirect(new URL('/admin', request.url))
       }

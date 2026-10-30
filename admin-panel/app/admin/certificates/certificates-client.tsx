@@ -30,24 +30,24 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
       id: crypto.randomUUID(),
       title: 'Nový certifikát',
       description: 'Popis certifikátu...',
-      imageUrl: ''
+      imageUrl: '',
     }
     setCertificates([newCert, ...certificates])
   }
 
   const handleRemove = (id: string) => {
-    setCertificates(certificates.filter(c => c.id !== id))
+    setCertificates(certificates.filter((c) => c.id !== id))
   }
 
   const handleChange = (id: string, field: keyof Certificate, value: string) => {
-    setCertificates(certificates.map(c => c.id === id ? { ...c, [field]: value } : c))
+    setCertificates(certificates.map((c) => (c.id === id ? { ...c, [field]: value } : c)))
   }
 
   const handleImageUpload = async (id: string, file: File) => {
     setUploadingId(id)
     const formData = new FormData()
     formData.append('file', file)
-    
+
     try {
       const url = await uploadCertificateImage(formData)
       handleChange(id, 'imageUrl', url)
@@ -75,7 +75,9 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
     <div className="space-y-8 pb-20">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Certifikáty a Ocenění</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Certifikáty a Ocenění
+          </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             Spravujte certifikáty, které se zobrazí v karuselu v sekci „O nás“.
           </p>
@@ -90,12 +92,12 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {certificates.map((cert) => (
-          <div 
-            key={cert.id} 
+          <div
+            key={cert.id}
             className="rounded-2xl border p-6 space-y-4 relative group transition-all hover:shadow-md"
             style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
           >
-            <button 
+            <button
               onClick={() => handleRemove(cert.id)}
               className="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 transition-colors"
             >
@@ -106,28 +108,25 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
               {/* Image Preview / Upload */}
               <div className="w-32 h-40 flex-shrink-0 relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
                 {cert.imageUrl ? (
-                  <NextImage 
-                    src={cert.imageUrl} 
-                    alt={cert.title} 
-                    fill 
-                    className="object-cover"
-                  />
+                  <NextImage src={cert.imageUrl} alt={cert.title} fill className="object-cover" />
                 ) : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
                     <Award size={32} />
                     <span className="text-[10px] mt-2 font-bold uppercase">Žádný obr.</span>
                   </div>
                 )}
-                
+
                 <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                  <input 
-                    type="file" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    className="hidden"
                     onChange={(e) => e.target.files?.[0] && handleImageUpload(cert.id, e.target.files[0])}
                     accept="image/*"
                   />
                   <div className="text-white text-xs font-bold flex flex-col items-center">
-                    {uploadingId === cert.id ? 'Nahrávám...' : (
+                    {uploadingId === cert.id ? (
+                      'Nahrávám...'
+                    ) : (
                       <>
                         <ImageIcon size={20} className="mb-1" />
                         Změnit
@@ -141,7 +140,7 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
               <div className="flex-1 space-y-3">
                 <div>
                   <label className="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Název certifikátu</label>
-                  <input 
+                  <input
                     type="text"
                     value={cert.title}
                     onChange={(e) => handleChange(cert.id, 'title', e.target.value)}
@@ -151,12 +150,16 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
                 </div>
                 <div>
                   <label className="text-[10px] font-bold uppercase text-slate-400 mb-1 block">Popis / Detaily</label>
-                  <textarea 
+                  <textarea
                     value={cert.description}
                     onChange={(e) => handleChange(cert.id, 'description', e.target.value)}
                     rows={4}
                     className="w-full p-2 rounded-lg border text-xs outline-none focus:ring-1 focus:ring-amber-500/30"
-                    style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+                    style={{
+                      background: 'var(--bg-base)',
+                      borderColor: 'var(--border)',
+                      color: 'var(--text-secondary)',
+                    }}
                   />
                 </div>
               </div>
@@ -179,7 +182,9 @@ export function CertificatesClient({ initialCertificates }: CertificatesClientPr
           disabled={isSaving}
           className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-slate-900 text-white font-bold shadow-2xl hover:bg-black transition-all disabled:opacity-50"
         >
-          {isSaving ? 'Ukládám...' : (
+          {isSaving ? (
+            'Ukládám...'
+          ) : (
             <>
               <Save size={20} /> Uložit všechny certifikáty
             </>

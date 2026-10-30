@@ -5,10 +5,13 @@ import { sanitizeHtml } from "@/lib/sanitize";
 
 async function getConfig() {
   const { data } = await supabase.from("site_config").select("key, value");
-  return (data || []).reduce((acc, item) => {
-    acc[item.key] = item.value;
-    return acc;
-  }, {} as Record<string, string>);
+  return (data || []).reduce(
+    (acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 }
 
 import { Pill } from "@/components/ui/pill";
@@ -29,7 +32,9 @@ const Stats = ({ siteStats }: { siteStats: SiteStats }) => {
       <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap justify-center gap-12 md:gap-20 text-center">
         {stats.map((stat, i) => (
           <div key={i} className="flex flex-col gap-2 min-w-[200px]">
-            <div className="text-5xl md:text-6xl font-black text-amber-500 font-heading tracking-tight">{stat.value}</div>
+            <div className="text-5xl md:text-6xl font-black text-amber-500 font-heading tracking-tight">
+              {stat.value}
+            </div>
             <div className="text-gray-500 text-base md:text-lg font-medium uppercase tracking-wide">{stat.label}</div>
           </div>
         ))}
@@ -52,18 +57,15 @@ export const Hero = async () => {
     .limit(1)
     .maybeSingle();
 
-  const { data: mediaData } = await supabase
-    .from("hero_media")
-    .select("*")
-    .eq("is_active", true)
-    .maybeSingle();
+  const { data: mediaData } = await supabase.from("hero_media").select("*").eq("is_active", true).maybeSingle();
 
-  const ytMatch = mediaData?.url?.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+  const ytMatch = mediaData?.url?.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
+  );
   const ytId = ytMatch ? ytMatch[1] : null;
 
   const heroTitle =
-    config.hero_title ||
-    `Špičková péče o to, <br/><span class="text-amber-500">co jste usilovně vybudovali</span>`;
+    config.hero_title || `Špičková péče o to, <br/><span class="text-amber-500">co jste usilovně vybudovali</span>`;
 
   const heroSubtitle =
     config.hero_subtitle ||
@@ -73,13 +75,12 @@ export const Hero = async () => {
     <section className="relative w-full flex flex-col font-sans">
       {/* Hero Background and Content */}
       <div className="relative w-full min-h-[600px] md:min-h-[500px] h-auto md:h-[70vh] md:max-h-[750px] flex flex-col justify-center bg-[#1f1f1f] overflow-hidden pt-10 pb-20 md:pb-32 lg:pb-24">
-
         {/* Background Video/Image */}
         {mediaData && (
           <div className="absolute inset-0 z-0 overflow-hidden">
             {ytId ? (
               <HeroVideo ytId={ytId} />
-            ) : mediaData.type === 'video' ? (
+            ) : mediaData.type === "video" ? (
               <video
                 src={mediaData.url}
                 autoPlay
@@ -103,15 +104,12 @@ export const Hero = async () => {
 
         {/* Content Container */}
         <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-start gap-6">
-
           {/* Badges */}
           <div className="flex flex-wrap gap-2 md:gap-3">
             <Pill className="text-gray-200 text-xs px-3 py-1 md:py-1.5 md:px-4">
               <span className="font-semibold text-white mr-1.5">{siteStats.stat_projects}</span> projektů
             </Pill>
-            <Pill className="text-gray-200 text-xs px-3 py-1 md:py-1.5 md:px-4">
-              pojištění odpovědnosti
-            </Pill>
+            <Pill className="text-gray-200 text-xs px-3 py-1 md:py-1.5 md:px-4">pojištění odpovědnosti</Pill>
             <Pill className="text-gray-200 text-xs px-3 py-1 md:py-1.5 md:px-4">
               <span className="text-amber-500 tracking-tighter mr-1.5 text-[10px] md:text-xs">★★★★★</span>
               <span className="font-semibold text-white mr-1.5">{siteStats.rating_firmy}</span> na firmy.cz
@@ -124,9 +122,7 @@ export const Hero = async () => {
               className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6 font-heading"
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(heroTitle) }}
             />
-            <p className="text-lg md:text-xl text-gray-300 max-w-2xl font-light leading-relaxed">
-              {heroSubtitle}
-            </p>
+            <p className="text-lg md:text-xl text-gray-300 max-w-2xl font-light leading-relaxed">{heroSubtitle}</p>
           </div>
 
           {/* CTA Buttons */}
@@ -157,7 +153,6 @@ export const Hero = async () => {
         {/* Floating Review on Video */}
         <FloatingReview review={latestReview} />
 
-
         {/* Bottom Curved Arch Separator */}
         <div className="absolute bottom-[-1px] left-0 w-full overflow-hidden leading-none z-10 text-white">
           <svg
@@ -166,10 +161,7 @@ export const Hero = async () => {
             viewBox="0 0 1200 120"
             preserveAspectRatio="none"
           >
-            <path
-              d="M0,120 Q600,0 1200,120 Z"
-              fill="currentColor"
-            ></path>
+            <path d="M0,120 Q600,0 1200,120 Z" fill="currentColor"></path>
           </svg>
         </div>
       </div>

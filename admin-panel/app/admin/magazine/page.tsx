@@ -4,7 +4,8 @@ import { Plus } from 'lucide-react'
 
 export default async function MagazinePage() {
   const supabase = await createAdminClient()
-  const { data: articles } = await supabase.from('articles')
+  const { data: articles } = await supabase
+    .from('articles')
     .select('id, title, slug, is_published, published_at, created_at')
     .order('created_at', { ascending: false })
 
@@ -12,7 +13,9 @@ export default async function MagazinePage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Nano-magazín</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Nano-magazín
+          </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             {articles?.length ?? 0} článků · {articles?.filter((a) => a.is_published).length ?? 0} publikováno
           </p>
@@ -27,11 +30,18 @@ export default async function MagazinePage() {
         </Link>
       </div>
 
-      <div className="rounded-xl" style={{ border: articles && articles.length > 0 ? '1px solid var(--border)' : 'none', overflow: 'hidden' }}>
+      <div
+        className="rounded-xl"
+        style={{ border: articles && articles.length > 0 ? '1px solid var(--border)' : 'none', overflow: 'hidden' }}
+      >
         {!articles || articles.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white rounded-xl">
             <p style={{ color: 'var(--text-muted)' }}>Žádné články zatím</p>
-            <Link href="/admin/magazine/new" className="text-sm font-semibold" style={{ color: 'var(--brand-primary)' }}>
+            <Link
+              href="/admin/magazine/new"
+              className="text-sm font-semibold"
+              style={{ color: 'var(--brand-primary)' }}
+            >
               Napsat první článek →
             </Link>
           </div>
@@ -43,7 +53,11 @@ export default async function MagazinePage() {
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-base)' }}>
                     {['Název', 'Stav', 'Datum', 'Akce'].map((col) => (
-                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                      <th
+                        key={col}
+                        className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
                         {col}
                       </th>
                     ))}
@@ -51,16 +65,24 @@ export default async function MagazinePage() {
                 </thead>
                 <tbody>
                   {articles.map((article, i) => (
-                    <tr key={article.id} style={{ borderBottom: i < articles.length - 1 ? '1px solid var(--border)' : undefined }}>
+                    <tr
+                      key={article.id}
+                      style={{ borderBottom: i < articles.length - 1 ? '1px solid var(--border)' : undefined }}
+                    >
                       <td className="px-5 py-4">
-                        <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{article.title}</p>
+                        <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+                          {article.title}
+                        </p>
                         <p className="text-[10px] opacity-50 font-mono">/{article.slug}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{
-                          background: article.is_published ? '#f0fdf4' : '#f1f5f9',
-                          color: article.is_published ? '#16a34a' : '#94a3b8',
-                        }}>
+                        <span
+                          className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                          style={{
+                            background: article.is_published ? '#f0fdf4' : '#f1f5f9',
+                            color: article.is_published ? '#16a34a' : '#94a3b8',
+                          }}
+                        >
                           {article.is_published ? 'Publikováno' : 'Koncept'}
                         </span>
                       </td>
@@ -85,8 +107,8 @@ export default async function MagazinePage() {
             {/* Mobile Cards */}
             <div className="md:hidden flex flex-col gap-3">
               {articles.map((article) => (
-                <Link 
-                  key={article.id} 
+                <Link
+                  key={article.id}
                   href={`/admin/magazine/${article.id}`}
                   className="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col gap-2"
                 >
@@ -94,10 +116,13 @@ export default async function MagazinePage() {
                     <span className="text-[10px] font-bold text-slate-400 uppercase">
                       {new Date(article.created_at).toLocaleDateString('cs-CZ')}
                     </span>
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase" style={{
-                      background: article.is_published ? '#f0fdf4' : '#16a34a',
-                      color: article.is_published ? '#16a34a' : 'white',
-                    }}>
+                    <span
+                      className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase"
+                      style={{
+                        background: article.is_published ? '#f0fdf4' : '#16a34a',
+                        color: article.is_published ? '#16a34a' : 'white',
+                      }}
+                    >
                       {article.is_published ? 'Publikováno' : 'Koncept'}
                     </span>
                   </div>

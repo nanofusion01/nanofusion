@@ -16,9 +16,10 @@ export async function updateInquiryStatus(id: string, status: string, source?: s
     const supabase = await createAdminClient()
     const updated_at = new Date().toISOString()
 
-    const { error } = source === AI_SOURCE
-      ? await supabase.from('ai_analyses').update({ status, updated_at }).eq('id', id)
-      : await supabase.from('inquiries').update({ status, updated_at }).eq('id', id)
+    const { error } =
+      source === AI_SOURCE
+        ? await supabase.from('ai_analyses').update({ status, updated_at }).eq('id', id)
+        : await supabase.from('inquiries').update({ status, updated_at }).eq('id', id)
 
     if (error) throw new Error(error.message)
 
@@ -33,9 +34,10 @@ export async function updateInquiryNotes(id: string, notes: string, source?: str
     const supabase = await createAdminClient()
     const updated_at = new Date().toISOString()
 
-    const { error } = source === AI_SOURCE
-      ? await supabase.from('ai_analyses').update({ additional_notes: notes, updated_at }).eq('id', id)
-      : await supabase.from('inquiries').update({ notes, updated_at }).eq('id', id)
+    const { error } =
+      source === AI_SOURCE
+        ? await supabase.from('ai_analyses').update({ additional_notes: notes, updated_at }).eq('id', id)
+        : await supabase.from('inquiries').update({ notes, updated_at }).eq('id', id)
 
     if (error) throw new Error(error.message)
 
@@ -49,9 +51,10 @@ export async function deleteInquiry(id: string, source?: string) {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()
 
-    const { error } = source === AI_SOURCE
-      ? await supabase.from('ai_analyses').delete().eq('id', id)
-      : await supabase.from('inquiries').delete().eq('id', id)
+    const { error } =
+      source === AI_SOURCE
+        ? await supabase.from('ai_analyses').delete().eq('id', id)
+        : await supabase.from('inquiries').delete().eq('id', id)
 
     if (error) throw new Error(error.message)
 
@@ -68,14 +71,10 @@ export async function deleteInquiries(ids: string[]) {
     await requireAdmin()
     const supabase = await createAdminClient()
 
-    const { error } = await supabase.from('inquiries')
-      .delete()
-      .in('id', ids)
+    const { error } = await supabase.from('inquiries').delete().in('id', ids)
     if (error) throw new Error(error.message)
 
-    const { error: aiError } = await supabase.from('ai_analyses')
-      .delete()
-      .in('id', ids)
+    const { error: aiError } = await supabase.from('ai_analyses').delete().in('id', ids)
     if (aiError) throw new Error(aiError.message)
 
     revalidatePath('/admin/inquiries')
@@ -91,9 +90,7 @@ export async function deleteAllInquiries() {
     await requireAdmin()
     const supabase = await createAdminClient()
 
-    const { error } = await supabase.from('inquiries')
-      .delete()
-      .not('id', 'is', null)
+    const { error } = await supabase.from('inquiries').delete().not('id', 'is', null)
 
     if (error) throw new Error(error.message)
 

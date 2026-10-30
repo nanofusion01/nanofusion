@@ -20,14 +20,18 @@ export function ServiceHero({
   const stats = [
     `${siteStats.stat_years} let zkušeností`,
     `${siteStats.stat_projects} dokončených projektů`,
-    "100% bezplatná konzultace"
+    "100% bezplatná konzultace",
   ];
 
   return (
     <section className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden bg-slate-900 min-h-[80vh] flex items-center">
       <div className="absolute inset-0 z-0 opacity-40">
         {ytId ? (
-          <img src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`} className="w-full h-full object-cover" alt="" />
+          <img
+            src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`}
+            className="w-full h-full object-cover"
+            alt=""
+          />
         ) : service.hero_image_url ? (
           <img src={optimizeImg(service.hero_image_url, 1600)} className="w-full h-full object-cover" alt="" />
         ) : (
@@ -88,7 +92,6 @@ export function ServiceHero({
           <div id="kalkulacka" className="relative w-full max-w-xl mx-auto lg:mr-0 z-20">
             <ServiceConfigurator basePrice={basePrice} serviceName={service.name} />
           </div>
-
         </div>
       </div>
     </section>
