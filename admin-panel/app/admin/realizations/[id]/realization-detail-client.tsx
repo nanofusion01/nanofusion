@@ -10,8 +10,9 @@ import {
 import * as actionsRaw from '../actions'
 import { TiptapEditor } from '@/components/admin/editor'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
-const { updateRealization, togglePublished, uploadRealizationPhoto, deleteRealizationPhoto, updateRealizationPhotos, uploadMultipleRealizationPhotos } = unwrapActions(actionsRaw)
+const { updateRealization, togglePublished, deleteRealizationPhoto, updateRealizationPhotos, uploadMultipleRealizationPhotos } = unwrapActions(actionsRaw)
 
 type Realization = {
   id: string
@@ -75,8 +76,8 @@ export function RealizationDetailClient({
       })))
 
       toast.success('Realizace a galerie uloženy')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     } finally {
       setSaving(false)
     }
@@ -87,8 +88,8 @@ export function RealizationDetailClient({
       await togglePublished(r.id, !r.is_published)
       setR({ ...r, is_published: !r.is_published })
       toast.success(r.is_published ? 'Realizace skryta z webu' : 'Realizace zveřejněna')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     }
   }
 
@@ -109,7 +110,7 @@ export function RealizationDetailClient({
         const newPhotosData = await uploadMultipleRealizationPhotos(r.id, fd)
         
         if (newPhotosData && newPhotosData.length > 0) {
-          const mappedPhotos = newPhotosData.map((p: any) => ({
+          const mappedPhotos = newPhotosData.map((p) => ({
             id: p.id,
             url: p.url,
             caption: p.caption,
@@ -125,7 +126,7 @@ export function RealizationDetailClient({
       } else {
         toast.error('Nepodařilo se nahrát žádné fotky.')
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Batch upload error:', err)
       toast.error('Chyba nahrávání. Fotky jsou pravděpodobně příliš velké.')
     } finally {
@@ -154,8 +155,8 @@ export function RealizationDetailClient({
       await deleteRealizationPhoto(photoId)
       setPhotos(prev => prev.filter(p => p.id !== photoId))
       toast.success('Fotka smazána')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     }
   }
 
@@ -205,13 +206,13 @@ export function RealizationDetailClient({
 
       {/* Tabs */}
       <div className="flex gap-2 p-1.5 rounded-2xl w-fit" style={{ background: 'var(--bg-surface-2)' }}>
-        {[
+        {([
           { id: 'info', label: 'Základní info' },
           { id: 'photos', label: `Fotografie (${photos.length})` },
-        ].map(tab => (
+        ] satisfies { id: typeof activeTab; label: string }[]).map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id)}
             className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200"
             style={{
               background: activeTab === tab.id ? 'var(--bg-surface)' : 'transparent',
@@ -375,7 +376,7 @@ export function RealizationDetailClient({
                           Hlavní
                         </span>
                       )}
-                      <img src={photo.url} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={photo.url} alt={photo.caption || "Fotka realizace"} className="w-full h-full object-cover" loading="lazy" />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                         <button
                           onClick={() => movePhoto(i, 'left')}

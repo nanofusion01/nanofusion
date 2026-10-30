@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
@@ -9,31 +9,14 @@ import { Color } from '@tiptap/extension-color'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { FontFamily } from '@tiptap/extension-font-family'
 import { TextAlign } from '@tiptap/extension-text-align'
-import { 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Quote, 
-  Undo, 
-  Redo, 
-  Heading1, 
-  Heading2, 
-  Link as LinkIcon, 
-  Image as ImageIcon,
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
-  Type,
-  Pipette
-} from 'lucide-react'
+import { Bold, Italic, List, ListOrdered, Undo, Redo, Heading1, Heading2, Link as LinkIcon, Image as ImageIcon, AlignCenter, AlignLeft, AlignRight, Pipette } from 'lucide-react'
 
 interface EditorProps {
   content: string
   onChange: (content: string) => void
 }
 
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) return null
 
   const addImage = () => {

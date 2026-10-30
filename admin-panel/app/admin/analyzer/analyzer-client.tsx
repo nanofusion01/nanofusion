@@ -5,23 +5,9 @@ import * as actionsRaw from './actions'
 import type { NanoTip } from './actions'
 import * as inquiriesActionsRaw from '../inquiries/actions'
 import { toast } from 'sonner'
-import { 
-  Save, 
-  Plus, 
-  Trash2, 
-  Lightbulb,
-  Info,
-  Brain,
-  ClipboardList,
-  Mail,
-  Phone,
-  Home,
-  Calendar,
-  X,
-  ChevronDown,
-  AlertTriangle
-} from 'lucide-react'
+import { Save, Plus, Trash2, Lightbulb, Info, Brain, ClipboardList, Mail, Phone, Home, X, ChevronDown, AlertTriangle } from 'lucide-react'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { updateAnalyzerTips } = unwrapActions(actionsRaw)
 const { updateInquiryStatus, updateInquiryNotes, deleteInquiry } = unwrapActions(inquiriesActionsRaw)
@@ -111,8 +97,8 @@ export function AnalyzerClient({ initialTips, initialLeads }: AnalyzerClientProp
 
       await updateAnalyzerTips(tips)
       toast.success('Tipy pro AI analýzu byly úspěšně uloženy')
-    } catch (e: any) {
-      toast.error('Chyba při ukládání tipů: ' + e.message)
+    } catch (e) {
+      toast.error('Chyba při ukládání tipů: ' + errorMessage(e))
     } finally {
       setIsSavingTips(false)
     }
@@ -133,7 +119,7 @@ export function AnalyzerClient({ initialTips, initialLeads }: AnalyzerClientProp
       if (selectedLead?.id === id) {
         setSelectedLead({ ...selectedLead, status })
       }
-    } catch (err) {
+    } catch {
       toast.error('Nepodařilo se aktualizovat stav')
     } finally {
       setUpdatingLeadStatus(false)

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import * as actionsRaw from './actions'
-import { normalizeMediaUrl } from '@/lib/utils'
+import { normalizeMediaUrl, errorMessage } from '@/lib/utils'
 import { toast } from 'sonner'
 import { Plus, Trash2, Globe, Image as ImageIcon, Video, Save, ExternalLink, Upload, Loader2 } from 'lucide-react'
 import { unwrapActions } from '@/lib/action-result'
@@ -30,7 +30,6 @@ export function HeroClient({
   const [isAdding, setIsAdding] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [newUrl, setNewUrl] = useState('')
-  const [newType, setNewType] = useState<'image' | 'video'>('image')
   const [addMode, setAddMode] = useState<'url' | 'file'>('file')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -41,7 +40,7 @@ export function HeroClient({
     try {
       await updateHeroTitle(title)
       toast.success('Text v hero sekci byl aktualizován')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při ukládání textu')
     } finally {
       setIsSavingTitle(false)
@@ -57,8 +56,8 @@ export function HeroClient({
       const inferredType = file.type.startsWith('video/') ? 'video' : 'image'
       setItems(prev => [...prev, { id: Date.now().toString(), url: publicUrl, type: inferredType, is_active: false, updated_at: new Date().toISOString() }])
       toast.success(inferredType === 'video' ? 'Video nahráno do knihovny' : 'Obrázek nahrán do knihovny')
-    } catch (e: any) {
-      toast.error('Chyba při nahrávání: ' + e.message)
+    } catch (e) {
+      toast.error('Chyba při nahrávání: ' + errorMessage(e))
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -73,7 +72,7 @@ export function HeroClient({
         is_active: item.id === id ? !currentStatus : (!currentStatus ? false : item.is_active)
       })))
       toast.success(currentStatus ? 'Médium deaktivováno' : 'Médium bylo nastaveno jako aktivní')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při změně stavu')
     }
   }
@@ -87,7 +86,7 @@ export function HeroClient({
       await addHeroMedia(newUrl, 'video')
       setNewUrl('')
       toast.success('Nové video bylo přidáno do knihovny')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při přidávání videa')
     } finally {
       setIsAdding(false)
@@ -100,7 +99,7 @@ export function HeroClient({
       await deleteHeroMedia(id)
       setItems(items.filter(i => i.id !== id))
       toast.success('Médium bylo smazáno')
-    } catch (e) {
+    } catch {
       toast.error('Chyba při mazání')
     }
   }
@@ -287,7 +286,7 @@ export function HeroClient({
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                      <Video size={32} className="text-white/20" />
-                     <img src={`https://img.youtube.com/vi/${item.url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([^\/\?\&]+)/)?.[1]}/hqdefault.jpg`} className="absolute inset-0 w-full h-full object-cover opacity-40" />
+                     <img alt="Náhled videa" src={`https://img.youtube.com/vi/${item.url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([^\/\?\&]+)/)?.[1]}/hqdefault.jpg`} className="absolute inset-0 w-full h-full object-cover opacity-40" />
                   </div>
                 )}
                 

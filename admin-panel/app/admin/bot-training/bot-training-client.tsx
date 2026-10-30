@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import * as actionsRaw from './actions'
 import { TiptapEditor } from '@/components/admin/editor'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { saveKnowledge, deleteKnowledge, toggleKnowledgeActive, uploadBotDocument, setBotEnabledStatus } = unwrapActions(actionsRaw)
 
@@ -18,7 +19,7 @@ interface Knowledge {
   created_at: string
 }
 
-export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { initialKnowledge: any[], initialBotEnabled: boolean }) {
+export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { initialKnowledge: Knowledge[], initialBotEnabled: boolean }) {
   const [knowledge, setKnowledge] = useState<Knowledge[]>(initialKnowledge)
   const [botEnabled, setBotEnabled] = useState<boolean>(initialBotEnabled)
   const [isTogglingBot, setIsTogglingBot] = useState(false)
@@ -37,7 +38,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
       await setBotEnabledStatus(newStatus)
       setBotEnabled(newStatus)
       toast.success(newStatus ? 'AI Nanobot byl zapnut na webu' : 'AI Nanobot byl vypnut na webu')
-    } catch (error) {
+    } catch {
       toast.error('Chyba při změně nastavení Nanobota')
     } finally {
       setIsTogglingBot(false)
@@ -54,7 +55,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
       await saveKnowledge(dataToSave)
       toast.success(isEditing ? 'Znalost byla aktualizována' : 'Nová znalost byla přidána')
       window.location.reload()
-    } catch (error) {
+    } catch {
       toast.error('Chyba při ukládání')
     }
   }
@@ -76,9 +77,9 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
       await uploadBotDocument(formData)
       toast.success('Dokument byl úspěšně zpracován a naučen', { id: toastId })
       window.location.reload()
-    } catch (error: any) {
+    } catch (error) {
       console.error(error)
-      toast.error(error.message || 'Chyba při zpracování PDF', { id: toastId })
+      toast.error(errorMessage(error) || 'Chyba při zpracování PDF', { id: toastId })
     } finally {
       setIsUploading(false)
     }
@@ -90,7 +91,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
       await deleteKnowledge(id)
       setKnowledge(knowledge.filter(k => k.id !== id))
       toast.success('Smazáno')
-    } catch (error) {
+    } catch {
       toast.error('Chyba při mazání')
     }
   }
@@ -100,7 +101,7 @@ export function BotTrainingClient({ initialKnowledge, initialBotEnabled }: { ini
       await toggleKnowledgeActive(id, !current)
       setKnowledge(knowledge.map(k => k.id === id ? { ...k, is_active: !current } : k))
       toast.success(current ? 'Deaktivováno' : 'Aktivováno')
-    } catch (error) {
+    } catch {
       toast.error('Chyba při změně stavu')
     }
   }

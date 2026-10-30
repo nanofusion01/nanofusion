@@ -18,7 +18,9 @@ export async function uploadCertificateImage(formData: FormData) {
   })
 }
 
-export async function updateCertificatesConfig(certificates: any[]) {
+export async function updateCertificatesConfig(
+  certificates: { id: string; title: string; description: string; imageUrl: string }[]
+) {
   return safeAction(async () => {
     await requireAdminOrEditor()
     const supabase = await createAdminClient()

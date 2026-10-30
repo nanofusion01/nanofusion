@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Plus, UserX, Shield, Mail, RefreshCw, Trash2 } from 'lucide-react'
+import { Plus, RefreshCw, Trash2 } from 'lucide-react'
 import * as actionsRaw from './actions'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { addUser, deleteUser, updateUserRole } = unwrapActions(actionsRaw)
 
@@ -32,8 +33,8 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
       toast.success('Uživatel ' + inviteEmail + ' byl vytvořen')
       setInviteEmail('')
       // Delay reload or wait until user dismisses popup
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -46,8 +47,8 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
       await deleteUser(id)
       setProfiles(prev => prev.filter(p => p.id !== id))
       toast.success('Uživatel smazán')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -59,8 +60,8 @@ export function UsersClient({ initialProfiles, currentUserId }: { initialProfile
       await updateUserRole(id, newRole)
       setProfiles(prev => prev.map(p => p.id === id ? { ...p, role: newRole } : p))
       toast.success('Role aktualizována')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     }
   }
 

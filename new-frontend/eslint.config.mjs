@@ -7,10 +7,10 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "warn",
-      "react/no-unescaped-entities": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@next/next/no-img-element": "warn",
+      // Obrázky z databáze se zmenšují přes Supabase Image Transformation
+      // (lib/supabase.ts → optimizeImg) a chodí už ve správné šířce;
+      // next/image by je optimalizoval podruhé.
+      "@next/next/no-img-element": "off",
     },
   },
   // Override default ignores of eslint-config-next.

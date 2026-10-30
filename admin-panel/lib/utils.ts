@@ -67,3 +67,18 @@ export async function compressImage(file: File, maxWidth = 1920): Promise<File> 
     reader.onerror = (err) => reject(err);
   });
 }
+
+/** Čitelná zpráva z libovolné zachycené chyby (catch dostává `unknown`). */
+export function errorMessage(e: unknown): string {
+  if (e instanceof Error) return e.message
+  if (typeof e === 'object' && e !== null && 'message' in e && typeof e.message === 'string') return e.message
+  return String(e)
+}
+
+/**
+ * Zúží textovou hodnotu z databáze (sloupec typu text) na povolený výčet,
+ * jinak vrátí výchozí hodnotu.
+ */
+export function oneOf<T extends string>(value: string | null | undefined, allowed: readonly T[], fallback: T): T {
+  return (allowed as readonly string[]).includes(value ?? '') ? (value as T) : fallback
+}

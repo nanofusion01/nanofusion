@@ -7,6 +7,14 @@ export default async function BotTrainingPage() {
   const isBotEnabled = unwrapResult(await getBotEnabledStatus())
   
   return (
-    <BotTrainingClient initialKnowledge={knowledge} initialBotEnabled={isBotEnabled} />
+    <BotTrainingClient
+      initialKnowledge={knowledge.map((k) => ({
+        ...k,
+        category: k.category ?? 'obecne',
+        is_active: k.is_active ?? true,
+        created_at: k.created_at ?? '',
+      }))}
+      initialBotEnabled={isBotEnabled}
+    />
   )
 }

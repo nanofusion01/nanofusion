@@ -1,7 +1,6 @@
-import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { supabase, optimizeImg } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { sanitizeHtml } from "@/lib/sanitize";
 
 async function getConfig() {
@@ -14,6 +13,7 @@ async function getConfig() {
 
 import { Pill } from "@/components/ui/pill";
 import { FloatingReview } from "@/components/ui/floating-review";
+import { HeroVideo } from "./HeroVideo";
 
 const Stats = () => {
   const stats = [
@@ -39,6 +39,16 @@ const Stats = () => {
 
 export const Hero = async () => {
   const config = await getConfig();
+
+  // Nejnovější schválená recenze s 5 hvězdičkami pro plovoucí ukázku
+  const { data: latestReview } = await supabase
+    .from("external_reviews")
+    .select("author, content, source")
+    .eq("approved", true)
+    .eq("rating", 5)
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
 
   const { data: mediaData } = await supabase
     .from("hero_media")
@@ -66,12 +76,7 @@ export const Hero = async () => {
         {mediaData && (
           <div className="absolute inset-0 z-0 overflow-hidden">
             {ytId ? (
-              <iframe
-                className="w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&modestbranding=1&playsinline=1&rel=0&enablejsapi=1`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+              <HeroVideo ytId={ytId} />
             ) : mediaData.type === 'video' ? (
               <video
                 src={mediaData.url}
@@ -84,7 +89,9 @@ export const Hero = async () => {
             ) : (
               <img
                 src={mediaData.url}
-                alt="Hero background"
+                alt=""
+                aria-hidden="true"
+                fetchPriority="high"
                 className="absolute inset-0 w-full h-full object-cover"
               />
             )}
@@ -146,7 +153,7 @@ export const Hero = async () => {
         </div>
 
         {/* Floating Review on Video */}
-        <FloatingReview />
+        <FloatingReview review={latestReview} />
 
 
         {/* Bottom Curved Arch Separator */}

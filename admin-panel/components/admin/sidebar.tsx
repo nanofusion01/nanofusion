@@ -3,32 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import NextImage from 'next/image'
-import {
-  LayoutDashboard,
-  Image as ImageIcon,
-  Wrench,
-  HardHat,
-  Star,
-  Brain,
-  Newspaper,
-  GalleryHorizontal,
-  HelpCircle,
-  Calculator,
-  MessageSquare,
-  ClipboardList,
-  Users,
-  UserCircle,
-  ChevronRight,
-  LogOut,
-  Menu,
-  X,
-  Sparkles,
-} from 'lucide-react'
+import { LayoutDashboard, Image as ImageIcon, Wrench, HardHat, Star, Brain, Newspaper, GalleryHorizontal, HelpCircle, Calculator, MessageSquare, ClipboardList, Users, UserCircle, LogOut, Menu, X, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 export interface NavItem {
   label: string
@@ -163,9 +142,13 @@ export function Sidebar({ pendingReviews = 0, newAnalyses = 0, userEmail, userRo
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
+  // Po přechodu na jinou stránku zavřít mobilní menu (úprava stavu během
+  // renderu místo efektu - doporučený vzor Reactu)
+  const [lastPathname, setLastPathname] = useState(pathname)
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname)
     setIsOpen(false)
-  }, [pathname])
+  }
 
   const handleLogout = async () => {
     const { createClient } = await import('@/lib/supabase/client')

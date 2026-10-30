@@ -1,20 +1,15 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { revalidateFrontend } from '@/lib/revalidate-frontend'
+import { stripHtml } from '@/lib/strip-html'
+import { errorMessage } from '@/lib/utils'
 
-// Recenze se na webu vždy vykreslují jako čistý text - nikdy jako HTML -
-// proto sem nesmí projít žádné značky.
-function stripHtml(input: string): string {
-  return input
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#0?39;/gi, "'")
-    .replace(/\s+/g, ' ')
-    .trim()
+/** Recenze z Google Places API (Place Details → reviews). */
+interface GooglePlaceReview {
+  author_name: string
+  rating: number
+  text?: string
+  time: number
 }
 
 export async function GET(request: Request) {
@@ -59,7 +54,7 @@ export async function GET(request: Request) {
       )
     }
 
-    const googleReviews: any[] = data.result?.reviews || []
+    const googleReviews: GooglePlaceReview[] = data.result?.reviews || []
     let imported = 0
 
     for (const rev of googleReviews) {
@@ -85,7 +80,7 @@ export async function GET(request: Request) {
         published_at: new Date(rev.time * 1000).toISOString(),
         approved: true, // Google recenze = automaticky schváleny
         fetched_at: new Date().toISOString(),
-      } as any)
+      })
 
       if (!error) imported++
     }
@@ -102,7 +97,7 @@ export async function GET(request: Request) {
         ? `${imported} nových Google recenzí importováno a ihned zveřejněno`
         : 'Žádné nové Google recenze (vše již importováno)',
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: 'Sync selhal: ' + error.message }, { status: 500 })
+  } catch (error) {
+    return NextResponse.json({ error: 'Sync selhal: ' + errorMessage(error) }, { status: 500 })
   }
 }

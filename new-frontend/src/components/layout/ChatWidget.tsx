@@ -5,12 +5,28 @@ import { MessageSquare, X, Send, Bot } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { submitInquiry } from "@/lib/inquiry";
 import { Button } from "@/components/ui/button";
+import {
+  buildKnowledgeBase,
+  DEFAULT_GREETING_BUTTONS,
+  extractLeadTag,
+  isValidLocation,
+  matchKnowledge,
+  parseArea,
+  parseContact,
+  type KnowledgeEntry,
+} from "@/lib/chat";
+
+const ASSISTANT_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/nano-assistant`;
 
 type Message = {
   type: "bot" | "user";
   text: string;
   quickReplies?: string[];
+  /** čas napsání zprávy (HH:MM:SS) pro přepis v administraci */
+  time?: string;
 };
+
+const nowTime = () => new Date().toLocaleTimeString("cs-CZ");
 
 type ChatState = "INIT" | "ASK_SERVICE" | "ASK_ADDRESS" | "ASK_AREA" | "ASK_CONTACT" | "FINISHED";
 
@@ -23,7 +39,7 @@ export function ChatWidget() {
   const [isTyping, setIsTyping] = useState(false);
   
   const [sessionId, setSessionId] = useState("");
-  const [botKnowledge, setBotKnowledge] = useState<Record<string, { keywords: string[]; answer: string }>>({});
+  const [botKnowledge, setBotKnowledge] = useState<Record<string, KnowledgeEntry>>({});
   const [greetingButtons, setGreetingButtons] = useState<string[]>([]);
   
   const [userData, setUserData] = useState({
@@ -66,13 +82,10 @@ export function ChatWidget() {
 
       if (configData && configData.value === "true") {
         setIsBotEnabled(true);
-        setSessionId("chat_" + Math.random().toString(36).substring(2, 11));
+        setSessionId(`chat_${crypto.randomUUID()}`);
 
-        setTimeout(() => {
-          if (!isOpen && window.location.hash !== "#admin") {
-            setIsOpen(true);
-          }
-        }, 1200);
+        // chat se po načtení stránky sám otevře (setIsOpen(true) je idempotentní)
+        setTimeout(() => setIsOpen(true), 1200);
       }
 
       // Load bot knowledge
@@ -82,37 +95,13 @@ export function ChatWidget() {
         .eq("is_active", true);
 
       if (knowledgeData) {
-        const kb: Record<string, { keywords: string[]; answer: string }> = {};
-        knowledgeData
-          .filter((k) => k.category === "předdefinované")
-          .forEach((k) => {
-            const key = k.title.toLowerCase().replace(/\s/g, "_");
-            kb[key] = {
-              keywords: k.title.toLowerCase().split(",").map((s: string) => s.trim()),
-              answer: k.content,
-            };
-          });
-        
-        // Znalosti jako fallback
-        const hardcodedKb = {
-          okapy: { keywords: ['okap', 'rýny', 'odtok'], answer: 'Ano, čištění a kontrola okapů je standardní součástí naší renovace střech. Chceme, aby váš dům po našem zásahu fungoval jako celek. Máte okapy hodně zanesené?' },
-          zaruka: { keywords: ['záruk', 'garanc', 'jak dlouho vydrží'], answer: 'U naší nano-ochrany dáváme garanci až 10 let na funkčnost povrchu. Technologie NANOfusion zabraňuje hloubkovému usazování nečistot a růstu mechů.' },
-          rychlost: { keywords: ['jak dlouho to trvá', 'termín', 'kdy začnete'], answer: 'Většinu rodinných domů stihneme kompletně vyčistit a ošetřit během 1 až 2 dnů. Aktuálně máme volné termíny v horizontu 14 dnů.' },
-          cena: { keywords: ['cena', 'kolik to stojí', 'rozpočet', 'peněz'], answer: 'Cena je individuální a závisí na ploše a stavu povrchu. Abych vám mohl říct aspoň orientační rozmezí, potřeboval bych znát přibližnou plochu v m².' }
-        };
-        
-        setBotKnowledge(Object.keys(kb).length > 0 ? kb : hardcodedKb);
+        setBotKnowledge(buildKnowledgeBase(knowledgeData));
 
         const greetingEntry = knowledgeData.find((k) => k.title === "GREETING_BUTTONS");
         if (greetingEntry) {
           setGreetingButtons(greetingEntry.content.split(",").map((s: string) => s.trim()));
         } else {
-          setGreetingButtons([
-            "Čištění střechy/fasády",
-            "Solární panely",
-            "Nátěry střech/fasád",
-            "Služby pro firmy",
-          ]);
+          setGreetingButtons(DEFAULT_GREETING_BUTTONS);
         }
       }
     };
@@ -120,50 +109,44 @@ export function ChatWidget() {
     initBot();
   }, []);
 
-  // Sync to supabase when messages change
+  // Přepis konverzace se ukládá přes serverové API (zobrazí se v administraci → Chaty)
   useEffect(() => {
     if (!sessionId || messages.length === 0) return;
 
-    const chatHistoryToSave = messages.map((m) => ({
-      type: m.type === "bot" ? "Asistent" : "Zákazník",
-      text: m.text,
-      time: new Date().toLocaleTimeString("cs-CZ"),
-      role: m.type === "bot" ? "assistant" : "user",
-    }));
-
-    supabase.from("chat_sessions").upsert(
-      {
-        session_token: sessionId,
-        user_identifier: userData.contact || userData.location || "Návštěvník",
-        messages: chatHistoryToSave,
-        status: "open",
-        last_activity: new Date().toISOString(),
-      },
-      { onConflict: "session_token" }
-    ).then(({ error }) => {
-      if (error) console.error("Chat sync error:", error);
-    });
+    fetch("/api/chat-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionToken: sessionId,
+        userIdentifier: userData.contact || userData.location || "Návštěvník",
+        messages: messages.map((m) => ({
+          type: m.type === "bot" ? "Asistent" : "Zákazník",
+          role: m.type === "bot" ? "assistant" : "user",
+          text: m.text.slice(0, 4000),
+          time: m.time ?? nowTime(),
+        })),
+      }),
+    }).catch((err) => console.error("Chat sync error:", err));
   }, [messages, sessionId, userData.contact, userData.location]);
 
-  // Initial greeting
+  // Uvítání se zobrazí jednou po otevření chatu. Nikdy nepřepíše zprávy, které
+  // zákazník mezitím napsal (efekt se znovu spouští i po načtení tlačítek).
+  const greetingScheduled = useRef(false);
   useEffect(() => {
-    if (isOpen && chatState === "INIT") {
-      setTimeout(() => {
-        setChatState("ASK_SERVICE");
-        setMessages([
-          {
-            type: "bot",
-            text: getGreeting(),
-            quickReplies: greetingButtons.length > 0 ? greetingButtons : [
-              "Čištění střechy/fasády",
-              "Solární panely",
-              "Nátěry střech/fasád",
-              "Služby pro firmy",
-            ],
-          },
-        ]);
-      }, 500);
-    }
+    if (!isOpen || chatState !== "INIT" || greetingScheduled.current) return;
+    greetingScheduled.current = true;
+    setTimeout(() => {
+      setChatState((state) => (state === "INIT" ? "ASK_SERVICE" : state));
+      setMessages((prev) => [
+        {
+          type: "bot",
+          text: getGreeting(),
+          time: nowTime(),
+          quickReplies: greetingButtons.length > 0 ? greetingButtons : DEFAULT_GREETING_BUTTONS,
+        },
+        ...prev,
+      ]);
+    }, 500);
   }, [isOpen, chatState, greetingButtons]);
 
   const handleLeadFlow = (original: string, state: ChatState) => {
@@ -174,9 +157,8 @@ export function ChatWidget() {
         botSay("Skvělá volba! Pro začátek mi napište **přesnou adresu realizace** (kvůli výpočtu dopravy). 📍");
         break;
 
-      case "ASK_ADDRESS":
-        const locLetters = original.replace(/[^a-zA-Zá-žÁ-Ž]/g, "");
-        if (original.trim().length < 2 || locLetters.length < 2 || /^\d+$/.test(original.trim())) {
+      case "ASK_ADDRESS": {
+        if (!isValidLocation(original)) {
           botSay("Napište prosím platné město nebo obec, kde se objekt nachází. 📍");
           return;
         }
@@ -184,10 +166,11 @@ export function ChatWidget() {
         setChatState("ASK_AREA");
         botSay(`Děkuji! Lokaci **${original}** jsem uložil. O jak **velkou plochu** (m²) se přibližně jedná?`);
         break;
+      }
 
-      case "ASK_AREA":
-        const area = original.replace(/[^0-9]/g, "");
-        if (!area || parseInt(area) < 1) {
+      case "ASK_AREA": {
+        const area = parseArea(original);
+        if (!area) {
           botSay("Napište prosím přibližný počet m² (stačí číslo). 🔢");
           return;
         }
@@ -195,49 +178,35 @@ export function ChatWidget() {
         setChatState("ASK_CONTACT");
         botSay("Děkuji. Poslední krok - zanechte mi prosím vaše **telefonní číslo**, ať se vám můžeme ozvat s nabídkou. 📞");
         break;
+      }
 
-      case "ASK_CONTACT":
-        const isEmailInput = original.includes("@") && original.includes(".");
-        const cleanPhone = original.replace(/[\s\-\(\)\+]/g, "");
-        const isValidPhone =
-          /^\d{9,15}$/.test(cleanPhone) &&
-          !/^(\d)\1+$/.test(cleanPhone) &&
-          cleanPhone !== "123456789" &&
-          cleanPhone !== "987654321";
-
-        if (!isEmailInput && !isValidPhone) {
+      case "ASK_CONTACT": {
+        const contact = parseContact(original);
+        if (!contact) {
           botSay("Zadejte prosím platné telefonní číslo (např. 774 509 409) nebo e-mail. 📱✉️");
           return;
         }
-        setUserData((prev) => {
-          const newData = { ...prev, contact: original };
-          
-          setChatState("FINISHED");
-          botSay("Perfektní, vaše poptávka je v systému! ✨");
-          botSay(
-            `**Rekapitulace:**\n• Služba: ${newData.service}\n• Adresa: ${newData.location}\n• Plocha: ${newData.area} m²\n• Kontakt: ${original}\n\n*Kolegové se vám ozvou s finální cenou včetně dopravy do 24 hodin.*`
-          );
-          botSay("Co by vás zajímalo dál?", [
-            "🔗 Ukázat Recenze",
-            "🔗 Ukázat Realizace",
-            "🔗 Ostatní Služby",
-          ]);
+        // vedlejší efekty (zprávy, uložení poptávky) mimo updater stavu, ať
+        // se v React StrictMode neprovedou dvakrát
+        const lead = { ...userData, contact: original };
+        setUserData(lead);
+        setChatState("FINISHED");
+        botSay("Perfektní, vaše poptávka je v systému! ✨");
+        botSay(
+          `**Rekapitulace:**\n• Služba: ${lead.service}\n• Adresa: ${lead.location}\n• Plocha: ${lead.area} m²\n• Kontakt: ${original}\n\n*Kolegové se vám ozvou s finální cenou včetně dopravy do 24 hodin.*`
+        );
+        botSay("Co by vás zajímalo dál?", ["🔗 Ukázat Recenze", "🔗 Ukázat Realizace", "🔗 Ostatní Služby"]);
 
-          // Uložení leadu: rozlišení mezi e-mailem a telefonem
-          submitInquiry({
-            name: "Zákazník z Chatu",
-            phone: isEmailInput ? "" : original,
-            email: isEmailInput ? original : "",
-            service: newData.service || "Konzultace z chatu",
-            message: `Poptávka z AI Chatu. Lokace: ${newData.location || "Neznámá"}, Plocha: ${newData.area || "Neznámá"} m².`,
-            source: "chat",
-          }).catch((err) => {
-            console.error("Inquiry Save Error:", err);
-          });
-
-          return newData;
-        });
+        submitInquiry({
+          name: "Zákazník z Chatu",
+          phone: contact.kind === "phone" ? contact.value : "",
+          email: contact.kind === "email" ? contact.value : "",
+          service: lead.service || "Konzultace z chatu",
+          message: `Poptávka z AI Chatu. Lokace: ${lead.location || "Neznámá"}, Plocha: ${lead.area || "Neznámá"} m².`,
+          source: "chat",
+        }).catch((err) => console.error("Inquiry Save Error:", err));
         break;
+      }
 
       case "FINISHED":
         botSay("Jsem připraven na vaše dotazy. Co vás konkrétně zajímá ohledně našich technologií nebo záruk?");
@@ -252,42 +221,30 @@ export function ChatWidget() {
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      setMessages((prev) => [...prev, { type: "bot", text, quickReplies }]);
+      setMessages((prev) => [...prev, { type: "bot", text, quickReplies, time: nowTime() }]);
     }, delay);
   };
 
   const processInput = async (input: string) => {
-    const lowerInput = input.toLowerCase();
-
     // 1. Znalostní báze - rychlá odpověď na časté dotazy bez volání AI
-    for (const key in botKnowledge) {
-      const entry = botKnowledge[key];
-      if (entry.keywords.some((k: string) => lowerInput.includes(k))) {
-        botSay(entry.answer);
-        if (chatState !== "FINISHED") {
-          setTimeout(() => {
-            botSay("Vraťme se ale k vaší poptávce - klidně mi řekněte víc o tom, co potřebujete, ať vám můžu pomoct dál. 🙂");
-          }, 2500);
-        }
-        return;
+    const knownAnswer = matchKnowledge(input, botKnowledge);
+    if (knownAnswer) {
+      botSay(knownAnswer);
+      if (chatState !== "FINISHED") {
+        setTimeout(() => {
+          botSay("Vraťme se ale k vaší poptávce - klidně mi řekněte víc o tom, co potřebujete, ať vám můžu pomoct dál. 🙂");
+        }, 2500);
       }
+      return;
     }
 
-    // 2. Vše ostatní jde vždy na AI (viz nano-assistant edge function) - ta
-    // sama umí vést celý rozhovor včetně sbírání kontaktu (viz [LEAD: ...]
-    // v odpovědi). Dřív tu byla natvrdo napsaná větev, která KAŽDOU zprávu
-    // po první "chybě" AI odpovědi navždy přesměrovala na rigidní formulář
-    // (handleLeadFlow, jen regex validace, žádné porozumění dotazu) a už se
-    // to nikdy nevrátilo zpátky k AI - odtud dojem "hloupého" bota. Teď se AI
-    // zkouší pokaždé; handleLeadFlow zůstává jen jako jednorázová záloha pro
-    // tento jeden tah, když AI volání zrovna selže (viz catch níže).
-
+    // 2. Vše ostatní odpovídá AI (edge funkce nano-assistant), která umí vést
+    // celý rozhovor včetně získání kontaktu (značka [LEAD: ...] v odpovědi).
+    // Řízený dialog (handleLeadFlow) je jen záloha, když volání AI selže.
     // 3. OpenAI Edge Function
     botSay("Půjdu se na to zeptat mého nano-mozku... 🧠", [], 400);
 
     try {
-      await supabase.auth.getSession();
-      
       const historyToSent = messages.slice(-5).map((h) => ({
         role: h.type === "bot" ? "assistant" : "user",
         content: h.text,
@@ -296,11 +253,10 @@ export function ChatWidget() {
       // Přidat právě zadanou zprávu, pokud tam ještě není, history se updatuje asynchronně
       historyToSent.push({ role: "user", content: input });
 
-      const response = await fetch("https://mgmtkdwvhgrzefmyucvr.supabase.co/functions/v1/nano-assistant", {
+      const response = await fetch(ASSISTANT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Můžeme předat anon key pokud to API vyžaduje
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({ messages: historyToSent }),
@@ -308,31 +264,20 @@ export function ChatWidget() {
 
       const data = await response.json();
       if (data.reply) {
-        let finalReply = data.reply;
-        
-        const leadMatch = finalReply.match(/\[LEAD:\s*(.*?)\]/i);
-        if (leadMatch) {
-          const leadData = leadMatch[1].split(",").map((s: string) => s.trim());
-          const [name, contactInfo, address, area] = leadData;
-          const extractedContact = (contactInfo || userData.contact || "").trim();
-          const isLeadEmail = extractedContact.includes("@");
-
+        const { lead, text } = extractLeadTag(data.reply);
+        if (lead) {
+          const contact = parseContact(lead.contact || userData.contact || "");
           submitInquiry({
-            name: name || "Zákazník z AI Chatu",
-            phone: isLeadEmail ? "" : extractedContact,
-            email: isLeadEmail ? extractedContact : "",
+            name: lead.name || "Zákazník z AI Chatu",
+            phone: contact?.kind === "phone" ? contact.value : "",
+            email: contact?.kind === "email" ? contact.value : "",
             service: userData.service || "Konzultace z chatu",
-            message: `Poptávka vygenerovaná plně přes AI Chat.\nLokace: ${address || userData.location || "Neznámé"}\nPlocha: ${area || "Neznámé"} m²\nJméno: ${name || "Neznámé"}\nKontakt: ${extractedContact}`,
+            message: `Poptávka vygenerovaná plně přes AI Chat.\nLokace: ${lead.address || userData.location || "Neznámé"}\nPlocha: ${lead.area || "Neznámé"} m²\nJméno: ${lead.name || "Neznámé"}\nKontakt: ${lead.contact || userData.contact || "Neuvedeno"}`,
             source: "chat",
-          }).catch((err) => {
-            console.error("AI Lead Inquiry Save Error:", err);
-          });
-
-          finalReply = finalReply.replace(/\[LEAD:\s*(.*?)\]/i, "").trim();
+          }).catch((err) => console.error("AI Lead Inquiry Save Error:", err));
           setChatState("FINISHED");
         }
-        
-        botSay(finalReply);
+        botSay(text);
       } else {
         throw new Error("No reply from AI");
       }
@@ -345,23 +290,21 @@ export function ChatWidget() {
 
   const handleSend = (text: string) => {
     if (!text.trim()) return;
-    setMessages((prev) => [...prev, { type: "user", text }]);
+    setMessages((prev) => [...prev, { type: "user", text, time: nowTime() }]);
     setInputValue("");
     processInput(text);
   };
 
-  const renderText = (text: string) => {
-    // Basic markdown for bold text (**text**) and linebreaks
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-    return parts.map((part, i) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
-        return <strong key={i}>{part.slice(2, -2)}</strong>;
-      }
-      return <span key={i}>{part}</span>;
-    }).reduce((prev: React.ReactNode[], curr: React.ReactNode, i: number) => {
-      return prev === null ? [curr] : [...prev, <br key={`br-${i}`} />, curr];
-    }, null as unknown as React.ReactNode[]);
-  };
+  // Jednoduchý markdown: **tučně** a zalomení řádků
+  const renderText = (text: string) =>
+    text.split("\n").map((line, li) => (
+      <React.Fragment key={li}>
+        {li > 0 && <br />}
+        {line.split(/(\*\*.*?\*\*)/g).map((part, pi) =>
+          part.startsWith("**") && part.endsWith("**") ? <strong key={pi}>{part.slice(2, -2)}</strong> : <span key={pi}>{part}</span>
+        )}
+      </React.Fragment>
+    ));
 
   if (!isBotEnabled) return null;
 
@@ -410,14 +353,8 @@ export function ChatWidget() {
                       ? "bg-amber-500 text-white rounded-br-sm"
                       : "bg-white border border-gray-100 text-gray-800 shadow-sm rounded-bl-sm"
                   }`}
-                  style={{ whiteSpace: "pre-line" }}
                 >
-                  {/* Simplistic bold text rendering, could be improved with marked/react-markdown */}
-                  {msg.text.split("\n").map((line, i) => (
-                    <React.Fragment key={i}>
-                      {renderText(line)}
-                    </React.Fragment>
-                  ))}
+                  {renderText(msg.text)}
                 </div>
                 
                 {/* Quick Replies */}

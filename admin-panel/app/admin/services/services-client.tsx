@@ -18,6 +18,7 @@ import {
 import { Tables } from '@/lib/database.types'
 import * as actionsRaw from './actions'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { toggleServiceStatus, deleteService, createService } = unwrapActions(actionsRaw)
 type Service = Tables<'services'> & {
@@ -43,8 +44,8 @@ export function ServicesClient({ initialServices }: { initialServices: Service[]
       setNewServiceName('')
       // Reload effectively
       window.location.reload()
-    } catch (err: any) {
-      toast.error('Chyba při vytváření: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba při vytváření: ' + errorMessage(err))
     } finally {
       setCreating(false)
     }

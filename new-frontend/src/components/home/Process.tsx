@@ -1,8 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import { SectionHeader } from "@/components/ui/section-header";
 import { sanitizeHtml } from "@/lib/sanitize";
+import type { ProcessStep } from "@/lib/types";
 
-function ProcessStep({ step }: { step: any }) {
+function ProcessStepCard({ step }: { step: ProcessStep }) {
   const renderIcon = (iconName: string) => {
     switch (iconName) {
       case "Phone":
@@ -37,7 +38,7 @@ function ProcessStep({ step }: { step: any }) {
       {/* Icon & Number Box */}
       <div className="relative mb-8">
         <div className="w-24 h-24 bg-amber-50 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300 relative z-10">
-          {renderIcon(step.icon)}
+          {renderIcon(step.icon ?? "")}
         </div>
         {/* Number Badge */}
         <div className="absolute -top-3 -right-3 w-8 h-8 bg-amber-500 text-white font-bold text-sm rounded-full flex items-center justify-center shadow-md z-20">
@@ -57,7 +58,7 @@ function ProcessStep({ step }: { step: any }) {
   );
 }
 
-export async function Process({ initialSteps }: { initialSteps?: any[] }) {
+export async function Process({ initialSteps }: { initialSteps?: ProcessStep[] }) {
   let steps = initialSteps;
 
   if (!steps) {
@@ -95,7 +96,7 @@ export async function Process({ initialSteps }: { initialSteps?: any[] }) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
             {steps.map((step) => (
-              <ProcessStep key={step.id} step={step} />
+              <ProcessStepCard key={step.id} step={step} />
             ))}
           </div>
         </div>

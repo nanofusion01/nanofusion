@@ -2,12 +2,11 @@
 
 import { useState, useRef } from 'react'
 import { toast } from 'sonner'
-import {
-  Trash2, Eye, EyeOff, Image as ImageIcon, AlertTriangle, Link, X, Upload, ChevronUp, ChevronDown, Save, FolderPlus, FolderOpen
-} from 'lucide-react'
+import { Trash2, Eye, EyeOff, Link, X, Upload, ChevronUp, ChevronDown, Save, FolderPlus, FolderOpen } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import * as actionsRaw from './actions'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { addYoutubeItem, deleteGalleryItem, toggleGalleryItemActive, uploadGalleryImage, updateGalleryOrder, updateGalleryCaption, createGalleryAlbum, uploadAlbumPhoto, deleteGalleryAlbum, toggleAlbumActive, deleteAlbumPhoto, updateAlbumOrder } = unwrapActions(actionsRaw)
 type GalleryItem = Tables<'gallery_items'>
@@ -105,8 +104,8 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
       setItems(prev => [...prev, newItem as GalleryItem])
       toast.success('Video přidáno')
       setAddMode(null); setYoutubeUrl(''); setCaption('')
-    } catch (err: any) {
-      toast.error(err.message || 'Chyba')
+    } catch (err) {
+      toast.error(errorMessage(err) || 'Chyba')
     } finally { setAdding(false) }
   }
 
@@ -115,7 +114,7 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
     setAdding(true)
     try {
       const newAlbum = await createGalleryAlbum(albumTitle, caption)
-      let uploaded: GalleryItem[] = []
+      const uploaded: GalleryItem[] = []
 
       const files = Array.from(newAlbumFileRef.current?.files ?? [])
       if (files.length > 0) {
@@ -139,8 +138,8 @@ export function GalleryClient({ initialItems, initialAlbums }: GalleryClientProp
       toast.success(uploaded.length > 0 ? `Album vytvořeno a nahráno ${uploaded.length} fotek` : 'Album vytvořeno')
       setAddMode(null); setAlbumTitle(''); setCaption(''); setSelectedNewFiles(0); setUploading(null)
       if (newAlbumFileRef.current) newAlbumFileRef.current.value = ''
-    } catch (err: any) {
-      toast.error(err.message || 'Chyba')
+    } catch (err) {
+      toast.error(errorMessage(err) || 'Chyba')
       setUploading(null)
     } finally { setAdding(false) }
   }

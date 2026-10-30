@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { sanitizeHtml } from "@/lib/sanitize";
+import type { FaqItem } from "@/lib/types";
 
-export function FAQAccordion({ items }: { items: any[] }) {
+export function FAQAccordion({ items }: { items: FaqItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggle = (index: number) => {

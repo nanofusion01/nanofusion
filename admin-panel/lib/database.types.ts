@@ -400,7 +400,15 @@ export type Database = {
           category?: string | null
           album_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gallery_items_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "gallery_albums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hero_media: {
         Row: {
@@ -639,6 +647,24 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          key: string
+          window_start: string
+          count: number
+        }
+        Insert: {
+          key: string
+          window_start: string
+          count?: number
+        }
+        Update: {
+          key?: string
+          window_start?: string
+          count?: number
+        }
+        Relationships: []
+      }
       realization_photos: {
         Row: {
           id: string
@@ -661,7 +687,15 @@ export type Database = {
           caption?: string | null
           order_index?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "realization_photos_realization_id_fkey"
+            columns: ["realization_id"]
+            isOneToOne: false
+            referencedRelation: "realizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       realizations: {
         Row: {
@@ -772,7 +806,15 @@ export type Database = {
           caption?: string | null
           order_index?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "service_before_after_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_faqs: {
         Row: {
@@ -802,7 +844,15 @@ export type Database = {
           is_active?: boolean
           created_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "service_faqs_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_gallery: {
         Row: {
@@ -829,7 +879,15 @@ export type Database = {
           order_index?: number
           created_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "service_gallery_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_reviews: {
         Row: {
@@ -862,7 +920,15 @@ export type Database = {
           is_visible?: boolean
           created_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "service_reviews_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {

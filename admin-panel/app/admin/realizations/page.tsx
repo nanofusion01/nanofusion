@@ -7,5 +7,5 @@ export default async function RealizationsPage() {
     .select('*, realization_photos(*)')
     .order('created_at', { ascending: false })
 
-  return <RealizationsClient initialRealizations={(realizations as any[]) ?? []} />
+  return <RealizationsClient initialRealizations={realizations ?? []} />
 }

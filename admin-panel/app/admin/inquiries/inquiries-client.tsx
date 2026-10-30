@@ -2,21 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
-import {
-  Search,
-  Download,
-  Filter,
-  ClipboardList,
-  X,
-  ChevronDown,
-  ChevronRight,
-  Home,
-  Phone,
-  Mail,
-  MessageSquare,
-  Trash2,
-  AlertTriangle,
-} from 'lucide-react'
+import { Search, Download, Filter, ClipboardList, X, ChevronDown, ChevronRight, Phone, Mail, Trash2, AlertTriangle } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import { inquirySourceLabel } from '@/lib/inquiry-source-label'
 import * as actionsRaw from './actions'
@@ -27,10 +13,6 @@ type Inquiry = Tables<'inquiries'> & {
   original_photo_url?: string | null
   photo_url?: string | null
   image_url?: string | null
-  // pole ze zrušeného formuláře /poptavka - u starších záznamů je může mít jen zpráva
-  address?: string | null
-  distance_km?: number | null
-  travel_cost_czk?: number | null
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -170,7 +152,7 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
       if (selectedInquiry?.id === id) {
         setSelectedInquiry({ ...selectedInquiry, status: status as Inquiry['status'] })
       }
-    } catch (err) {
+    } catch {
       toast.error('Nepodařilo se aktualizovat stav')
     } finally {
       setUpdatingStatus(false)
@@ -672,25 +654,6 @@ export function InquiriesClient({ initialInquiries }: InquiriesClientProps) {
                     </p>
                   </div>
                 </div>
-                {selectedInquiry.address && (
-                  <div className="col-span-2 flex items-start gap-2 pt-2 border-t mt-1">
-                    <Home size={16} style={{ color: 'var(--text-muted)' }} className="mt-1" />
-                    <div>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Adresa a doprava</p>
-                      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                        {selectedInquiry.address}
-                      </p>
-                      <div className="flex gap-3 mt-1">
-                         <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
-                           {selectedInquiry.distance_km || 0} km
-                         </span>
-                         <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
-                           cca {selectedInquiry.travel_cost_czk || 0} Kč
-                         </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Message */}

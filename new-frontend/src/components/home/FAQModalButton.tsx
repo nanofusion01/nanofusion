@@ -4,9 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { FAQAccordion } from "./FAQAccordion";
+import type { FaqItem } from "@/lib/types";
 
 interface FAQModalButtonProps {
-  allFaqs: any[];
+  allFaqs: FaqItem[];
 }
 
 export function FAQModalButton({ allFaqs }: FAQModalButtonProps) {

@@ -32,7 +32,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json()
-    const rawMessages = Array.isArray(body?.messages) ? body.messages : []
+    const rawMessages: unknown[] = Array.isArray(body?.messages) ? body.messages : []
 
     if (rawMessages.length === 0) {
       return new Response(JSON.stringify({ error: 'Nebyly poskytnuty žádné zprávy' }), {
@@ -46,9 +46,12 @@ serve(async (req) => {
     // 2. Omezit délku jednotlivé zprávy na 1000 znaků (ochrana před vyčerpáním tokenů)
     // 3. Vzít maximálně posledních 8 zpráv
     const sanitizedMessages = rawMessages
-      .filter((m: any) => m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant'))
+      .filter((m: unknown): m is { role: 'user' | 'assistant'; content: string } =>
+        typeof m === 'object' && m !== null &&
+        typeof (m as { content?: unknown }).content === 'string' &&
+        ['user', 'assistant'].includes((m as { role?: unknown }).role as string))
       .slice(-8)
-      .map((m: any) => ({
+      .map((m) => ({
         role: m.role as 'user' | 'assistant',
         content: String(m.content).slice(0, 1000),
       }))
@@ -190,8 +193,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    console.error('Function Error:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('Function Error:', message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

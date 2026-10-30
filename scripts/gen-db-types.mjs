@@ -96,6 +96,17 @@ for (const t of tables) {
     return `          ${prop(c)}${optional ? "?" : ""}: ${tsType(p)}${required.has(c) ? "" : " | null"}`;
   });
   const upd = cols.map(([c, p]) => `          ${prop(c)}?: ${tsType(p)}${required.has(c) ? "" : " | null"}`);
+  // Cizí klíče jsou v OpenAPI popisu sloupce jako <fk table='x' column='y'/>
+  const rels = cols
+    .map(([c, p]) => [c, (p.description ?? "").match(/<fk table='([^']+)' column='([^']+)'\/>/)])
+    .filter(([, m]) => m)
+    .map(([c, m]) => `          {
+            foreignKeyName: "${t}_${c}_fkey"
+            columns: ["${c}"]
+            isOneToOne: false
+            referencedRelation: "${m[1]}"
+            referencedColumns: ["${m[2]}"]
+          },`);
   out += `      ${prop(t)}: {
         Row: {
 ${row.join("\n")}
@@ -106,7 +117,7 @@ ${ins.join("\n")}
         Update: {
 ${upd.join("\n")}
         }
-        Relationships: []
+        Relationships: ${rels.length ? `[\n${rels.join("\n")}\n        ]` : "[]"}
       }
 `;
 }

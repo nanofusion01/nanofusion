@@ -1,16 +1,19 @@
 import { notFound } from "next/navigation";
-import { supabase, optimizeImg } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { Reviews } from "@/components/home/Reviews";
 import { FAQ } from "@/components/home/FAQ";
 import { ServiceBeforeAfter } from "@/components/ui/ServiceBeforeAfter";
 import { ServiceGallery } from "@/components/ui/ServiceGallery";
-import { Phone, Mail, Clock } from "lucide-react";
-import { ServiceConfigurator } from "@/components/services/ServiceConfigurator";
-import { Button } from "@/components/ui/button";
-import { localCatalog } from "@/data/localCatalog";
+import { localCatalog, type ServiceCatalogEntry } from "@/data/localCatalog";
 import { SERVICE_PRICE_KEYS } from "@/data/servicePriceKeys";
-import { sanitizeHtml } from "@/lib/sanitize";
 import { SITE_URL, OG_IMAGE } from "@/lib/site";
+import { parseFeature } from "@/lib/service-features";
+import { ServiceHero } from "@/components/services/service-hero";
+import { ServiceBenefits } from "@/components/services/service-benefits";
+import { ServiceProcess } from "@/components/services/service-process";
+import { ServiceVideo } from "@/components/services/service-video";
+import { ServiceCTA } from "@/components/services/service-cta";
+
 
 interface PageProps {
   params: Promise<{
@@ -130,7 +133,7 @@ export default async function ServicePage({ params }: PageProps) {
   const specificReviews = reviewsRes.data || [];
 
   // Použijeme localCatalog pro bohatý obsah, který není v Supabase tabulce (jako na starém webu)
-  const localData = localCatalog[slug] || {};
+  const localData: Partial<ServiceCatalogEntry> = localCatalog[slug] ?? {};
 
   const priceKey = SERVICE_PRICE_KEYS[slug] || localData.price_key || slug;
   const { data: priceData } = await supabase
@@ -157,8 +160,11 @@ export default async function ServicePage({ params }: PageProps) {
   // Admin umožňuje nahrát víc dvojic Před/Po - dřív se použila jen ta první,
   // teď jede celá sada a komponenta mezi nimi sama průběžně přepíná.
   const beforeAfterPairs = beforeAfterPhotos
-    .filter((p: any) => p.before_url && p.after_url && p.before_url !== p.after_url)
-    .map((p: any) => ({ before_url: p.before_url, after_url: p.after_url }));
+    .flatMap((p) =>
+      p.before_url && p.after_url && p.before_url !== p.after_url
+        ? [{ before_url: p.before_url, after_url: p.after_url }]
+        : []
+    );
   const hasBeforeAfter = beforeAfterPairs.length > 0;
 
   let ytId = null;
@@ -169,48 +175,25 @@ export default async function ServicePage({ params }: PageProps) {
 
   const processDescription = service.process_description || localData.what_included || "";
   const benefits = (service.features && service.features.length > 0)
-    ? service.features.map((f: any) => {
-        if (typeof f === "object" && f !== null) {
-          return { title: f.title || "", desc: f.desc || f.description || "" };
-        }
-        try {
-          const parsed = JSON.parse(f);
-          if (typeof parsed === "object" && parsed !== null) {
-            return { title: parsed.title || "", desc: parsed.desc || parsed.description || "" };
-          }
-        } catch {}
-        const str = String(f || "");
-        if (str.includes(" - ")) {
-          const parts = str.split(" - ");
-          return { title: parts[0].trim(), desc: parts.slice(1).join(" - ").trim() };
-        }
-        if (str.includes(": ")) {
-          const parts = str.split(": ");
-          return { title: parts[0].trim(), desc: parts.slice(1).join(": ").trim() };
-        }
-        return { title: str, desc: "" };
-      })
+    ? service.features.map(parseFeature)
     : (localData.benefits || []);
-  // Fotky spravované v adminu (tabulka service_gallery) mají přednost
-  // před statickými placeholder fotkami z localCatalog.
-  const gallery = dbGalleryPhotos.length > 0
-    ? dbGalleryPhotos.map((p: any) => p.url)
-    : (localData.gallery || []);
-  const quote = localData.quote;
+  // Galerie a recenze jen ze skutečných dat z administrace - žádné
+  // ilustrační fotky ani ukázkové texty, které by se tvářily jako reálné.
+  const gallery = dbGalleryPhotos.map((p) => p.url);
   const processNote = localData.process_note;
 
   const sourceLabel = (source?: string) =>
-    source === "google" ? "Google" : source === "firmy.cz" ? "Firmy.cz" : "Ověřená recenze";
+    source === "google" ? "Google" : source === "firmy.cz" ? "Firmy.cz" : "Recenze zákazníka";
 
   const mappedReviews = specificReviews.length > 0
-    ? specificReviews.map((r: any) => ({
+    ? specificReviews.map((r) => ({
         id: r.id,
         name: r.author || "Zákazník",
         text: r.content,
         rating: r.rating || 5,
         source: sourceLabel(r.source),
       }))
-    : (quote ? [{ id: "quote", name: "Zákazník", text: quote, rating: 5, source: "Ověřená recenze" }] : []);
+    : [];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -236,7 +219,7 @@ export default async function ServicePage({ params }: PageProps) {
       />
       <ServiceHero service={service} ytId={ytId} basePrice={basePrice} />
 
-      <ServiceBenefits service={service} processDescription={processDescription} benefits={benefits} />
+      <ServiceBenefits processDescription={processDescription} benefits={benefits} />
 
       <ServiceProcess serviceName={service.name} steps={customProcessSteps} processNote={processNote} />
 
@@ -248,7 +231,7 @@ export default async function ServicePage({ params }: PageProps) {
         <ServiceGallery images={gallery} />
       )}
 
-      <ServiceVideo videoUrl={service.video_url || localData.video_url} serviceName={service.name} />
+      <ServiceVideo videoUrl={service.video_url} serviceName={service.name} />
 
       {mappedReviews.length > 0 && (
         <Reviews initialReviews={mappedReviews} autoScroll={false} />
@@ -262,294 +245,3 @@ export default async function ServicePage({ params }: PageProps) {
     </main>
   );
 }
-
-function ServiceHero({ service, ytId, basePrice }: { service: any; ytId: string | null; basePrice: number }) {
-  const stats = [
-    "14 let zkušeností",
-    "950+ dokončených projektů",
-    "100% bezplatná konzultace"
-  ];
-
-  return (
-    <section className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden bg-slate-900 min-h-[80vh] flex items-center">
-      <div className="absolute inset-0 z-0 opacity-40">
-        {ytId ? (
-          <img src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`} className="w-full h-full object-cover" alt="" />
-        ) : service.hero_image_url ? (
-          <img src={optimizeImg(service.hero_image_url, 1600)} className="w-full h-full object-cover" alt="" />
-        ) : (
-          <div className="w-full h-full bg-slate-800" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/30" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl lg:text-[4rem] font-black text-white mb-6 leading-tight drop-shadow-xl">
-              {(() => {
-                const parts = service.name.trim().split(" ");
-                if (parts.length > 1) {
-                  return (
-                    <>
-                      <span className="text-white">{parts[0]}</span>{" "}
-                      <span className="text-amber-500">{parts.slice(1).join(" ")}</span>
-                    </>
-                  );
-                }
-                return <span className="text-amber-500">{service.name}</span>;
-              })()}
-            </h1>
-            <div
-              className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed font-light drop-shadow-md"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(service.description || "") }}
-            />
-
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-10 text-amber-500 font-bold text-sm md:text-base">
-              {stats.map((stat, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                  {stat}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-4">
-              <a
-                href="tel:+420774509409"
-                className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all font-bold"
-              >
-                <Phone className="w-4 h-4 text-amber-500" />
-                +420 774 509 409
-              </a>
-              <a
-                href="mailto:info@nanofusion.cz"
-                className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all font-bold"
-              >
-                <Mail className="w-4 h-4 text-amber-500" />
-                info@nanofusion.cz
-              </a>
-            </div>
-          </div>
-
-          <div id="kalkulacka" className="relative w-full max-w-xl mx-auto lg:mr-0 z-20">
-            <ServiceConfigurator basePrice={basePrice} serviceName={service.name} />
-          </div>
-
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ServiceBenefits({ service, processDescription, benefits }: { service: any; processDescription: string; benefits: any[] }) {
-  if (!processDescription && benefits.length === 0) return null;
-
-  return (
-    <section id="vyhody" className="py-20 bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white/50 backdrop-blur-sm rounded-2xl border-2 border-amber-500 p-8 md:p-12 shadow-xl shadow-amber-500/5">
-          {processDescription && (
-            <div
-              className="text-slate-700 text-lg leading-relaxed mb-10 prose prose-amber max-w-none prose-p:mb-6"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(processDescription) }}
-            />
-          )}
-
-          {benefits.length > 0 && (
-            <>
-              <h3 className="text-xl font-bold text-slate-900 mb-6">Co nabízíme:</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
-                {benefits.map((benefit, idx) => (
-                  <div key={idx} className="flex items-start gap-4">
-                    <div className="flex-shrink-0 mt-1 bg-amber-100 rounded-full p-1.5">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-slate-800 mb-1">
-                        {benefit.title}
-                      </div>
-                      {benefit.desc && (
-                        <div className="text-slate-600 text-sm leading-relaxed">
-                          {benefit.desc}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ServiceProcess({ serviceName, steps, processNote }: { serviceName: string; steps: any[]; processNote?: string }) {
-  if (!steps || steps.length === 0) return null;
-
-  const count = steps.length;
-  const isCompact = count > 4;
-
-  return (
-    <section className="py-20 bg-slate-50">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-black text-amber-500">
-            Jak čištění probíhá
-          </h2>
-        </div>
-
-        {/* Vždy v jednom řádku na větších obrazovkách */}
-        <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 sm:gap-6">
-          {steps.map((step, idx) => (
-            <div
-              key={step.id || idx}
-              className={`flex-1 min-w-0 bg-white rounded-2xl border-2 border-amber-500 shadow-xl shadow-amber-500/5 flex flex-col items-center text-center relative ${
-                isCompact ? "p-5 md:p-6" : "p-6 md:p-8"
-              }`}
-            >
-              <div
-                className={`bg-amber-500 rounded-full flex items-center justify-center font-black text-white shadow-lg shadow-amber-500/30 ${
-                  isCompact ? "w-12 h-12 text-lg mb-4" : "w-16 h-16 text-2xl mb-6"
-                }`}
-              >
-                {String(idx + 1).padStart(2, "0")}
-              </div>
-              <h3 className={`font-bold text-slate-900 mb-3 ${isCompact ? "text-lg" : "text-xl"}`}>
-                {step.title}
-              </h3>
-              <p className={`text-slate-600 leading-relaxed ${isCompact ? "text-sm" : "text-base"}`}>
-                {step.desc || step.description}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-3 bg-white px-8 py-4 rounded-full shadow-md border border-slate-100">
-            <Clock className="w-6 h-6 text-amber-500 shrink-0" />
-            <span className="text-lg font-medium text-slate-800">
-              {processNote ? (
-                <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(processNote.replace(/\d+\s*(?:až|do|a)?\s*\d*\s*(?:dny|dní|hodiny|hodin|den)/g, (match) => `<strong class="text-amber-500">${match}</strong>`)) }} />
-              ) : (
-                <>Čištění a ochranu {serviceName.toLowerCase().includes("střech") ? "střechy" : "povrchu"} stihneme za <strong className="text-amber-500">1 až 2 pracovní dny</strong></>
-              )}
-            </span>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function parseVideoSource(url: string | null | undefined) {
-  if (!url || typeof url !== "string" || !url.trim()) return null;
-  const trimmed = url.trim();
-
-  // YouTube (watch, shorts, embed, youtu.be)
-  const ytMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-  if (ytMatch) {
-    return {
-      type: "youtube" as const,
-      src: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0&modestbranding=1`,
-      id: ytMatch[1],
-    };
-  }
-
-  // Google Drive preview link
-  const driveMatch = trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (driveMatch) {
-    return {
-      type: "iframe" as const,
-      src: `https://drive.google.com/file/d/${driveMatch[1]}/preview`,
-    };
-  }
-
-  // Vimeo
-  const vimeoMatch = trimmed.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) {
-    return {
-      type: "iframe" as const,
-      src: `https://player.vimeo.com/video/${vimeoMatch[1]}`,
-    };
-  }
-
-  // Direct video URL (.mp4, .webm, storage bucket...)
-  return {
-    type: "video" as const,
-    src: trimmed,
-  };
-}
-
-function ServiceVideo({ videoUrl, serviceName }: { videoUrl: string | null | undefined; serviceName: string }) {
-  const parsed = parseVideoSource(videoUrl);
-  if (!parsed) return null;
-
-  return (
-    <section id="video" className="py-20 bg-slate-900 text-white overflow-hidden relative">
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F7A51D_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
-      
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-12">
-          <span className="text-amber-500 font-bold text-xs uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full inline-block mb-3 border border-amber-500/20">
-            Video z realizace
-          </span>
-          <h2 className="text-3xl md:text-4xl font-black text-white leading-tight">
-            Podívejte se, jak probíhá {serviceName.toLowerCase()}
-          </h2>
-          <p className="text-slate-400 mt-3 text-base md:text-lg max-w-2xl mx-auto">
-            Reálná ukázka naší práce a dosažených výsledků přímo v terénu.
-          </p>
-        </div>
-
-        <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-700/60 bg-black aspect-video max-w-4xl mx-auto">
-          {parsed.type === "youtube" || parsed.type === "iframe" ? (
-            <iframe
-              src={parsed.src}
-              title={`Video - ${serviceName}`}
-              className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          ) : (
-            <video
-              src={parsed.src}
-              controls
-              playsInline
-              preload="metadata"
-              className="w-full h-full object-cover"
-            />
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ServiceCTA() {
-  return (
-    <section className="py-20 bg-slate-900 border-t-4 border-amber-500">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-4xl font-black text-white mb-6">Chcete vědět více?</h2>
-        <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto font-light">
-          Zanechte nám na sebe kontakt a my se vám co nejdříve ozveme s nezávaznou nabídkou pro vaši konkrétní situaci.
-        </p>
-        <div className="flex flex-wrap justify-center gap-6">
-          <Button href="#kalkulacka" className="h-16 px-10 text-lg font-black rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 shadow-xl shadow-amber-500/20">
-            SPOČÍTEJTE SI CENU <span className="ml-2">→</span>
-          </Button>
-          <a href="tel:+420774509409" className="inline-flex items-center justify-center gap-3 h-16 px-10 text-lg font-bold rounded-xl bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all">
-            <Phone className="w-5 h-5 text-amber-500" />
-            +420 774 509 409
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-

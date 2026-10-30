@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Plus, Eye, EyeOff } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 export default async function MagazinePage() {
   const supabase = await createAdminClient()
@@ -14,7 +14,7 @@ export default async function MagazinePage() {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Nano-magazín</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            {(articles as any[])?.length ?? 0} článků · {(articles as any[])?.filter((a) => a.is_published).length ?? 0} publikováno
+            {articles?.length ?? 0} článků · {articles?.filter((a) => a.is_published).length ?? 0} publikováno
           </p>
         </div>
         <Link
@@ -27,8 +27,8 @@ export default async function MagazinePage() {
         </Link>
       </div>
 
-      <div className="rounded-xl" style={{ border: articles && (articles as any[]).length > 0 ? '1px solid var(--border)' : 'none', overflow: 'hidden' }}>
-        {!articles || (articles as any[]).length === 0 ? (
+      <div className="rounded-xl" style={{ border: articles && articles.length > 0 ? '1px solid var(--border)' : 'none', overflow: 'hidden' }}>
+        {!articles || articles.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white rounded-xl">
             <p style={{ color: 'var(--text-muted)' }}>Žádné články zatím</p>
             <Link href="/admin/magazine/new" className="text-sm font-semibold" style={{ color: 'var(--brand-primary)' }}>
@@ -50,8 +50,8 @@ export default async function MagazinePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(articles as any[]).map((article, i) => (
-                    <tr key={article.id} style={{ borderBottom: i < (articles as any[]).length - 1 ? '1px solid var(--border)' : undefined }}>
+                  {articles.map((article, i) => (
+                    <tr key={article.id} style={{ borderBottom: i < articles.length - 1 ? '1px solid var(--border)' : undefined }}>
                       <td className="px-5 py-4">
                         <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{article.title}</p>
                         <p className="text-[10px] opacity-50 font-mono">/{article.slug}</p>
@@ -84,7 +84,7 @@ export default async function MagazinePage() {
 
             {/* Mobile Cards */}
             <div className="md:hidden flex flex-col gap-3">
-              {(articles as any[]).map((article) => (
+              {articles.map((article) => (
                 <Link 
                   key={article.id} 
                   href={`/admin/magazine/${article.id}`}

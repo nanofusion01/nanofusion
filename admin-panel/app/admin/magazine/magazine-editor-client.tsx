@@ -21,6 +21,7 @@ import { createClient } from '@/lib/supabase/client'
 import { uploadFile } from '@/lib/storage'
 import { useRef } from 'react'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { saveArticle, deleteArticle } = unwrapActions(actionsRaw)
 
@@ -58,8 +59,8 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
       if (!initialArticle) {
         router.push('/admin/magazine')
       }
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -74,8 +75,8 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
       await deleteArticle(initialArticle.id)
       toast.success('Článek smazán')
       router.push('/admin/magazine')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -100,8 +101,8 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
       const url = await uploadFile(supabase, file, 'articles', article.slug || 'temp')
       setArticle({ ...article, hero_image_url: url })
       toast.success('Obrázek nahrán')
-    } catch (err: any) {
-      toast.error('Chyba nahrávání: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba nahrávání: ' + errorMessage(err))
     } finally {
       setUploading(false)
     }
@@ -207,7 +208,7 @@ export function MagazineEditorClient({ article: initialArticle }: Props) {
                 style={{ borderColor: 'var(--border)', background: 'var(--bg-base)' }}
               >
                 {article.hero_image_url ? (
-                  <img src={article.hero_image_url} className="w-full h-full object-cover" />
+                  <img src={article.hero_image_url} alt="Úvodní obrázek článku" className="w-full h-full object-cover" />
                 ) : (
                   <>
                     {uploading ? <Loader2 className="animate-spin opacity-20" size={32} /> : <ImageIcon size={32} className="opacity-20 mb-2" />}

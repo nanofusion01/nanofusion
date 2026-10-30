@@ -38,7 +38,7 @@ jobs:
         # typy rout (LayoutProps, PageProps) generuje Next.js - bez nich tsc na čisté kopii selže
         run: npx next typegen && npx tsc --noEmit
       - name: ESLint
-        run: npm run lint
+        run: npm run lint -- --max-warnings=0
       - name: Unit testy (Vitest)
         run: npm test
       - name: Build
@@ -75,7 +75,14 @@ jobs:
         # typy rout (LayoutProps, PageProps) generuje Next.js - bez nich tsc na čisté kopii selže
         run: npx next typegen && npx tsc --noEmit
       - name: ESLint
-        run: npm run lint
+        run: npm run lint -- --max-warnings=0
+      - name: Unit testy (Vitest)
+        run: npm test
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Edge funkce (deno check)
+        run: deno check supabase/functions/*/index.ts
       - name: Build
         run: npm run build
       - name: Instalace prohlížeče pro Playwright

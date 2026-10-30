@@ -2,14 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
-import {
-  Save,
-  MessageSquare,
-  Calculator,
-  ClipboardList,
-  ChevronDown,
-  X,
-} from 'lucide-react'
+import { Save, MessageSquare, Calculator, ClipboardList, X } from 'lucide-react'
 import { Tables } from '@/lib/database.types'
 import * as actionsRaw from './actions'
 import { unwrapActions } from '@/lib/action-result'

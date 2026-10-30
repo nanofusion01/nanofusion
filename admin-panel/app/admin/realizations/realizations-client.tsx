@@ -11,7 +11,7 @@ import {
   EyeOff,
   X,
   AlertTriangle,
-  Image,
+  Image as ImageIcon,
   MapPin,
   Clock,
   Wrench,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import * as actionsRaw from './actions'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
 
 const { createRealization, updateRealization, deleteRealization, togglePublished } = unwrapActions(actionsRaw)
 export type Realization = {
@@ -92,20 +93,6 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
     setModal('create')
   }
 
-  const openEdit = (r: Realization) => {
-    setForm({
-      title: r.title,
-      subtitle: r.subtitle || '',
-      description: r.description || '',
-      location: r.location || '',
-      duration: r.duration || '',
-      work_type: r.work_type || '',
-      category: r.category || '',
-      youtube_id: r.youtube_id || '',
-    })
-    setEditingId(r.id)
-    setModal('edit')
-  }
 
   const handleSave = async () => {
     if (!form.title) {
@@ -233,7 +220,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                 }}
               >
                 {!r.realization_photos?.[0] && (
-                  <Image size={36} style={{ color: 'var(--text-muted)' }} />
+                  <ImageIcon size={36} style={{ color: 'var(--text-muted)' }} />
                 )}
                 <div className="absolute top-3 right-3 flex gap-2">
                   <span
@@ -377,7 +364,7 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                   <div className="grid grid-cols-3 gap-2 mb-4">
                     {realizations.find(r => r.id === editingId)?.realization_photos?.map((photo) => (
                       <div key={photo.id} className="relative aspect-video rounded-lg overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
-                        <img src={photo.url} className="w-full h-full object-cover" />
+                        <img src={photo.url} alt={photo.caption || "Fotka realizace"} className="w-full h-full object-cover" />
                         <button 
                           onClick={async () => {
                             if (confirm('Smazat tuto fotku?')) {
@@ -431,8 +418,8 @@ export function RealizationsClient({ initialRealizations }: RealizationsClientPr
                             } : r));
                             
                             toast.success('Fotka nahrána');
-                          } catch (err: any) {
-                            toast.error('Nahrávání selhalo: ' + err.message);
+                          } catch (err) {
+                            toast.error('Nahrávání selhalo: ' + errorMessage(err));
                           } finally {
                             setUploading(false);
                           }

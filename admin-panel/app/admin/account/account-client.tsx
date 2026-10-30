@@ -2,27 +2,19 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Fingerprint, 
-  Save, 
-  Camera,
-  ShieldCheck,
-  Smartphone,
-  Check
-} from 'lucide-react'
+import { User, Mail, Lock, Save, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import * as usersActionsRaw from '../users/actions'
 import { unwrapActions } from '@/lib/action-result'
+import { errorMessage } from '@/lib/utils'
+import type { User as AuthUser } from '@supabase/supabase-js'
+import type { Tables } from '@/lib/database.types'
 
 const { clearForcePasswordChange } = unwrapActions(usersActionsRaw)
 
-export function AccountClient({ user, profile: initialProfile }: { user: any, profile: any }) {
+export function AccountClient({ user, profile: initialProfile }: { user: AuthUser, profile: Tables<'profiles'> }) {
   const [profile, setProfile] = useState(initialProfile)
   const [loading, setLoading] = useState(false)
-  const [passkeys, setPasskeys] = useState<any[]>([]) // Mock for now
   const supabase = createClient()
   const mustChangePassword = Boolean(user?.app_metadata?.force_password_change)
   const [newPassword, setNewPassword] = useState('')
@@ -52,8 +44,8 @@ export function AccountClient({ user, profile: initialProfile }: { user: any, pr
       toast.success('Heslo bylo úspěšně změněno')
       setNewPassword('')
       setConfirmPassword('')
-    } catch (err: any) {
-      setPasswordError(err.message || 'Heslo se nepodařilo změnit.')
+    } catch (err) {
+      setPasswordError(errorMessage(err) || 'Heslo se nepodařilo změnit.')
     } finally {
       setLoading(false)
     }
@@ -69,15 +61,11 @@ export function AccountClient({ user, profile: initialProfile }: { user: any, pr
       
       if (error) throw error
       toast.success('Profil uložen')
-    } catch (err: any) {
-      toast.error('Chyba: ' + err.message)
+    } catch (err) {
+      toast.error('Chyba: ' + errorMessage(err))
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleAddPasskey = () => {
-    toast.info('Biometrické ověření (WebAuthn) je ve vývoji. Vyžaduje bezpečnou doménu.')
   }
 
   return (
@@ -105,9 +93,6 @@ export function AccountClient({ user, profile: initialProfile }: { user: any, pr
                 >
                   {profile.full_name?.charAt(0) || user.email?.charAt(0)}
                 </div>
-                <button className="absolute -bottom-2 -right-2 p-2 bg-white rounded-xl shadow-lg border hover:scale-110 transition-transform">
-                  <Camera size={16} />
-                </button>
               </div>
               <div>
                 <h3 className="font-bold text-xl">{profile.full_name || 'Uživatel'}</h3>

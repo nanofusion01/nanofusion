@@ -2,21 +2,7 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
-import {
-  Plus,
-  Trash2,
-  Save,
-  Undo,
-  Type,
-  Box,
-  MoreVertical,
-  ChevronUp,
-  ChevronDown,
-  Info,
-  Brain,
-  Hash,
-  Layout
-} from 'lucide-react'
+import { Plus, Trash2, Save, MoreVertical, ChevronUp, ChevronDown, Info, Brain, Layout } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { TiptapEditor } from '@/components/admin/editor'
 
@@ -145,7 +131,7 @@ export function HowItWorksClient({ initialSection, initialSteps }: HowItWorksCli
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Jak to funguje</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-          Upravte hlavní nadpis a jednotlivé kroky procesu, který se zobrazuje v sekci "Jak to funguje".
+          Upravte hlavní nadpis a jednotlivé kroky procesu, který se zobrazuje v sekci „Jak to funguje“.
         </p>
       </div>
 

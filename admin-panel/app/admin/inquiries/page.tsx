@@ -29,8 +29,8 @@ export default async function InquiriesPage() {
 
   // Hromadná příprava cest pro 1 společný batch podpis (createSignedUrls)
   const filePathsToSign = new Set<string>()
-  rawInquiries.forEach((inq: any) => {
-    let p = inq.original_photo_url || inq.photo_url || inq.image_url
+  rawInquiries.forEach((inq) => {
+    let p = inq.original_photo_url || inq.photo_url
     if (!p && inq.message) {
       const match = inq.message.match(/(https?:\/\/[^\s\n]+inquiries\/[^\s\n]+|kalkulace_[a-zA-Z0-9_]+\.[a-zA-Z]{3,4}|inquiry_[a-zA-Z0-9_]+\.[a-zA-Z]{3,4})/)
       if (match) p = match[1]
@@ -52,7 +52,7 @@ export default async function InquiriesPage() {
         .createSignedUrls(Array.from(filePathsToSign), 86400) // 24 hodin
       
       if (!signedError && signedResults) {
-        signedResults.forEach((res: any) => {
+        signedResults.forEach((res) => {
           if (res.signedUrl && res.path) {
             signedUrlMap.set(res.path, res.signedUrl)
           }
@@ -73,8 +73,8 @@ export default async function InquiriesPage() {
   }
 
   // Ensure photo URLs are mapped for standard inquiries
-  const inquiries = rawInquiries.map((inq: any) => {
-    let photoUrl = inq.original_photo_url || inq.photo_url || inq.image_url || null
+  const inquiries = rawInquiries.map((inq) => {
+    let photoUrl = inq.original_photo_url || inq.photo_url || null
     if (!photoUrl && inq.message && /Fotografie/i.test(inq.message)) {
       const match = inq.message.match(/(data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=]+|https?:\/\/[^\s\n]+)/)
       if (match) photoUrl = match[1]
@@ -100,6 +100,9 @@ export default async function InquiriesPage() {
     // poznámky administrátora - stejný sloupec jako v sekci AI Analyzér
     notes: lead.additional_notes || '',
     original_photo_url: resolvePhoto(lead.original_photo_url) || '',
+    full_name: null,
+    customer_name: null,
+    photo_url: null,
   }))
 
   // Combine and sort by created_at DESC
@@ -109,7 +112,7 @@ export default async function InquiriesPage() {
 
   return (
     <InquiriesClient
-      initialInquiries={allInquiries as any[]}
+      initialInquiries={allInquiries}
     />
   )
 }

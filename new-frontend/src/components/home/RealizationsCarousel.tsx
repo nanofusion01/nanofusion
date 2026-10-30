@@ -7,6 +7,7 @@ import { optimizeImg } from "@/lib/supabase";
 import { Modal } from "@/components/ui/modal";
 import { PRESELECT_SERVICE_EVENT } from "./ConfiguratorClient";
 import { sanitizeHtml } from "@/lib/sanitize";
+import type { Realization } from "@/lib/types";
 
 // Admin u realizace vybírá "Typ práce" z pevného seznamu (viz WORK_TYPES v
 // admin-panel/.../realizations/[id]/realization-detail-client.tsx), který
@@ -23,7 +24,7 @@ const WORK_TYPE_TO_CONFIGURATOR_ID: Record<string, string> = {
   "Nano-ochrana": "impregnation",
 };
 
-function RealizationCard({ item, onClick }: { item: any; onClick: () => void }) {
+function RealizationCard({ item, onClick }: { item: Realization; onClick: () => void }) {
   const rawUrl = item.realization_photos?.[0]?.url || item.image_url;
   const imageUrl = rawUrl ? optimizeImg(rawUrl, 600) : `https://placehold.co/600x400/eeeeee/999999?text=${encodeURIComponent(item.title)}`;
   
@@ -59,11 +60,11 @@ function RealizationCard({ item, onClick }: { item: any; onClick: () => void }) 
   );
 }
 
-function RealizationModalContent({ item, onClose }: { item: any; onClose: () => void }) {
+function RealizationModalContent({ item, onClose }: { item: Realization; onClose: () => void }) {
   const allPhotos = item.realization_photos || [];
   // Include main image_url as fallback if no photos exist
   const photos = allPhotos.length > 0 
-    ? allPhotos.map((p: any) => p.url) 
+    ? allPhotos.map((p) => p.url) 
     : (item.image_url ? [item.image_url] : []);
     
   const [activeIndex, setActiveIndex] = useState(0);
@@ -162,7 +163,7 @@ function RealizationModalContent({ item, onClose }: { item: any; onClose: () => 
             </p>
             <button
               onClick={() => {
-                const configuratorId = WORK_TYPE_TO_CONFIGURATOR_ID[item.work_type];
+                const configuratorId = item.work_type ? WORK_TYPE_TO_CONFIGURATOR_ID[item.work_type] : undefined;
                 onClose();
                 setTimeout(() => {
                   if (configuratorId) {
@@ -183,14 +184,14 @@ function RealizationModalContent({ item, onClose }: { item: any; onClose: () => 
       </div>
 
       {/* Description Box */}
-      {(item.content || item.description) && (
+      {item.description && (
         <div className="mt-8 border border-gray-200 rounded-3xl p-8 bg-white">
           <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
             Detaily realizace
           </h4>
           <div 
             className="prose prose-slate max-w-none text-gray-600 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.content || item.description) }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.description) }}
           />
         </div>
       )}
@@ -198,9 +199,9 @@ function RealizationModalContent({ item, onClose }: { item: any; onClose: () => 
   );
 }
 
-export function RealizationsCarousel({ realizations }: { realizations: any[] }) {
+export function RealizationsCarousel({ realizations }: { realizations: Realization[] }) {
   const { scrollRef, scrollByAmount, canScrollLeft, canScrollRight } = useCarousel(0);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<Realization | null>(null);
 
   if (!realizations || realizations.length === 0) return null;
 

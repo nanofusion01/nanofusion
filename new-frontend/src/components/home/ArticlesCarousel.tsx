@@ -6,6 +6,7 @@ import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { Modal } from "@/components/ui/modal";
 import { sanitizeHtml } from "@/lib/sanitize";
+import type { Article } from "@/lib/types";
 
 // Slug hodnoty musí sedět na to, co je SKUTEČNĚ v services.slug v DB.
 // Všech 12 služeb má teď český slug (viz migrace provedená přímo v DB) -
@@ -63,9 +64,10 @@ const SERVICE_MAP: Record<string, { slug: string; name: string }> = {
   'antibakterialni-ochrana': { slug: 'antibakterialni-ochrana', name: 'Antibakteriální ochrana' },
 };
 
-function getTargetService(article: any) {
-  let target = article.service_slug || article.service_id || article.service;
-  if (!target && article.content) {
+function getTargetService(article: Article) {
+  // Cílová služba je v obsahu článku jako komentář <!-- target_service: slug -->
+  let target: string | undefined;
+  if (article.content) {
     const match = article.content.match(/<!--\s*target_service:\s*(.*?)\s*-->/);
     if (match) {
       target = match[1].trim();
@@ -83,7 +85,7 @@ function getTargetService(article: any) {
   return { slug: target.replace(/^sluzby\//, ''), name: 'Související služba' };
 }
 
-function ArticleCard({ article, onClick }: { article: any; onClick: () => void }) {
+function ArticleCard({ article, onClick }: { article: Article; onClick: () => void }) {
   const targetService = getTargetService(article);
   const dateString = article.published_at || article.created_at;
   let formattedDate = "Neznámé datum";
@@ -146,7 +148,7 @@ function ArticleCard({ article, onClick }: { article: any; onClick: () => void }
   );
 }
 
-function ArticleModalContent({ article, onClose }: { article: any; onClose: () => void }) {
+function ArticleModalContent({ article, onClose }: { article: Article; onClose: () => void }) {
   const router = useRouter();
   const targetService = getTargetService(article);
 
@@ -208,11 +210,6 @@ function ArticleModalContent({ article, onClose }: { article: any; onClose: () =
             )}
           </div>
 
-          {article.excerpt && (
-            <p className="text-gray-600 font-medium leading-relaxed border-l-4 border-amber-500 pl-4 my-2">
-              {article.excerpt}
-            </p>
-          )}
         </div>
 
         {/* Right Column: CTA */}
@@ -262,9 +259,9 @@ function ArticleModalContent({ article, onClose }: { article: any; onClose: () =
   );
 }
 
-export function ArticlesCarousel({ articles }: { articles: any[] }) {
+export function ArticlesCarousel({ articles }: { articles: Article[] }) {
   const { scrollRef, scrollByAmount, canScrollLeft, canScrollRight } = useCarousel(1);
-  const [selectedArticle, setSelectedArticle] = useState<any>(null);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
   if (!articles || articles.length === 0) return null;
 

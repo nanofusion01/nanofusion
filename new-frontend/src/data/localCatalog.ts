@@ -1,4 +1,16 @@
-export const localCatalog: Record<string, any> = {
+/** Doplňkový obsah stránky služby (texty, výhody, postup) podle adresy služby. */
+export interface ServiceCatalogEntry {
+  title: string;
+  price_key: string;
+  badge: string;
+  subtitle: string;
+  what_included: string;
+  benefits: { title: string; desc: string }[];
+  process: { step: string; title: string; desc: string }[];
+  process_note: string;
+}
+
+export const localCatalog: Record<string, ServiceCatalogEntry> = {
     'cisteni-fasad': {
         title: 'Čištění fasád',
         price_key: 'facade',
@@ -17,18 +29,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Mytí', desc: 'Aplikace aktivní pěny a šetrné očištění nízkotlakou vodou.' },
             { step: '04', title: 'Impregnace', desc: 'Nanesení finální ochranné nano-impregnace s dlouhou životností.' }
         ],
-        quote: 'Fasáda našeho domu vypadá jako nově natřená. Odvedli vynikající, rychlou a velmi čistou práci.',
         process_note: 'Běžný rodinný dům stihneme vyčistit a naimpregnovat za 1 až 2 dny.',
-        gallery: [
-            'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-            'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600'
-        ]
     },
     'roof': {
         title: 'Čištění střech',
@@ -48,18 +49,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Dezinfekce', desc: 'Postřik proti mechům hubící mikroskopické zárodky a spory.' },
             { step: '04', title: 'Impregnace', desc: 'Aplikace hydrofobního nano nátěru s ochranou až na 7 let.' }
         ],
-        quote: 'Střecha byla plná mechu a lišejníků. Po zásahu NANOfusion je opět jako nová. Skvělá a bezpečná práce.',
         process_note: 'Čištění a ochranu střechy rodinného domu dokončíme za 1 až 2 pracovní dny.',
-        gallery: [
-            'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=600',
-            'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600',
-            'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600'
-        ]
     },
     'pavement': {
         title: 'Čištění dlažeb',
@@ -79,18 +69,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Zásyp spár', desc: 'Po vyschnutí plochy spáry kompletně zasypeme křemičitým pískem.' },
             { step: '04', title: 'Impregnace', desc: 'Aplikace hydrofobního nátěru pro trvalou čistotu a oživení barev.' }
         ],
-        quote: 'Vyčištěná zámková dlažba a chodníky kolem domu prokoukly. Profesionální přístup i technika.',
         process_note: 'Dlažbu kolem běžného domu vyčistíme, zapískujeme a ošetříme za 1 den.',
-        gallery: [
-            'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
-            'https://images.unsplash.com/photo-1520004434532-668416a08753?w=600',
-            'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600'
-        ]
     },
     'pv': {
         title: 'Solární panely',
@@ -110,18 +89,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Aplikace', desc: 'Nanesení tekuté keramické nano ochrany na povrch panelů.' },
             { step: '04', title: 'Měření', desc: 'Zadokumentování čistého stavu panelů pro vyhodnocení.' }
         ],
-        quote: 'Výkon naší domácí elektrárny po vyčištění stoupl o 18 %. Rychlá domluva a precizní práce.',
         process_note: 'Realizaci na rodinném domě stíháme obvykle za 2 až 4 hodiny.',
-        gallery: [
-            'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600',
-            'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600',
-            'https://images.unsplash.com/photo-1508514224674-8f614a87c3f5?w=600',
-            'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=600',
-            'https://images.unsplash.com/photo-1509390219972-e220b57700cf?w=600',
-            'https://images.unsplash.com/photo-1548613053-220e2a8596ee?w=600',
-            'https://images.unsplash.com/photo-1509390977259-247545b736b4?w=600',
-            'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600'
-        ]
     },
     'graffiti': {
         title: 'Odstranění graffiti',
@@ -141,18 +109,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Oplach', desc: 'Opláchnutí horkou vodou pod regulovaným tlakem.' },
             { step: '04', title: 'Prevence', desc: 'Aplikace transparentní antigraffiti ochrany.' }
         ],
-        quote: 'Graffiti z fasády naší prodejny zmizelo beze stopy. Skvělá a velmi rychlá služba.',
         process_note: 'Běžné graffiti na fasádě odstraníme a ošetříme během 2 až 5 hodin.',
-        gallery: [
-            'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600',
-            'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-            'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600'
-        ]
     },
     'industrial': {
         title: 'Průmyslové čištění',
@@ -172,18 +129,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Čištění', desc: 'Mytí konstrukcí, opláštění a hloubkové mytí podlah.' },
             { step: '04', title: 'Předání', desc: 'Kontrolní předání a ekologická likvidace odpadu.' }
         ],
-        quote: 'Čištění naší výrobní haly proběhlo bez přerušení provozu. Výborná organizace a profesionalita.',
         process_note: 'Časový harmonogram přizpůsobíme plně vašim směnám a požadavkům.',
-        gallery: [
-            'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600',
-            'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600',
-            'https://images.unsplash.com/photo-1600566753382-b3414909a5e8?w=600'
-        ]
     },
     'facade-paint': {
         title: 'Nátěry fasád',
@@ -203,18 +149,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Penetrace', desc: 'Nanesení podkladového nátěru pro sjednocení savosti.' },
             { step: '04', title: 'Nátěr', desc: 'Dvojitý nátěr prémiovou fasádní barvou Caparol.' }
         ],
-        quote: 'Náš dům po nátěru vypadá naprosto úžasně. Oceňuji čistotu práce a dodržení termínů.',
         process_note: 'Nátěr rodinného domu trvá obvykle 3 až 5 dní v závislosti na počasí.',
-        gallery: [
-            'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-            'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600',
-            'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600'
-        ]
     },
     'roof-paint': {
         title: 'Nátěry střech',
@@ -234,18 +169,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'První nátěr', desc: 'Aplikace první vrstvy ochranného nátěru.' },
             { step: '04', title: 'Druhý nátěr', desc: 'Finální nátěr pro dokonalý vzhled a trvanlivost.' }
         ],
-        quote: 'Natření plechové střechy proběhlo perfektně. Střecha vypadá skvěle a mech už nemá šanci.',
         process_note: 'Nátěr střechy rodinného domu zabere 2 až 3 pracovní dny.',
-        gallery: [
-            'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=600',
-            'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600',
-            'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600',
-            'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600'
-        ]
     },
     'impregnation': {
         title: 'Nano impregnace',
@@ -265,18 +189,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Penetrace', desc: 'Zajištění rovnoměrného vsáknutí přípravku do pórů.' },
             { step: '04', title: 'Vytvrzení', desc: 'Ochrana dosáhne plné účinnosti po 24 hodinách.' }
         ],
-        quote: 'Naimpregnovaná terasa se udržuje neskutečně snadno. Voda na ní dělá krásné kuličky.',
         process_note: 'Aplikace na očištěný povrch rodinného domu trvá 1 den.',
-        gallery: [
-            'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
-            'https://images.unsplash.com/photo-1520004434532-668416a08753?w=600',
-            'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600'
-        ]
     },
     'antislip': {
         title: 'Protiskluzová úprava',
@@ -296,18 +209,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Reakce', desc: 'Kontrolované působení přípravku (mikroskopické zdrsnění).' },
             { step: '04', title: 'Oplach', desc: 'Neutralizace a oplach čistou vodou.' }
         ],
-        quote: 'Protiskluzová úprava kolem našeho bazénu funguje skvěle. Děti už na mokré dlažbě nekloužou.',
         process_note: 'Aplikaci v koupelně nebo u bazénu rodinného domu stihneme za 2 až 4 hodiny.',
-        gallery: [
-            'https://images.unsplash.com/photo-1520004434532-668416a08753?w=600',
-            'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600',
-            'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600'
-        ]
     },
     'ceramfloor': {
         title: 'IG CeramFloor',
@@ -327,18 +229,7 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Základ', desc: 'Aplikace penetrační a adhezní vrstvy.' },
             { step: '04', title: 'Nátěr', desc: 'Nanesení vysoce odolného systému IG CeramFloor.' }
         ],
-        quote: 'Podlaha v našem autoservisu po aplikaci CeramFloor drží skvěle a velmi snadno se čistí.',
         process_note: 'Doba realizace závisí na ploše, obvykle 1 až 3 pracovní dny.',
-        gallery: [
-            'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600',
-            'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600',
-            'https://images.unsplash.com/photo-1600566753382-b3414909a5e8?w=600'
-        ]
     },
     'antibac': {
         title: 'Antibakteriální ochrana',
@@ -359,24 +250,13 @@ export const localCatalog: Record<string, any> = {
             { step: '03', title: 'Aplikace', desc: 'Nástřik aktivního dezinfekčního nano-přípravku IMPAGUARD.' },
             { step: '04', title: 'Zaschnutí', desc: 'Vytvoření stabilní, dlouhodobě aktivní ochranné vrstvy během minut.' }
         ],
-        quote: 'Po aplikaci antibakteriální ochrany v naší ordinaci se cítíme bezpečněji. Profesionální přístup a rychlá realizace.',
         process_note: 'Aplikaci v rodinném domě nebo menší kanceláři stihneme za 2 až 4 hodiny.',
-        gallery: [
-            'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600',
-            'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600',
-            'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=600',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-            'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600',
-            'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600'
-        ]
     }
 };
 
 // Všech 12 služeb má teď v DB český slug (services.slug), ale tenhle
 // katalog byl psaný pod původními anglickými klíči - bez aliasů by každá
-// služba tiše přišla o fallback texty/galerii/benefity, stejně jako to
+// služba tiše přišla o doplňkové texty a benefity, stejně jako to
 // dřív chybělo jen u cisteni-fasad a natery-fasad.
 localCatalog['natery-fasad'] = localCatalog['facade-paint'];
 localCatalog['cisteni-strech'] = localCatalog['roof'];

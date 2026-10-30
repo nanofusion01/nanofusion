@@ -4,6 +4,7 @@ import { useState } from "react";
 import { submitInquiry } from "@/lib/inquiry";
 import { calculateRangeEstimate } from "@/lib/calculator";
 import { FormError } from "@/components/ui/form-error";
+import { errorMessage } from "@/lib/utils";
 
 interface ServiceConfiguratorProps {
   basePrice: number;
@@ -56,9 +57,9 @@ export function ServiceConfigurator({ basePrice, serviceName }: ServiceConfigura
       });
 
       setResult({ min, max });
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
-      setFormError(e.message || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
+      setFormError(errorMessage(e) || "Omlouváme se, nastala chyba při odesílání. Zkuste to prosím znovu nebo nám zavolejte.");
     } finally {
       setIsSubmitting(false);
     }
