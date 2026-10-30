@@ -156,3 +156,58 @@ test.describe("E2E Test: Navigace a klíčové stránky", () => {
     await expect(page).toHaveTitle(/O nás|NANOfusion/i);
   });
 });
+
+test.describe("E2E Test: AI asistent Nanobot", () => {
+  test("odpoví, uloží poptávku ze značky [LEAD] a přepis konverzace", async ({ page }) => {
+    let inquiry = null as InquiryPayload | null;
+    let transcript = null as { messages?: { text: string }[] } | null;
+
+    // Bot zapnutý, prázdná znalostní báze, odpověď AI se značkou [LEAD]
+    await page.route("**/rest/v1/site_config*", (route) =>
+      route.request().url().includes("nanobot_enabled")
+        ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ value: "true" }) })
+        : route.continue()
+    );
+    await page.route("**/rest/v1/bot_knowledge*", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: "[]" })
+    );
+    const cors = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "authorization, content-type",
+    };
+    let aiCalls = 0;
+    await page.route("**/functions/v1/nano-assistant", (route) =>
+      (aiCalls++, route.request().method() === "OPTIONS")
+        ? route.fulfill({ status: 200, headers: cors })
+        : route.fulfill({
+            status: 200,
+            headers: cors,
+            contentType: "application/json",
+            body: JSON.stringify({ reply: "Děkuji, technik se vám ozve. [LEAD: Jan Test, 774509409, Brno, 120]" }),
+          })
+    );
+    await page.route("**/api/inquiry", async (route) => {
+      inquiry = route.request().postDataJSON();
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true }) });
+    });
+    await page.route("**/api/chat-session", async (route) => {
+      transcript = route.request().postDataJSON();
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true }) });
+    });
+
+    await page.goto("/");
+    const input = page.getByPlaceholder(/zprávu|dotaz|napište/i);
+    await expect(input).toBeVisible({ timeout: 10000 });
+
+    await input.fill("Chci vyčistit fasádu v Brně, 120 m2, tel. 774509409");
+    await input.press("Enter");
+
+    await expect.poll(() => aiCalls, { timeout: 15000 }).toBeGreaterThan(0);
+    await expect(page.locator("text=Děkuji, technik se vám ozve.")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("text=[LEAD:")).toHaveCount(0);
+
+    await expect.poll(() => inquiry?.phone).toBe("774509409");
+    expect(inquiry?.source).toBe("chat");
+    await expect.poll(() => transcript?.messages?.some((m) => m.text.includes("Chci vyčistit fasádu"))).toBe(true);
+  });
+});
