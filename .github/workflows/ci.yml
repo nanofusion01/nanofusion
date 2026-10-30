@@ -39,6 +39,8 @@ jobs:
         run: npx next typegen && npx tsc --noEmit
       - name: ESLint
         run: npm run lint -- --max-warnings=0
+      - name: Formátování (Prettier)
+        run: npm run format:check
       - name: Unit testy (Vitest)
         run: npm test
       - name: Build
@@ -76,6 +78,8 @@ jobs:
         run: npx next typegen && npx tsc --noEmit
       - name: ESLint
         run: npm run lint -- --max-warnings=0
+      - name: Formátování (Prettier)
+        run: npm run format:check
       - name: Unit testy (Vitest)
         run: npm test
       - uses: denoland/setup-deno@v2
