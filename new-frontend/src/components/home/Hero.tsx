@@ -14,12 +14,13 @@ async function getConfig() {
 import { Pill } from "@/components/ui/pill";
 import { FloatingReview } from "@/components/ui/floating-review";
 import { HeroVideo } from "./HeroVideo";
+import { resolveSiteStats, type SiteStats } from "@/lib/site-stats";
 
-const Stats = () => {
+const Stats = ({ siteStats }: { siteStats: SiteStats }) => {
   const stats = [
-    { value: "950+", label: "Dokončených projektů" },
-    { value: "745 000", label: "m² ošetřených ploch" },
-    { value: "14", label: "Let zkušeností" },
+    { value: siteStats.stat_projects, label: "Dokončených projektů" },
+    { value: siteStats.stat_area, label: "m² ošetřených ploch" },
+    { value: siteStats.stat_years, label: "Let zkušeností" },
     { value: "100%", label: "zdarma konzultace" },
   ];
 
@@ -39,6 +40,7 @@ const Stats = () => {
 
 export const Hero = async () => {
   const config = await getConfig();
+  const siteStats = resolveSiteStats(config);
 
   // Nejnovější schválená recenze s 5 hvězdičkami pro plovoucí ukázku
   const { data: latestReview } = await supabase
@@ -105,14 +107,14 @@ export const Hero = async () => {
           {/* Badges */}
           <div className="flex flex-wrap gap-2 md:gap-3">
             <Pill className="text-gray-200 text-xs px-3 py-1 md:py-1.5 md:px-4">
-              <span className="font-semibold text-white mr-1.5">950+</span> projektů
+              <span className="font-semibold text-white mr-1.5">{siteStats.stat_projects}</span> projektů
             </Pill>
             <Pill className="text-gray-200 text-xs px-3 py-1 md:py-1.5 md:px-4">
               pojištění odpovědnosti
             </Pill>
             <Pill className="text-gray-200 text-xs px-3 py-1 md:py-1.5 md:px-4">
               <span className="text-amber-500 tracking-tighter mr-1.5 text-[10px] md:text-xs">★★★★★</span>
-              <span className="font-semibold text-white mr-1.5">4,9</span> na firmy.cz
+              <span className="font-semibold text-white mr-1.5">{siteStats.rating_firmy}</span> na firmy.cz
             </Pill>
           </div>
 
@@ -173,7 +175,7 @@ export const Hero = async () => {
       </div>
 
       {/* Stats Section */}
-      <Stats />
+      <Stats siteStats={siteStats} />
     </section>
   );
 };

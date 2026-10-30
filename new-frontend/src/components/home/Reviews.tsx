@@ -5,6 +5,7 @@ import { CarouselArrows } from "@/components/ui/carousel-arrows";
 import { Pill } from "@/components/ui/pill";
 import { useCarousel } from "@/hooks/useCarousel";
 import type { Review } from "@/lib/types";
+import { SITE_STATS_DEFAULTS, type SiteStats } from "@/lib/site-stats";
 
 function ReviewCard({ review }: { review: Review }) {
   return (
@@ -27,7 +28,15 @@ function ReviewCard({ review }: { review: Review }) {
   );
 }
 
-export function Reviews({ initialReviews, autoScroll = true }: { initialReviews?: Review[]; autoScroll?: boolean }) {
+export function Reviews({
+  initialReviews,
+  autoScroll = true,
+  siteStats = SITE_STATS_DEFAULTS,
+}: {
+  initialReviews?: Review[];
+  autoScroll?: boolean;
+  siteStats?: SiteStats;
+}) {
   const { scrollRef, scrollByAmount, canScrollLeft, canScrollRight } = useCarousel(autoScroll ? 0.5 : 0, 350);
 
   // Jen skutečné recenze z administrace; bez nich se sekce nezobrazí
@@ -48,14 +57,14 @@ export function Reviews({ initialReviews, autoScroll = true }: { initialReviews?
           <Pill
             href="https://www.firmy.cz/detail/12954501-nanofusion-s-r-o-blucina.html#hodnoceni"
             external
-            icon={<span className="text-amber-500 font-black">★ 4,9</span>}
+            icon={<span className="text-amber-500 font-black">★ {siteStats.rating_firmy}</span>}
           >
             Recenze na Firmy.cz ↗
           </Pill>
           <Pill
             href="https://www.google.com/search?q=NANOfusion+recenze"
             external
-            icon={<span className="text-blue-400 font-black">★ 5,0</span>}
+            icon={<span className="text-blue-400 font-black">★ {siteStats.rating_google}</span>}
           >
             Recenze na Google ↗
           </Pill>

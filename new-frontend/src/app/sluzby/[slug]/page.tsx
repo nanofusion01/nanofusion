@@ -9,6 +9,7 @@ import { SERVICE_PRICE_KEYS } from "@/data/servicePriceKeys";
 import { SITE_URL, OG_IMAGE } from "@/lib/site";
 import { parseFeature } from "@/lib/service-features";
 import { ServiceHero } from "@/components/services/service-hero";
+import { getSiteStats } from "@/lib/site-stats";
 import { ServiceBenefits } from "@/components/services/service-benefits";
 import { ServiceProcess } from "@/components/services/service-process";
 import { ServiceVideo } from "@/components/services/service-video";
@@ -98,7 +99,7 @@ export default async function ServicePage({ params }: PageProps) {
 
   const serviceId = service.id;
 
-  const [faqsRes, beforeAfterRes, galleryRes, reviewsRes, configRes] = await Promise.all([
+  const [faqsRes, beforeAfterRes, galleryRes, reviewsRes, configRes, siteStats] = await Promise.all([
     supabase
       .from("service_faqs")
       .select("*")
@@ -124,7 +125,8 @@ export default async function ServicePage({ params }: PageProps) {
     supabase
       .from("site_config")
       .select("*")
-      .in("key", [`service_process_${serviceId}`, `service_process_${slug}`])
+      .in("key", [`service_process_${serviceId}`, `service_process_${slug}`]),
+    getSiteStats(),
   ]);
 
   const faqs = faqsRes.data || [];
@@ -217,7 +219,7 @@ export default async function ServicePage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ServiceHero service={service} ytId={ytId} basePrice={basePrice} />
+      <ServiceHero service={service} ytId={ytId} basePrice={basePrice} siteStats={siteStats} />
 
       <ServiceBenefits processDescription={processDescription} benefits={benefits} />
 
@@ -234,7 +236,7 @@ export default async function ServicePage({ params }: PageProps) {
       <ServiceVideo videoUrl={service.video_url} serviceName={service.name} />
 
       {mappedReviews.length > 0 && (
-        <Reviews initialReviews={mappedReviews} autoScroll={false} />
+        <Reviews initialReviews={mappedReviews} autoScroll={false} siteStats={siteStats} />
       )}
 
       {faqs.length > 0 && (

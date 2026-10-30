@@ -10,6 +10,7 @@ import { FAQ } from "@/components/home/FAQ";
 import { Configurator } from "@/components/home/Configurator";
 import { Contact } from "@/components/home/Contact";
 import { supabase } from "@/lib/supabase";
+import { getSiteStats } from "@/lib/site-stats";
 import { SITE_URL, OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -57,6 +58,7 @@ export default async function Home() {
     .eq('approved', true)
     .order('published_at', { ascending: false });
 
+  const siteStats = await getSiteStats();
   const reviews = (externalReviews || []).map((r) => ({
     id: r.id,
     name: r.author,
@@ -77,7 +79,7 @@ export default async function Home() {
         <Services />
         <Process />
         <Realizations />
-        <Reviews initialReviews={reviews || []} />
+        <Reviews initialReviews={reviews || []} siteStats={siteStats} />
         <Articles />
         <Videos />
         <FAQ />

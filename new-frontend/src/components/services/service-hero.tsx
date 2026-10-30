@@ -3,12 +3,23 @@ import { Phone, Mail } from "lucide-react";
 import { ServiceConfigurator } from "@/components/services/ServiceConfigurator";
 import { sanitizeHtml } from "@/lib/sanitize";
 import type { Service } from "@/lib/types";
+import type { SiteStats } from "@/lib/site-stats";
 
 /** Úvodní sekce stránky služby: obrázek nebo video, název a konfigurátor ceny. */
-export function ServiceHero({ service, ytId, basePrice }: { service: Service; ytId: string | null; basePrice: number }) {
+export function ServiceHero({
+  service,
+  ytId,
+  basePrice,
+  siteStats,
+}: {
+  service: Service;
+  ytId: string | null;
+  basePrice: number;
+  siteStats: SiteStats;
+}) {
   const stats = [
-    "14 let zkušeností",
-    "950+ dokončených projektů",
+    `${siteStats.stat_years} let zkušeností`,
+    `${siteStats.stat_projects} dokončených projektů`,
     "100% bezplatná konzultace"
   ];
 
