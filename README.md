@@ -106,6 +106,16 @@ Při nasazení do produkce je potřeba provést tyto kroky v **Supabase Dashboar
 
 ---
 
+### E-mailové notifikace o nových poptávkách
+
+Edge funkce `notify-inquiry` pošle e-mail při každé nové poptávce (přes Resend).
+
+1. V `admin-panel/` nasaďte funkci: `supabase functions deploy notify-inquiry --project-ref mgmtkdwvhgrzefmyucvr`
+2. Nastavte tajemství: `supabase secrets set RESEND_API_KEY=… WEBHOOK_SECRET=<náhodný řetězec> NOTIFICATION_EMAIL=info@nanofusion.cz RESEND_FROM="NANOfusion <noreply@nanofusion.cz>" --project-ref mgmtkdwvhgrzefmyucvr` (doména odesílatele musí být ověřená v Resend).
+3. V Supabase → Database → Webhooks vytvořte webhook: tabulka `inquiries`, událost `INSERT`, typ „Supabase Edge Functions“ → `notify-inquiry`, HTTP hlavička `x-webhook-secret` = stejná hodnota jako `WEBHOOK_SECRET`.
+
+---
+
 ## ☁️ Nasazení (Vercel)
 
 Repozitář nasazují dva samostatné Vercel projekty, každý ze své složky:

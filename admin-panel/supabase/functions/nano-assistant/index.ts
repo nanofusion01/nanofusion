@@ -32,7 +32,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json()
-    const rawMessages = Array.isArray(body?.messages) ? body.messages : []
+    const rawMessages: unknown[] = Array.isArray(body?.messages) ? body.messages : []
 
     if (rawMessages.length === 0) {
       return new Response(JSON.stringify({ error: 'Nebyly poskytnuty žádné zprávy' }), {
@@ -193,8 +193,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    console.error('Function Error:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('Function Error:', message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

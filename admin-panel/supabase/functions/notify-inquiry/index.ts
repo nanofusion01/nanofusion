@@ -1,84 +1,96 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { errorMessage } from '@/lib/utils'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+/**
+ * E-mailová notifikace o nové poptávce.
+ *
+ * Volá ji Supabase Database Webhook při INSERT do tabulky inquiries
+ * (payload { type, table, record }). Webhook musí posílat hlavičku
+ * `x-webhook-secret` se stejnou hodnotou jako tajemství WEBHOOK_SECRET -
+ * jinak by funkci mohl zavolat kdokoli a posílat e-maily na firemní adresu.
+ *
+ * Tajemství funkce (supabase secrets set ...):
+ *   RESEND_API_KEY      - klíč k Resend
+ *   WEBHOOK_SECRET      - sdílené tajemství s databázovým webhookem
+ *   NOTIFICATION_EMAIL  - kam notifikace chodí (výchozí info@nanofusion.cz)
+ *   RESEND_FROM         - odesílatel, doména musí být ověřená v Resend
+ *   ADMIN_URL           - adresa administrace pro odkaz v e-mailu
+ */
+
+const escapeHtml = (value: unknown): string =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
+
+  const secret = Deno.env.get('WEBHOOK_SECRET')
+  if (!secret || req.headers.get('x-webhook-secret') !== secret) {
+    return json({ error: 'Unauthorized' }, 401)
   }
 
   try {
     const payload = await req.json()
-    // Supabase Database Webhook posílá: { type, table, record, old_record }
-    const record = payload.record ?? payload
-
-    const name = record.name || 'Neznámý'
-    const email = record.email || '—'
-    const phone = record.phone || '—'
-    const service = record.service || '—'
-    const message = record.message || '—'
-    const source = record.source || 'Web'
-    const createdAt = record.created_at
-      ? new Date(record.created_at).toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })
-      : new Date().toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })
+    if (payload?.table && payload.table !== 'inquiries') return json({ ok: true, skipped: 'other table' })
+    if (payload?.type && payload.type !== 'INSERT') return json({ ok: true, skipped: payload.type })
+    const record = payload?.record ?? {}
 
     const resendKey = Deno.env.get('RESEND_API_KEY')
-    const notifyEmail = Deno.env.get('NOTIFICATION_EMAIL') ?? 'info@nano-fusion.cz'
-
     if (!resendKey) {
-      console.warn('RESEND_API_KEY není nastaven — email přeskočen')
-      return new Response(JSON.stringify({ ok: false, reason: 'no key' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      console.warn('RESEND_API_KEY není nastaven - e-mail přeskočen')
+      return json({ ok: false, reason: 'no key' })
     }
+    const notifyEmail = Deno.env.get('NOTIFICATION_EMAIL') ?? 'info@nanofusion.cz'
+    const from = Deno.env.get('RESEND_FROM') ?? 'NANOfusion Notifikace <noreply@nanofusion.cz>'
+    const adminUrl = (Deno.env.get('ADMIN_URL') ?? 'https://nanofusion-j3bs.vercel.app').replace(/\/$/, '')
 
-    const html = `
-<!DOCTYPE html>
+    const name = String(record.name || 'Neznámý').slice(0, 200)
+    const email = String(record.email || '').slice(0, 200)
+    const phone = String(record.phone || '').slice(0, 50)
+    const service = String(record.service || '').slice(0, 200)
+    const message = String(record.message || '').slice(0, 5000)
+    const source = String(record.source || 'Web').slice(0, 100)
+    const createdAt = new Date(record.created_at ?? Date.now())
+      .toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })
+
+    const row = (label: string, value: string) => `
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 12px 0; color: #94a3b8; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; width: 120px; vertical-align: top;">${label}</td>
+          <td style="padding: 12px 0; color: #1e293b; font-weight: 600;">${value}</td>
+        </tr>`
+
+    const html = `<!DOCTYPE html>
 <html lang="cs">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="font-family: system-ui, sans-serif; background: #f8fafc; padding: 0; margin: 0;">
   <div style="max-width: 560px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
     <div style="background: linear-gradient(135deg, #F59E0B, #D97706); padding: 32px; text-align: center;">
-      <h1 style="color: white; margin: 0; font-size: 1.5rem; font-weight: 800;">🔔 Nová poptávka</h1>
-      <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 0.9rem;">${createdAt} · ${source}</p>
+      <h1 style="color: white; margin: 0; font-size: 1.5rem; font-weight: 800;">Nová poptávka</h1>
+      <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 0.9rem;">${escapeHtml(createdAt)} · ${escapeHtml(source)}</p>
     </div>
     <div style="padding: 32px;">
       <table style="width: 100%; border-collapse: collapse;">
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 12px 0; color: #94a3b8; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; width: 120px;">Jméno</td>
-          <td style="padding: 12px 0; color: #1e293b; font-weight: 700; font-size: 1rem;">${name}</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 12px 0; color: #94a3b8; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Email</td>
-          <td style="padding: 12px 0;"><a href="mailto:${email}" style="color: #F59E0B; font-weight: 700;">${email}</a></td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 12px 0; color: #94a3b8; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Telefon</td>
-          <td style="padding: 12px 0;"><a href="tel:${phone}" style="color: #F59E0B; font-weight: 700;">${phone}</a></td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 12px 0; color: #94a3b8; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Služba</td>
-          <td style="padding: 12px 0; color: #1e293b; font-weight: 600;">${service}</td>
-        </tr>
-        ${message && message !== '—' ? `
-        <tr>
-          <td style="padding: 12px 0; color: #94a3b8; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; vertical-align: top;">Zpráva</td>
-          <td style="padding: 12px 0; color: #475569; line-height: 1.6;">${message}</td>
-        </tr>` : ''}
+        ${row('Jméno', escapeHtml(name))}
+        ${email ? row('E-mail', `<a href="mailto:${escapeHtml(email)}" style="color: #D97706;">${escapeHtml(email)}</a>`) : ''}
+        ${phone ? row('Telefon', `<a href="tel:${escapeHtml(phone.replace(/\s/g, ''))}" style="color: #D97706;">${escapeHtml(phone)}</a>`) : ''}
+        ${service ? row('Služba', escapeHtml(service)) : ''}
+        ${message ? row('Zpráva', escapeHtml(message).replace(/\n/g, '<br>')) : ''}
       </table>
       <div style="margin-top: 28px; text-align: center;">
-        <a href="https://nanofusion-admin.vercel.app/admin/inquiries"
+        <a href="${escapeHtml(adminUrl)}/admin/inquiries"
            style="display: inline-block; background: #F59E0B; color: white; padding: 14px 32px; border-radius: 12px; font-weight: 800; text-decoration: none; font-size: 0.9rem;">
-          Otevřít v admin panelu →
+          Otevřít v administraci →
         </a>
       </div>
     </div>
     <div style="background: #f8fafc; padding: 16px 32px; text-align: center;">
-      <p style="margin: 0; color: #94a3b8; font-size: 0.75rem;">NANOfusion s.r.o. · Automatická notifikace · Neodpovídejte na tento email</p>
+      <p style="margin: 0; color: #94a3b8; font-size: 0.75rem;">NANOfusion s.r.o. · Automatická notifikace · Neodpovídejte na tento e-mail</p>
     </div>
   </div>
 </body>
@@ -86,14 +98,12 @@ serve(async (req) => {
 
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendKey}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'NANOfusion Notifikace <noreply@nano-fusion.cz>',
+        from,
         to: [notifyEmail],
-        subject: `🔔 Nová poptávka: ${name} — ${service !== '—' ? service : source}`,
+        reply_to: email || undefined,
+        subject: `Nová poptávka: ${name} — ${service || source}`,
         html,
       }),
     })
@@ -101,22 +111,12 @@ serve(async (req) => {
     if (!emailRes.ok) {
       const errText = await emailRes.text()
       console.error('Resend error:', errText)
-      return new Response(JSON.stringify({ ok: false, error: errText }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      return json({ ok: false, error: 'Resend error' }, 502)
     }
-
-    console.log(`✅ Email odeslán: Poptávka od ${name} (${email})`)
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
-
+    return json({ ok: true })
   } catch (error) {
-    console.error('notify-inquiry error:', errorMessage(error))
-    return new Response(JSON.stringify({ error: errorMessage(error) }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('notify-inquiry error:', message)
+    return json({ error: message }, 500)
   }
 })
