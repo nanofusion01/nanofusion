@@ -73,6 +73,7 @@ Vzorové konfigurace naleznete v:
 * **GDPR a ochrana fotografií:** Snímky nemovitostí z poptávek se ukládají do privátního bucketu `inquiries` (max 10 MB, pouze obrázky). Zákaznická data jsou chráněna před veřejným internetem a v administraci se generují časově omezené podepsané odkazy (`createSignedUrls`).
 * **XSS Ochrana:** Veškerý dynamický HTML obsah vkládaný přes `dangerouslySetInnerHTML` je důsledně sanitizován pomocí knihovny `isomorphic-dompurify`.
 * **Antispam a validace:** Poptávky ze všech formulářů i z chatu se ukládají přes API routu `/api/inquiry` (new-frontend): serverová Zod validace, honeypot, limity délky polí a rate limit 5 poptávek / 10 min na IP adresu. Fotka se nahrává do privátního bucketu a URL si server sestaví sám z ověřeného názvu souboru.
+* **Přepisy chatu:** Konverzace s Nanobotem se ukládají přes `/api/chat-session` (validace, rate limit, service role) – web proto potřebuje `SUPABASE_SERVICE_ROLE_KEY`.
 * **Rate limit AI chatbota:** Edge funkce `nano-assistant` povolí max. 30 zpráv za hodinu z jedné IP adresy (`CHAT_LIMIT_PER_HOUR`), aby nešlo navyšovat účet za OpenAI.
 * **Chybové hlášky v administraci:** Serverové akce vrací chyby jako hodnotu (`safeAction` / `unwrapActions` v `lib/action-result.ts`), takže administrátor i v produkci vidí skutečný důvod chyby.
 * **Nové účty:** Dočasné heslo se generuje kryptograficky bezpečně a uživatel si ho musí po prvním přihlášení změnit (`app_metadata.force_password_change`, vynucuje `proxy.ts`).
@@ -101,7 +102,7 @@ Při nasazení do produkce je potřeba provést tyto kroky v **Supabase Dashboar
 
 4. **Uzamčení přímého zápisu poptávek (volitelné, doporučené):**
    * Na Vercelu u projektu `nanofusion` nastavte `SUPABASE_SERVICE_ROLE_KEY` a nasaďte web.
-   * Až potom spusťte `admin-panel/supabase/scripts/lock_inquiries_insert.sql`. Poptávky pak nejde uložit jinak než přes `/api/inquiry`.
+   * Až potom spusťte `admin-panel/supabase/scripts/lock_public_writes.sql`. Poptávky a přepisy chatu pak nejde uložit jinak než přes serverové API webu.
 
 ---
 
@@ -159,7 +160,7 @@ npm run test:e2e
 
 Databázová schémata a migrace v `admin-panel/supabase/`:
 * **`migrations/`**: Sekvenčně číslované migrace `001_` až `015_` pro deterministickou reprodukci schématu od prázdné databáze až po produkční stav včetně RLS politik.
-* **`scripts/`**: Pomocné jednorázové skripty (`clean_bot_data.sql`, `fix_photos_rls.sql`, `repair_database.sql`, `lock_inquiries_insert.sql`), oddělené od migrací.
+* **`scripts/`**: Pomocné jednorázové skripty (`clean_bot_data.sql`, `fix_photos_rls.sql`, `repair_database.sql`, `lock_public_writes.sql`), oddělené od migrací.
 
 TypeScript typy databáze (`database.types.ts` v obou aplikacích) se generují z živého schématu příkazem `npm run gen:types` (z kořene repozitáře, čte `admin-panel/.env.local`). Po každé migraci je obnovte.
 

@@ -15,7 +15,7 @@ const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
  *
  * Se SUPABASE_SERVICE_ROLE_KEY zapisuje přes service role a hlídá rate limit
  * (funkce check_rate_limit, migrace 015). Pak lze anonymům úplně odebrat
- * přímý INSERT do tabulky inquiries (supabase/scripts/lock_inquiries_insert.sql)
+ * přímý INSERT do tabulky inquiries (supabase/scripts/lock_public_writes.sql)
  * a formuláře nepůjde obejít voláním Supabase API.
  * Bez klíče funguje jako dřív přes anon klíč (bez rate limitu).
  */

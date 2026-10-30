@@ -10,7 +10,11 @@ type Message = {
   type: "bot" | "user";
   text: string;
   quickReplies?: string[];
+  /** čas napsání zprávy (HH:MM:SS) pro přepis v administraci */
+  time?: string;
 };
+
+const nowTime = () => new Date().toLocaleTimeString("cs-CZ");
 
 type ChatState = "INIT" | "ASK_SERVICE" | "ASK_ADDRESS" | "ASK_AREA" | "ASK_CONTACT" | "FINISHED";
 
@@ -66,7 +70,7 @@ export function ChatWidget() {
 
       if (configData && configData.value === "true") {
         setIsBotEnabled(true);
-        setSessionId("chat_" + Math.random().toString(36).substring(2, 11));
+        setSessionId(`chat_${crypto.randomUUID()}`);
 
         // chat se po načtení stránky sám otevře (setIsOpen(true) je idempotentní)
         setTimeout(() => setIsOpen(true), 1200);
@@ -117,29 +121,24 @@ export function ChatWidget() {
     initBot();
   }, []);
 
-  // Sync to supabase when messages change
+  // Přepis konverzace se ukládá přes serverové API (zobrazí se v administraci → Chaty)
   useEffect(() => {
     if (!sessionId || messages.length === 0) return;
 
-    const chatHistoryToSave = messages.map((m) => ({
-      type: m.type === "bot" ? "Asistent" : "Zákazník",
-      text: m.text,
-      time: new Date().toLocaleTimeString("cs-CZ"),
-      role: m.type === "bot" ? "assistant" : "user",
-    }));
-
-    supabase.from("chat_sessions").upsert(
-      {
-        session_token: sessionId,
-        user_identifier: userData.contact || userData.location || "Návštěvník",
-        messages: chatHistoryToSave,
-        status: "open",
-        last_activity: new Date().toISOString(),
-      },
-      { onConflict: "session_token" }
-    ).then(({ error }) => {
-      if (error) console.error("Chat sync error:", error);
-    });
+    fetch("/api/chat-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionToken: sessionId,
+        userIdentifier: userData.contact || userData.location || "Návštěvník",
+        messages: messages.map((m) => ({
+          type: m.type === "bot" ? "Asistent" : "Zákazník",
+          role: m.type === "bot" ? "assistant" : "user",
+          text: m.text.slice(0, 4000),
+          time: m.time ?? nowTime(),
+        })),
+      }),
+    }).catch((err) => console.error("Chat sync error:", err));
   }, [messages, sessionId, userData.contact, userData.location]);
 
   // Initial greeting
@@ -151,6 +150,7 @@ export function ChatWidget() {
           {
             type: "bot",
             text: getGreeting(),
+            time: nowTime(),
             quickReplies: greetingButtons.length > 0 ? greetingButtons : [
               "Čištění střechy/fasády",
               "Solární panely",
@@ -249,7 +249,7 @@ export function ChatWidget() {
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      setMessages((prev) => [...prev, { type: "bot", text, quickReplies }]);
+      setMessages((prev) => [...prev, { type: "bot", text, quickReplies, time: nowTime() }]);
     }, delay);
   };
 
@@ -342,7 +342,7 @@ export function ChatWidget() {
 
   const handleSend = (text: string) => {
     if (!text.trim()) return;
-    setMessages((prev) => [...prev, { type: "user", text }]);
+    setMessages((prev) => [...prev, { type: "user", text, time: nowTime() }]);
     setInputValue("");
     processInput(text);
   };
