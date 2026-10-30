@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
@@ -17,6 +17,12 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
+
+  // návrat z neplatného nebo prošlého odkazu v e-mailu (viz auth/callback)
+  const linkError = searchParams.get('chyba') === 'odkaz'
+  useEffect(() => {
+    if (linkError) toast.error('Odkaz z e-mailu je neplatný nebo vypršel. Požádejte o nový.')
+  }, [linkError])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
