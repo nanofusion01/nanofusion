@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { submitInquiry } from "@/lib/inquiry";
 import { FormError } from "@/components/ui/form-error";
 import { Button } from "@/components/ui/button";
@@ -35,17 +35,20 @@ interface ContactInputProps extends Omit<React.InputHTMLAttributes<FieldElement>
 }
 
 const ContactInput = ({ label, as = 'input', className = '', children, ...props }: ContactInputProps) => {
+  const id = useId();
   const baseClasses = "w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 font-medium placeholder:text-slate-400 outline-none focus:border-amber-500 transition-colors";
   return (
     <div className={className}>
-      <label className="block text-sm font-bold text-slate-900 mb-2">{label}</label>
+      <label htmlFor={id} className="block text-sm font-bold text-slate-900 mb-2">{label}</label>
       {as === 'textarea' ? (
         <textarea
+          id={id}
           className={`${baseClasses} resize-y`}
           {...props}
         />
       ) : as === 'select' ? (
         <select
+          id={id}
           className={`${baseClasses} text-slate-600 appearance-none`}
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2rem' }}
           {...props}
@@ -53,7 +56,7 @@ const ContactInput = ({ label, as = 'input', className = '', children, ...props 
           {children}
         </select>
       ) : (
-        <input className={baseClasses} {...props} />
+        <input id={id} className={baseClasses} {...props} />
       )}
     </div>
   );

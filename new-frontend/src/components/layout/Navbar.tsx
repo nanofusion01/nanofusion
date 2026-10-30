@@ -80,6 +80,8 @@ export function Navbar() {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="lg:hidden p-2 text-gray-600 hover:text-amber-500 transition-colors"
+            aria-label={isOpen ? "Zavřít menu" : "Otevřít menu"}
+            aria-expanded={isOpen}
           >
             {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>

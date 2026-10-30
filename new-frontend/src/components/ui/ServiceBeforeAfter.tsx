@@ -169,16 +169,21 @@ export function ServiceBeforeAfter({ pairs, rotateIntervalMs = 6000 }: ServiceBe
 
         {/* Tečky ukazující, kolikátá dvojice ze všech se právě zobrazuje */}
         {pairs.length > 1 && (
-          <div className="flex justify-center gap-2 mt-5">
+          <div className="flex justify-center mt-3">
             {pairs.map((_, i) => (
+              // tlačítko má klikací plochu 24 px, viditelná je jen tečka uvnitř
               <button
                 key={i}
                 onClick={() => { setActiveIndex(i); setHasInteracted(false); setSliderPosition(50); }}
                 aria-label={`Zobrazit dvojici ${i + 1}`}
-                className={`h-2 rounded-full transition-all ${
-                  i === activeIndex ? "w-6 bg-amber-500" : "w-2 bg-slate-300 hover:bg-slate-400"
-                }`}
-              />
+                className="group h-6 min-w-6 px-1 flex items-center justify-center"
+              >
+                <span
+                  className={`block h-2 rounded-full transition-all ${
+                    i === activeIndex ? "w-6 bg-amber-500" : "w-2 bg-slate-300 group-hover:bg-slate-400"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         )}

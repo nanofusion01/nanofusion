@@ -17,7 +17,7 @@ export function ServiceBenefits({ processDescription, benefits }: { processDescr
 
           {benefits.length > 0 && (
             <>
-              <h3 className="text-xl font-bold text-slate-900 mb-6">Co nabízíme:</h3>
+              <h2 className="text-xl font-bold text-slate-900 mb-6">Co nabízíme:</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
                 {benefits.map((benefit, idx) => (
                   <div key={idx} className="flex items-start gap-4">

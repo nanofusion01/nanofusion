@@ -118,11 +118,12 @@ export default function KalkulacePage() {
               </div>
 
               <div className="mb-6">
-                <label className="block font-bold text-xs uppercase text-slate-500 mb-2">
+                <label htmlFor="kalk-area" className="block font-bold text-xs uppercase text-slate-500 mb-2">
                   Plocha v m²
                 </label>
                 <div className="relative">
                   <input
+                  id="kalk-area"
                     type="number"
                     value={area}
                     onChange={(e) => setArea(Number(e.target.value))}
@@ -138,10 +139,11 @@ export default function KalkulacePage() {
               </div>
 
               <div className="mb-6">
-                <label className="block font-bold text-xs uppercase text-slate-500 mb-2">
+                <label htmlFor="kalk-name" className="block font-bold text-xs uppercase text-slate-500 mb-2">
                   Vaše jméno <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="kalk-name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -152,10 +154,11 @@ export default function KalkulacePage() {
               </div>
 
               <div className="mb-6">
-                <label className="block font-bold text-xs uppercase text-slate-500 mb-2">
+                <label htmlFor="kalk-location" className="block font-bold text-xs uppercase text-slate-500 mb-2">
                   Město / Lokace
                 </label>
                 <input
+                  id="kalk-location"
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
@@ -165,10 +168,11 @@ export default function KalkulacePage() {
               </div>
 
               <div className="mb-6">
-                <label className="block font-bold text-xs uppercase text-slate-500 mb-2">
+                <label htmlFor="kalk-phone" className="block font-bold text-xs uppercase text-slate-500 mb-2">
                   Telefonní číslo <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="kalk-phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -179,10 +183,11 @@ export default function KalkulacePage() {
               </div>
 
               <div className="mb-8">
-                <label className="block font-bold text-xs uppercase text-slate-500 mb-2">
+                <label htmlFor="kalk-photo" className="block font-bold text-xs uppercase text-slate-500 mb-2">
                   Fotografie objektu (nepovinné)
                 </label>
                 <input
+                  id="kalk-photo"
                   type="file"
                   accept="image/*"
                   onChange={(e) => setPhoto(e.target.files?.[0] || null)}

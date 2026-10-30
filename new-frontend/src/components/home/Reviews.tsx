@@ -20,7 +20,7 @@ function ReviewCard({ review }: { review: Review }) {
         „{review.text}“
       </p>
       <div>
-        <h4 className="text-white font-bold">{review.name}</h4>
+        <p className="text-white font-bold">{review.name}</p>
         <p className="text-slate-400 text-sm">{review.source}</p>
       </div>
     </div>
